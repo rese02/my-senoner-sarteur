@@ -17,8 +17,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['PT Sans', 'sans-serif'],
-        headline: ['Playfair Display', 'serif'],
+        body: ['Lato', 'sans-serif'],
+        headline: ['Merriweather', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
