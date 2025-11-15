@@ -1,3 +1,46 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "logo",
+      "description": "Senoner Sarteur Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1571845398021-becaddc6265e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxsb2dvJTIwbW91bnRhaW58ZW58MHx8fHwxNzYzMTM1MjAxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "logo mountain"
+    },
+    {
+      "id": "sushi-box-sm",
+      "description": "Small Sushi Box",
+      "imageUrl": "https://images.unsplash.com/photo-1719464458230-4fbb4dd29051?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxzdXNoaSUyMGJveHxlbnwwfHx8fDE3NjMyMjU3OTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sushi box"
+    },
+    {
+      "id": "sushi-box-lg",
+      "description": "Large Sushi Box",
+      "imageUrl": "https://images.unsplash.com/photo-1727233429532-8612ce0fc1ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzdXNoaSUyMGFzc29ydG1lbnR8ZW58MHx8fHwxNzYzMjI1Nzk2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sushi assortment"
+    },
+    {
+      "id": "fresh-fish",
+      "description": "Fresh Fish of the day",
+      "imageUrl": "https://images.unsplash.com/photo-1535424921017-85119f91e5a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxmcmVzaCUyMGZpc2h8ZW58MHx8fHwxNzYzMjI1Nzk2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fresh fish"
+    },
+    {
+      "id": "regional-cheese",
+      "description": "Regional Cheese platter",
+      "imageUrl": "https://images.unsplash.com/photo-1707037491035-f340d3c6efab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjaGVlc2UlMjBwbGF0dGVyfGVufDB8fHx8MTc2MzE2MjQ5N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cheese platter"
+    },
+    {
+      "id": "speck",
+      "description": "South Tyrolean Speck",
+      "imageUrl": "https://images.unsplash.com/photo-1529241160658-a8a2a0d86620?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjdXJlZCUyMG1lYXR8ZW58MHx8fHwxNzYzMjI1Nzk2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cured meat"
+    },
+    {
+      "id": "recipe-of-the-week",
+      "description": "Inspiring recipe of the week",
+      "imageUrl": "https://images.unsplash.com/photo-1731570226263-9ada7cf7928f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjb29raW5nJTIwZGlzaHxlbnwwfHx8fDE3NjMyMjU3OTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cooking dish"
+    }
+  ]
 }

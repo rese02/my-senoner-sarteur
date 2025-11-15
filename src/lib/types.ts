@@ -1,0 +1,78 @@
+export type UserRole = 'customer' | 'employee' | 'admin';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  password?: string; // Only for mock data, not in real DB
+}
+
+export interface LoyaltyData {
+  userId: string;
+  stamps: number;
+  availableCoupons: {
+    id: string;
+    type: string;
+    value: number;
+    description: string;
+  }[];
+  scanHistory: {
+    date: string;
+    addedStamps: number;
+  }[];
+}
+
+export interface Category {
+  id: string;
+  name: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  unit: string;
+  imageUrl: string;
+  imageHint: string;
+  categoryId: string;
+  availabilityDay?: 'Thursday' | 'Friday';
+}
+
+export type OrderStatus = 'new' | 'ready' | 'collected' | 'cancelled';
+
+export interface OrderItem {
+  productId: string;
+  productName: string;
+  quantity: number;
+  price: number;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  customerName: string;
+  items: OrderItem[];
+  total: number;
+  pickupDate: string;
+  status: OrderStatus;
+  createdAt: string;
+}
+
+export interface SessionPayload {
+  userId: string;
+  role: UserRole;
+  expiresAt: Date;
+}
+
+export interface AppConfig {
+  seasonalHighlightText: string;
+  isWheelOfFortuneActive: boolean;
+}
+
+export type CartItem = {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+};
