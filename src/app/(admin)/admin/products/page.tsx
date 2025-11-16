@@ -36,7 +36,7 @@ export default function AdminProductsPage() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{category.name}</CardTitle>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm"><PlusCircle className="w-4 h-4 mr-2" />Produkt hinzufügen</Button>
+                    <Button variant="outline" size="sm"><PlusCircle className="mr-2" />Produkt hinzufügen</Button>
                     <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
                 </div>
               </CardHeader>
@@ -70,10 +70,15 @@ export default function AdminProductsPage() {
                                         {product.isAvailable ? "Verfügbar" : "Inaktiv"}
                                     </Label>
                                 </div>
-                                <Button variant="ghost" size="sm">
-                                    <Edit className="w-4 h-4 mr-2"/>
-                                    Bearbeiten
-                                </Button>
+                                <div className="flex items-center">
+                                    <Button variant="ghost" size="sm">
+                                        <Edit className="mr-2"/>
+                                        Bearbeiten
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="text-destructive">
+                                        <Trash2 className="w-4 h-4"/>
+                                    </Button>
+                                </div>
                             </div>
                         </CardContent>
                        </Card>
