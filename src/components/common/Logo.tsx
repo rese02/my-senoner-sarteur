@@ -12,7 +12,8 @@ export function Logo() {
         alt="Senoner Sarteur Logo" 
         width={144} 
         height={32} 
-        className="object-contain"
+        className="object-contain h-8 w-auto"
+        priority
       />
     </Link>
   );

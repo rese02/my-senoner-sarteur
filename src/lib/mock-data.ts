@@ -1,4 +1,21 @@
 import type { User, Category, Product, Order, LoyaltyData, AppConfig } from '@/lib/types';
+import { PlaceHolderImages } from './placeholder-images';
+
+const getImage = (id: string) => {
+    const image = PlaceHolderImages.find(p => p.id === id);
+    if (!image) {
+        console.warn(`Placeholder image with id "${id}" not found.`);
+        // Fallback to a generic picsum photo to avoid crashes
+        return { 
+            imageUrl: `https://picsum.photos/seed/${id}/400/300`, 
+            imageHint: 'placeholder' 
+        };
+    }
+    return {
+        imageUrl: image.imageUrl,
+        imageHint: image.imageHint,
+    };
+};
 
 export const mockUsers: User[] = [
   { id: 'user-1-customer', name: 'Maria Muster', email: 'customer@example.com', role: 'customer', password: 'password123', customerSince: new Date('2023-01-15').toISOString() },
@@ -13,11 +30,11 @@ export const mockCategories: Category[] = [
 ];
 
 export const mockProducts: Product[] = [
-  { id: 'prod-1', name: 'Kleine Sushi-Box', price: 15, unit: 'box', categoryId: 'cat-1', imageUrl: 'https://picsum.photos/seed/sushism/400/300', imageHint: 'sushi box', availabilityDay: 'Donnerstag', isAvailable: true, timesOrderedLast30Days: 25 },
-  { id: 'prod-2', name: 'Große Sushi-Box', price: 25, unit: 'box', categoryId: 'cat-1', imageUrl: 'https://picsum.photos/seed/sushilg/400/300', imageHint: 'sushi assortment', availabilityDay: 'Donnerstag', isAvailable: true, timesOrderedLast30Days: 18 },
-  { id: 'prod-3', name: 'Frischer Fisch des Tages', price: 18, unit: 'kg', categoryId: 'cat-1', imageUrl: 'https://picsum.photos/seed/freshfish/400/300', imageHint: 'fresh fish', availabilityDay: 'Freitag', isAvailable: false, timesOrderedLast30Days: 12 },
-  { id: 'prod-4', name: 'Regionale Käseplatte', price: 12.5, unit: 'platte', categoryId: 'cat-2', imageUrl: 'https://picsum.photos/seed/cheese/400/300', imageHint: 'cheese platter', isAvailable: true, timesOrderedLast30Days: 35 },
-  { id: 'prod-5', name: 'Südtiroler Speck', price: 22, unit: 'kg', categoryId: 'cat-2', imageUrl: 'https://picsum.photos/seed/speck/400/300', imageHint: 'cured meat', isAvailable: true, timesOrderedLast30Days: 42 },
+  { id: 'prod-1', name: 'Kleine Sushi-Box', price: 15, unit: 'box', categoryId: 'cat-1', ...getImage('sushi-box-sm'), availabilityDay: 'Donnerstag', isAvailable: true, timesOrderedLast30Days: 25 },
+  { id: 'prod-2', name: 'Große Sushi-Box', price: 25, unit: 'box', categoryId: 'cat-1', ...getImage('sushi-box-lg'), availabilityDay: 'Donnerstag', isAvailable: true, timesOrderedLast30Days: 18 },
+  { id: 'prod-3', name: 'Frischer Fisch des Tages', price: 18, unit: 'kg', categoryId: 'cat-1', ...getImage('fresh-fish'), availabilityDay: 'Freitag', isAvailable: false, timesOrderedLast30Days: 12 },
+  { id: 'prod-4', name: 'Regionale Käseplatte', price: 12.5, unit: 'platte', categoryId: 'cat-2', ...getImage('regional-cheese'), isAvailable: true, timesOrderedLast30Days: 35 },
+  { id: 'prod-5', name: 'Südtiroler Speck', price: 22, unit: 'kg', categoryId: 'cat-2', ...getImage('speck'), isAvailable: true, timesOrderedLast30Days: 42 },
 ];
 
 export const mockLoyaltyData: LoyaltyData[] = [
