@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -21,7 +22,7 @@ const navItems = [
   { href: '/dashboard/profile', icon: User, label: 'My Profile' },
 ];
 
-export function CustomerSidebar({ user, isMobile = false }: { user?: UserType, isMobile?: boolean }) {
+export function CustomerSidebar({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
 
   const sidebarContent = (
@@ -30,7 +31,7 @@ export function CustomerSidebar({ user, isMobile = false }: { user?: UserType, i
         {navItems.map((item) => (
           <Button
             key={item.label}
-            variant={pathname === item.href ? 'secondary' : 'ghost'}
+            variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
             className="w-full justify-start"
             asChild
           >

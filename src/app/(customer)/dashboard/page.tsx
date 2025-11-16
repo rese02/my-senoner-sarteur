@@ -1,9 +1,13 @@
+
 import { PageHeader } from "@/components/common/PageHeader";
 import { mockCategories, mockProducts, mockAppConfig } from "@/lib/mock-data";
 import { ProductCard } from "./_components/ProductCard";
 import { Cart } from "./_components/Cart";
 import { RecipeCard } from "./_components/RecipeCard";
 import type { Recipe } from "@/lib/types";
+import { ShoppingCart } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 // This would typically be a server-side fetch from a database.
 async function getRecipeData(): Promise<Recipe> {
@@ -15,7 +19,7 @@ export default async function CustomerDashboardPage() {
     const recipe = await getRecipeData();
 
     return (
-        <div className="container mx-auto p-0 md:p-4">
+        <div className="container mx-auto p-0">
             <div className="hidden md:block">
                 <PageHeader title="Pre-Order Specials" description="Order your favorite items in advance." />
             </div>
@@ -30,7 +34,7 @@ export default async function CustomerDashboardPage() {
                              <section key={category.id}>
                                 <h2 className="text-2xl font-bold mb-4 px-4 md:px-0">{category.name}</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 md:px-0">
-                                    {mockProducts.filter(p => p.categoryId === category.id).map(product => (
+                                    {mockProducts.filter(p => p.categoryId === category.id && p.isAvailable).map(product => (
                                         <ProductCard key={product.id} product={product} />
                                     ))}
                                 </div>
@@ -40,10 +44,24 @@ export default async function CustomerDashboardPage() {
                 </div>
                 
                 <div className="hidden lg:block">
-                     <div className="sticky top-8">
+                     <div className="sticky top-24">
                         <Cart />
                      </div>
                 </div>
+            </div>
+            
+            {/* Mobile Cart Button */}
+            <div className="lg:hidden fixed bottom-16 right-4 z-20">
+                 <Sheet>
+                    <SheetTrigger asChild>
+                        <Button size="lg" className="rounded-full h-16 w-16 shadow-lg">
+                            <ShoppingCart className="h-6 w-6" />
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="bottom" className="h-[80%] rounded-t-lg">
+                       <Cart />
+                    </SheetContent>
+                </Sheet>
             </div>
         </div>
     );
