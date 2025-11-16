@@ -3,7 +3,7 @@
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { mockUsers, mockLoyaltyData } from "@/lib/mock-data";
+import { mockUsers, mockLoyaltyData, mockOrders } from "@/lib/mock-data";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,8 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { improveTextWithAI } from "@/ai/flows/improve-newsletter-text";
 import { generateSeasonalPromotions } from "@/ai/flows/generate-seasonal-promotions";
-
+import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 export default function AdminCustomersPage() {
     const customers = mockUsers.filter(u => u.role === 'customer');
@@ -62,12 +63,12 @@ export default function AdminCustomersPage() {
         setIsGenerating(true);
         try {
             const { promotionIdeas } = await generateSeasonalPromotions({
-                season: 'Autumn',
-                availableProducts: ['Sushi', 'Fresh Fish', 'Regional Cheese', 'Speck'],
-                marketTrends: 'Focus on local and organic products, cozy comfort food.'
+                season: 'Herbst',
+                availableProducts: ['Sushi', 'Frischer Fisch', 'Regionaler Käse', 'Speck'],
+                marketTrends: 'Fokus auf lokale und Bio-Produkte, gemütliches Comfort-Food.'
             });
             setPromotions(promotionIdeas);
-            toast({ title: 'New promotion ideas generated!' });
+            toast({ title: 'Neue Promotion-Ideen generiert!' });
         } catch(error) {
              toast({ variant: 'destructive', title: 'AI Generation Failed', description: 'Could not generate promotions.' });
         } finally {
@@ -77,13 +78,13 @@ export default function AdminCustomersPage() {
 
   return (
     <>
-      <PageHeader title="Customers & Marketing" description="Engage with your customers and run marketing campaigns." />
+      <PageHeader title="Kunden & Marketing" description="Engagieren Sie sich mit Ihren Kunden und führen Sie Marketingkampagnen durch." />
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
             <Card>
                 <CardHeader>
-                    <CardTitle>Customer List</CardTitle>
-                    <CardDescription>Select customers to include in your newsletter.</CardDescription>
+                    <CardTitle>Kundenliste</CardTitle>
+                    <CardDescription>Wählen Sie Kunden für Ihren Newsletter aus.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Table>
@@ -97,12 +98,16 @@ export default function AdminCustomersPage() {
                             </TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Email</TableHead>
-                            <TableHead>Stamps</TableHead>
+                            <TableHead>Kunde seit</TableHead>
+                            <TableHead className="text-center">Bestellungen</TableHead>
+                            <TableHead className="text-right">Gesamtausgaben</TableHead>
                         </TableRow>
                         </TableHeader>
                         <TableBody>
                         {customers.map((customer) => {
-                            const loyalty = mockLoyaltyData.find(l => l.userId === customer.id);
+                            const customerOrders = mockOrders.filter(o => o.userId === customer.id);
+                            const totalSpent = customerOrders.reduce((sum, o) => sum + o.total, 0);
+
                             return (
                                 <TableRow key={customer.id} data-state={selectedCustomers.includes(customer.id) && "selected"}>
                                     <TableCell>
@@ -110,7 +115,9 @@ export default function AdminCustomersPage() {
                                     </TableCell>
                                     <TableCell className="font-medium">{customer.name}</TableCell>
                                     <TableCell>{customer.email}</TableCell>
-                                    <TableCell>{loyalty?.stamps ?? 0}</TableCell>
+                                    <TableCell>{customer.customerSince ? format(new Date(customer.customerSince), "dd.MM.yyyy") : 'N/A'}</TableCell>
+                                    <TableCell className="text-center">{customerOrders.length}</TableCell>
+                                    <TableCell className="text-right">€{totalSpent.toFixed(2)}</TableCell>
                                 </TableRow>
                             )
                         })}
@@ -121,19 +128,19 @@ export default function AdminCustomersPage() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Newsletter Editor</CardTitle>
+                    <CardTitle>Newsletter-Editor</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <Input placeholder="Newsletter Subject" value={subject} onChange={e => setSubject(e.target.value)} />
-                    <Textarea placeholder="Write your newsletter message here..." className="min-h-[200px]" value={message} onChange={e => setMessage(e.target.value)} />
+                    <Input placeholder="Betreff des Newsletters" value={subject} onChange={e => setSubject(e.target.value)} />
+                    <Textarea placeholder="Schreiben Sie hier Ihre Newsletter-Nachricht..." className="min-h-[200px]" value={message} onChange={e => setMessage(e.target.value)} />
                     <div className="flex justify-between items-center">
                         <Button variant="outline" onClick={handleImproveText} disabled={isImproving}>
                             {isImproving ? <RotateCw className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                            Improve with AI
+                            Mit KI verbessern
                         </Button>
                         <Button disabled={selectedCustomers.length === 0}>
                             <Send className="mr-2 h-4 w-4" />
-                            Send to {selectedCustomers.length} customer(s)
+                            Senden an {selectedCustomers.length} Kunde(n)
                         </Button>
                     </div>
                 </CardContent>
@@ -143,17 +150,17 @@ export default function AdminCustomersPage() {
         <div className="lg:col-span-1">
             <Card>
                 <CardHeader>
-                    <CardTitle>AI Promotion Ideas</CardTitle>
-                    <CardDescription>Get seasonal marketing ideas from AI.</CardDescription>
+                    <CardTitle>KI Promotion-Ideen</CardTitle>
+                    <CardDescription>Erhalten Sie saisonale Marketingideen von der KI.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Button className="w-full" onClick={handleGeneratePromotions} disabled={isGenerating}>
                         {isGenerating ? <RotateCw className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                        Generate Ideas
+                        Ideen generieren
                     </Button>
                     {promotions.length > 0 && (
                         <div className="mt-4 space-y-3 text-sm">
-                            <h4 className="font-semibold">Generated Ideas:</h4>
+                            <h4 className="font-semibold">Generierte Ideen:</h4>
                             <ul className="list-disc list-inside bg-secondary/50 p-4 rounded-md space-y-2">
                                 {promotions.map((promo, i) => <li key={i}>{promo}</li>)}
                             </ul>

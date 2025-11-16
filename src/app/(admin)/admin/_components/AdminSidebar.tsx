@@ -18,9 +18,9 @@ import { Separator } from '@/components/ui/separator';
 
 const navItems = [
   { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
-  { href: '/admin/products', icon: Package, label: 'Products' },
-  { href: '/admin/customers', icon: Users, label: 'Customers' },
+  { href: '/admin/orders', icon: ShoppingCart, label: 'Bestellungen' },
+  { href: '/admin/products', icon: Package, label: 'Produkte' },
+  { href: '/admin/customers', icon: Users, label: 'Kunden' },
 ];
 
 export function AdminSidebar() {

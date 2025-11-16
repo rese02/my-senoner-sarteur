@@ -6,6 +6,7 @@ export interface User {
   email: string;
   role: UserRole;
   password?: string; // Only for mock data, not in real DB
+  customerSince?: string;
 }
 
 export interface LoyaltyData {
@@ -36,7 +37,9 @@ export interface Product {
   imageUrl: string;
   imageHint: string;
   categoryId: string;
-  availabilityDay?: 'Thursday' | 'Friday';
+  availabilityDay?: 'Donnerstag' | 'Freitag';
+  isAvailable: boolean;
+  timesOrderedLast30Days?: number;
 }
 
 export type OrderStatus = 'new' | 'ready' | 'collected' | 'cancelled';
