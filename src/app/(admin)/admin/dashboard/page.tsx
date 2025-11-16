@@ -5,11 +5,22 @@ import { Users, ShoppingCart, Truck, AlertCircle } from "lucide-react";
 import { mockOrders } from "@/lib/mock-data";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { format, isToday, isFuture } from "date-fns";
+import { format, isToday, isFuture, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
+
+const FormattedDate = ({ date, formatString, locale }: { date: Date, formatString: string, locale?: Locale }) => {
+    const [isClient, setIsClient] = useState(false);
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    if (!isClient) return null;
+
+    return <>{format(date, formatString, { locale })}</>;
+};
 
 export default function AdminDashboardPage() {
     const today = new Date();
@@ -103,7 +114,7 @@ export default function AdminDashboardPage() {
                             </TableCell>
                             <TableCell>
                                 <div className={isPickupToday ? "font-bold text-primary" : ""}>
-                                    {isPickupToday ? "Heute" : format(pickupDate, "EEE, dd.MM.", { locale: de })}
+                                    {isPickupToday ? "Heute" : <FormattedDate date={pickupDate} formatString="EEE, dd.MM." locale={de} />}
                                 </div>
                             </TableCell>
                             <TableCell>

@@ -9,7 +9,7 @@ import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState, useMemo, useTransition } from "react";
+import { useState, useMemo, useTransition, useEffect } from "react";
 import type { Order, OrderStatus, User } from "@/lib/types";
 import { 
   Select, 
@@ -26,6 +26,14 @@ const statusMap: Record<OrderStatus, string> = {
   ready: 'Abholbereit',
   collected: 'Abgeholt',
   cancelled: 'Storniert'
+};
+
+const FormattedDate = ({ dateString, formatString }: { dateString: string; formatString: string }) => {
+  const [formattedDate, setFormattedDate] = useState('');
+  useEffect(() => {
+    setFormattedDate(format(parseISO(dateString), formatString));
+  }, [dateString, formatString]);
+  return <>{formattedDate}</>;
 };
 
 export default function AdminOrdersPage() {
@@ -149,7 +157,9 @@ export default function AdminOrdersPage() {
               {filteredOrders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
-                  <TableCell>{format(parseISO(order.createdAt), "dd.MM.yy, HH:mm")}</TableCell>
+                  <TableCell>
+                    <FormattedDate dateString={order.createdAt} formatString="dd.MM.yy, HH:mm" />
+                  </TableCell>
                   <TableCell className="font-medium">{order.customerName}</TableCell>
                   <TableCell className="text-muted-foreground text-xs">{order.items.map(i => `${i.quantity}x ${i.productName}`).join(', ')}</TableCell>
                   <TableCell className="text-right">€{order.total.toFixed(2)}</TableCell>
@@ -185,7 +195,8 @@ export default function AdminOrdersPage() {
           <DialogHeader>
             <DialogTitle>Bestelldetails</DialogTitle>
             <DialogDescription>
-              Bestellung #{selectedOrder?.id.slice(-6)} vom {selectedOrder && format(parseISO(selectedOrder.createdAt), "dd.MM.yyyy, HH:mm")}
+              Bestellung #{selectedOrder?.id.slice(-6)} vom{' '}
+              {selectedOrder && <FormattedDate dateString={selectedOrder.createdAt} formatString="dd.MM.yyyy, HH:mm" />}
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
