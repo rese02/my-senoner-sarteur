@@ -21,6 +21,7 @@ const navItems = [
   { href: '/admin/orders', icon: ShoppingCart, label: 'Bestellungen' },
   { href: '/admin/products', icon: Package, label: 'Produkte' },
   { href: '/admin/customers', icon: Users, label: 'Kunden' },
+  { href: '/admin/marketing', icon: Megaphone, label: 'Marketing' },
 ];
 
 export function AdminSidebar() {

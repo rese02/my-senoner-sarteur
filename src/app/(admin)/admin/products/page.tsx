@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Trash2, Edit, Loader2 } from "lucide-react";
+import { PlusCircle, Trash2, Edit, Loader2, XCircle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState, useTransition } from "react";
@@ -40,12 +40,17 @@ export default function AdminProductsPage() {
             )
         );
         // Mock server action
-        setTimeout(() => {
-            if (Math.random() < 0.1) { // 10% failure chance
+        new Promise<boolean>((resolve) => {
+            setTimeout(() => {
+                const success = Math.random() > 0.1; // 90% success rate
+                resolve(success);
+            }, 300);
+        }).then(success => {
+            if (!success) {
                 setProducts(originalProducts);
                 toast({ variant: 'destructive', title: 'Update failed' });
             }
-        }, 500);
+        });
     });
   };
 
@@ -158,7 +163,27 @@ export default function AdminProductsPage() {
                 {productsInCategory.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {productsInCategory.map(product => (
-                       <Card key={product.id} className="overflow-hidden flex flex-col">
+                       <Card key={product.id} className="overflow-hidden flex flex-col group relative">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="icon" className="absolute top-2 right-2 z-10 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <XCircle className="w-4 h-4"/>
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Möchten Sie das Produkt '{product.name}' wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>Löschen</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+
                         <div className="relative aspect-[4/3] bg-muted">
                            <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" data-ai-hint={product.imageHint} />
                         </div>
@@ -173,7 +198,7 @@ export default function AdminProductsPage() {
                                 <span>Bestellt (30T): </span>
                                 <span className="font-bold">{product.timesOrderedLast30Days ?? 0}</span>
                             </div>
-                             <div className="mt-auto pt-4 flex items-center justify-between">
+                             <div className="mt-auto pt-4 flex items-center justify-between gap-4">
                                 <div className="flex items-center space-x-2">
                                     <Switch 
                                         id={`availability-${product.id}`} 
@@ -185,29 +210,10 @@ export default function AdminProductsPage() {
                                         {product.isAvailable ? "Verfügbar" : "Inaktiv"}
                                     </Label>
                                 </div>
-                                <div className="flex items-center">
-                                    <Button variant="ghost" size="sm" onClick={() => handleOpenProductModal(product, category.id)}>
-                                        <Edit className="h-4 w-4 mr-1" />
-                                        Bearbeiten
-                                    </Button>
-                                    <AlertDialog>
-                                      <AlertDialogTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="w-4 h-4"/></Button>
-                                      </AlertDialogTrigger>
-                                      <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                          <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
-                                          <AlertDialogDescription>
-                                            Möchten Sie das Produkt '{product.name}' wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
-                                          </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                          <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                          <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>Löschen</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                      </AlertDialogContent>
-                                    </AlertDialog>
-                                </div>
+                                <Button variant="ghost" size="sm" onClick={() => handleOpenProductModal(product, category.id)}>
+                                    <Edit className="h-4 w-4 mr-1" />
+                                    Bearbeiten
+                                </Button>
                             </div>
                         </CardContent>
                        </Card>
