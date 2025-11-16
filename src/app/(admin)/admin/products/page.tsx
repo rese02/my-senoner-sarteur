@@ -187,7 +187,7 @@ export default function AdminProductsPage() {
                                 </div>
                                 <div className="flex items-center">
                                     <Button variant="ghost" size="sm" onClick={() => handleOpenProductModal(product, category.id)}>
-                                        <Edit className="mr-2"/>
+                                        <Edit className="h-4 w-4 mr-1" />
                                         Bearbeiten
                                     </Button>
                                     <AlertDialog>
