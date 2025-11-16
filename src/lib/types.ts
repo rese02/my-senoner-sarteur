@@ -68,8 +68,17 @@ export interface SessionPayload {
   expiresAt: Date;
 }
 
+export interface Recipe {
+  title: string;
+  subtitle: string;
+  image: string;
+  imageHint: string;
+  ingredients: string[];
+  instructions: string;
+  description: string;
+}
 export interface AppConfig {
-  seasonalHighlightText: string;
+  recipeOfTheWeek: Recipe;
   isWheelOfFortuneActive: boolean;
 }
 

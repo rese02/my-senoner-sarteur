@@ -113,6 +113,25 @@ export const mockOrders: Order[] = [
 
 
 export let mockAppConfig: AppConfig = {
-    seasonalHighlightText: 'Diese Woche neu: Frische Pfifferlinge aus der Region!',
+    recipeOfTheWeek: {
+        title: 'Frische Pfifferlinge mit Rahmsauce',
+        subtitle: 'Ein herbstlicher Genuss in 20 Minuten',
+        ...getImage('recipe-of-the-week'),
+        description: 'Entdecken Sie eine neue köstliche Mahlzeitidee mit unseren besten saisonalen Produkten. Perfekt für einen gemütlichen Herbstabend.',
+        ingredients: [
+            '500g frische Pfifferlinge',
+            '1 Zwiebel, fein gehackt',
+            '2 EL Butter',
+            '200ml Sahne',
+            'Salz & Pfeffer',
+            'Frische Petersilie, gehackt'
+        ],
+        instructions: `1. Pfifferlinge sorgfältig putzen (nicht waschen!).
+2. Zwiebel in einer Pfanne mit Butter glasig dünsten.
+3. Pfifferlinge hinzufügen und bei starker Hitze für 5-7 Minuten anbraten, bis sie goldbraun sind.
+4. Mit Sahne ablöschen und die Hitze reduzieren. Einige Minuten köcheln lassen, bis die Sauce eindickt.
+5. Mit Salz und Pfeffer abschmecken und die frische Petersilie unterrühren.
+6. Passt hervorragend zu Semmelknödeln oder frischer Pasta.`
+    },
     isWheelOfFortuneActive: true,
 };
