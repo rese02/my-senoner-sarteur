@@ -12,8 +12,9 @@ const getImage = (id: string) => {
     // Final check in case the general placeholder is also missing
     if (!image) {
         // This is a critical fallback that should ideally never be hit.
+        // It provides a failsafe URL to prevent the app from crashing due to an empty src.
         return { 
-            imageUrl: `https://picsum.photos/seed/critical-fallback/400/300`, 
+            imageUrl: `https://picsum.photos/seed/critical-fallback/600/400`, 
             imageHint: 'placeholder' 
         };
     }
@@ -123,7 +124,8 @@ export let mockAppConfig: AppConfig = {
     recipeOfTheWeek: {
         title: 'Frische Pfifferlinge mit Rahmsauce',
         subtitle: 'Ein herbstlicher Genuss in 20 Minuten',
-        ...getImage('recipe-of-the-week'),
+        image: getImage('recipe-of-the-week').imageUrl,
+        imageHint: getImage('recipe-of-the-week').imageHint,
         description: 'Entdecken Sie eine neue köstliche Mahlzeitidee mit unseren besten saisonalen Produkten. Perfekt für einen gemütlichen Herbstabend.',
         ingredients: [
             '500g frische Pfifferlinge',
