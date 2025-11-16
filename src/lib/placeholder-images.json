@@ -41,6 +41,12 @@
       "description": "Inspiring recipe of the week",
       "imageUrl": "https://images.unsplash.com/photo-1731570226263-9ada7cf7928f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjb29raW5nJTIwZGlzaHxlbnwwfHx8fDE3NjMyMjU3OTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "cooking dish"
+    },
+    {
+      "id": "placeholder-general",
+      "description": "Generic placeholder image",
+      "imageUrl": "https://images.unsplash.com/photo-1714578187218-d1828f5ebd6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwbGFjZWhvbGRlciUyMGltYWdlfGVufDB8fHx8MTc2MzMwMjE5M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "placeholder image"
     }
   ]
 }

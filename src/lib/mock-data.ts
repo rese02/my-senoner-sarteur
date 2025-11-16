@@ -2,15 +2,21 @@ import type { User, Category, Product, Order, LoyaltyData, AppConfig } from '@/l
 import { PlaceHolderImages } from './placeholder-images';
 
 const getImage = (id: string) => {
-    const image = PlaceHolderImages.find(p => p.id === id);
+    let image = PlaceHolderImages.find(p => p.id === id);
     if (!image) {
-        console.warn(`Placeholder image with id "${id}" not found.`);
-        // Fallback to a generic picsum photo to avoid crashes
+        console.warn(`Placeholder image with id "${id}" not found. Using generic fallback.`);
+        // Fallback to a generic placeholder to avoid crashes
+        image = PlaceHolderImages.find(p => p.id === 'placeholder-general');
+    }
+    
+    // Final check in case the general placeholder is missing
+    if (!image) {
         return { 
-            imageUrl: `https://picsum.photos/seed/${id}/400/300`, 
+            imageUrl: `https://picsum.photos/seed/critical-fallback/400/300`, 
             imageHint: 'placeholder' 
         };
     }
+
     return {
         imageUrl: image.imageUrl,
         imageHint: image.imageHint,
