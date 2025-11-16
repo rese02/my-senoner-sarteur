@@ -9,8 +9,9 @@ const getImage = (id: string) => {
         image = PlaceHolderImages.find(p => p.id === 'placeholder-general');
     }
     
-    // Final check in case the general placeholder is missing
+    // Final check in case the general placeholder is also missing
     if (!image) {
+        // This is a critical fallback that should ideally never be hit.
         return { 
             imageUrl: `https://picsum.photos/seed/critical-fallback/400/300`, 
             imageHint: 'placeholder' 
