@@ -28,12 +28,15 @@ const statusMap: Record<OrderStatus, string> = {
   cancelled: 'Storniert'
 };
 
-const FormattedDate = ({ dateString, formatString }: { dateString: string; formatString: string }) => {
-  const [formattedDate, setFormattedDate] = useState('');
-  useEffect(() => {
-    setFormattedDate(format(parseISO(dateString), formatString));
-  }, [dateString, formatString]);
-  return <>{formattedDate}</>;
+const FormattedDate = ({ date, formatString, locale }: { date: Date, formatString: string, locale?: Locale }) => {
+    const [isClient, setIsClient] = useState(false);
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    if (!isClient) return null;
+
+    return <>{format(date, formatString, { locale })}</>;
 };
 
 export default function AdminOrdersPage() {
@@ -99,7 +102,7 @@ export default function AdminOrdersPage() {
 
         return matchesSearch && matchesStatus;
       })
-      .sort((a, b) => parseISO(b.createdAt).getTime() - parseISO(a.createdAt).getTime());
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [orders, searchTerm, statusFilter]);
 
   return (
@@ -158,7 +161,7 @@ export default function AdminOrdersPage() {
                 <TableRow key={order.id}>
                   <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
                   <TableCell>
-                    <FormattedDate dateString={order.createdAt} formatString="dd.MM.yy, HH:mm" />
+                    <FormattedDate date={new Date(order.createdAt)} formatString="dd.MM.yy, HH:mm" />
                   </TableCell>
                   <TableCell className="font-medium">{order.customerName}</TableCell>
                   <TableCell className="text-muted-foreground text-xs">{order.items.map(i => `${i.quantity}x ${i.productName}`).join(', ')}</TableCell>
@@ -196,7 +199,7 @@ export default function AdminOrdersPage() {
             <DialogTitle>Bestelldetails</DialogTitle>
             <DialogDescription>
               Bestellung #{selectedOrder?.id.slice(-6)} vom{' '}
-              {selectedOrder && <FormattedDate dateString={selectedOrder.createdAt} formatString="dd.MM.yyyy, HH:mm" />}
+              {selectedOrder && <FormattedDate date={new Date(selectedOrder.createdAt)} formatString="dd.MM.yyyy, HH:mm" />}
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
@@ -208,7 +211,7 @@ export default function AdminOrdersPage() {
                         <p className="text-muted-foreground">Abholung:</p>
                         <p className="font-medium">{format(new Date(selectedOrder.pickupDate), "EEEE, dd.MM.yyyy", { locale: de })}</p>
                         <p className="text-muted-foreground">Status:</p>
-                        <p><Badge>{statusMap[selectedOrder.status]}</Badge></p>
+                        <div><Badge>{statusMap[selectedOrder.status]}</Badge></div>
                    </div>
                   <Table>
                     <TableHeader>
@@ -243,7 +246,7 @@ export default function AdminOrdersPage() {
                           <p className="text-muted-foreground">Email:</p>
                           <p className="font-medium">{customerDetails.email}</p>
                           <p className="text-muted-foreground">Kunde seit:</p>
-                          <p className="font-medium">{customerDetails.customerSince ? format(parseISO(customerDetails.customerSince), 'dd.MM.yyyy') : 'N/A'}</p>
+                          <p className="font-medium">{customerDetails.customerSince ? format(new Date(customerDetails.customerSince), 'dd.MM.yyyy') : 'N/A'}</p>
                       </div>
                   </div>
               )}
