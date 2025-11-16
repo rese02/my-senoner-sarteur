@@ -57,7 +57,7 @@ export function UserProfileDropdown({ user }: { user: User }) {
         <DropdownMenuSeparator />
         <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive" asChild>
             <form action={logout} className="w-full">
-                 <button type="submit" className="w-full text-left flex items-center">
+                 <button type="submit" className="w-full text-left flex items-center cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                 </button>

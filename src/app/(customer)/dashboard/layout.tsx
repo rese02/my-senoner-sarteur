@@ -17,9 +17,9 @@ export default async function CustomerLayout({
     
   return (
     <div className="flex min-h-screen bg-secondary/50">
-      <CustomerSidebar />
+      <CustomerSidebar user={user} />
       <div className="flex-1 flex flex-col">
-        <header className="flex h-16 items-center justify-between border-b bg-card px-4 md:px-6 sticky top-0 z-10">
+        <header className="flex h-16 items-center justify-between md:justify-end border-b bg-card px-4 md:px-6 sticky top-0 z-10">
             <div className="md:hidden">
               <Sheet>
                 <SheetTrigger asChild>
@@ -32,13 +32,9 @@ export default async function CustomerLayout({
                   <div className="p-4 border-b">
                     <Logo />
                   </div>
-                  {/* We can pass the user to a mobile-specific sidebar if needed */}
                   <CustomerSidebar isMobile={true} user={user}/>
                 </SheetContent>
               </Sheet>
-            </div>
-             <div className="hidden md:block">
-                {/* Placeholder for potential header content on desktop */}
             </div>
             {user && <UserProfileDropdown user={user} />}
         </header>
