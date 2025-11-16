@@ -17,8 +17,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['Lato', 'sans-serif'],
-        headline: ['Merriweather', 'serif'],
+        body: ['var(--font-lato)', 'sans-serif'],
+        headline: ['var(--font-merriweather)', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
