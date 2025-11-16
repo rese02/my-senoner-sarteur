@@ -1,16 +1,16 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
-import { mockOrders } from "@/lib/mock-data";
+import { mockOrders, mockUsers } from "@/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Search, Calendar as CalendarIcon } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState, useMemo } from "react";
-import type { Order, OrderStatus } from "@/lib/types";
+import { useState, useMemo, useTransition } from "react";
+import type { Order, OrderStatus, User } from "@/lib/types";
 import { 
   Select, 
   SelectContent, 
@@ -19,6 +19,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const statusMap: Record<OrderStatus, string> = {
   new: 'Neu',
@@ -27,27 +28,55 @@ const statusMap: Record<OrderStatus, string> = {
   cancelled: 'Storniert'
 };
 
-const statusColors: Record<OrderStatus, 'default' | 'outline' | 'secondary' | 'destructive'> = {
-  new: 'default',
-  ready: 'outline',
-  collected: 'secondary',
-  cancelled: 'destructive'
-};
-
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>(mockOrders);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
+
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [customerDetails, setCustomerDetails] = useState<User | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
-    setOrders(prevOrders => prevOrders.map(order => 
-      order.id === orderId ? { ...order, status: newStatus } : order
-    ));
-    toast({
-        title: "Status aktualisiert",
-        description: `Bestellung #${orderId.slice(-6)} ist jetzt "${statusMap[newStatus]}".`
-    })
+    startTransition(() => {
+        // Optimistic UI update
+        const originalOrders = [...orders];
+        setOrders(prevOrders => prevOrders.map(order => 
+            order.id === orderId ? { ...order, status: newStatus } : order
+        ));
+
+        // Mock server action
+        new Promise<boolean>((resolve) => {
+            setTimeout(() => {
+                const success = Math.random() > 0.1; // 90% success rate
+                resolve(success);
+            }, 500);
+        }).then(success => {
+            if (success) {
+                toast({
+                    title: "Status aktualisiert",
+                    description: `Bestellung #${orderId.slice(-6)} ist jetzt "${statusMap[newStatus]}".`
+                });
+            } else {
+                toast({
+                    variant: 'destructive',
+                    title: "Fehler",
+                    description: "Status konnte nicht aktualisiert werden."
+                });
+                setOrders(originalOrders); // Rollback on failure
+            }
+        });
+    });
+  };
+
+  const handleShowDetails = (order: Order) => {
+    setSelectedOrder(order);
+    // Mock fetching customer details
+    const customer = mockUsers.find(u => u.id === order.userId) || null;
+    setCustomerDetails(customer);
+    setIsModalOpen(true);
   };
 
   const filteredOrders = useMemo(() => {
@@ -126,7 +155,11 @@ export default function AdminOrdersPage() {
                   <TableCell className="text-right">€{order.total.toFixed(2)}</TableCell>
                   <TableCell>{format(new Date(order.pickupDate), "EEE, dd.MM.", { locale: de })}</TableCell>
                   <TableCell>
-                    <Select value={order.status} onValueChange={(value: OrderStatus) => handleStatusChange(order.id, value)}>
+                    <Select 
+                      value={order.status} 
+                      onValueChange={(value: OrderStatus) => handleStatusChange(order.id, value)}
+                      disabled={isPending}
+                    >
                       <SelectTrigger className="h-8 w-[120px] capitalize text-xs">
                          <SelectValue />
                       </SelectTrigger>
@@ -138,7 +171,7 @@ export default function AdminOrdersPage() {
                     </Select>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm">Details</Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleShowDetails(order)}>Details</Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -146,6 +179,67 @@ export default function AdminOrdersPage() {
           </Table>
         </CardContent>
       </Card>
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Bestelldetails</DialogTitle>
+            <DialogDescription>
+              Bestellung #{selectedOrder?.id.slice(-6)} vom {selectedOrder && format(parseISO(selectedOrder.createdAt), "dd.MM.yyyy, HH:mm")}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedOrder && (
+            <div className="grid gap-6 py-4">
+              {/* Section 1: Order Details */}
+              <div className="space-y-4">
+                  <h3 className="font-semibold text-lg">Bestellübersicht</h3>
+                   <div className="grid grid-cols-2 gap-2 text-sm">
+                        <p className="text-muted-foreground">Abholung:</p>
+                        <p className="font-medium">{format(new Date(selectedOrder.pickupDate), "EEEE, dd.MM.yyyy", { locale: de })}</p>
+                        <p className="text-muted-foreground">Status:</p>
+                        <p><Badge>{statusMap[selectedOrder.status]}</Badge></p>
+                   </div>
+                  <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Produkt</TableHead>
+                            <TableHead>Menge</TableHead>
+                            <TableHead className="text-right">Preis</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {selectedOrder.items.map(item => (
+                            <TableRow key={item.productId}>
+                                <TableCell>{item.productName}</TableCell>
+                                <TableCell>{item.quantity}</TableCell>
+                                <TableCell className="text-right">€{(item.price * item.quantity).toFixed(2)}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                  <div className="flex justify-end font-bold text-lg">
+                      Gesamt: €{selectedOrder.total.toFixed(2)}
+                  </div>
+              </div>
+              
+              {/* Section 2: Customer Details */}
+              {customerDetails && (
+                  <div className="space-y-4 pt-4 border-t">
+                      <h3 className="font-semibold text-lg">Kundendetails</h3>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                          <p className="text-muted-foreground">Name:</p>
+                          <p className="font-medium">{customerDetails.name}</p>
+                          <p className="text-muted-foreground">Email:</p>
+                          <p className="font-medium">{customerDetails.email}</p>
+                          <p className="text-muted-foreground">Kunde seit:</p>
+                          <p className="font-medium">{customerDetails.customerSince ? format(parseISO(customerDetails.customerSince), 'dd.MM.yyyy') : 'N/A'}</p>
+                      </div>
+                  </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
