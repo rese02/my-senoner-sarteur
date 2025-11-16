@@ -44,5 +44,34 @@ next-env.d.ts
 firebase-debug.log
 firestore-debug.log
 
+# Abhängigkeiten und Pakete
+/node_modules
+/bower_components
+
+# Build-Dateien und Produktions-Ordner
+/build
+/dist
+/.public
+
+# Log-Dateien
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Umgebungs-spezifische Dateien (SEHR WICHTIG)
 .env
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Firebase-spezifische Cache- und Konfigurationsdateien
+# Das .firebase Verzeichnis enthält Cache-Informationen, die nicht versioniert werden sollten.[[1](https://www.google.com/url?sa=E&q=https%3A%2F%2Fvertexaisearch.cloud.google.com%2Fgrounding-api-redirect%2FAUZIYQHXzyh8g0V6OWDHZzTpxlUq5rb0qmYO6LP0mpdjHJ8tV7g1UG_gN2zMJ5k9KMBvnoZ7NFDBYELm7i91t7M6lGLx3FbU8xodcqjdbmbzFazUXFozaaZUvs1XJFn4Pugh7PCWH40-5sZE62S2RQ1li9k4_WPZ6WfwJmti8lVuL-v_uG-Az3I1WNM%3D)][[2](https://www.google.com/url?sa=E&q=https%3A%2F%2Fvertexaisearch.cloud.google.com%2Fgrounding-api-redirect%2FAUZIYQE0B6nHA3luuht4BP7fmIgT66PCRyE0qlc36Y9qkHJ3pTWFnSMzHvtKa5MINzn6-mFemqCniw12HyOk_jvR-qmSILHb1zm4M12MZAjco24TbPUUZkxUpkG7MrMD8pTDNhRiSlSNTkvaCuKYmHZ7MzpiGtxPNkEYoyfn__VjwvoHPXqMZcA51zsA6WPuUwYNZzMof0ktLxM67L_MjRLlnkB5wuhTXNT-fwiVkPog-f7yQQ%3D%3D)]
+.firebase/
+# Wenn Ihre Firebase-Initialisierungsdatei sensible Schlüssel enthält, fügen Sie sie ebenfalls hinzu.[[3](https://www.google.com/url?sa=E&q=https%3A%2F%2Fvertexaisearch.cloud.google.com%2Fgrounding-api-redirect%2FAUZIYQE19vDBUM5Euf37yiFIMtkNSkbfFPlZBk5_fFXm3skzl8PP-_wL_TOj0NQIYHK41mlFgXpQJ9MPnztkkjoqfsQ0v702YkfaH2xrzwK1vaDvB0Pzt52Gqo-j-jiZe4_ivpGdituJoT5CXm-N3SvSnyD42yqqr7R9Napcno7xXCw3LNg%3D)]
+# firebase-config.js 
+
+# System-Dateien
+.DS_Store
+Thumbs.db
