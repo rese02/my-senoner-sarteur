@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useTransition } from "react";
 import type { Recipe } from "@/lib/types";
 import { Loader2 } from "lucide-react";
+import { ImageUploader } from "@/components/custom/ImageUploader";
 
 export default function MarketingPage() {
     const [recipe, setRecipe] = useState<Recipe>(mockAppConfig.recipeOfTheWeek);
@@ -24,6 +25,10 @@ export default function MarketingPage() {
         } else {
             setRecipe(prev => ({ ...prev, [name]: value }));
         }
+    };
+    
+    const handleImageUpload = (url: string) => {
+        setRecipe(prev => ({ ...prev, image: url }));
     };
 
     const handlePublish = () => {
@@ -62,8 +67,12 @@ export default function MarketingPage() {
                         </div>
                     </div>
                      <div className="space-y-2">
-                        <Label htmlFor="image">Bild-URL</Label>
-                        <Input id="image" name="image" value={recipe.image} onChange={handleInputChange} placeholder="https://example.com/image.jpg" />
+                        <Label>Rezeptbild</Label>
+                        <ImageUploader 
+                            onUploadComplete={handleImageUpload}
+                            currentImageUrl={recipe.image}
+                            folder="recipes"
+                        />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="description">Kurzbeschreibung (auf der Hauptkarte)</Label>

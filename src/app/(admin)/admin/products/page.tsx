@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { ImageUploader } from "@/components/custom/ImageUploader";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>(mockProducts);
@@ -27,7 +28,7 @@ export default function AdminProductsPage() {
   const [newCategoryName, setNewCategoryName] = useState('');
 
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
   const [currentCategoryId, setCurrentCategoryId] = useState<string | null>(null);
 
 
@@ -80,35 +81,44 @@ export default function AdminProductsPage() {
   };
 
   const handleOpenProductModal = (product: Product | null, categoryId: string) => {
-      setEditingProduct(product);
+      setEditingProduct(product ? { ...product } : { name: '', price: 0, unit: '', imageUrl: '', imageHint: ''});
       setCurrentCategoryId(categoryId);
       setIsProductModalOpen(true);
+  };
+
+  const handleProductFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      if (!editingProduct) return;
+      const { name, value } = e.target;
+      setEditingProduct({ ...editingProduct, [name]: value });
+  };
+
+  const handleImageUpload = (url: string) => {
+      if (!editingProduct) return;
+      setEditingProduct({ ...editingProduct, imageUrl: url });
   };
   
   const handleSaveProduct = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      const productData = Object.fromEntries(formData.entries()) as {name: string, price: string, unit: string, imageUrl: string, imageHint: string};
       
-      if (!productData.name || !productData.price) {
+      if (!editingProduct || !editingProduct.name || !editingProduct.price) {
           toast({ variant: 'destructive', title: 'Name and Price are required' });
           return;
       }
 
       startTransition(() => {
-          if (editingProduct) {
+          if (editingProduct.id) {
               // Update existing product
-              setProducts(products.map(p => p.id === editingProduct.id ? { ...p, ...productData, price: parseFloat(productData.price) } : p));
+              setProducts(products.map(p => p.id === editingProduct.id ? { ...p, ...editingProduct } as Product : p));
               toast({ title: 'Product updated!' });
           } else {
               // Create new product
               const newProduct: Product = {
+                  ...editingProduct,
                   id: `prod-${Date.now()}`,
                   categoryId: currentCategoryId!,
                   isAvailable: true,
-                  ...productData,
-                  price: parseFloat(productData.price),
-              };
+                  price: Number(editingProduct.price)
+              } as Product;
               setProducts(prev => [...prev, newProduct]);
               toast({ title: 'Product created!' });
           }
@@ -164,26 +174,6 @@ export default function AdminProductsPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {productsInCategory.map(product => (
                        <Card key={product.id} className="overflow-hidden flex flex-col group relative">
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="icon" className="absolute top-2 right-2 z-10 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <XCircle className="w-4 h-4"/>
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Möchten Sie das Produkt '{product.name}' wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>Löschen</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-
                         <div className="relative aspect-[4/3] bg-muted">
                            <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" data-ai-hint={product.imageHint} />
                         </div>
@@ -210,10 +200,30 @@ export default function AdminProductsPage() {
                                         {product.isAvailable ? "Verfügbar" : "Inaktiv"}
                                     </Label>
                                 </div>
-                                <Button variant="ghost" size="sm" onClick={() => handleOpenProductModal(product, category.id)}>
-                                    <Edit className="h-4 w-4 mr-1" />
-                                    Bearbeiten
-                                </Button>
+                                <div className="flex items-center gap-1">
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenProductModal(product, category.id)}>
+                                      <Edit className="h-4 w-4" />
+                                  </Button>
+                                   <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                                        <Trash2 className="w-4 h-4"/>
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Möchten Sie das Produkt '{product.name}' wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>Löschen</AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
                             </div>
                         </CardContent>
                        </Card>
@@ -255,33 +265,39 @@ export default function AdminProductsPage() {
       
       {/* Create/Edit Product Modal */}
       <Dialog open={isProductModalOpen} onOpenChange={setIsProductModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-md">
             <DialogHeader>
-                <DialogTitle>{editingProduct ? 'Produkt bearbeiten' : 'Neues Produkt erstellen'}</DialogTitle>
+                <DialogTitle>{editingProduct?.id ? 'Produkt bearbeiten' : 'Neues Produkt erstellen'}</DialogTitle>
                 <DialogDescription>
-                    {editingProduct ? 'Aktualisieren Sie die Details dieses Produkts.' : 'Fügen Sie ein neues Produkt zu dieser Kategorie hinzu.'}
+                    {editingProduct?.id ? 'Aktualisieren Sie die Details dieses Produkts.' : 'Fügen Sie ein neues Produkt zu dieser Kategorie hinzu.'}
                 </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSaveProduct} className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">Name</Label>
-                    <Input id="name" name="name" defaultValue={editingProduct?.name || ''} className="col-span-3" required />
+                <div className="space-y-2">
+                    <Label htmlFor="name">Name</Label>
+                    <Input id="name" name="name" value={editingProduct?.name || ''} onChange={handleProductFormChange} required />
                 </div>
-                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="price" className="text-right">Preis (€)</Label>
-                    <Input id="price" name="price" type="number" step="0.01" defaultValue={editingProduct?.price || ''} className="col-span-3" required/>
+                 <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="price">Preis (€)</Label>
+                        <Input id="price" name="price" type="number" step="0.01" value={editingProduct?.price || ''} onChange={handleProductFormChange} required/>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="unit">Einheit</Label>
+                        <Input id="unit" name="unit" value={editingProduct?.unit || ''} onChange={handleProductFormChange} placeholder="z.B. kg, stück"/>
+                    </div>
                 </div>
-                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="unit" className="text-right">Einheit</Label>
-                    <Input id="unit" name="unit" defaultValue={editingProduct?.unit || ''} className="col-span-3" placeholder="z.B. kg, box, stück"/>
+                <div className="space-y-2">
+                    <Label>Produktbild</Label>
+                    <ImageUploader 
+                        onUploadComplete={handleImageUpload}
+                        currentImageUrl={editingProduct?.imageUrl}
+                        folder="products"
+                    />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="imageUrl" className="text-right">Bild-URL</Label>
-                    <Input id="imageUrl" name="imageUrl" defaultValue={editingProduct?.imageUrl || ''} className="col-span-3" />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="imageHint" className="text-right">Bild-Hinweis</Label>
-                    <Input id="imageHint" name="imageHint" defaultValue={editingProduct?.imageHint || ''} className="col-span-3" placeholder="z.B. sushi box" />
+                <div className="space-y-2">
+                    <Label htmlFor="imageHint">Bild-Hinweis für KI</Label>
+                    <Input id="imageHint" name="imageHint" value={editingProduct?.imageHint || ''} onChange={handleProductFormChange} placeholder="z.B. sushi box" />
                 </div>
                 <DialogFooter>
                     <DialogClose asChild><Button type="button" variant="outline">Abbrechen</Button></DialogClose>
