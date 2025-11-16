@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -8,34 +9,39 @@ import { Separator } from '@/components/ui/separator';
 import { ShoppingCart, Trash2 } from 'lucide-react';
 import { useCartStore } from '@/hooks/use-cart-store';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export function Cart() {
     const { items, removeFromCart, clearCart } = useCartStore();
     const [pickupDate, setPickupDate] = useState<string>(new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
-
+    const { toast } = useToast();
+    
     const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
     const handleOrder = () => {
         // Here we would call a server action `placeOrder`
         console.log("Placing order for:", { items, total, pickupDate });
+        toast({
+            title: 'Bestellung aufgegeben!',
+            description: 'Wir haben Ihre Vorbestellung erhalten. (Dies ist eine Simulation)',
+        })
         clearCart();
-        alert('Order placed successfully! (mock)');
     };
 
     return (
-        <Card className="shadow-lg">
-            <CardHeader>
+        <Card className="shadow-lg h-full flex flex-col">
+            <CardHeader className="flex-shrink-0">
                 <CardTitle className="flex items-center gap-2">
-                    <ShoppingCart /> Your Pre-Order
+                    <ShoppingCart /> Ihre Vorbestellung
                 </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-grow overflow-hidden flex flex-col">
                 {items.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-8">
-                        Your cart is empty.
+                    <div className="flex-grow flex items-center justify-center text-center text-muted-foreground py-8">
+                        Ihr Warenkorb ist leer.
                     </div>
                 ) : (
-                    <ScrollArea className="h-64 pr-4">
+                    <ScrollArea className="flex-grow pr-4 -mr-4">
                         <div className="space-y-4">
                             {items.map(item => (
                                 <div key={item.productId} className="flex justify-between items-center">
@@ -58,19 +64,19 @@ export function Cart() {
                 )}
             </CardContent>
             {items.length > 0 && (
-                <CardFooter className="flex flex-col items-stretch space-y-4">
+                <CardFooter className="flex-shrink-0 flex flex-col items-stretch space-y-4 pt-6">
                      <Separator />
                      <div className="space-y-2">
-                        <label htmlFor="pickup-date" className="text-sm font-medium">Pickup Date</label>
+                        <label htmlFor="pickup-date" className="text-sm font-medium">Abholdatum</label>
                         <Input id="pickup-date" type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)} min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]}/>
                      </div>
                      <Separator />
                     <div className="flex justify-between font-bold text-lg">
-                        <span>Total</span>
+                        <span>Gesamt</span>
                         <span>€{total.toFixed(2)}</span>
                     </div>
                     <Button size="lg" onClick={handleOrder}>
-                        Place Pre-Order Now
+                        Jetzt vorbestellen
                     </Button>
                 </CardFooter>
             )}

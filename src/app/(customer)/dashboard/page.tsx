@@ -1,4 +1,5 @@
 
+
 import { PageHeader } from "@/components/common/PageHeader";
 import { mockCategories, mockProducts, mockAppConfig } from "@/lib/mock-data";
 import { ProductCard } from "./_components/ProductCard";
@@ -24,7 +25,7 @@ export default async function CustomerDashboardPage() {
                 <PageHeader title="Pre-Order Specials" description="Order your favorite items in advance." />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2">
                     <div className="space-y-8">
                         <div className="px-4 md:px-0">
@@ -50,15 +51,15 @@ export default async function CustomerDashboardPage() {
                 </div>
             </div>
             
-            {/* Mobile Cart Button */}
-            <div className="lg:hidden fixed bottom-16 right-4 z-20">
+            {/* Mobile Cart Button & Sheet */}
+            <div className="lg:hidden fixed bottom-20 right-4 z-20">
                  <Sheet>
                     <SheetTrigger asChild>
                         <Button size="lg" className="rounded-full h-16 w-16 shadow-lg">
                             <ShoppingCart className="h-6 w-6" />
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="bottom" className="h-[80%] rounded-t-lg">
+                    <SheetContent side="bottom" className="h-[80vh] flex flex-col rounded-t-lg p-0">
                        <Cart />
                     </SheetContent>
                 </Sheet>
