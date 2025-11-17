@@ -7,7 +7,7 @@ import { Cart } from "./_components/Cart";
 import { RecipeCard } from "./_components/RecipeCard";
 import type { Recipe } from "@/lib/types";
 import { ShoppingCart } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
 // This would typically be a server-side fetch from a database.
@@ -60,7 +60,7 @@ export default async function CustomerDashboardPage() {
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="bottom" className="h-[80vh] flex flex-col rounded-t-lg p-0">
-                       <Cart />
+                        <Cart />
                     </SheetContent>
                 </Sheet>
             </div>

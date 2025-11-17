@@ -49,7 +49,7 @@ export function ProductCard({ product }: { product: Product }) {
                      <Button variant="outline" size="icon" onClick={() => setQuantity(q => q + 1)}>
                         <Plus className="h-4 w-4" />
                     </Button>
-                    <Button className="flex-1 ml-2 transition-transform active:scale-[0.98]">
+                    <Button className="flex-1 ml-2" onClick={handleAddToCart}>
                         <ShoppingCart className="mr-2 h-4 w-4" /> Add
                     </Button>
                 </div>
