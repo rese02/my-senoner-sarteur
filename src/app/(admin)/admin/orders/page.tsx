@@ -21,6 +21,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
   new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg border-transparent' },
@@ -44,6 +45,46 @@ const FormattedDate = ({ date, formatString, locale }: { date: Date, formatStrin
         return null;
     }
 };
+
+
+function OrderCard({ order, onStatusChange, onShowDetails }: { order: Order, onStatusChange: (id: string, status: OrderStatus) => void, onShowDetails: (order: Order) => void }) {
+  const statusInfo = statusMap[order.status];
+  return (
+    <Card className="mb-4 transition-all hover:shadow-md active:scale-[0.99]">
+        <CardContent className="p-4" onClick={() => onShowDetails(order)}>
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="font-bold text-lg">{order.customerName}</p>
+              <p className="text-sm text-muted-foreground">#{order.id.slice(-6)}</p>
+            </div>
+             <p className="text-sm font-medium">
+                {format(new Date(order.pickupDate), "EEE, dd.MM.", { locale: de })}
+            </p>
+          </div>
+          <div className="mt-4 text-sm space-y-2">
+            <p className="text-muted-foreground">{order.items.map(item => `${item.quantity}x ${item.productName}`).join(', ')}</p>
+             <p className="font-bold text-base">€{order.total.toFixed(2)}</p>
+          </div>
+        </CardContent>
+         <div className="px-4 pb-4">
+             <Select 
+                value={order.status} 
+                onValueChange={(value: OrderStatus) => onStatusChange(order.id, value)}
+              >
+                <SelectTrigger className="w-full capitalize text-sm bg-card focus:ring-primary/50">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                    {Object.keys(statusMap).map(s => (
+                      <SelectItem key={s} value={s} className="capitalize text-sm">{statusMap[s as OrderStatus].label}</SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+          </div>
+    </Card>
+  );
+}
+
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>(mockOrders);
@@ -144,7 +185,8 @@ export default function AdminOrdersPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
+          {/* Desktop Table */}
+          <Table className="hidden md:table">
             <TableHeader>
               <TableRow>
                 <TableHead>Bestell-ID</TableHead>
@@ -164,7 +206,7 @@ export default function AdminOrdersPage() {
                 </TableRow>
               )}
               {filteredOrders.map((order) => (
-                <TableRow key={order.id}>
+                <TableRow key={order.id} className="transition-all hover:shadow-md hover:-translate-y-px">
                   <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
                   <TableCell>
                     <FormattedDate date={new Date(order.createdAt)} formatString="dd.MM.yy, HH:mm" />
@@ -196,6 +238,21 @@ export default function AdminOrdersPage() {
               ))}
             </TableBody>
           </Table>
+
+          {/* Mobile Card List */}
+          <div className="md:hidden space-y-4">
+             {filteredOrders.length === 0 && (
+                <div className="text-center text-muted-foreground py-16">Keine Bestellungen gefunden.</div>
+             )}
+             {filteredOrders.map(order => (
+                <OrderCard 
+                    key={order.id} 
+                    order={order}
+                    onStatusChange={handleStatusChange}
+                    onShowDetails={handleShowDetails}
+                />
+             ))}
+          </div>
         </CardContent>
       </Card>
 

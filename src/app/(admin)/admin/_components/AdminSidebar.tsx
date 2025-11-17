@@ -16,11 +16,11 @@ import { logout } from '@/app/actions/auth.actions';
 import { Separator } from '@/components/ui/separator';
 
 const navItems = [
-  { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/admin/orders', icon: ShoppingCart, label: 'Bestellungen' },
-  { href: '/admin/products', icon: Package, label: 'Produkte' },
-  { href: '/admin/customers', icon: Users, label: 'Kunden' },
-  { href: '/admin/marketing', icon: Megaphone, label: 'Marketing' },
+  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/orders', label: 'Bestellungen', icon: ShoppingCart },
+  { href: '/admin/products', label: 'Produkte', icon: Package },
+  { href: '/admin/customers', label: 'Kunden', icon: Users },
+  { href: '/admin/marketing', label: 'Marketing', icon: Megaphone },
 ];
 
 export function AdminSidebar() {
@@ -36,7 +36,7 @@ export function AdminSidebar() {
           <Button
             key={item.label}
             variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
-            className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/10 hover:text-primary-foreground data-[variant=secondary]:text-primary"
+            className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/20 data-[variant=secondary]:text-primary"
             asChild
           >
             <Link href={item.href}>
@@ -49,7 +49,7 @@ export function AdminSidebar() {
       <Separator className="bg-primary-foreground/10" />
       <div className="p-4">
         <form action={logout}>
-          <Button variant="ghost" className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/10 hover:text-primary-foreground">
+          <Button variant="ghost" className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/20">
             <LogOut className="mr-3 h-5 w-5" strokeWidth={1.75}/>
             Sign Out
           </Button>

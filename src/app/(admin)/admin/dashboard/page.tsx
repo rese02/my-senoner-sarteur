@@ -36,6 +36,37 @@ const statusMap: Record<string, {label: string, className: string}> = {
   cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg border-transparent' }
 };
 
+function OrderCard({ order }: { order: (typeof mockOrders)[0] }) {
+  const pickupDate = new Date(order.pickupDate);
+  const isPickupToday = isToday(pickupDate);
+  const statusInfo = statusMap[order.status];
+
+  return (
+    <Card className="mb-4 transition-all hover:shadow-md active:scale-[0.99]">
+      <Link href={`/admin/orders`}>
+        <CardContent className="p-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="font-bold text-lg">{order.customerName}</p>
+              <p className="text-sm text-muted-foreground">#{order.id.slice(-6)}</p>
+            </div>
+            <Badge className={cn("capitalize font-semibold", statusInfo.className)}>
+              {statusInfo.label}
+            </Badge>
+          </div>
+          <div className="mt-4 text-sm space-y-1">
+            <p className="text-muted-foreground">{order.items.map(item => `${item.quantity}x ${item.productName}`).join(', ')}</p>
+            <p className={cn("font-medium", isPickupToday ? "text-primary" : "")}>
+              Abholung: {isPickupToday ? "Heute" : <FormattedDate date={pickupDate} formatString="EEE, dd.MM." locale={de} />}
+            </p>
+          </div>
+        </CardContent>
+      </Link>
+    </Card>
+  );
+}
+
+
 export default function AdminDashboardPage() {
     const today = new Date();
 
@@ -97,7 +128,8 @@ export default function AdminDashboardPage() {
             <CardTitle>Aktuelle &amp; anstehende Vorbestellungen</CardTitle>
           </CardHeader>
           <CardContent>
-             <Table>
+            {/* Desktop Table */}
+             <Table className="hidden md:table">
                 <TableHeader>
                     <TableRow>
                         <TableHead>Kunde</TableHead>
@@ -120,7 +152,7 @@ export default function AdminDashboardPage() {
                         const isPickupToday = isToday(pickupDate);
                         const statusInfo = statusMap[order.status];
                         return (
-                        <TableRow key={order.id} className="transition-colors">
+                        <TableRow key={order.id} className="transition-all hover:shadow-md hover:-translate-y-px">
                             <TableCell>
                                 <div className="font-medium">{order.customerName}</div>
                             </TableCell>
@@ -148,6 +180,17 @@ export default function AdminDashboardPage() {
                     )})}
                 </TableBody>
             </Table>
+            {/* Mobile Card List */}
+             <div className="md:hidden">
+                {recentAndUpcomingOrders.length === 0 && (
+                     <div className="text-center text-muted-foreground py-8">
+                        Keine aktiven Bestellungen.
+                    </div>
+                )}
+                {recentAndUpcomingOrders.map((order) => (
+                  <OrderCard key={order.id} order={order} />
+                ))}
+            </div>
           </CardContent>
         </Card>
       </div>
