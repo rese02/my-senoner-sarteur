@@ -11,7 +11,7 @@ export interface User {
 
 export interface LoyaltyData {
   userId: string;
-  stamps: number;
+  stamps: number; // This will now represent total points
   availableCoupons: {
     id: string;
     type: string;

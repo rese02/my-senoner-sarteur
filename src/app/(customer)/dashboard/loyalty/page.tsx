@@ -1,8 +1,9 @@
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { getSession } from "@/lib/session";
 import { mockLoyaltyData } from "@/lib/mock-data";
-import { Star, Gift } from "lucide-react";
+import { Star, Gift, Trophy } from "lucide-react";
 
 async function QrCodeDisplay({ userId }: { userId: string }) {
     // In a real app, you would use a library to generate a QR code.
@@ -18,25 +19,46 @@ async function QrCodeDisplay({ userId }: { userId: string }) {
     );
 }
 
-function LoyaltyProgress({ stamps }: { stamps: number }) {
-    const totalStamps = 10;
-    const progress = (stamps % totalStamps) / totalStamps * 100;
-  
+const loyaltyTiers = {
+  bronze: { name: 'Bronze', points: 0, next: 500, color: 'text-yellow-600' },
+  silver: { name: 'Silber', points: 500, next: 1500, color: 'text-slate-500' },
+  gold: { name: 'Gold', points: 1500, next: Infinity, color: 'text-amber-500' }
+};
+
+const getLoyaltyTier = (points: number) => {
+  if (points >= loyaltyTiers.gold.points) return loyaltyTiers.gold;
+  if (points >= loyaltyTiers.silver.points) return loyaltyTiers.silver;
+  return loyaltyTiers.bronze;
+};
+
+
+function LoyaltyProgress({ points }: { points: number }) {
+    const currentTier = getLoyaltyTier(points);
+    const nextTier = currentTier.name === 'Gold' ? loyaltyTiers.gold : (currentTier.name === 'Silber' ? loyaltyTiers.gold : loyaltyTiers.silver);
+    
+    const pointsInCurrentTier = points - currentTier.points;
+    const pointsForNextTier = nextTier.points - currentTier.points;
+    const progress = nextTier.name === 'Gold' && currentTier.name === 'Gold' ? 100 : (pointsInCurrentTier / pointsForNextTier) * 100;
+
     return (
       <div className="w-full">
-        <div className="flex justify-between items-center mb-2">
-            <p className="text-sm font-medium">Your Progress</p>
-            <p className="text-sm font-bold">{stamps % totalStamps} / {totalStamps}</p>
+         <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-2">
+              <Trophy className={`w-6 h-6 ${currentTier.color}`} />
+              <p className="text-lg font-bold">{currentTier.name}-Status</p>
+            </div>
+            <p className="font-bold text-lg">{points.toLocaleString('de-DE')} <span className="text-sm font-normal text-muted-foreground">Punkte</span></p>
         </div>
-        <div className="w-full bg-secondary rounded-full h-4 overflow-hidden relative">
-          <div className="bg-primary h-4 rounded-full" style={{ width: `${progress}%` }}></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-             <p className="text-xs font-bold text-primary-foreground">
-                {stamps % totalStamps} / {totalStamps} Stamps
-             </p>
-          </div>
+        <Progress value={progress} className="h-4" />
+        <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
+            <span>{currentTier.points.toLocaleString('de-DE')} Pkt.</span>
+            { currentTier.name !== 'Gold' ? (
+                 <p className="font-medium">Noch { (nextTier.points - points).toLocaleString('de-DE')} Punkte bis {nextTier.name}</p>
+            ) : (
+                <p className="font-medium">Sie haben den höchsten Status erreicht!</p>
+            )}
+            <span>{nextTier.name !== 'Gold' ? nextTier.points.toLocaleString('de-DE') + ' Pkt.' : ''}</span>
         </div>
-        <p className="text-xs text-muted-foreground mt-2 text-center">Collect {totalStamps} stamps for a €5 reward!</p>
       </div>
     );
   }
@@ -51,13 +73,13 @@ export default async function LoyaltyPage() {
 
     return (
         <>
-            <PageHeader title="My Loyalty Card" description="Show this QR code at checkout to collect stamps and redeem rewards." />
+            <PageHeader title="My Loyalty Card" description="Show this QR code at checkout to collect points and redeem rewards." />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="md:col-span-1">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Your Digital Card</CardTitle>
+                            <CardTitle>Ihre digitale Karte</CardTitle>
                         </CardHeader>
                         <CardContent>
                            <QrCodeDisplay userId={session.userId} />
@@ -68,17 +90,17 @@ export default async function LoyaltyPage() {
                 <div className="md:col-span-2 space-y-8">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Your Points</CardTitle>
+                            <CardTitle>Ihr Treue-Status</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <LoyaltyProgress stamps={loyaltyData.stamps} />
+                            <LoyaltyProgress points={loyaltyData.stamps} />
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Available Rewards</CardTitle>
-                            <CardDescription>Rewards you've earned.</CardDescription>
+                            <CardTitle>Verfügbare Gutscheine</CardTitle>
+                            <CardDescription>Gutscheine, die Sie verdient haben.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             {loyaltyData.availableCoupons.length > 0 ? (
@@ -88,13 +110,13 @@ export default async function LoyaltyPage() {
                                             <Gift className="w-8 h-8 text-accent" />
                                             <div>
                                                 <p className="font-bold text-lg">{coupon.description}</p>
-                                                <p className="text-sm text-muted-foreground">Show your QR code to redeem</p>
+                                                <p className="text-sm text-muted-foreground">Zeigen Sie Ihren QR-Code, um ihn einzulösen</p>
                                             </div>
                                         </li>
                                     ))}
                                 </ul>
                             ) : (
-                                <p className="text-muted-foreground">No rewards available yet. Keep collecting stamps!</p>
+                                <p className="text-muted-foreground">Keine Gutscheine verfügbar. Sammeln Sie weiter Punkte!</p>
                             )}
                         </CardContent>
                     </Card>

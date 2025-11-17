@@ -112,8 +112,8 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
 
     const handleAddStamp = () => {
         if (!loyaltyData) return;
-        setLoyaltyData(prev => prev ? { ...prev, stamps: prev.stamps + 1 } : null);
-        toast({ title: 'Stempel hinzugefügt!', description: `${user?.name} hat jetzt ${loyaltyData.stamps + 1} Stempel.` });
+        setLoyaltyData(prev => prev ? { ...prev, stamps: prev.stamps + 50 } : null);
+        toast({ title: 'Punkte hinzugefügt!', description: `${user?.name} hat jetzt ${loyaltyData.stamps + 50} Punkte.` });
     };
 
     const handleRedeemCoupon = () => {
@@ -127,11 +127,11 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
             <CardHeader>
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
                 <CardTitle className="text-2xl mt-2">{user.name}</CardTitle>
-                <CardDescription>Aktuelle Stempel: {loyaltyData?.stamps}</CardDescription>
+                <CardDescription>Aktuelle Punkte: {loyaltyData?.stamps}</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
                 <Button onClick={handleAddStamp} className="h-16 text-lg">
-                    Stempel hinzufügen
+                    Punkte hinzufügen
                 </Button>
                 <Button variant="outline" onClick={handleRedeemCoupon} className="h-16 text-lg" disabled={!loyaltyData || loyaltyData.availableCoupons.length === 0}>
                     <Gift className="mr-2 h-6 w-6" />

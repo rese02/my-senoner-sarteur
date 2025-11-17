@@ -48,16 +48,16 @@ export const mockProducts: Product[] = [
 export const mockLoyaltyData: LoyaltyData[] = [
     {
         userId: 'user-1-customer',
-        stamps: 7,
+        stamps: 750, // Updated to points
         availableCoupons: [],
         scanHistory: [
-            { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), addedStamps: 1 },
-            { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), addedStamps: 1 }
+            { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), addedStamps: 50 },
+            { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), addedStamps: 120 }
         ]
     },
     {
         userId: 'user-4-customer',
-        stamps: 10,
+        stamps: 1620, // Updated to points
         availableCoupons: [{id: 'coupon-1', type: 'discount', value: 5, description: '€5 Rabatt'}],
         scanHistory: []
     }
