@@ -23,13 +23,13 @@ export function CustomerSidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full text-primary-foreground">
       <nav className="flex-1 p-4 space-y-2">
         {navItems.map((item) => (
           <Button
             key={item.label}
-            variant={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href)) ? 'primary' : 'ghost'}
-            className="w-full justify-start transition-colors duration-200"
+            variant={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href)) ? 'secondary' : 'ghost'}
+            className="w-full justify-start transition-colors duration-200 hover:bg-primary-foreground/10"
             asChild
           >
             <Link href={item.href}>
@@ -40,9 +40,9 @@ export function CustomerSidebar() {
         ))}
       </nav>
       <div className="mt-auto p-4">
-        <Separator className="mb-4"/>
+        <Separator className="mb-4 bg-primary-foreground/10"/>
         <form action={logout}>
-          <Button variant="ghost" className="w-full justify-start transition-colors duration-200">
+          <Button variant="ghost" className="w-full justify-start transition-colors duration-200 hover:bg-primary-foreground/10">
             <LogOut className="mr-2 h-4 w-4" />
             Sign Out
           </Button>

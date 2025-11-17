@@ -9,7 +9,6 @@ import {
   ShoppingCart,
   Users,
   LogOut,
-  BarChart3,
   Megaphone,
 } from 'lucide-react';
 import { Logo } from '@/components/common/Logo';
@@ -28,16 +27,16 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-secondary border-r text-foreground">
-      <div className="p-4 border-b">
+    <aside className="hidden md:flex flex-col w-64 bg-primary text-primary-foreground">
+      <div className="p-4 border-b border-primary-foreground/10">
         <Logo />
       </div>
       <nav className="flex-1 p-4 space-y-2">
         {navItems.map((item) => (
           <Button
             key={item.label}
-            variant={pathname.startsWith(item.href) ? 'primary' : 'ghost'}
-            className="w-full justify-start transition-colors duration-200"
+            variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
+            className="w-full justify-start transition-colors duration-200 hover:bg-primary-foreground/10"
             asChild
           >
             <Link href={item.href}>
@@ -47,10 +46,10 @@ export function AdminSidebar() {
           </Button>
         ))}
       </nav>
-      <Separator />
+      <Separator className="bg-primary-foreground/10" />
       <div className="p-4">
         <form action={logout}>
-          <Button variant="ghost" className="w-full justify-start transition-colors duration-200">
+          <Button variant="ghost" className="w-full justify-start transition-colors duration-200 hover:bg-primary-foreground/10">
             <LogOut className="mr-2 h-4 w-4" />
             Sign Out
           </Button>
