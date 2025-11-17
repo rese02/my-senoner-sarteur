@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export function Logo() {
   return (
-    <Link href="/" className="flex items-center justify-center gap-2">
+    <Link href="/" className="flex items-center justify-center gap-2 h-full">
       {/* The logo is loaded from the /public folder. 
           Replace /logo.png with your actual logo file. */}
       <Image 
@@ -11,7 +11,7 @@ export function Logo() {
         alt="Senoner Sarteur Logo" 
         width={432}
         height={96}
-        className="object-contain h-24 w-auto"
+        className="object-contain h-full w-auto"
         priority
       />
     </Link>

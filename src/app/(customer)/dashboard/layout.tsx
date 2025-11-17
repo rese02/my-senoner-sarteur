@@ -30,11 +30,13 @@ export default async function CustomerLayout({
     <div className="flex min-h-screen bg-background text-foreground">
       <DesktopSidebar />
       <div className="flex-1 flex flex-col">
-        <header className="flex h-16 items-center justify-between md:justify-end border-b bg-card px-4 md:px-6 sticky top-0 z-30">
-            <div className="md:hidden">
+        <header className="flex h-16 items-center justify-between md:justify-end border-b bg-card md:bg-card px-4 md:px-6 sticky top-0 z-30 md:border-b md:bg-card md:text-card-foreground bg-primary text-primary-foreground">
+            <div className="md:hidden h-8">
               <Logo />
             </div>
-            {user && <UserProfileDropdown user={user} />}
+            <div className="hidden md:block">
+              {user && <UserProfileDropdown user={user} />}
+            </div>
         </header>
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-background pb-24 md:pb-8">
             {children}
