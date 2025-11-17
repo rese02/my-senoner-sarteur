@@ -35,9 +35,10 @@ const FormattedDate = ({ date, formatString, locale }: { date: Date, formatStrin
         setIsClient(true);
     }, []);
 
-    if (!isClient) return null;
+    if (!isClient) return null; // Render nothing on the server
 
     try {
+        // This will only run on the client
         return <>{format(date, formatString, { locale })}</>;
     } catch(e) {
         return null;
@@ -163,7 +164,7 @@ export default function AdminOrdersPage() {
                 </TableRow>
               )}
               {filteredOrders.map((order) => (
-                <TableRow key={order.id} className="hover:shadow-lg hover:-translate-y-1">
+                <TableRow key={order.id}>
                   <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
                   <TableCell>
                     <FormattedDate date={new Date(order.createdAt)} formatString="dd.MM.yy, HH:mm" />

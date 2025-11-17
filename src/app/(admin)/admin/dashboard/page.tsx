@@ -18,9 +18,10 @@ const FormattedDate = ({ date, formatString, locale }: { date: Date, formatStrin
         setIsClient(true);
     }, []);
 
-    if (!isClient) return null;
+    if (!isClient) return null; // Render nothing on the server
 
     try {
+        // This will only run on the client
         return <>{format(date, formatString, { locale })}</>;
     } catch (e) {
         // Fallback for invalid dates
@@ -119,7 +120,7 @@ export default function AdminDashboardPage() {
                         const isPickupToday = isToday(pickupDate);
                         const statusInfo = statusMap[order.status];
                         return (
-                        <TableRow key={order.id} className="transition-colors hover:bg-muted/50 hover:shadow-lg hover:-translate-y-1">
+                        <TableRow key={order.id} className="transition-colors">
                             <TableCell>
                                 <div className="font-medium">{order.customerName}</div>
                             </TableCell>
