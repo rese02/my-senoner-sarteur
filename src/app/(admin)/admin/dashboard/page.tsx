@@ -10,6 +10,7 @@ import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useMemo, useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 const FormattedDate = ({ date, formatString, locale }: { date: Date, formatString: string, locale?: Locale }) => {
     const [isClient, setIsClient] = useState(false);
@@ -20,6 +21,13 @@ const FormattedDate = ({ date, formatString, locale }: { date: Date, formatStrin
     if (!isClient) return null;
 
     return <>{format(date, formatString, { locale })}</>;
+};
+
+const statusMap: Record<string, {label: string, className: string}> = {
+  new: { label: 'Neu', className: 'bg-blue-500/20 text-blue-300 border-blue-400/30' },
+  ready: { label: 'Abholbereit', className: 'bg-yellow-500/20 text-yellow-300 border-yellow-400/30' },
+  collected: { label: 'Abgeholt', className: 'bg-green-500/20 text-green-300 border-green-400/30' },
+  cancelled: { label: 'Storniert', className: 'bg-red-500/20 text-red-300 border-red-400/30' }
 };
 
 export default function AdminDashboardPage() {
@@ -80,7 +88,7 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 mt-8">
         <Card>
           <CardHeader>
-            <CardTitle>Aktuelle & anstehende Vorbestellungen</CardTitle>
+            <CardTitle>Aktuelle &amp; anstehende Vorbestellungen</CardTitle>
           </CardHeader>
           <CardContent>
              <Table>
@@ -104,6 +112,7 @@ export default function AdminDashboardPage() {
                     {recentAndUpcomingOrders.map((order) => {
                         const pickupDate = new Date(order.pickupDate);
                         const isPickupToday = isToday(pickupDate);
+                        const statusInfo = statusMap[order.status];
                         return (
                         <TableRow key={order.id}>
                             <TableCell>
@@ -119,10 +128,10 @@ export default function AdminDashboardPage() {
                             </TableCell>
                             <TableCell>
                                 <Badge 
-                                    variant={order.status === 'new' ? 'default' : (order.status === 'ready' ? 'outline' : 'secondary')} 
-                                    className="capitalize"
+                                    variant="outline"
+                                    className={cn("capitalize", statusInfo.className)}
                                 >
-                                    {order.status === 'new' ? 'Neu' : order.status === 'ready' ? 'Abholbereit' : 'Abgeholt'}
+                                    {statusInfo.label}
                                 </Badge>
                             </TableCell>
                             <TableCell className="text-right">

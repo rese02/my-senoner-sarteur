@@ -30,9 +30,9 @@ export function ProductCard({ product }: { product: Product }) {
     };
 
     return (
-        <Card className="overflow-hidden group">
+        <Card className="overflow-hidden group transition-all duration-300 hover:shadow-primary/20 hover:shadow-lg hover:border-primary/30">
             <div className="relative aspect-[4/3] bg-muted">
-                <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform group-hover:scale-105" data-ai-hint={product.imageHint} />
+                <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={product.imageHint} />
                 {product.availabilityDay && <Badge className="absolute top-2 right-2">{product.availabilityDay} only</Badge>}
             </div>
             <CardContent className="p-4">

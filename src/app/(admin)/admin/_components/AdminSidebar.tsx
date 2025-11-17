@@ -37,7 +37,7 @@ export function AdminSidebar() {
           <Button
             key={item.label}
             variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
-            className="w-full justify-start"
+            className="w-full justify-start transition-colors duration-200"
             asChild
           >
             <Link href={item.href}>
@@ -50,7 +50,7 @@ export function AdminSidebar() {
       <Separator />
       <div className="p-4">
         <form action={logout}>
-          <Button variant="ghost" className="w-full justify-start">
+          <Button variant="ghost" className="w-full justify-start transition-colors duration-200">
             <LogOut className="mr-2 h-4 w-4" />
             Sign Out
           </Button>

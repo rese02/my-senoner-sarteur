@@ -20,12 +20,13 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
-const statusMap: Record<OrderStatus, string> = {
-  new: 'Neu',
-  ready: 'Abholbereit',
-  collected: 'Abgeholt',
-  cancelled: 'Storniert'
+const statusMap: Record<OrderStatus, {label: string, className: string}> = {
+  new: { label: 'Neu', className: 'bg-blue-500/20 text-blue-300 border-blue-400/30' },
+  ready: { label: 'Abholbereit', className: 'bg-yellow-500/20 text-yellow-300 border-yellow-400/30' },
+  collected: { label: 'Abgeholt', className: 'bg-green-500/20 text-green-300 border-green-400/30' },
+  cancelled: { label: 'Storniert', className: 'bg-red-500/20 text-red-300 border-red-400/30' }
 };
 
 const FormattedDate = ({ date, formatString, locale }: { date: Date, formatString: string, locale?: Locale }) => {
@@ -68,7 +69,7 @@ export default function AdminOrdersPage() {
             if (success) {
                 toast({
                     title: "Status aktualisiert",
-                    description: `Bestellung #${orderId.slice(-6)} ist jetzt "${statusMap[newStatus]}".`
+                    description: `Bestellung #${orderId.slice(-6)} ist jetzt "${statusMap[newStatus].label}".`
                 });
             } else {
                 toast({
@@ -178,7 +179,7 @@ export default function AdminOrdersPage() {
                       </SelectTrigger>
                       <SelectContent>
                          {Object.keys(statusMap).map(s => (
-                            <SelectItem key={s} value={s} className="capitalize text-xs">{statusMap[s as OrderStatus]}</SelectItem>
+                            <SelectItem key={s} value={s} className="capitalize text-xs">{statusMap[s as OrderStatus].label}</SelectItem>
                          ))}
                       </SelectContent>
                     </Select>
@@ -211,7 +212,7 @@ export default function AdminOrdersPage() {
                         <p className="text-muted-foreground">Abholung:</p>
                         <p className="font-medium">{format(new Date(selectedOrder.pickupDate), "EEEE, dd.MM.yyyy", { locale: de })}</p>
                         <p className="text-muted-foreground">Status:</p>
-                        <div><Badge>{statusMap[selectedOrder.status]}</Badge></div>
+                        <div><Badge className={cn(statusMap[selectedOrder.status].className)}>{statusMap[selectedOrder.status].label}</Badge></div>
                    </div>
                   <Table>
                     <TableHeader>

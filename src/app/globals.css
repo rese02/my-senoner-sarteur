@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    --background: 210 39% 7%; /* Dark Blue */
-    --foreground: 45 30% 95%; /* Light text */
-    --card: 210 30% 10%; /* Slightly lighter blue */
-    --card-foreground: 45 30% 95%;
-    --popover: 210 30% 10%;
-    --popover-foreground: 45 30% 95%;
-    --primary: 45 30% 95%; /* Light primary for buttons */
-    --primary-foreground: 210 39% 14%; /* Dark blue for text on primary */
-    --secondary: 210 20% 15%;
-    --secondary-foreground: 45 30% 95%;
-    --muted: 210 20% 15%;
-    --muted-foreground: 210 10% 60%;
-    --accent: 138 47% 25%; /* A distinct green for accents */
-    --accent-foreground: 45 30% 98%;
+    --background: 220 40% 5%; /* Deep, dark blue */
+    --foreground: 210 20% 95%; /* Off-white for better readability */
+    --card: 220 30% 9%; /* Slightly lighter blue-gray for cards */
+    --card-foreground: 210 20% 95%;
+    --popover: 220 30% 9%;
+    --popover-foreground: 210 20% 95%;
+    --primary: 38 90% 55%; /* Warm, vibrant gold for primary actions */
+    --primary-foreground: 220 40% 5%; /* Dark blue for text on gold buttons */
+    --secondary: 220 20% 12%; /* A slightly different dark tone */
+    --secondary-foreground: 210 20% 95%;
+    --muted: 220 20% 12%;
+    --muted-foreground: 220 10% 65%;
+    --accent: 220 25% 18%; /* For hover states and subtle highlights */
+    --accent-foreground: 210 20% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 60 9.1% 97.8%;
-    --border: 210 20% 20%;
-    --input: 210 20% 20%;
-    --ring: 45 30% 95%;
+    --border: 220 20% 15%;
+    --input: 220 20% 15%;
+    --ring: 38 90% 55%; /* Ring color matches the primary gold */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -32,25 +32,25 @@
   }
 
   .dark {
-    --background: 210 39% 7%;
-    --foreground: 45 30% 95%;
-    --card: 210 30% 10%;
-    --card-foreground: 45 30% 95%;
-    --popover: 210 30% 10%;
-    --popover-foreground: 45 30% 95%;
-    --primary: 45 30% 95%;
-    --primary-foreground: 210 39% 14%;
-    --secondary: 210 20% 15%;
-    --secondary-foreground: 45 30% 95%;
-    --muted: 210 20% 15%;
-    --muted-foreground: 210 10% 60%;
-    --accent: 138 47% 25%;
-    --accent-foreground: 45 30% 98%;
+    --background: 220 40% 5%;
+    --foreground: 210 20% 95%;
+    --card: 220 30% 9%;
+    --card-foreground: 210 20% 95%;
+    --popover: 220 30% 9%;
+    --popover-foreground: 210 20% 95%;
+    --primary: 38 90% 55%;
+    --primary-foreground: 220 40% 5%;
+    --secondary: 220 20% 12%;
+    --secondary-foreground: 210 20% 95%;
+    --muted: 220 20% 12%;
+    --muted-foreground: 220 10% 65%;
+    --accent: 220 25% 18%;
+    --accent-foreground: 210 20% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 60 9.1% 97.8%;
-    --border: 210 20% 20%;
-    --input: 210 20% 20%;
-    --ring: 45 30% 95%;
+    --border: 220 20% 15%;
+    --input: 220 20% 15%;
+    --ring: 38 90% 55%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -73,5 +73,12 @@
   h5,
   h6 {
     @apply font-headline;
+  }
+}
+
+@layer components {
+  /* Add global transition to buttons for smoother hover effects */
+  .btn-transition {
+    @apply transition-colors duration-200;
   }
 }
