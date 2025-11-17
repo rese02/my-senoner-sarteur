@@ -1,3 +1,4 @@
+
 import { Logo } from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth.actions";
@@ -9,7 +10,7 @@ export default function EmployeeLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-secondary/50">
       <header className="flex items-center justify-between p-4 border-b bg-card">
         <Logo />
         <form action={logout}>
@@ -19,8 +20,10 @@ export default function EmployeeLayout({
           </Button>
         </form>
       </header>
-      <main className="flex-1 flex items-center justify-center bg-secondary/50 p-4">
-        {children}
+      <main className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+            {children}
+        </div>
       </main>
     </div>
   );
