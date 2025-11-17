@@ -23,10 +23,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { cn } from "@/lib/utils";
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-blue-100 text-blue-800 border-blue-200' },
-  ready: { label: 'Abholbereit', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-  collected: { label: 'Abgeholt', className: 'bg-green-100 text-green-800 border-green-200' },
-  cancelled: { label: 'Storniert', className: 'bg-red-100 text-red-800 border-red-200' }
+  new: { label: 'Neu', className: 'bg-[--status-new-bg] text-[--status-new-fg] border-transparent' },
+  ready: { label: 'Abholbereit', className: 'bg-[--status-ready-bg] text-[--status-ready-fg] border-transparent' },
+  collected: { label: 'Abgeholt', className: 'bg-[--status-collected-bg] text-[--status-collected-fg] border-transparent' },
+  cancelled: { label: 'Storniert', className: 'bg-[--status-cancelled-bg] text-[--status-cancelled-fg] border-transparent' }
 };
 
 const FormattedDate = ({ date, formatString, locale }: { date: Date, formatString: string, locale?: Locale }) => {
@@ -174,7 +174,7 @@ export default function AdminOrdersPage() {
                       onValueChange={(value: OrderStatus) => handleStatusChange(order.id, value)}
                       disabled={isPending}
                     >
-                      <SelectTrigger className="h-8 w-[120px] capitalize text-xs bg-card">
+                      <SelectTrigger className="h-8 w-[120px] capitalize text-xs bg-card focus:ring-primary/50">
                          <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -212,7 +212,7 @@ export default function AdminOrdersPage() {
                         <p className="text-muted-foreground">Abholung:</p>
                         <p className="font-medium">{format(new Date(selectedOrder.pickupDate), "EEEE, dd.MM.yyyy", { locale: de })}</p>
                         <p className="text-muted-foreground">Status:</p>
-                        <div><Badge variant="outline" className={cn(statusMap[selectedOrder.status].className)}>{statusMap[selectedOrder.status].label}</Badge></div>
+                        <div><Badge className={cn("capitalize font-semibold", statusMap[selectedOrder.status].className)}>{statusMap[selectedOrder.status].label}</Badge></div>
                    </div>
                   <Table>
                     <TableHeader>

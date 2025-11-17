@@ -36,11 +36,11 @@ export function AdminSidebar() {
           <Button
             key={item.label}
             variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
-            className="w-full justify-start transition-colors duration-200 hover:bg-primary-foreground/10"
+            className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/10 data-[variant=secondary]:text-primary"
             asChild
           >
             <Link href={item.href}>
-              <item.icon className="mr-2 h-4 w-4" />
+              <item.icon className="mr-3 h-5 w-5" strokeWidth={1.75} />
               {item.label}
             </Link>
           </Button>
@@ -49,8 +49,8 @@ export function AdminSidebar() {
       <Separator className="bg-primary-foreground/10" />
       <div className="p-4">
         <form action={logout}>
-          <Button variant="ghost" className="w-full justify-start transition-colors duration-200 hover:bg-primary-foreground/10">
-            <LogOut className="mr-2 h-4 w-4" />
+          <Button variant="ghost" className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/10">
+            <LogOut className="mr-3 h-5 w-5" strokeWidth={1.75}/>
             Sign Out
           </Button>
         </form>

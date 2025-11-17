@@ -5,7 +5,7 @@ import { Users, ShoppingCart, Truck, AlertCircle } from "lucide-react";
 import { mockOrders } from "@/lib/mock-data";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { format, isToday, isFuture, parseISO } from "date-fns";
+import { format, isToday, isFuture } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -24,10 +24,10 @@ const FormattedDate = ({ date, formatString, locale }: { date: Date, formatStrin
 };
 
 const statusMap: Record<string, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-blue-100 text-blue-800 border-blue-200' },
-  ready: { label: 'Abholbereit', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-  collected: { label: 'Abgeholt', className: 'bg-green-100 text-green-800 border-green-200' },
-  cancelled: { label: 'Storniert', className: 'bg-red-100 text-red-800 border-red-200' }
+  new: { label: 'Neu', className: 'bg-[--status-new-bg] text-[--status-new-fg] border-transparent' },
+  ready: { label: 'Abholbereit', className: 'bg-[--status-ready-bg] text-[--status-ready-fg] border-transparent' },
+  collected: { label: 'Abgeholt', className: 'bg-[--status-collected-bg] text-[--status-collected-fg] border-transparent' },
+  cancelled: { label: 'Storniert', className: 'bg-[--status-cancelled-bg] text-[--status-cancelled-fg] border-transparent' }
 };
 
 export default function AdminDashboardPage() {
@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
             <p className="text-xs text-muted-foreground">Bestellungen, die heute fällig sind</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-destructive/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Überfällige Abholungen</CardTitle>
             <AlertCircle className="h-4 w-4 text-destructive" />
@@ -114,7 +114,7 @@ export default function AdminDashboardPage() {
                         const isPickupToday = isToday(pickupDate);
                         const statusInfo = statusMap[order.status];
                         return (
-                        <TableRow key={order.id}>
+                        <TableRow key={order.id} className="transition-colors hover:bg-muted/50">
                             <TableCell>
                                 <div className="font-medium">{order.customerName}</div>
                             </TableCell>
@@ -128,8 +128,7 @@ export default function AdminDashboardPage() {
                             </TableCell>
                             <TableCell>
                                 <Badge 
-                                    variant="outline"
-                                    className={cn("capitalize", statusInfo.className)}
+                                    className={cn("capitalize font-semibold", statusInfo.className)}
                                 >
                                     {statusInfo.label}
                                 </Badge>

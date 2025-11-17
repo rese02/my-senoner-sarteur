@@ -30,7 +30,7 @@ export function ProductCard({ product }: { product: Product }) {
     };
 
     return (
-        <Card className="overflow-hidden group transition-all duration-300 hover:shadow-md">
+        <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <div className="relative aspect-[4/3] bg-muted">
                 <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={product.imageHint} />
                 {product.availabilityDay && <Badge className="absolute top-2 right-2" variant="secondary">{product.availabilityDay} only</Badge>}
@@ -49,7 +49,7 @@ export function ProductCard({ product }: { product: Product }) {
                      <Button variant="outline" size="icon" onClick={() => setQuantity(q => q + 1)}>
                         <Plus className="h-4 w-4" />
                     </Button>
-                    <Button className="flex-1 ml-2" onClick={handleAddToCart}>
+                    <Button className="flex-1 ml-2 transition-transform active:scale-[0.98]">
                         <ShoppingCart className="mr-2 h-4 w-4" /> Add
                     </Button>
                 </div>
