@@ -26,6 +26,12 @@ export function ProductCard({ product }: { product: Product }) {
             title: "Added to cart",
             description: `${quantity}x ${product.name}`,
         });
+
+        // Haptic feedback
+        if (typeof window.navigator.vibrate === 'function') {
+            window.navigator.vibrate(50);
+        }
+
         setQuantity(1);
     };
 
@@ -42,14 +48,14 @@ export function ProductCard({ product }: { product: Product }) {
                     <span className="text-sm text-muted-foreground">/ {product.unit}</span>
                 </div>
                 <div className="flex items-center gap-2 mt-4">
-                    <Button variant="outline" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))}>
+                    <Button variant="outline" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))} className="active:scale-95 transition-transform">
                         <Minus className="h-4 w-4" />
                     </Button>
                     <span className="w-10 text-center font-bold text-lg">{quantity}</span>
-                     <Button variant="outline" size="icon" onClick={() => setQuantity(q => q + 1)}>
+                     <Button variant="outline" size="icon" onClick={() => setQuantity(q => q + 1)} className="active:scale-95 transition-transform">
                         <Plus className="h-4 w-4" />
                     </Button>
-                    <Button className="flex-1 ml-2" onClick={handleAddToCart}>
+                    <Button className="flex-1 ml-2 active:scale-[0.98] transition-transform" onClick={handleAddToCart}>
                         <ShoppingCart className="mr-2 h-4 w-4" /> Add
                     </Button>
                 </div>
