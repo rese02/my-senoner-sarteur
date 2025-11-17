@@ -23,10 +23,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { cn } from "@/lib/utils";
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-[--status-new-bg] text-[--status-new-fg] border-transparent' },
-  ready: { label: 'Abholbereit', className: 'bg-[--status-ready-bg] text-[--status-ready-fg] border-transparent' },
-  collected: { label: 'Abgeholt', className: 'bg-[--status-collected-bg] text-[--status-collected-fg] border-transparent' },
-  cancelled: { label: 'Storniert', className: 'bg-[--status-cancelled-bg] text-[--status-cancelled-fg] border-transparent' }
+  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg border-transparent' },
+  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg border-transparent' },
+  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg border-transparent' },
+  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg border-transparent' }
 };
 
 const FormattedDate = ({ date, formatString, locale }: { date: Date, formatString: string, locale?: Locale }) => {
@@ -37,7 +37,11 @@ const FormattedDate = ({ date, formatString, locale }: { date: Date, formatStrin
 
     if (!isClient) return null;
 
-    return <>{format(date, formatString, { locale })}</>;
+    try {
+        return <>{format(date, formatString, { locale })}</>;
+    } catch(e) {
+        return null;
+    }
 };
 
 export default function AdminOrdersPage() {
@@ -159,7 +163,7 @@ export default function AdminOrdersPage() {
                 </TableRow>
               )}
               {filteredOrders.map((order) => (
-                <TableRow key={order.id}>
+                <TableRow key={order.id} className="hover:shadow-lg hover:-translate-y-1">
                   <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
                   <TableCell>
                     <FormattedDate date={new Date(order.createdAt)} formatString="dd.MM.yy, HH:mm" />
@@ -185,7 +189,7 @@ export default function AdminOrdersPage() {
                     </Select>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => handleShowDetails(order)}>Details</Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleShowDetails(order)} className="hover:scale-105 active:scale-[0.98]">Details</Button>
                   </TableCell>
                 </TableRow>
               ))}

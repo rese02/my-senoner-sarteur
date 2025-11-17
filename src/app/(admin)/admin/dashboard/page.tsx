@@ -20,14 +20,19 @@ const FormattedDate = ({ date, formatString, locale }: { date: Date, formatStrin
 
     if (!isClient) return null;
 
-    return <>{format(date, formatString, { locale })}</>;
+    try {
+        return <>{format(date, formatString, { locale })}</>;
+    } catch (e) {
+        // Fallback for invalid dates
+        return null;
+    }
 };
 
 const statusMap: Record<string, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-[--status-new-bg] text-[--status-new-fg] border-transparent' },
-  ready: { label: 'Abholbereit', className: 'bg-[--status-ready-bg] text-[--status-ready-fg] border-transparent' },
-  collected: { label: 'Abgeholt', className: 'bg-[--status-collected-bg] text-[--status-collected-fg] border-transparent' },
-  cancelled: { label: 'Storniert', className: 'bg-[--status-cancelled-bg] text-[--status-cancelled-fg] border-transparent' }
+  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg border-transparent' },
+  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg border-transparent' },
+  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg border-transparent' },
+  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg border-transparent' }
 };
 
 export default function AdminDashboardPage() {
@@ -114,7 +119,7 @@ export default function AdminDashboardPage() {
                         const isPickupToday = isToday(pickupDate);
                         const statusInfo = statusMap[order.status];
                         return (
-                        <TableRow key={order.id} className="transition-colors hover:bg-muted/50">
+                        <TableRow key={order.id} className="transition-colors hover:bg-muted/50 hover:shadow-lg hover:-translate-y-1">
                             <TableCell>
                                 <div className="font-medium">{order.customerName}</div>
                             </TableCell>
@@ -134,7 +139,7 @@ export default function AdminDashboardPage() {
                                 </Badge>
                             </TableCell>
                             <TableCell className="text-right">
-                               <Button asChild variant="ghost" size="sm">
+                               <Button asChild variant="ghost" size="sm" className="hover:scale-105 active:scale-[0.98]">
                                     <Link href={`/admin/orders`}>Details</Link>
                                </Button>
                             </TableCell>
