@@ -9,7 +9,7 @@ import { CustomerSidebar } from "./_components/CustomerSidebar";
 function DesktopSidebar() {
   return (
     <aside className="hidden md:flex flex-col w-64 bg-primary border-r border-primary-foreground/10">
-        <div className="p-4 border-b border-primary-foreground/10">
+        <div className="p-4 border-b border-primary-foreground/10 h-20">
             <Logo />
         </div>
         <CustomerSidebar />
