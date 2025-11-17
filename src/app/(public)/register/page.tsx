@@ -2,28 +2,49 @@ import { RegisterForm } from './_components/register-form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Logo } from '@/components/common/Logo';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function RegisterPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4">
-            <Logo />
-          </div>
-          <CardTitle className="text-3xl">Create an Account</CardTitle>
-          <CardDescription>Join our community and start enjoying the benefits.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <RegisterForm />
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
-            <Link href="/login" className="font-semibold text-primary hover:underline">
-              Login here
-            </Link>
+    <div className="w-full min-h-screen lg:grid lg:grid-cols-2">
+       {/* Linke Marken-Säule - Wird auf mobilen Geräten ausgeblendet */}
+      <div className="hidden bg-primary lg:flex items-center justify-center relative p-8">
+         {/* Annahme eines subtilen Hintergrundbildes für Textur und Emotion */}
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-10"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1579541626635-4a88c7b415a7?q=80&w=1974&auto=format&fit=crop')" }}
+        />
+        <div className="text-center z-10 space-y-4">
+          <Logo />
+          <p className="mt-4 text-xl text-primary-foreground/80 font-medium">
+            Qualität aus den Dolomiten.
           </p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+      
+       {/* Rechte, helle Aktions-Säule */}
+      <div className="flex items-center justify-center py-12 px-4">
+         <div className="w-full max-w-md">
+            <div className="lg:hidden text-center mb-8">
+                <Logo />
+            </div>
+            <Card className="shadow-lg border-none">
+              <CardHeader className="text-center">
+                <CardTitle className="text-3xl">Konto erstellen</CardTitle>
+                <CardDescription>Werden Sie Teil unserer Community und genießen Sie die Vorteile.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RegisterForm />
+                <p className="mt-6 text-center text-sm text-muted-foreground">
+                  Haben Sie bereits ein Konto?{' '}
+                  <Link href="/login" className="font-semibold text-primary hover:underline">
+                    Hier anmelden
+                  </Link>
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+      </div>
     </div>
   );
 }
