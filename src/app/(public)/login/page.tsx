@@ -8,22 +8,6 @@ import Image from 'next/image';
 export default function LoginPage() {
   return (
     <div className="w-full min-h-screen lg:grid lg:grid-cols-2">
-      {/* Linke Marken-Säule - Wird auf mobilen Geräten ausgeblendet */}
-      <div className="hidden bg-primary lg:flex items-center justify-center relative p-8">
-        {/* Annahme eines subtilen Hintergrundbildes für Textur und Emotion */}
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-10"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1579541626635-4a88c7b415a7?q=80&w=1974&auto=format&fit=crop')" }}
-        />
-
-        <div className="text-center z-10 space-y-4">
-          <Logo />
-          <p className="mt-4 text-xl text-primary-foreground/80 font-medium">
-            Qualität aus den Dolomiten.
-          </p>
-        </div>
-      </div>
-
       {/* Rechte, helle Aktions-Säule */}
       <div className="flex items-center justify-center py-12 px-4">
           <div className="w-full max-w-md">
@@ -45,6 +29,19 @@ export default function LoginPage() {
                 </p>
                 </CardContent>
             </Card>
+        </div>
+      </div>
+
+      {/* Linke Marken-Säule - Wird auf mobilen Geräten ausgeblendet */}
+      <div className="hidden bg-primary lg:flex items-center justify-center relative p-8">
+        {/* Annahme eines subtilen Hintergrundbildes für Textur und Emotion */}
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-10"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1579541626635-4a88c7b415a7?q=80&w=1974&auto=format&fit=crop')" }}
+        />
+
+        <div className="text-center z-10">
+          <Logo />
         </div>
       </div>
     </div>
