@@ -122,7 +122,7 @@ export default function AdminCustomersPage() {
                             const customerOrders = mockOrders.filter(o => o.userId === customer.id);
                             const totalSpent = customerOrders.reduce((sum, o) => sum + o.total, 0);
                             const loyaltyData = mockLoyaltyData.find(l => l.userId === customer.id);
-                            const loyaltyTier = loyaltyData ? getLoyaltyTier(loyaltyData.stamps) : loyaltyTiers.bronze;
+                            const loyaltyTier = loyaltyData ? getLoyaltyTier(loyaltyData.points) : loyaltyTiers.bronze;
 
                             return (
                                 <TableRow key={customer.id} data-state={selectedCustomers.includes(customer.id) && "selected"}>

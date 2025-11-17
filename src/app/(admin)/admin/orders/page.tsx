@@ -206,7 +206,7 @@ export default function AdminOrdersPage() {
                 </TableRow>
               )}
               {filteredOrders.map((order) => (
-                <TableRow key={order.id} className="transition-all hover:shadow-md hover:-translate-y-px">
+                <TableRow key={order.id}>
                   <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
                   <TableCell>
                     <FormattedDate date={new Date(order.createdAt)} formatString="dd.MM.yy, HH:mm" />
@@ -232,7 +232,7 @@ export default function AdminOrdersPage() {
                     </Select>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => handleShowDetails(order)} className="hover:scale-105 active:scale-[0.98]">Details</Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleShowDetails(order)}>Details</Button>
                   </TableCell>
                 </TableRow>
               ))}

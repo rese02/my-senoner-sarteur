@@ -93,7 +93,7 @@ export default async function LoyaltyPage() {
                             <CardTitle>Ihr Treue-Status</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <LoyaltyProgress points={loyaltyData.stamps} />
+                            <LoyaltyProgress points={loyaltyData.points} />
                         </CardContent>
                     </Card>
 

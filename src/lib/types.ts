@@ -11,7 +11,7 @@ export interface User {
 
 export interface LoyaltyData {
   userId: string;
-  stamps: number; // This will now represent total points
+  points: number;
   availableCoupons: {
     id: string;
     type: string;
@@ -20,7 +20,7 @@ export interface LoyaltyData {
   }[];
   scanHistory: {
     date: string;
-    addedStamps: number;
+    addedPoints: number;
   }[];
 }
 

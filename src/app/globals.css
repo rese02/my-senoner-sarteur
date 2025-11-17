@@ -13,17 +13,17 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 13% 25%;
     
-    --primary: 207 100% 16%; /* New Dark Blue: #003152 */
+    --primary: 212 100% 16%; /* #003152 */
     --primary-foreground: 210 20% 98%; /* Off-White */
     
     --secondary: 215 25% 90%; /* Lighter gray for secondary elements */
-    --secondary-foreground: 215 80% 25%; /* Blue for text on secondary */
+    --secondary-foreground: 212 100% 16%; /* Blue for text on secondary */
     
     --muted: 215 25% 90%;
     --muted-foreground: 215 20% 55%; /* Lighter gray for secondary text (slate-500) */
     
     --accent: 215 25% 90%;
-    --accent-foreground: 215 80% 25%;
+    --accent-foreground: 212 100% 16%;
     
     --destructive: 0 72% 51%; /* Slightly more refined red */
     --destructive-foreground: 210 40% 98%;
@@ -42,7 +42,7 @@
     
     --border: 214 32% 91%; /* slate-200 */
     --input: 214 32% 91%;
-    --ring: 215 80% 25%;
+    --ring: 212 100% 16%;
     
     --radius: 0.5rem;
   }

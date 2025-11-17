@@ -152,7 +152,7 @@ export default function AdminDashboardPage() {
                         const isPickupToday = isToday(pickupDate);
                         const statusInfo = statusMap[order.status];
                         return (
-                        <TableRow key={order.id} className="transition-all hover:shadow-md hover:-translate-y-px">
+                        <TableRow key={order.id}>
                             <TableCell>
                                 <div className="font-medium">{order.customerName}</div>
                             </TableCell>
@@ -172,7 +172,7 @@ export default function AdminDashboardPage() {
                                 </Badge>
                             </TableCell>
                             <TableCell className="text-right">
-                               <Button asChild variant="ghost" size="sm" className="hover:scale-105 active:scale-[0.98]">
+                               <Button asChild variant="ghost" size="sm">
                                     <Link href={`/admin/orders`}>Details</Link>
                                </Button>
                             </TableCell>
