@@ -28,7 +28,7 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-card border-r">
+    <aside className="hidden md:flex flex-col w-64 bg-secondary border-r text-foreground">
       <div className="p-4 border-b">
         <Logo />
       </div>
@@ -36,7 +36,7 @@ export function AdminSidebar() {
         {navItems.map((item) => (
           <Button
             key={item.label}
-            variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
+            variant={pathname.startsWith(item.href) ? 'primary' : 'ghost'}
             className="w-full justify-start transition-colors duration-200"
             asChild
           >

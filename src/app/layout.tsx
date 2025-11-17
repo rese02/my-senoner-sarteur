@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Lato, Merriweather } from 'next/font/google';
+import { PT_Sans, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
@@ -9,16 +9,16 @@ export const metadata: Metadata = {
   description: 'Digital companion for customers of Senoner Sarteur supermarket.',
 };
 
-const lato = Lato({
+const ptSans = PT_Sans({
   subsets: ['latin'],
   weight: ['400', '700'],
-  variable: '--font-lato',
+  variable: '--font-pt-sans',
 });
 
-const merriweather = Merriweather({
+const playfair = Playfair_Display({
   subsets: ['latin'],
   weight: ['400', '700'],
-  variable: '--font-merriweather',
+  variable: '--font-playfair',
 });
 
 export default function RootLayout({
@@ -31,8 +31,8 @@ export default function RootLayout({
       <body
         className={cn(
           'font-body bg-background text-foreground antialiased',
-          lato.variable,
-          merriweather.variable
+          ptSans.variable,
+          playfair.variable
         )}
       >
         {children}

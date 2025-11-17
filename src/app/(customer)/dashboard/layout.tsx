@@ -8,7 +8,7 @@ import { CustomerSidebar } from "./_components/CustomerSidebar";
 
 function DesktopSidebar() {
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-card border-r">
+    <aside className="hidden md:flex flex-col w-64 bg-secondary border-r">
         <div className="p-4 border-b">
             <Logo />
         </div>
@@ -27,7 +27,7 @@ export default async function CustomerLayout({
     const user = mockUsers.find(u => u.id === session?.userId);
     
   return (
-    <div className="flex min-h-screen bg-secondary/50 text-foreground">
+    <div className="flex min-h-screen bg-background text-foreground">
       <DesktopSidebar />
       <div className="flex-1 flex flex-col">
         <header className="flex h-16 items-center justify-between md:justify-end border-b bg-card px-4 md:px-6 sticky top-0 z-30">

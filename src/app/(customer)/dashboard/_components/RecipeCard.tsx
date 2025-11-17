@@ -29,7 +29,7 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-2xl">
                              <DialogHeader>
-                                <DialogTitle className="text-2xl">{recipe.title}</DialogTitle>
+                                <DialogTitle className="text-2xl font-headline">{recipe.title}</DialogTitle>
                                 <DialogDescription>{recipe.subtitle}</DialogDescription>
                             </DialogHeader>
                             <div className="mt-4 grid gap-6 max-h-[70vh] overflow-y-auto pr-4">

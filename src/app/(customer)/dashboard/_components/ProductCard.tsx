@@ -30,15 +30,15 @@ export function ProductCard({ product }: { product: Product }) {
     };
 
     return (
-        <Card className="overflow-hidden group transition-all duration-300 hover:shadow-primary/20 hover:shadow-lg hover:border-primary/30">
+        <Card className="overflow-hidden group transition-all duration-300 hover:shadow-md">
             <div className="relative aspect-[4/3] bg-muted">
                 <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={product.imageHint} />
-                {product.availabilityDay && <Badge className="absolute top-2 right-2">{product.availabilityDay} only</Badge>}
+                {product.availabilityDay && <Badge className="absolute top-2 right-2" variant="secondary">{product.availabilityDay} only</Badge>}
             </div>
             <CardContent className="p-4">
-                <h3 className="text-xl font-bold">{product.name}</h3>
+                <h3 className="text-lg font-bold">{product.name}</h3>
                 <div className="flex items-baseline justify-between mt-2">
-                    <p className="text-2xl font-bold text-primary">€{product.price.toFixed(2)}</p>
+                    <p className="text-xl font-bold text-primary">€{product.price.toFixed(2)}</p>
                     <span className="text-sm text-muted-foreground">/ {product.unit}</span>
                 </div>
                 <div className="flex items-center gap-2 mt-4">

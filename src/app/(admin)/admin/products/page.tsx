@@ -149,7 +149,7 @@ export default function AdminProductsPage() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{category.name}</CardTitle>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2" />Produkt hinzufügen</Button>
+                    <Button variant="outline" size="sm" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt hinzufügen</Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
@@ -173,7 +173,7 @@ export default function AdminProductsPage() {
                 {productsInCategory.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {productsInCategory.map(product => (
-                       <Card key={product.id} className="overflow-hidden flex flex-col group relative">
+                       <Card key={product.id} className="overflow-hidden flex flex-col group relative transition-all hover:shadow-lg">
                         <div className="relative aspect-[4/3] bg-muted">
                            <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" data-ai-hint={product.imageHint} />
                         </div>
@@ -230,7 +230,7 @@ export default function AdminProductsPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground bg-secondary/50 rounded-md">
+                  <div className="text-center py-8 text-muted-foreground bg-secondary/30 rounded-md">
                     <p>Noch keine Produkte in dieser Kategorie.</p>
                     <Button variant="link" className="mt-2" onClick={() => handleOpenProductModal(null, category.id)}>Fügen Sie das erste Produkt hinzu</Button>
                   </div>

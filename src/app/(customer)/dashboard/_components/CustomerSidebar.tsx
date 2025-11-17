@@ -28,7 +28,7 @@ export function CustomerSidebar() {
         {navItems.map((item) => (
           <Button
             key={item.label}
-            variant={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href)) ? 'secondary' : 'ghost'}
+            variant={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href)) ? 'primary' : 'ghost'}
             className="w-full justify-start transition-colors duration-200"
             asChild
           >
