@@ -26,7 +26,7 @@ export function AdminMobileNav() {
             href={item.href}
             className={cn(
               'flex flex-col items-center gap-1 p-2 rounded-md transition-colors',
-              isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'
+              isActive ? 'text-primary font-bold' : 'text-muted-foreground hover:text-primary'
             )}
           >
             <item.icon className="w-6 h-6" />

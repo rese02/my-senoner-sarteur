@@ -42,7 +42,7 @@ function OrderCard({ order }: { order: (typeof mockOrders)[0] }) {
   const statusInfo = statusMap[order.status];
 
   return (
-    <Card className="mb-4 transition-all hover:shadow-md active:scale-[0.99]">
+    <Card className="mb-4 transition-all hover:shadow-md">
       <Link href={`/admin/orders`}>
         <CardContent className="p-4">
           <div className="flex justify-between items-start">
@@ -152,7 +152,7 @@ export default function AdminDashboardPage() {
                         const isPickupToday = isToday(pickupDate);
                         const statusInfo = statusMap[order.status];
                         return (
-                        <TableRow key={order.id}>
+                        <TableRow key={order.id} className="transition-colors hover:bg-muted/50">
                             <TableCell>
                                 <div className="font-medium">{order.customerName}</div>
                             </TableCell>

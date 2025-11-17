@@ -50,7 +50,7 @@ const FormattedDate = ({ date, formatString, locale }: { date: Date, formatStrin
 function OrderCard({ order, onStatusChange, onShowDetails }: { order: Order, onStatusChange: (id: string, status: OrderStatus) => void, onShowDetails: (order: Order) => void }) {
   const statusInfo = statusMap[order.status];
   return (
-    <Card className="mb-4 transition-all hover:shadow-md active:scale-[0.99]">
+    <Card className="mb-4 transition-all hover:shadow-md">
         <CardContent className="p-4" onClick={() => onShowDetails(order)}>
           <div className="flex justify-between items-start">
             <div>
@@ -206,7 +206,7 @@ export default function AdminOrdersPage() {
                 </TableRow>
               )}
               {filteredOrders.map((order) => (
-                <TableRow key={order.id}>
+                <TableRow key={order.id} className="transition-colors hover:bg-muted/50">
                   <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
                   <TableCell>
                     <FormattedDate date={new Date(order.createdAt)} formatString="dd.MM.yy, HH:mm" />
