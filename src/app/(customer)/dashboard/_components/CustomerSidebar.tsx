@@ -29,7 +29,7 @@ export function CustomerSidebar() {
           <Button
             key={item.label}
             variant={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href)) ? 'secondary' : 'ghost'}
-            className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/10 data-[variant=secondary]:text-primary"
+            className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/10 hover:text-primary-foreground data-[variant=secondary]:text-primary"
             asChild
           >
             <Link href={item.href}>
@@ -42,7 +42,7 @@ export function CustomerSidebar() {
       <div className="mt-auto p-4">
         <Separator className="mb-4 bg-primary-foreground/10"/>
         <form action={logout}>
-          <Button variant="ghost" className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/10">
+          <Button variant="ghost" className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/10 hover:text-primary-foreground">
             <LogOut className="mr-3 h-5 w-5" strokeWidth={1.75}/>
             Sign Out
           </Button>
