@@ -4,44 +4,44 @@
 
 @layer base {
   :root {
-    --background: 220 20% 96%; /* Off-White (F8F9FA) */
-    --foreground: 220 13% 25%; /* Dark Anthracite (slate-800) */
+    --background: 220 20% 98%; /* F8F9FA - Off-White */
+    --foreground: 224 39% 10%; /* 1e293b - Sanftes Schwarz */
     
-    --card: 0 0% 100%; /* Pure White */
-    --card-foreground: 220 13% 25%;
+    --card: 0 0% 100%; /* FFFFFF - Pure White */
+    --card-foreground: 224 39% 10%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 25%;
+    --popover-foreground: 224 39% 10%;
     
-    --primary: 212 100% 16%; /* Edel-Blau (#003152) */
+    --primary: 212 100% 16%; /* #00234f - Edel-Blau */
     --primary-foreground: 210 20% 98%; /* Off-White */
     
-    --secondary: 215 25% 90%; /* Lighter gray for secondary elements */
+    --secondary: 220 13% 91%; /* Lighter gray for secondary elements */
     --secondary-foreground: 212 100% 16%; /* Blue for text on secondary */
     
-    --muted: 215 25% 90%;
-    --muted-foreground: 215 20% 55%; /* Lighter gray for secondary text (slate-500) */
+    --muted: 220 9% 46%; /* 64748b - Grau für Labels */
+    --muted-foreground: 220 9% 46%;
     
-    --accent: 215 25% 90%;
+    --accent: 220 13% 91%;
     --accent-foreground: 212 100% 16%;
     
-    --destructive: 0 72% 51%; /* Slightly more refined red */
+    --destructive: 0 84% 60%; /* #ef4444 - Gedämpftes Rot */
     --destructive-foreground: 210 40% 98%;
 
-    --status-new-bg: 215 40% 92%; /* Dusty light-blue background */
-    --status-new-fg: 215 50% 35%; /* Dusty dark-blue foreground */
+    --status-new-bg: 205 90% 88%; /* Helles Blau BG */
+    --status-new-fg: 205 90% 30%; /* Helles Blau FG */
     
-    --status-ready-bg: 38 90% 85%; /* Muted gold/ochre background */
-    --status-ready-fg: 25 80% 30%; /* Darker gold/ochre foreground */
+    --status-ready-bg: 45 93% 85%; /* Ocker-Gold BG */
+    --status-ready-fg: 35 93% 30%; /* Ocker-Gold FG */
 
-    --status-collected-bg: 140 70% 92%; /* Soft green background */
-    --status-collected-fg: 140 60% 25%; /* Dark green foreground */
+    --status-collected-bg: 145 70% 90%; /* Smaragdgrün BG */
+    --status-collected-fg: 145 60% 25%; /* Smaragdgrün FG */
 
     --status-cancelled-bg: 0 80% 94%; /* Soft red background */
     --status-cancelled-fg: 0 60% 40%; /* Bordeaux red foreground */
     
-    --border: 214 32% 91%; /* slate-200 */
-    --input: 214 32% 91%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
     --ring: 212 100% 16%;
     
     --radius: 0.5rem;
@@ -72,6 +72,9 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   * {
     @apply border-border;
   }
@@ -82,6 +85,6 @@
     @apply font-headline text-foreground;
   }
   * { 
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
   }
 }

@@ -26,10 +26,37 @@ const getImage = (id: string) => {
 };
 
 export const mockUsers: User[] = [
-  { id: 'user-1-customer', name: 'Maria Muster', email: 'customer@example.com', role: 'customer', password: 'password123', customerSince: new Date('2023-01-15').toISOString() },
+  { 
+    id: 'user-1-customer', 
+    name: 'Maria Muster', 
+    email: 'customer@example.com', 
+    role: 'customer', 
+    password: 'password123', 
+    customerSince: new Date('2023-01-15').toISOString(),
+    loyaltyData: {
+        points: 750,
+        availableCoupons: [],
+        scanHistory: [
+            { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), addedPoints: 50 },
+            { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), addedPoints: 120 }
+        ]
+    }
+  },
   { id: 'user-2-employee', name: 'Mitarbeiter Max', email: 'employee@example.com', role: 'employee', password: 'password123' },
   { id: 'user-3-admin', name: 'Senoner Admin', email: 'admin@example.com', role: 'admin', password: 'password123' },
-  { id: 'user-4-customer', name: 'John Doe', email: 'john@example.com', role: 'customer', password: 'password123', customerSince: new Date('2024-05-20').toISOString() },
+  { 
+    id: 'user-4-customer', 
+    name: 'John Doe', 
+    email: 'john@example.com', 
+    role: 'customer', 
+    password: 'password123', 
+    customerSince: new Date('2024-05-20').toISOString(),
+    loyaltyData: {
+        points: 1620,
+        availableCoupons: [{id: 'coupon-1', type: 'discount', value: 5, description: '€5 Rabatt'}],
+        scanHistory: []
+    }
+  },
 ];
 
 export const mockCategories: Category[] = [
@@ -47,24 +74,6 @@ export const mockProducts: Product[] = [
   { id: 'prod-6', name: 'Lagrein Riserva', price: 19.90, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-red-1'), isAvailable: true },
   { id: 'prod-7', name: 'Gewürztraminer', price: 14.50, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-white-1'), isAvailable: true },
   { id: 'prod-8', name: 'Pinot Grigio', price: 12.80, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-white-2'), isAvailable: true },
-];
-
-export const mockLoyaltyData: LoyaltyData[] = [
-    {
-        userId: 'user-1-customer',
-        points: 750,
-        availableCoupons: [],
-        scanHistory: [
-            { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), addedPoints: 50 },
-            { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), addedPoints: 120 }
-        ]
-    },
-    {
-        userId: 'user-4-customer',
-        points: 1620,
-        availableCoupons: [{id: 'coupon-1', type: 'discount', value: 5, description: '€5 Rabatt'}],
-        scanHistory: []
-    }
 ];
 
 export const mockOrders: Order[] = [

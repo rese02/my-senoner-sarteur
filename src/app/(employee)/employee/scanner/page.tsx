@@ -3,12 +3,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, CheckCircle, Gift, Loader2, QrCode, User } from 'lucide-react';
-import { mockUsers, mockLoyaltyData } from '@/lib/mock-data';
-import type { User as UserType, LoyaltyData } from '@/lib/types';
+import { Camera, CheckCircle, Gift, Loader2, QrCode } from 'lucide-react';
+import { mockUsers } from '@/lib/mock-data';
+import type { User as UserType } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-
 
 // Zustand 1: Bereit zum Scannen
 function ReadyToScanView({ onStartScan }: { onStartScan: () => void }) {
@@ -108,7 +106,7 @@ function ActiveScannerView({ onScanSuccess, onCancel, hasCameraPermission }: { o
 // Zustand 3: Ergebnis des Scans
 function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustomer: () => void }) {
     const { toast } = useToast();
-    const [loyaltyData, setLoyaltyData] = useState(mockLoyaltyData.find(l => l.userId === user.id));
+    const [loyaltyData, setLoyaltyData] = useState(user.loyaltyData);
 
     const handleAddPoints = () => {
         if (!loyaltyData) return;

@@ -7,10 +7,10 @@ export interface User {
   role: UserRole;
   password?: string; // Only for mock data, not in real DB
   customerSince?: string;
+  loyaltyData?: LoyaltyData;
 }
 
 export interface LoyaltyData {
-  userId: string;
   points: number;
   availableCoupons: {
     id: string;

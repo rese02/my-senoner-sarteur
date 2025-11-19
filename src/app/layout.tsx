@@ -29,7 +29,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          'font-body bg-background text-foreground antialiased',
+          'font-body antialiased',
           inter.variable,
           merriweather.variable
         )}

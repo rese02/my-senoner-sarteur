@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useMemo, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import type { OrderStatus, Order } from "@/lib/types";
 
 const FormattedDate = ({ date, formatString, locale }: { date: Date, formatString: string, locale?: Locale }) => {
     const [isClient, setIsClient] = useState(false);
@@ -29,14 +30,14 @@ const FormattedDate = ({ date, formatString, locale }: { date: Date, formatStrin
     }
 };
 
-const statusMap: Record<string, {label: string, className: string}> = {
+const statusMap: Record<OrderStatus, {label: string, className: string}> = {
   new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg border-transparent' },
   ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg border-transparent' },
   collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg border-transparent' },
   cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg border-transparent' }
 };
 
-function OrderCard({ order }: { order: (typeof mockOrders)[0] }) {
+function OrderCard({ order }: { order: Order }) {
   const pickupDate = new Date(order.pickupDate);
   const isPickupToday = isToday(pickupDate);
   const statusInfo = statusMap[order.status];

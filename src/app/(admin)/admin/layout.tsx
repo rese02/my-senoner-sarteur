@@ -15,8 +15,8 @@ export default function AdminLayout({
     <div className="flex min-h-screen bg-background text-foreground">
       <AdminSidebar />
       <div className="flex-1 flex flex-col">
-         <header className="flex h-16 items-center justify-between md:justify-end border-b bg-card px-4 md:px-6 sticky top-0 z-20">
-            <div className="md:hidden">
+         <header className="flex h-16 items-center justify-between md:justify-end border-b bg-primary text-primary-foreground md:bg-card md:text-card-foreground px-4 md:px-6 sticky top-0 z-20">
+            <div className="md:hidden h-8">
               <Logo />
             </div>
              <form action={logout}>

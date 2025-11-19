@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { OrderCard } from "@/components/admin/OrderCard";
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
   new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg border-transparent' },
@@ -45,46 +46,6 @@ const FormattedDate = ({ date, formatString, locale }: { date: Date, formatStrin
         return null;
     }
 };
-
-
-function OrderCard({ order, onStatusChange, onShowDetails }: { order: Order, onStatusChange: (id: string, status: OrderStatus) => void, onShowDetails: (order: Order) => void }) {
-  const statusInfo = statusMap[order.status];
-  return (
-    <Card className="mb-4 transition-all hover:shadow-md">
-        <CardContent className="p-4" onClick={() => onShowDetails(order)}>
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="font-bold text-lg">{order.customerName}</p>
-              <p className="text-sm text-muted-foreground">#{order.id.slice(-6)}</p>
-            </div>
-             <p className="text-sm font-medium">
-                {format(new Date(order.pickupDate), "EEE, dd.MM.", { locale: de })}
-            </p>
-          </div>
-          <div className="mt-4 text-sm space-y-2">
-            <p className="text-muted-foreground">{order.items.map(item => `${item.quantity}x ${item.productName}`).join(', ')}</p>
-             <p className="font-bold text-base">€{order.total.toFixed(2)}</p>
-          </div>
-        </CardContent>
-         <div className="px-4 pb-4">
-             <Select 
-                value={order.status} 
-                onValueChange={(value: OrderStatus) => onStatusChange(order.id, value)}
-              >
-                <SelectTrigger className="w-full capitalize text-sm bg-card focus:ring-primary/50">
-                    <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                    {Object.keys(statusMap).map(s => (
-                      <SelectItem key={s} value={s} className="capitalize text-sm">{statusMap[s as OrderStatus].label}</SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-          </div>
-    </Card>
-  );
-}
-
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>(mockOrders);
@@ -186,58 +147,60 @@ export default function AdminOrdersPage() {
         </CardHeader>
         <CardContent>
           {/* Desktop Table */}
-          <Table className="hidden md:table">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Bestell-ID</TableHead>
-                <TableHead>Bestelldatum</TableHead>
-                <TableHead>Kunde</TableHead>
-                <TableHead>Details</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead>Abholung</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Aktion</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredOrders.length === 0 && (
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-center">Keine Bestellungen gefunden.</TableCell>
+                  <TableHead>Bestell-ID</TableHead>
+                  <TableHead>Bestelldatum</TableHead>
+                  <TableHead>Kunde</TableHead>
+                  <TableHead>Details</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead>Abholung</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Aktion</TableHead>
                 </TableRow>
-              )}
-              {filteredOrders.map((order) => (
-                <TableRow key={order.id} className="transition-colors hover:bg-muted/50">
-                  <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
-                  <TableCell>
-                    <FormattedDate date={new Date(order.createdAt)} formatString="dd.MM.yy, HH:mm" />
-                  </TableCell>
-                  <TableCell className="font-medium">{order.customerName}</TableCell>
-                  <TableCell className="text-muted-foreground text-xs">{order.items.map(i => `${i.quantity}x ${i.productName}`).join(', ')}</TableCell>
-                  <TableCell className="text-right">€{order.total.toFixed(2)}</TableCell>
-                  <TableCell>{format(new Date(order.pickupDate), "EEE, dd.MM.", { locale: de })}</TableCell>
-                  <TableCell>
-                    <Select 
-                      value={order.status} 
-                      onValueChange={(value: OrderStatus) => handleStatusChange(order.id, value)}
-                      disabled={isPending}
-                    >
-                      <SelectTrigger className="h-8 w-[120px] capitalize text-xs bg-card focus:ring-primary/50">
-                         <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                         {Object.keys(statusMap).map(s => (
-                            <SelectItem key={s} value={s} className="capitalize text-xs">{statusMap[s as OrderStatus].label}</SelectItem>
-                         ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => handleShowDetails(order)}>Details</Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredOrders.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={8} className="h-24 text-center">Keine Bestellungen gefunden.</TableCell>
+                  </TableRow>
+                )}
+                {filteredOrders.map((order) => (
+                  <TableRow key={order.id} className="transition-colors hover:bg-muted/50">
+                    <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
+                    <TableCell>
+                      <FormattedDate date={new Date(order.createdAt)} formatString="dd.MM.yy, HH:mm" />
+                    </TableCell>
+                    <TableCell className="font-medium">{order.customerName}</TableCell>
+                    <TableCell className="text-muted-foreground text-xs">{order.items.map(i => `${i.quantity}x ${i.productName}`).join(', ')}</TableCell>
+                    <TableCell className="text-right">€{order.total.toFixed(2)}</TableCell>
+                    <TableCell>{format(new Date(order.pickupDate), "EEE, dd.MM.", { locale: de })}</TableCell>
+                    <TableCell>
+                      <Select 
+                        value={order.status} 
+                        onValueChange={(value: OrderStatus) => handleStatusChange(order.id, value)}
+                        disabled={isPending}
+                      >
+                        <SelectTrigger className="h-8 w-[120px] capitalize text-xs bg-card focus:ring-primary/50">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.keys(statusMap).map(s => (
+                              <SelectItem key={s} value={s} className="capitalize text-xs">{statusMap[s as OrderStatus].label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" onClick={() => handleShowDetails(order)}>Details</Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
           {/* Mobile Card List */}
           <div className="md:hidden space-y-4">
@@ -248,6 +211,7 @@ export default function AdminOrdersPage() {
                 <OrderCard 
                     key={order.id} 
                     order={order}
+                    statusMap={statusMap}
                     onStatusChange={handleStatusChange}
                     onShowDetails={handleShowDetails}
                 />

@@ -2,8 +2,9 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { getSession } from "@/lib/session";
-import { mockLoyaltyData } from "@/lib/mock-data";
-import { Star, Gift, Trophy } from "lucide-react";
+import { mockUsers } from "@/lib/mock-data";
+import { Gift, Trophy } from "lucide-react";
+import { getLoyaltyTier, loyaltyTiers } from "@/lib/loyalty";
 
 async function QrCodeDisplay({ userId }: { userId: string }) {
     // In a real app, you would use a library to generate a QR code.
@@ -18,19 +19,6 @@ async function QrCodeDisplay({ userId }: { userId: string }) {
         </div>
     );
 }
-
-const loyaltyTiers = {
-  bronze: { name: 'Bronze', points: 0, next: 500, color: 'text-yellow-600' },
-  silver: { name: 'Silber', points: 500, next: 1500, color: 'text-slate-500' },
-  gold: { name: 'Gold', points: 1500, next: Infinity, color: 'text-amber-500' }
-};
-
-const getLoyaltyTier = (points: number) => {
-  if (points >= loyaltyTiers.gold.points) return loyaltyTiers.gold;
-  if (points >= loyaltyTiers.silver.points) return loyaltyTiers.silver;
-  return loyaltyTiers.bronze;
-};
-
 
 function LoyaltyProgress({ points }: { points: number }) {
     const currentTier = getLoyaltyTier(points);
@@ -65,11 +53,13 @@ function LoyaltyProgress({ points }: { points: number }) {
 
 export default async function LoyaltyPage() {
     const session = await getSession();
-    const loyaltyData = mockLoyaltyData.find(l => l.userId === session?.userId);
+    const user = mockUsers.find(u => u.id === session?.userId);
 
-    if (!session || !loyaltyData) {
+    if (!session || !user || !user.loyaltyData) {
         return <PageHeader title="Not Found" description="Loyalty data not found." />;
     }
+    
+    const loyaltyData = user.loyaltyData;
 
     return (
         <>
