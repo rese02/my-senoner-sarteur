@@ -7,9 +7,21 @@ import Image from 'next/image';
 export default function LoginPage() {
   return (
     <div className="w-full min-h-screen lg:grid lg:grid-cols-2 bg-background">
+      {/* Linke Marken-Säule - Wird auf mobilen Geräten ausgeblendet */}
+      <div className="hidden bg-primary lg:flex items-center justify-center relative p-8">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-10"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1579541626635-4a88c7b415a7?q=80&w=1974&auto=format&fit=crop')" }}
+        />
+
+        <div className="relative z-10 w-2/3">
+          <Logo />
+        </div>
+      </div>
+      
       {/* Rechte, helle Aktions-Säule */}
       <div className="flex items-center justify-center py-12 px-4">
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-sm">
             <div className="lg:hidden text-center mb-8">
                 <Logo />
             </div>
@@ -28,18 +40,6 @@ export default function LoginPage() {
                 </p>
                 </CardContent>
             </Card>
-        </div>
-      </div>
-
-      {/* Linke Marken-Säule - Wird auf mobilen Geräten ausgeblendet */}
-      <div className="hidden bg-primary lg:flex items-center justify-center relative p-8">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-10"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1579541626635-4a88c7b415a7?q=80&w=1974&auto=format&fit=crop')" }}
-        />
-
-        <div className="relative z-10 w-2/3">
-          <Logo />
         </div>
       </div>
     </div>

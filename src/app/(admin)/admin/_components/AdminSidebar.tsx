@@ -27,7 +27,7 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-primary text-primary-foreground">
+    <aside className="hidden md:flex flex-col w-60 bg-primary text-primary-foreground">
       <div className="p-4 border-b border-primary-foreground/10">
         <Logo />
       </div>

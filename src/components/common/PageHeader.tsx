@@ -9,7 +9,7 @@ type PageHeaderProps = {
 export function PageHeader({ title, description, className }: PageHeaderProps) {
   return (
     <div className={cn("mb-8", className)}>
-      <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+      <h1 className="text-3xl font-bold tracking-tight text-foreground">
         {title}
       </h1>
       {description && (
