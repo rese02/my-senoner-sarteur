@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, ShoppingCart, Package, Users, Megaphone } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Users, Megaphone, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -11,6 +11,7 @@ const navItems = [
   { href: '/admin/products', icon: Package, label: 'Produkte' },
   { href: '/admin/customers', icon: Users, label: 'Kunden' },
   { href: '/admin/marketing', icon: Megaphone, label: 'Marketing' },
+  { href: '/admin/sommelier', icon: Sparkles, label: 'Sommelier' },
 ];
 
 export function AdminMobileNav() {
