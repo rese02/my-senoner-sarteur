@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Playfair_Display } from 'next/font/google';
+import { Inter, Merriweather } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 
 const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-body',
 });
 
-const playfair = Playfair_Display({
+const merriweather = Merriweather({
   subsets: ['latin'],
   weight: ['400', '700'],
-  variable: '--font-playfair',
+  variable: '--font-headline',
 });
 
 export default function RootLayout({
@@ -31,7 +31,7 @@ export default function RootLayout({
         className={cn(
           'font-body bg-background text-foreground antialiased',
           inter.variable,
-          playfair.variable
+          merriweather.variable
         )}
       >
         {children}

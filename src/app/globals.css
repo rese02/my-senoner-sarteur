@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 215 25% 95%; /* Lighter Gray (slate-100) */
+    --background: 220 20% 96%; /* Off-White (F8F9FA) */
     --foreground: 220 13% 25%; /* Dark Anthracite (slate-800) */
     
     --card: 0 0% 100%; /* Pure White */
@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 13% 25%;
     
-    --primary: 212 100% 16%; /* #003152 */
+    --primary: 212 100% 16%; /* Edel-Blau (#003152) */
     --primary-foreground: 210 20% 98%; /* Off-White */
     
     --secondary: 215 25% 90%; /* Lighter gray for secondary elements */
@@ -80,5 +80,8 @@
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline text-foreground;
+  }
+  * { 
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   }
 }
