@@ -35,6 +35,7 @@ export const mockUsers: User[] = [
 export const mockCategories: Category[] = [
   { id: 'cat-1', name: 'Spezielle Vorbestellungen' },
   { id: 'cat-2', name: 'Lokale Delikatessen' },
+  { id: 'cat-3', name: 'Weine' },
 ];
 
 export const mockProducts: Product[] = [
@@ -43,6 +44,9 @@ export const mockProducts: Product[] = [
   { id: 'prod-3', name: 'Frischer Fisch des Tages', price: 18, unit: 'kg', categoryId: 'cat-1', ...getImage('fresh-fish'), availabilityDay: 'Freitag', isAvailable: false, timesOrderedLast30Days: 12 },
   { id: 'prod-4', name: 'Regionale Käseplatte', price: 12.5, unit: 'platte', categoryId: 'cat-2', ...getImage('regional-cheese'), isAvailable: true, timesOrderedLast30Days: 35 },
   { id: 'prod-5', name: 'Südtiroler Speck', price: 22, unit: 'kg', categoryId: 'cat-2', ...getImage('speck'), isAvailable: true, timesOrderedLast30Days: 42 },
+  { id: 'prod-6', name: 'Lagrein Riserva', price: 19.90, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-red-1'), isAvailable: true },
+  { id: 'prod-7', name: 'Gewürztraminer', price: 14.50, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-white-1'), isAvailable: true },
+  { id: 'prod-8', name: 'Pinot Grigio', price: 12.80, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-white-2'), isAvailable: true },
 ];
 
 export const mockLoyaltyData: LoyaltyData[] = [

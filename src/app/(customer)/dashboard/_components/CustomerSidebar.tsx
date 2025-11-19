@@ -9,6 +9,7 @@ import {
   User,
   LogOut,
   ShoppingCart,
+  Sparkles,
 } from 'lucide-react';
 import { logout } from '@/app/actions/auth.actions';
 import { Separator } from '@/components/ui/separator';
@@ -16,6 +17,7 @@ import { Separator } from '@/components/ui/separator';
 const navItems = [
   { href: '/dashboard', icon: ShoppingCart, label: 'Order' },
   { href: '/dashboard/loyalty', icon: CreditCard, label: 'My Loyalty Card' },
+  { href: '/dashboard/sommelier', icon: Sparkles, label: 'AI Sommelier'},
   { href: '/dashboard/profile', icon: User, label: 'My Profile' },
 ];
 
@@ -29,7 +31,7 @@ export function CustomerSidebar() {
           <Button
             key={item.label}
             variant={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href)) ? 'secondary' : 'ghost'}
-            className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/10 hover:text-primary-foreground data-[variant=secondary]:text-primary"
+            className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/20 hover:text-primary-foreground data-[variant=secondary]:text-primary"
             asChild
           >
             <Link href={item.href}>
@@ -42,7 +44,7 @@ export function CustomerSidebar() {
       <div className="mt-auto p-4">
         <Separator className="mb-4 bg-primary-foreground/10"/>
         <form action={logout}>
-          <Button variant="ghost" className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/10 hover:text-primary-foreground">
+          <Button variant="ghost" className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/20 hover:text-primary-foreground">
             <LogOut className="mr-3 h-5 w-5" strokeWidth={1.75}/>
             Sign Out
           </Button>

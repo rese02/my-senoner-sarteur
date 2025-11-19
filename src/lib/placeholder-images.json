@@ -43,6 +43,24 @@
       "imageHint": "cooking dish"
     },
     {
+      "id": "wine-red-1",
+      "description": "Bottle of red wine",
+      "imageUrl": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyZWQlMjB3aW5lfGVufDB8fHx8MTc2MzU0NDc3NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "red wine"
+    },
+    {
+      "id": "wine-white-1",
+      "description": "Bottle of white wine 1",
+      "imageUrl": "https://images.unsplash.com/photo-1585553616435-2dc0a54e271d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx3aGl0ZSUyMHdpbmV8ZW58MHx8fHwxNzYzNTM1NjQ5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "white wine"
+    },
+    {
+      "id": "wine-white-2",
+      "description": "Bottle of white wine 2",
+      "imageUrl": "https://images.unsplash.com/photo-1498429152472-9a433d9ddf3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx3aGl0ZSUyMHdpbmV8ZW58MHx8fHwxNzYzNTM1NjQ5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "white wine"
+    },
+    {
       "id": "placeholder-general",
       "description": "Generic placeholder image",
       "imageUrl": "https://images.unsplash.com/photo-1714578187218-d1828f5ebd6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwbGFjZWhvbGRlciUyMGltYWdlfGVufDB8fHx8MTc2MzMwMjE5M3ww&ixlib=rb-4.1.0&q=80&w=1080",

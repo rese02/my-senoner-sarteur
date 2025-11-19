@@ -1,12 +1,13 @@
 'use client'
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { CreditCard, User, ShoppingCart } from 'lucide-react';
+import { CreditCard, User, ShoppingCart, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', icon: ShoppingCart, label: 'Order' },
   { href: '/dashboard/loyalty', icon: CreditCard, label: 'Card' },
+  { href: '/dashboard/sommelier', icon: Sparkles, label: 'AI Scan' },
   { href: '/dashboard/profile', icon: User, label: 'Profile' },
 ];
 

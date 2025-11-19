@@ -37,7 +37,7 @@ export default async function CustomerLayout({
             <div className="md:hidden">
                  {user && <UserProfileDropdown user={user} />}
             </div>
-            <div className="hidden md:block">
+            <div className="hidden md:flex-1 md:flex md:justify-end">
               {user && <UserProfileDropdown user={user} />}
             </div>
         </header>
