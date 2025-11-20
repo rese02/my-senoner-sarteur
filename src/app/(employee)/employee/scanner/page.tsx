@@ -26,9 +26,9 @@ function MainView({ onStartScan, onStartPicking }: { onStartScan: () => void, on
         <Tabs defaultValue="scanner" className="w-full">
             <TabsList className="grid w-full grid-cols-2 h-14">
                 <TabsTrigger value="scanner" className="h-12 text-base">QR Scanner</TabsTrigger>
-                <TabsTrigger value="lists" className="h-12 text-base">
+                <TabsTrigger value="lists" className="h-12 text-base relative">
                     Einkaufszettel
-                    {newGroceryLists.length > 0 && <Badge className="ml-2 bg-primary text-primary-foreground">{newGroceryLists.length}</Badge>}
+                    {newGroceryLists.length > 0 && <Badge className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0">{newGroceryLists.length}</Badge>}
                 </TabsTrigger>
             </TabsList>
 
@@ -201,6 +201,7 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
     const [checklist, setChecklist] = useState<ChecklistItem[]>(initialChecklist);
     const [finalPrice, setFinalPrice] = useState('');
     const { toast } = useToast();
+    const [isSaving, setIsSaving] = useState(false);
     
     useEffect(() => {
         // In a real app, update order status to 'picking' in Firestore here
@@ -218,19 +219,34 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
     };
     
     const handleFinish = () => {
-        if (!finalPrice || parseFloat(finalPrice) <= 0) {
+         if (!finalPrice || parseFloat(finalPrice) <= 0) {
             toast({ variant: 'destructive', title: 'Ungültiger Preis', description: 'Bitte geben Sie eine gültige Endsumme ein.' });
             return;
         }
+        setIsSaving(true);
+        
         // In a real app, update order in Firestore with status 'ready_for_delivery', finalPrice, and checklist
         console.log(`Finished picking for order ${order.id}. Final price: ${finalPrice}`);
-        toast({ title: 'Einkauf abgeschlossen!', description: `Die Endsumme von ${finalPrice}€ wurde gespeichert.` });
-        onFinish();
+
+        setTimeout(() => {
+            // Mock server action
+            const orderIndex = mockOrders.findIndex(o => o.id === order.id);
+            if (orderIndex !== -1) {
+                mockOrders[orderIndex].status = 'ready_for_delivery';
+                mockOrders[orderIndex].total = parseFloat(finalPrice);
+                mockOrders[orderIndex].checklist = checklist;
+                mockOrders[orderIndex].processedBy = 'user-2-employee'; // Mock employee
+            }
+            
+            toast({ title: 'Einkauf abgeschlossen!', description: `Die Endsumme von €${finalPrice} wurde gespeichert.` });
+            setIsSaving(false);
+            onFinish();
+        }, 1000);
     }
 
     return (
         <div className="fixed inset-0 z-50 bg-background flex flex-col">
-            <header className="p-4 border-b flex justify-between items-center bg-card">
+            <header className="p-4 border-b flex justify-between items-center bg-card sticky top-0">
                  <div>
                     <h2 className="font-bold text-lg">Einkauf für {order.customerName}</h2>
                     <p className="text-sm text-muted-foreground">Haken Sie die gefundenen Artikel ab.</p>
@@ -239,33 +255,35 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
                     <X />
                 </Button>
             </header>
-            <main className="flex-grow overflow-y-auto">
+            <main className="flex-grow overflow-y-auto pb-40">
                 {checklist.map((entry, index) => (
                     <div 
                         key={index} 
                         onClick={() => toggleItem(index)}
-                        className={cn("p-4 border-b flex items-center gap-4 cursor-pointer transition-colors", entry.isFound ? 'bg-green-50 text-muted-foreground line-through' : 'bg-card hover:bg-secondary/50')}
+                        className={cn("p-4 border-b flex items-center gap-4 cursor-pointer transition-colors", entry.isFound ? 'bg-green-50 text-muted-foreground' : 'bg-card hover:bg-secondary/50')}
                     >
-                        <div className={cn("w-6 h-6 rounded-md border-2 flex items-center justify-center", entry.isFound ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground")}>
+                        <div className={cn("w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all", entry.isFound ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground")}>
                            {entry.isFound && <Check className="w-4 h-4" />}
                         </div>
-                        <span className="text-lg flex-1">{entry.item}</span>
+                        <span className={cn("text-lg flex-1", entry.isFound && 'line-through')}>{entry.item}</span>
                     </div>
                 ))}
             </main>
-            <footer className="p-4 bg-card border-t grid gap-2">
+            <footer className="fixed bottom-0 left-0 right-0 p-4 bg-card border-t shadow-lg grid gap-2 animate-in slide-in-from-bottom-10">
                  <Label htmlFor="final-price">Endsumme (€)</Label>
-                 <Input 
-                    id="final-price"
-                    type="number" 
-                    className="text-2xl h-14" 
-                    placeholder="z.B. 34.50" 
-                    value={finalPrice}
-                    onChange={(e) => setFinalPrice(e.target.value)}
-                 />
-                 <Button onClick={handleFinish} className="w-full mt-2 h-12 text-lg">
-                    Abschließen & Preis speichern
-                </Button>
+                 <div className="flex gap-2">
+                    <Input 
+                        id="final-price"
+                        type="number" 
+                        className="text-2xl h-14" 
+                        placeholder="0.00" 
+                        value={finalPrice}
+                        onChange={(e) => setFinalPrice(e.target.value)}
+                    />
+                    <Button onClick={handleFinish} disabled={isSaving} className="h-14 px-6 text-lg">
+                        {isSaving ? <Loader2 className="animate-spin"/> : 'Fertig'}
+                    </Button>
+                 </div>
             </footer>
         </div>
     )
@@ -331,3 +349,5 @@ export default function ScannerPage() {
 
     return <MainView onStartScan={startScanFlow} onStartPicking={handleStartPicking}/>;
 }
+
+    

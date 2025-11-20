@@ -79,6 +79,7 @@ export const mockProducts: Product[] = [
 export const mockOrders: Order[] = [
   {
     id: 'order-1',
+    type: 'preorder',
     userId: 'user-1-customer',
     customerName: 'Maria Muster',
     items: [{ productId: 'prod-1', productName: 'Kleine Sushi-Box', quantity: 2, price: 15 }],
@@ -89,6 +90,7 @@ export const mockOrders: Order[] = [
   },
   {
     id: 'order-2',
+    type: 'preorder',
     userId: 'user-4-customer',
     customerName: 'John Doe',
     items: [
@@ -102,6 +104,7 @@ export const mockOrders: Order[] = [
   },
     {
     id: 'order-3',
+    type: 'preorder',
     userId: 'user-1-customer',
     customerName: 'Maria Muster',
     items: [{ productId: 'prod-4', productName: 'Regionale Käseplatte', quantity: 1, price: 12.5 }],
@@ -112,6 +115,7 @@ export const mockOrders: Order[] = [
   },
     {
     id: 'order-4',
+    type: 'preorder',
     userId: 'user-4-customer',
     customerName: 'John Doe',
     items: [{ productId: 'prod-5', productName: 'Südtiroler Speck', quantity: 1, price: 22 }],
@@ -122,6 +126,7 @@ export const mockOrders: Order[] = [
   },
     {
     id: 'order-5',
+    type: 'preorder',
     userId: 'user-1-customer',
     customerName: 'Maria Muster',
     items: [{ productId: 'prod-1', productName: 'Kleine Sushi-Box', quantity: 1, price: 15 }],
@@ -129,6 +134,20 @@ export const mockOrders: Order[] = [
     pickupDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     status: 'ready', // This is an overdue pickup
     createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+   {
+    id: 'order-6-grocery',
+    type: 'grocery_list',
+    userId: 'user-4-customer',
+    customerName: 'John Doe',
+    rawList: '1L Frische Vollmilch\n200g Südtiroler Speck\n1 Laib Brot',
+    checklist: [
+      { item: '1L Frische Vollmilch', isFound: false },
+      { item: '200g Südtiroler Speck', isFound: false },
+      { item: '1 Laib Brot', isFound: false }
+    ],
+    status: 'new',
+    createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
   },
 ];
 
@@ -157,3 +176,5 @@ export let mockAppConfig: AppConfig = {
     },
     isWheelOfFortuneActive: true,
 };
+
+    

@@ -1,28 +1,51 @@
 
+'use client';
 
+import { useState } from 'react';
 import { PageHeader } from "@/components/common/PageHeader";
 import { mockCategories, mockProducts, mockAppConfig } from "@/lib/mock-data";
 import { ProductCard } from "./_components/ProductCard";
 import { Cart } from "./_components/Cart";
 import { RecipeCard } from "./_components/RecipeCard";
-import type { Recipe } from "@/lib/types";
+import type { Recipe, Product } from "@/lib/types";
 import { ShoppingCart } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
-// This would typically be a server-side fetch from a database.
-async function getRecipeData(): Promise<Recipe> {
-    // Simulating an async operation
-    return Promise.resolve(mockAppConfig.recipeOfTheWeek);
+function CategoryFilter({ activeCategory, onSelect }: { activeCategory: string, onSelect: (category: string) => void }) {
+  const categories = ["Alle", ...mockCategories.map(c => c.name)];
+  return (
+    <div className="flex overflow-x-auto pb-4 gap-2 mb-6 -mx-4 px-4 scrollbar-hide">
+      {categories.map((cat) => (
+        <Button
+          key={cat}
+          onClick={() => onSelect(cat)}
+          variant={activeCategory === cat ? "default" : "outline"}
+          className="rounded-full px-5 text-sm h-9 whitespace-nowrap"
+        >
+          {cat}
+        </Button>
+      ))}
+    </div>
+  );
 }
 
-export default async function CustomerDashboardPage() {
-    const recipe = await getRecipeData();
+
+export default function CustomerDashboardPage() {
+    const [recipe] = useState<Recipe>(mockAppConfig.recipeOfTheWeek);
+    const [selectedCategory, setSelectedCategory] = useState<string>('Alle');
+
+    const filteredProducts = selectedCategory === 'Alle'
+        ? mockProducts.filter(p => p.isAvailable)
+        : mockProducts.filter(p => {
+            const category = mockCategories.find(c => c.name === selectedCategory);
+            return p.categoryId === category?.id && p.isAvailable;
+        });
 
     return (
         <div className="container mx-auto p-0">
             <div className="hidden md:block">
-                <PageHeader title="Pre-Order Specials" description="Order your favorite items in advance." />
+                <PageHeader title="Pre-Order Specials" description="Bestellen Sie Ihre Lieblingsartikel im Voraus." />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -31,16 +54,18 @@ export default async function CustomerDashboardPage() {
                         <div className="px-4 md:px-0">
                             <RecipeCard recipe={recipe} />
                         </div>
-                        {mockCategories.map(category => (
-                             <section key={category.id}>
-                                <h2 className="text-2xl font-bold mb-4 px-4 md:px-0">{category.name}</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 md:px-0">
-                                    {mockProducts.filter(p => p.categoryId === category.id && p.isAvailable).map(product => (
-                                        <ProductCard key={product.id} product={product} />
-                                    ))}
-                                </div>
-                            </section>
-                        ))}
+                        
+                        <section>
+                            <div className="px-4 md:px-0">
+                                <h2 className="text-2xl font-bold mb-4">Produkte</h2>
+                                <CategoryFilter activeCategory={selectedCategory} onSelect={setSelectedCategory} />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 md:px-0">
+                                {filteredProducts.map(product => (
+                                    <ProductCard key={product.id} product={product} />
+                                ))}
+                            </div>
+                        </section>
                     </div>
                 </div>
                 
@@ -67,3 +92,5 @@ export default async function CustomerDashboardPage() {
         </div>
     );
 }
+
+    

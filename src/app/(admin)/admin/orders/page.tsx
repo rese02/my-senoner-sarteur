@@ -4,10 +4,10 @@ import { mockOrders, mockUsers } from "@/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, FileText, ShoppingCart } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo, useTransition, useEffect } from "react";
 import type { Order, OrderStatus, User } from "@/lib/types";
@@ -26,8 +26,12 @@ import { OrderCard } from "@/components/admin/OrderCard";
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
   new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg border-transparent' },
+  picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800 border-transparent' },
   ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg border-transparent' },
+  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg border-transparent' },
+  delivered: { label: 'Geliefert', className: 'bg-slate-100 text-slate-600 border-transparent' },
   collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg border-transparent' },
+  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700 border-transparent' },
   cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg border-transparent' }
 };
 
@@ -115,7 +119,7 @@ export default function AdminOrdersPage() {
 
   return (
     <>
-      <PageHeader title="Bestellungen" description="Verwalten Sie alle Vorbestellungen Ihrer Kunden." />
+      <PageHeader title="Bestellungen" description="Verwalten Sie alle Vorbestellungen und Einkaufszettel." />
       <Card>
         <CardHeader>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -136,10 +140,9 @@ export default function AdminOrdersPage() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">Alle Status</SelectItem>
-                        <SelectItem value="new">Neu</SelectItem>
-                        <SelectItem value="ready">Abholbereit</SelectItem>
-                        <SelectItem value="collected">Abgeholt</SelectItem>
-                        <SelectItem value="cancelled">Storniert</SelectItem>
+                        {Object.keys(statusMap).map(s => (
+                              <SelectItem key={s} value={s} className="capitalize text-xs">{statusMap[s as OrderStatus].label}</SelectItem>
+                          ))}
                     </SelectContent>
                 </Select>
              </div>
@@ -152,11 +155,11 @@ export default function AdminOrdersPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Bestell-ID</TableHead>
-                  <TableHead>Bestelldatum</TableHead>
+                  <TableHead>Typ</TableHead>
                   <TableHead>Kunde</TableHead>
                   <TableHead>Details</TableHead>
                   <TableHead className="text-right">Total</TableHead>
-                  <TableHead>Abholung</TableHead>
+                  <TableHead>Fälligkeit</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Aktion</TableHead>
                 </TableRow>
@@ -171,19 +174,29 @@ export default function AdminOrdersPage() {
                   <TableRow key={order.id} className="transition-colors hover:bg-muted/50">
                     <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
                     <TableCell>
-                      <FormattedDate date={new Date(order.createdAt)} formatString="dd.MM.yy, HH:mm" />
+                      <div className="flex items-center gap-2">
+                         {order.type === 'grocery_list' 
+                          ? <FileText className="h-4 w-4 text-orange-600"/>
+                          : <ShoppingCart className="h-4 w-4 text-primary"/>
+                         }
+                         <span className="text-xs">{order.type === 'grocery_list' ? 'Liste' : 'Vorb.'}</span>
+                      </div>
                     </TableCell>
                     <TableCell className="font-medium">{order.customerName}</TableCell>
-                    <TableCell className="text-muted-foreground text-xs">{order.items.map(i => `${i.quantity}x ${i.productName}`).join(', ')}</TableCell>
-                    <TableCell className="text-right">€{order.total.toFixed(2)}</TableCell>
-                    <TableCell>{format(new Date(order.pickupDate), "EEE, dd.MM.", { locale: de })}</TableCell>
+                    <TableCell className="text-muted-foreground text-xs">{
+                      order.type === 'grocery_list' 
+                      ? `${order.rawList?.split('\n').length} Artikel`
+                      : order.items?.map(i => `${i.quantity}x ${i.productName}`).join(', ')
+                    }</TableCell>
+                    <TableCell className="text-right font-semibold">{order.total ? `€${order.total.toFixed(2)}` : '-'}</TableCell>
+                    <TableCell><FormattedDate date={new Date(order.pickupDate || order.deliveryDate || order.createdAt)} formatString="EEE, dd.MM." locale={de} /></TableCell>
                     <TableCell>
                       <Select 
                         value={order.status} 
                         onValueChange={(value: OrderStatus) => handleStatusChange(order.id, value)}
                         disabled={isPending}
                       >
-                        <SelectTrigger className="h-8 w-[120px] capitalize text-xs bg-card focus:ring-primary/50">
+                        <SelectTrigger className="h-8 w-[140px] capitalize text-xs bg-card focus:ring-primary/50">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -235,31 +248,44 @@ export default function AdminOrdersPage() {
               <div className="space-y-4">
                   <h3 className="font-semibold text-lg">Bestellübersicht</h3>
                    <div className="grid grid-cols-2 gap-2 text-sm">
-                        <p className="text-muted-foreground">Abholung:</p>
-                        <p className="font-medium">{format(new Date(selectedOrder.pickupDate), "EEEE, dd.MM.yyyy", { locale: de })}</p>
+                        <p className="text-muted-foreground">{selectedOrder.type === 'grocery_list' ? 'Lieferung:' : 'Abholung:'}</p>
+                        <p className="font-medium"><FormattedDate date={new Date(selectedOrder.pickupDate || selectedOrder.deliveryDate || selectedOrder.createdAt)} formatString="EEEE, dd.MM.yyyy" locale={de} /></p>
                         <p className="text-muted-foreground">Status:</p>
-                        <div><Badge className={cn("capitalize font-semibold", statusMap[selectedOrder.status].className)}>{statusMap[selectedOrder.status].label}</Badge></div>
+                        <div><Badge className={cn("capitalize font-semibold", statusMap[selectedOrder.status]?.className)}>{statusMap[selectedOrder.status]?.label}</Badge></div>
                    </div>
-                  <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Produkt</TableHead>
-                            <TableHead>Menge</TableHead>
-                            <TableHead className="text-right">Preis</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {selectedOrder.items.map(item => (
-                            <TableRow key={item.productId}>
-                                <TableCell>{item.productName}</TableCell>
-                                <TableCell>{item.quantity}</TableCell>
-                                <TableCell className="text-right">€{(item.price * item.quantity).toFixed(2)}</TableCell>
+                  
+                  {selectedOrder.type === 'preorder' && selectedOrder.items && (
+                      <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Produkt</TableHead>
+                                <TableHead>Menge</TableHead>
+                                <TableHead className="text-right">Preis</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                  </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {selectedOrder.items.map(item => (
+                                <TableRow key={item.productId}>
+                                    <TableCell>{item.productName}</TableCell>
+                                    <TableCell>{item.quantity}</TableCell>
+                                    <TableCell className="text-right">€{(item.price * item.quantity).toFixed(2)}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                      </Table>
+                  )}
+
+                  {selectedOrder.type === 'grocery_list' && selectedOrder.rawList && (
+                      <div>
+                          <h4 className="font-semibold mt-4 mb-2">Einkaufszettel</h4>
+                          <div className="p-4 bg-secondary rounded-md text-sm whitespace-pre-line text-muted-foreground">
+                            {selectedOrder.rawList}
+                          </div>
+                      </div>
+                  )}
+
                   <div className="flex justify-end font-bold text-lg">
-                      Gesamt: €{selectedOrder.total.toFixed(2)}
+                      Gesamt: €{selectedOrder.total?.toFixed(2) || 'N/A'}
                   </div>
               </div>
               
@@ -284,3 +310,5 @@ export default function AdminOrdersPage() {
     </>
   );
 }
+
+    

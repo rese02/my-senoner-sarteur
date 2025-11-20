@@ -1,10 +1,11 @@
 'use client';
 import type { Order, OrderStatus } from "@/lib/types";
-import { format } from "date-fns";
+import { format, isToday } from "date-fns";
 import { de } from "date-fns/locale";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTransition } from "react";
+import { cn } from "@/lib/utils";
 
 
 type OrderCardProps = {
@@ -16,6 +17,7 @@ type OrderCardProps = {
 
 export function OrderCard({ order, statusMap, onStatusChange, onShowDetails }: OrderCardProps) {
   const [isPending, startTransition] = useTransition();
+  const dueDate = new Date(order.pickupDate || order.deliveryDate || order.createdAt);
 
   const handleSelectChange = (value: OrderStatus) => {
     startTransition(() => {
@@ -31,13 +33,17 @@ export function OrderCard({ order, statusMap, onStatusChange, onShowDetails }: O
               <p className="font-bold text-lg">{order.customerName}</p>
               <p className="text-sm text-muted-foreground">#{order.id.slice(-6)}</p>
             </div>
-             <p className="text-sm font-medium">
-                {format(new Date(order.pickupDate), "EEE, dd.MM.", { locale: de })}
+             <p className={cn("text-sm font-medium", isToday(dueDate) ? "text-primary" : "")}>
+                {isToday(dueDate) ? 'Heute' : format(dueDate, "EEE, dd.MM.", { locale: de })}
             </p>
           </div>
           <div className="mt-4 text-sm space-y-2">
-            <p className="text-muted-foreground">{order.items.map(item => `${item.quantity}x ${item.productName}`).join(', ')}</p>
-             <p className="font-bold text-base">€{order.total.toFixed(2)}</p>
+            <p className="text-muted-foreground">{
+               order.type === 'grocery_list'
+                ? `${order.rawList?.split('\n').length || 0} Artikel`
+                : order.items?.map(item => `${item.quantity}x ${item.productName}`).join(', ')
+            }</p>
+             <p className="font-bold text-base">{order.total ? `€${order.total.toFixed(2)}`: 'Preis offen'}</p>
           </div>
         </CardContent>
          <div className="px-4 pb-4" onClick={e => e.stopPropagation()}>
@@ -59,3 +65,5 @@ export function OrderCard({ order, statusMap, onStatusChange, onShowDetails }: O
     </Card>
   );
 }
+
+    

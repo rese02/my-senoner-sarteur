@@ -80,7 +80,7 @@ export interface Order {
   checklist?: ChecklistItem[];
   deliveryAddress?: { street: string; city: string; notes?: string };
   deliveryDate?: string;
-  finalPrice?: number;
+  
   processedBy?: string; // Employee User ID
 
   total?: number; // Can be pre-calculated for 'preorder' or set for 'grocery_list'
@@ -114,3 +114,5 @@ export type CartItem = {
   price: number;
   quantity: number;
 };
+
+    
