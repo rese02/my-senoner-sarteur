@@ -36,7 +36,7 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
                           <div className="grid md:grid-cols-2 max-h-[90vh]">
                             {/* LINKS: Bild (Vollflächig) */}
                             <div className="relative h-64 md:h-full w-full">
-                              <Image src={recipe.image} layout="fill" objectFit="cover" alt={recipe.title} data-ai-hint={recipe.imageHint} />
+                              <Image src={recipe.image} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" alt={recipe.title} data-ai-hint={recipe.imageHint} />
                             </div>
 
                             {/* RECHTS: Scrollbarer Inhalt */}
