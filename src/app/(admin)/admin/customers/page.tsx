@@ -14,7 +14,6 @@ import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { improveTextWithAI } from "@/ai/flows/improve-newsletter-text";
 import { generateSeasonalPromotions } from "@/ai/flows/generate-seasonal-promotions";
-import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { getLoyaltyTier, loyaltyTiers } from "@/lib/loyalty";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -26,7 +25,6 @@ const getCustomerPurchaseCategories = (userId: string): Set<string> => {
     const categories = new Set<string>();
     const customerOrders = mockOrders.filter(o => o.userId === userId);
     for (const order of customerOrders) {
-        // FIX: Check if order.items exists and is an array before iterating
         if (Array.isArray(order.items)) {
             for (const item of order.items) {
                 const product = mockProducts.find(p => p.id === item.productId);
@@ -39,6 +37,38 @@ const getCustomerPurchaseCategories = (userId: string): Set<string> => {
     return categories;
 };
 
+
+function CustomerCard({ customer, isSelected, onSelect }: { customer: User, isSelected: boolean, onSelect: (id: string, checked: boolean) => void }) {
+    const customerOrders = mockOrders.filter(o => o.userId === customer.id);
+    const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total ?? 0), 0);
+    const loyaltyData = customer.loyaltyData;
+    const loyaltyTier = loyaltyData ? getLoyaltyTier(loyaltyData.points) : loyaltyTiers.bronze;
+
+    return (
+        <div 
+            onClick={() => onSelect(customer.id, !isSelected)}
+            className={cn("p-4 border rounded-lg transition-colors flex items-start gap-4", isSelected ? "bg-secondary border-primary" : "bg-card hover:bg-secondary/50")}
+        >
+             <Checkbox 
+                checked={isSelected}
+                className="mt-1 shrink-0"
+             />
+            <div className="flex-grow">
+                <div className="flex justify-between items-start">
+                    <p className="font-semibold text-base">{customer.name}</p>
+                    <Badge variant="outline" className={`border-0 ${loyaltyTier.color.replace('text-', 'bg-').replace('600', '100')} ${loyaltyTier.color}`}>
+                       <Trophy className="w-3 h-3 mr-1.5" />
+                       {loyaltyTier.name}
+                    </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">{customer.email}</p>
+                <div className="text-right mt-2 font-semibold">
+                    €{totalSpent.toFixed(2)}
+                </div>
+            </div>
+        </div>
+    )
+}
 
 export default function AdminCustomersPage() {
     const allCustomers = useMemo(() => mockUsers.filter(u => u.role === 'customer'), []);
@@ -169,54 +199,75 @@ export default function AdminCustomersPage() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-12">
-                                <Checkbox
-                                    checked={selectedCustomers.length === filteredCustomers.length && filteredCustomers.length > 0}
-                                    onCheckedChange={handleSelectAll}
-                                />
-                            </TableHead>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Level</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead className="text-right">Gesamtausgaben</TableHead>
-                        </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                        {filteredCustomers.length === 0 && (
+                    {/* Desktop Table */}
+                    <div className="hidden md:block">
+                        <Table>
+                            <TableHeader>
                             <TableRow>
-                                <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
-                                    {selectedCategories.length > 0 ? "Keine Kunden für diese Auswahl gefunden." : "Keine Kunden vorhanden."}
-                                </TableCell>
+                                <TableHead className="w-12">
+                                    <Checkbox
+                                        checked={selectedCustomers.length === filteredCustomers.length && filteredCustomers.length > 0}
+                                        onCheckedChange={handleSelectAll}
+                                    />
+                                </TableHead>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Level</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead className="text-right">Gesamtausgaben</TableHead>
                             </TableRow>
-                        )}
-                        {filteredCustomers.map((customer) => {
-                            const customerOrders = mockOrders.filter(o => o.userId === customer.id);
-                            const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total ?? 0), 0);
-                            const loyaltyData = customer.loyaltyData;
-                            const loyaltyTier = loyaltyData ? getLoyaltyTier(loyaltyData.points) : loyaltyTiers.bronze;
-
-                            return (
-                                <TableRow key={customer.id} data-state={selectedCustomers.includes(customer.id) ? "selected" : undefined}>
-                                    <TableCell>
-                                        <Checkbox checked={selectedCustomers.includes(customer.id)} onCheckedChange={(checked) => handleSelectCustomer(customer.id, !!checked)} />
+                            </TableHeader>
+                            <TableBody>
+                            {filteredCustomers.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                                        {selectedCategories.length > 0 ? "Keine Kunden für diese Auswahl gefunden." : "Keine Kunden vorhanden."}
                                     </TableCell>
-                                    <TableCell className="font-medium">{customer.name}</TableCell>
-                                    <TableCell>
-                                       <Badge variant="outline" className={`border-0 ${loyaltyTier.color.replace('text-', 'bg-').replace('500', '100')} ${loyaltyTier.color}`}>
-                                          <Trophy className="w-3 h-3 mr-1.5" />
-                                          {loyaltyTier.name}
-                                       </Badge>
-                                    </TableCell>
-                                    <TableCell>{customer.email}</TableCell>
-                                    <TableCell className="text-right">€{totalSpent.toFixed(2)}</TableCell>
                                 </TableRow>
-                            )
-                        })}
-                        </TableBody>
-                    </Table>
+                            )}
+                            {filteredCustomers.map((customer) => {
+                                const customerOrders = mockOrders.filter(o => o.userId === customer.id);
+                                const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total ?? 0), 0);
+                                const loyaltyData = customer.loyaltyData;
+                                const loyaltyTier = loyaltyData ? getLoyaltyTier(loyaltyData.points) : loyaltyTiers.bronze;
+
+                                return (
+                                    <TableRow key={customer.id} data-state={selectedCustomers.includes(customer.id) ? "selected" : undefined}>
+                                        <TableCell>
+                                            <Checkbox checked={selectedCustomers.includes(customer.id)} onCheckedChange={(checked) => handleSelectCustomer(customer.id, !!checked)} />
+                                        </TableCell>
+                                        <TableCell className="font-medium">{customer.name}</TableCell>
+                                        <TableCell>
+                                        <Badge variant="outline" className={`border-0 ${loyaltyTier.color.replace('text-', 'bg-').replace('600', '100')} ${loyaltyTier.color}`}>
+                                            <Trophy className="w-3 h-3 mr-1.5" />
+                                            {loyaltyTier.name}
+                                        </Badge>
+                                        </TableCell>
+                                        <TableCell>{customer.email}</TableCell>
+                                        <TableCell className="text-right">€{totalSpent.toFixed(2)}</TableCell>
+                                    </TableRow>
+                                )
+                            })}
+                            </TableBody>
+                        </Table>
+                    </div>
+
+                    {/* Mobile Card List */}
+                    <div className="md:hidden space-y-3">
+                         {filteredCustomers.length === 0 && (
+                            <div className="text-center py-10 text-muted-foreground">
+                                {selectedCategories.length > 0 ? "Keine Kunden für diese Auswahl gefunden." : "Keine Kunden vorhanden."}
+                            </div>
+                        )}
+                        {filteredCustomers.map(customer => (
+                            <CustomerCard
+                                key={customer.id}
+                                customer={customer}
+                                isSelected={selectedCustomers.includes(customer.id)}
+                                onSelect={handleSelectCustomer}
+                            />
+                        ))}
+                    </div>
+
                 </CardContent>
             </Card>
 
@@ -227,7 +278,7 @@ export default function AdminCustomersPage() {
                 <CardContent className="space-y-4">
                     <Input placeholder="Betreff des Newsletters" value={subject} onChange={e => setSubject(e.target.value)} />
                     <Textarea placeholder="Schreiben Sie hier Ihre Newsletter-Nachricht..." className="min-h-[200px]" value={message} onChange={e => setMessage(e.target.value)} />
-                     <p className="text-xs text-muted-foreground">Ihre Nachricht wird von einem KI-Dienst zur Verbesserung verarbeitet. Bitte geben Sie keine sensiblen Daten ein.</p>
+                     <p className="text-xs text-muted-foreground flex items-start gap-2">Ihre Nachricht wird von einem KI-Dienst zur Verbesserung verarbeitet. Bitte geben Sie keine sensiblen Daten ein.</p>
                     <div className="flex justify-between items-center">
                         <Button variant="outline" onClick={handleImproveText} disabled={isImproving}>
                             {isImproving ? <RotateCw className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
