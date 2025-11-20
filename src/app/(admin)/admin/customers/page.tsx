@@ -26,10 +26,13 @@ const getCustomerPurchaseCategories = (userId: string): Set<string> => {
     const categories = new Set<string>();
     const customerOrders = mockOrders.filter(o => o.userId === userId);
     for (const order of customerOrders) {
-        for (const item of order.items) {
-            const product = mockProducts.find(p => p.id === item.productId);
-            if (product) {
-                categories.add(product.categoryId);
+        // FIX: Check if order.items exists and is an array before iterating
+        if (Array.isArray(order.items)) {
+            for (const item of order.items) {
+                const product = mockProducts.find(p => p.id === item.productId);
+                if (product) {
+                    categories.add(product.categoryId);
+                }
             }
         }
     }
@@ -191,7 +194,7 @@ export default function AdminCustomersPage() {
                         )}
                         {filteredCustomers.map((customer) => {
                             const customerOrders = mockOrders.filter(o => o.userId === customer.id);
-                            const totalSpent = customerOrders.reduce((sum, o) => sum + o.total, 0);
+                            const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total ?? 0), 0);
                             const loyaltyData = customer.loyaltyData;
                             const loyaltyTier = loyaltyData ? getLoyaltyTier(loyaltyData.points) : loyaltyTiers.bronze;
 
