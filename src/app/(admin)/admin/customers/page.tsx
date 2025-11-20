@@ -46,16 +46,16 @@ export default function AdminCustomersPage() {
     
     const handleImproveText = async () => {
         if (!message) {
-            toast({ variant: 'destructive', title: 'Message is empty' });
+            toast({ variant: 'destructive', title: 'Die Nachricht ist leer.' });
             return;
         }
         setIsImproving(true);
         try {
             const { improvedText } = await improveTextWithAI({ text: message });
             setMessage(improvedText);
-            toast({ title: 'Text improved with AI!' });
+            toast({ title: 'Text mit KI verbessert!' });
         } catch (error) {
-            toast({ variant: 'destructive', title: 'AI Improvement Failed', description: 'Could not improve the text.' });
+            toast({ variant: 'destructive', title: 'KI-Verbesserung fehlgeschlagen', description: 'Der Text konnte nicht verbessert werden.' });
         } finally {
             setIsImproving(false);
         }
@@ -72,7 +72,7 @@ export default function AdminCustomersPage() {
             setPromotions(promotionIdeas);
             toast({ title: 'Neue Promotion-Ideen generiert!' });
         } catch(error) {
-             toast({ variant: 'destructive', title: 'AI Generation Failed', description: 'Could not generate promotions.' });
+             toast({ variant: 'destructive', title: 'KI-Generierung fehlgeschlagen', description: 'Promotionen konnten nicht generiert werden.' });
         } finally {
             setIsGenerating(false);
         }
@@ -144,6 +144,7 @@ export default function AdminCustomersPage() {
                 <CardContent className="space-y-4">
                     <Input placeholder="Betreff des Newsletters" value={subject} onChange={e => setSubject(e.target.value)} />
                     <Textarea placeholder="Schreiben Sie hier Ihre Newsletter-Nachricht..." className="min-h-[200px]" value={message} onChange={e => setMessage(e.target.value)} />
+                     <p className="text-xs text-muted-foreground">Ihre Nachricht wird von einem KI-Dienst zur Verbesserung verarbeitet. Bitte geben Sie keine sensiblen Daten ein.</p>
                     <div className="flex justify-between items-center">
                         <Button variant="outline" onClick={handleImproveText} disabled={isImproving}>
                             {isImproving ? <RotateCw className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
@@ -177,6 +178,7 @@ export default function AdminCustomersPage() {
                             </ul>
                         </div>
                     )}
+                     <p className="text-xs text-muted-foreground mt-4">Ihre Eingaben werden von einem KI-Dienst zur Ideengenerierung verarbeitet.</p>
                 </CardContent>
             </Card>
         </div>

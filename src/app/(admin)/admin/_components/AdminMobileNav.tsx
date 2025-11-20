@@ -11,7 +11,6 @@ const navItems = [
   { href: '/admin/products', icon: Package, label: 'Produkte' },
   { href: '/admin/customers', icon: Users, label: 'Kunden' },
   { href: '/admin/marketing', icon: Megaphone, label: 'Marketing' },
-  { href: '/admin/sommelier', icon: Sparkles, label: 'Sommelier' },
 ];
 
 export function AdminMobileNav() {

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Trash2, Save, Loader2 } from 'lucide-react';
+import { Trash2, Save, Loader2, FileWarning } from 'lucide-react';
 import { bulkImportWines, deleteAllWines } from '@/app/actions/wine-manager.actions';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -80,6 +80,10 @@ export default function WineManagerPage() {
               onChange={(e) => setInputList(e.target.value)}
               disabled={isLoading}
             />
+             <p className="text-xs text-muted-foreground flex items-start gap-2">
+              <FileWarning className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <span>Ihre Eingabe wird von einem KI-Dienst verarbeitet, um die Weine automatisch mit relevanten Tags anzureichern. Geben Sie keine sensiblen Daten ein.</span>
+            </p>
             <Button onClick={handleImport} disabled={isLoading} className="w-full">
               {isLoading ? <Loader2 className="animate-spin mr-2" /> : <Save className="mr-2 w-4 h-4" />}
               Liste importieren & Analysieren

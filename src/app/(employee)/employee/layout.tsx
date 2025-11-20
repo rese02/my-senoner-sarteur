@@ -10,11 +10,13 @@ export default function EmployeeLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col min-h-screen bg-secondary/50">
-      <header className="flex items-center justify-between p-4 border-b bg-card">
-        <Logo />
+    <div className="flex flex-col min-h-screen bg-background">
+      <header className="flex items-center justify-between p-4 border-b bg-primary text-primary-foreground">
+        <div className="h-8">
+            <Logo />
+        </div>
         <form action={logout}>
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10">
             <LogOut className="mr-2 h-4 w-4" />
             Sign Out
           </Button>

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Trash2, Edit, Loader2, XCircle } from "lucide-react";
+import { PlusCircle, Trash2, Edit, Loader2, Plus } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState, useTransition } from "react";
@@ -49,7 +49,7 @@ export default function AdminProductsPage() {
         }).then(success => {
             if (!success) {
                 setProducts(originalProducts);
-                toast({ variant: 'destructive', title: 'Update failed' });
+                toast({ variant: 'destructive', title: 'Update fehlgeschlagen' });
             }
         });
     });
@@ -57,7 +57,7 @@ export default function AdminProductsPage() {
 
   const handleCreateCategory = () => {
       if (!newCategoryName) {
-        toast({ variant: 'destructive', title: 'Category name is required' });
+        toast({ variant: 'destructive', title: 'Kategoriename ist erforderlich' });
         return;
       }
       startTransition(() => {
@@ -66,7 +66,7 @@ export default function AdminProductsPage() {
             name: newCategoryName,
         };
         setCategories(prev => [...prev, newCategory]);
-        toast({ title: 'Category created!' });
+        toast({ title: 'Kategorie erstellt!' });
         setNewCategoryName('');
         setIsCategoryModalOpen(false);
       });
@@ -76,7 +76,7 @@ export default function AdminProductsPage() {
       startTransition(() => {
         setCategories(prev => prev.filter(c => c.id !== categoryId));
         setProducts(prev => prev.filter(p => p.categoryId !== categoryId));
-        toast({ title: 'Category deleted' });
+        toast({ title: 'Kategorie gelöscht' });
       });
   };
 
@@ -101,7 +101,7 @@ export default function AdminProductsPage() {
       e.preventDefault();
       
       if (!editingProduct || !editingProduct.name || !editingProduct.price) {
-          toast({ variant: 'destructive', title: 'Name and Price are required' });
+          toast({ variant: 'destructive', title: 'Name und Preis sind erforderlich' });
           return;
       }
 
@@ -109,7 +109,7 @@ export default function AdminProductsPage() {
           if (editingProduct.id) {
               // Update existing product
               setProducts(products.map(p => p.id === editingProduct.id ? { ...p, ...editingProduct } as Product : p));
-              toast({ title: 'Product updated!' });
+              toast({ title: 'Produkt aktualisiert!' });
           } else {
               // Create new product
               const newProduct: Product = {
@@ -120,7 +120,7 @@ export default function AdminProductsPage() {
                   price: Number(editingProduct.price)
               } as Product;
               setProducts(prev => [...prev, newProduct]);
-              toast({ title: 'Product created!' });
+              toast({ title: 'Produkt erstellt!' });
           }
           setIsProductModalOpen(false);
           setEditingProduct(null);
@@ -130,7 +130,7 @@ export default function AdminProductsPage() {
   const handleDeleteProduct = (productId: string) => {
       startTransition(() => {
         setProducts(prev => prev.filter(p => p.id !== productId));
-        toast({ title: 'Product deleted' });
+        toast({ title: 'Produkt gelöscht' });
       });
   };
 
@@ -138,7 +138,7 @@ export default function AdminProductsPage() {
     <>
       <div className="flex justify-between items-center mb-8">
         <PageHeader title="Produkte" description="Verwalten Sie Ihre Produktkategorien und Artikel." className="mb-0" />
-        <Button onClick={() => setIsCategoryModalOpen(true)}><PlusCircle className="mr-2"/>Neue Kategorie</Button>
+        <Button onClick={() => setIsCategoryModalOpen(true)} className="hidden md:flex"><PlusCircle className="mr-2"/>Neue Kategorie</Button>
       </div>
       
       <div className="space-y-8">
@@ -149,10 +149,10 @@ export default function AdminProductsPage() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{category.name}</CardTitle>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt hinzufügen</Button>
+                    <Button variant="outline" size="sm" className="hidden md:flex" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt hinzufügen</Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" className="text-destructive h-8 w-8 hidden md:flex"><Trash2 className="w-4 h-4" /></Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
@@ -241,6 +241,12 @@ export default function AdminProductsPage() {
         })}
       </div>
 
+       <div className="md:hidden fixed bottom-20 right-4 z-20">
+          <Button size="lg" className="rounded-full h-14 w-14 shadow-lg" onClick={() => setIsCategoryModalOpen(true)}>
+              <Plus className="h-6 w-6" />
+          </Button>
+      </div>
+
       {/* Create/Edit Category Modal */}
       <Dialog open={isCategoryModalOpen} onOpenChange={setIsCategoryModalOpen}>
         <DialogContent>
@@ -309,7 +315,6 @@ export default function AdminProductsPage() {
             </form>
         </DialogContent>
     </Dialog>
-
     </>
   );
 }

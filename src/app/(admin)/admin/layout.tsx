@@ -3,7 +3,7 @@ import { AdminMobileNav } from "./_components/AdminMobileNav";
 import { Logo } from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth.actions";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 
 
 export default function AdminLayout({
@@ -19,8 +19,12 @@ export default function AdminLayout({
             <div className="md:hidden h-8">
               <Logo />
             </div>
+            {/* Placeholder for potential mobile menu trigger */}
+            {/* <Button variant="ghost" size="icon" className="md:hidden">
+              <Menu />
+            </Button> */}
              <form action={logout}>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-primary-foreground md:text-card-foreground hover:bg-primary-foreground/10 md:hover:bg-accent">
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
               </Button>
