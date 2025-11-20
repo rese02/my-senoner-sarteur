@@ -90,7 +90,7 @@ export default function AdminDashboardPage() {
     <>
       <PageHeader title="Dashboard" description="Was muss ich heute sofort wissen?" />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Neue Bestellungen heute</CardTitle>
@@ -108,17 +108,17 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.pickupsToday}</div>
-            <p className="text-xs text-muted-foreground">Bestellungen, die heute fällig sind</p>
+            <p className="text-xs text-muted-foreground">Fällig</p>
           </CardContent>
         </Card>
         <Card className="border-destructive/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Überfällige Abholungen</CardTitle>
+            <CardTitle className="text-sm font-medium">Überfällig</CardTitle>
             <AlertCircle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">{stats.overduePickups}</div>
-            <p className="text-xs text-muted-foreground">Nicht abgeholte Bestellungen</p>
+            <p className="text-xs text-muted-foreground">Nicht abgeholt</p>
           </CardContent>
         </Card>
       </div>
