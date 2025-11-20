@@ -110,7 +110,7 @@ export default function AdminDashboardPage() {
     <>
       <PageHeader title="Dashboard" description="Was muss ich heute sofort wissen?" />
 
-      <div className="grid gap-4 grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Neue Bestellungen heute</CardTitle>
