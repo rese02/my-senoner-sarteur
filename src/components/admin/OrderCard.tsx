@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTransition } from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
 
 
 type OrderCardProps = {
@@ -27,8 +28,8 @@ export function OrderCard({ order, statusMap, onStatusChange, onShowDetails }: O
 
   return (
     <Card className="mb-4 transition-all hover:shadow-md">
-        <CardContent className="p-4" onClick={() => onShowDetails(order)}>
-          <div className="flex justify-between items-start">
+        <CardContent className="p-4">
+          <div className="flex justify-between items-start" onClick={() => onShowDetails(order)}>
             <div>
               <p className="font-bold text-lg">{order.customerName}</p>
               <p className="text-sm text-muted-foreground">#{order.id.slice(-6)}</p>
@@ -37,7 +38,7 @@ export function OrderCard({ order, statusMap, onStatusChange, onShowDetails }: O
                 {isToday(dueDate) ? 'Heute' : format(dueDate, "EEE, dd.MM.", { locale: de })}
             </p>
           </div>
-          <div className="mt-4 text-sm space-y-2">
+          <div className="mt-4 text-sm space-y-2" onClick={() => onShowDetails(order)}>
             <p className="text-muted-foreground">{
                order.type === 'grocery_list'
                 ? `${order.rawList?.split('\n').length || 0} Artikel`
@@ -45,9 +46,8 @@ export function OrderCard({ order, statusMap, onStatusChange, onShowDetails }: O
             }</p>
              <p className="font-bold text-base">{order.total ? `€${order.total.toFixed(2)}`: 'Preis offen'}</p>
           </div>
-        </CardContent>
-         <div className="px-4 pb-4" onClick={e => e.stopPropagation()}>
-             <Select 
+           <div className="border-t pt-4 mt-4 flex items-center justify-between gap-4">
+               <Select 
                 value={order.status} 
                 onValueChange={handleSelectChange}
                 disabled={isPending}
@@ -61,9 +61,9 @@ export function OrderCard({ order, statusMap, onStatusChange, onShowDetails }: O
                     ))}
                 </SelectContent>
               </Select>
-          </div>
+              <Button variant="ghost" onClick={() => onShowDetails(order)}>Details</Button>
+           </div>
+        </CardContent>
     </Card>
   );
 }
-
-    

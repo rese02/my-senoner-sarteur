@@ -38,7 +38,7 @@ export function AdminSidebar() {
           <Button
             key={item.label}
             variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
-            className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/20 text-primary-foreground data-[variant=secondary]:text-primary"
+            className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/20 data-[variant=ghost]:text-primary-foreground data-[variant=secondary]:text-primary"
             asChild
           >
             <Link href={item.href}>

@@ -19,13 +19,11 @@ const FormattedDate = ({ date, formatString, locale }: { date: Date, formatStrin
         setIsClient(true);
     }, []);
 
-    if (!isClient) return null; // Render nothing on the server
+    if (!isClient) return null;
 
     try {
-        // This will only run on the client
         return <>{format(date, formatString, { locale })}</>;
     } catch (e) {
-        // Fallback for invalid dates
         return null;
     }
 };
@@ -145,74 +143,23 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 mt-8">
         <Card>
           <CardHeader>
-            <CardTitle>Aktuelle &amp; anstehende Bestellungen</CardTitle>
+            <CardTitle>Aktuelle & anstehende Bestellungen</CardTitle>
           </CardHeader>
           <CardContent>
-            {/* Desktop Table */}
-             <Table className="hidden md:table">
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Kunde</TableHead>
-                        <TableHead>Bestellung (Kurz)</TableHead>
-                        <TableHead>Fälligkeit</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Aktion</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {recentAndUpcomingOrders.length === 0 && (
-                        <TableRow>
-                            <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                                Keine aktiven Bestellungen.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                    {recentAndUpcomingOrders.map((order) => {
-                        const dueDate = new Date(order.pickupDate || order.deliveryDate || order.createdAt);
-                        const isDueToday = isToday(dueDate);
-                        const statusInfo = statusMap[order.status];
-                        return (
-                        <TableRow key={order.id} className="transition-colors hover:bg-muted/50">
-                            <TableCell>
-                                <div className="font-medium">{order.customerName}</div>
-                            </TableCell>
-                            <TableCell className="text-muted-foreground text-sm">
-                                {order.type === 'grocery_list'
-                                    ? `Einkaufszettel: ${order.rawList?.split('\n').length || 0} Artikel`
-                                    : order.items?.map(item => `${item.quantity}x ${item.productName}`).join(', ')
-                                }
-                            </TableCell>
-                            <TableCell>
-                                <div className={isDueToday ? "font-bold text-primary" : ""}>
-                                    {isDueToday ? "Heute" : <FormattedDate date={dueDate} formatString="EEE, dd.MM." locale={de} />}
-                                </div>
-                            </TableCell>
-                            <TableCell>
-                                <Badge 
-                                    className={cn("capitalize font-semibold", statusInfo?.className)}
-                                >
-                                    {statusInfo?.label || order.status}
-                                </Badge>
-                            </TableCell>
-                            <TableCell className="text-right">
-                               <Button asChild variant="ghost" size="sm">
-                                    <Link href={`/admin/orders`}>Details</Link>
-                               </Button>
-                            </TableCell>
-                        </TableRow>
-                    )})}
-                </TableBody>
-            </Table>
-            {/* Mobile Card List */}
-             <div className="md:hidden">
-                {recentAndUpcomingOrders.length === 0 && (
-                     <div className="text-center text-muted-foreground py-8">
-                        Keine aktiven Bestellungen.
-                    </div>
-                )}
+            {recentAndUpcomingOrders.length === 0 && (
+                 <div className="text-center text-muted-foreground py-8">
+                    Keine aktiven Bestellungen.
+                </div>
+            )}
+            <div className="grid md:grid-cols-2 gap-4">
                 {recentAndUpcomingOrders.map((order) => (
                   <OrderCard key={order.id} order={order} />
                 ))}
+            </div>
+             <div className="mt-6 text-center">
+                <Button asChild variant="outline">
+                    <Link href="/admin/orders">Alle Bestellungen anzeigen</Link>
+                </Button>
             </div>
           </CardContent>
         </Card>
@@ -220,5 +167,3 @@ export default function AdminDashboardPage() {
     </>
   );
 }
-
-    

@@ -41,10 +41,9 @@ const FormattedDate = ({ date, formatString, locale }: { date: Date, formatStrin
         setIsClient(true);
     }, []);
 
-    if (!isClient) return null; // Render nothing on the server
+    if (!isClient) return null;
 
     try {
-        // This will only run on the client
         return <>{format(date, formatString, { locale })}</>;
     } catch(e) {
         return null;
@@ -64,16 +63,14 @@ export default function AdminOrdersPage() {
 
   const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
     startTransition(() => {
-        // Optimistic UI update
         const originalOrders = [...orders];
         setOrders(prevOrders => prevOrders.map(order => 
             order.id === orderId ? { ...order, status: newStatus } : order
         ));
 
-        // Mock server action
         new Promise<boolean>((resolve) => {
             setTimeout(() => {
-                const success = Math.random() > 0.1; // 90% success rate
+                const success = Math.random() > 0.1;
                 resolve(success);
             }, 500);
         }).then(success => {
@@ -88,7 +85,7 @@ export default function AdminOrdersPage() {
                     title: "Fehler",
                     description: "Status konnte nicht aktualisiert werden."
                 });
-                setOrders(originalOrders); // Rollback on failure
+                setOrders(originalOrders);
             }
         });
     });
@@ -96,7 +93,6 @@ export default function AdminOrdersPage() {
 
   const handleShowDetails = (order: Order) => {
     setSelectedOrder(order);
-    // Mock fetching customer details
     const customer = mockUsers.find(u => u.id === order.userId) || null;
     setCustomerDetails(customer);
     setIsModalOpen(true);
@@ -244,7 +240,6 @@ export default function AdminOrdersPage() {
           </DialogHeader>
           {selectedOrder && (
             <div className="grid gap-6 py-4">
-              {/* Section 1: Order Details */}
               <div className="space-y-4">
                   <h3 className="font-semibold text-lg">Bestellübersicht</h3>
                    <div className="grid grid-cols-2 gap-2 text-sm">
@@ -289,7 +284,6 @@ export default function AdminOrdersPage() {
                   </div>
               </div>
               
-              {/* Section 2: Customer Details */}
               {customerDetails && (
                   <div className="space-y-4 pt-4 border-t">
                       <h3 className="font-semibold text-lg">Kundendetails</h3>
@@ -310,5 +304,3 @@ export default function AdminOrdersPage() {
     </>
   );
 }
-
-    
