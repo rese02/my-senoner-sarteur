@@ -24,9 +24,9 @@ function MainView({ onStartScan, onStartPicking }: { onStartScan: () => void, on
     
     return (
         <Tabs defaultValue="scanner" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 h-12">
-                <TabsTrigger value="scanner" className="h-10 text-base">QR Scanner</TabsTrigger>
-                <TabsTrigger value="lists" className="h-10 text-base">
+            <TabsList className="grid w-full grid-cols-2 h-14">
+                <TabsTrigger value="scanner" className="h-12 text-base">QR Scanner</TabsTrigger>
+                <TabsTrigger value="lists" className="h-12 text-base">
                     Einkaufszettel
                     {newGroceryLists.length > 0 && <Badge className="ml-2 bg-primary text-primary-foreground">{newGroceryLists.length}</Badge>}
                 </TabsTrigger>
@@ -60,7 +60,10 @@ function MainView({ onStartScan, onStartPicking }: { onStartScan: () => void, on
                     </CardHeader>
                     <CardContent className="space-y-3">
                         {newGroceryLists.length === 0 ? (
-                            <p className="text-muted-foreground text-center py-8">Keine neuen Listen.</p>
+                            <div className="text-muted-foreground text-center py-8">
+                                <ListTodo className="mx-auto h-12 w-12 text-gray-300" />
+                                <p className="mt-4">Keine neuen Einkaufszettel vorhanden.</p>
+                            </div>
                         ) : (
                             newGroceryLists.map(order => (
                                 <button key={order.id} onClick={() => onStartPicking(order)} className="w-full text-left p-4 rounded-lg border bg-card hover:bg-secondary transition-colors flex justify-between items-center">

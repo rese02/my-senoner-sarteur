@@ -52,7 +52,7 @@ export default async function CustomerDashboardPage() {
             </div>
             
             {/* Mobile Cart Button & Sheet */}
-            <div className="lg:hidden fixed bottom-20 right-4 z-20">
+            <div className="lg:hidden fixed bottom-24 right-6 z-20">
                  <Sheet>
                     <SheetTrigger asChild>
                         <Button size="lg" className="rounded-full h-16 w-16 shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground">

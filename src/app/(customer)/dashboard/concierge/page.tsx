@@ -39,6 +39,7 @@ export default function ConciergePage() {
         setIsLoading(true);
 
         // Here you would call a server action to create the `grocery_list` order.
+        // The server action would get the user from the session.
         // await createGroceryListOrder({ rawList: notes, deliveryAddress: address });
         
         // Simulating API call
@@ -69,16 +70,18 @@ export default function ConciergePage() {
                 <CardContent className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="shopping-list">Was darf es sein?</Label>
-                        <Textarea 
-                            id="shopping-list"
-                            placeholder="- 1L Frische Vollmilch&#10;- 200g Südtiroler Speck&#10;- 1 Laib Brot..." 
-                            className="min-h-[250px] text-base font-serif"
-                            value={notes}
-                            onChange={e => setNotes(e.target.value)}
-                            disabled={isLoading}
-                        />
+                        <div className="bg-[#fffdf5] border border-stone-200 rounded-lg p-1 shadow-sm">
+                            <Textarea 
+                                id="shopping-list"
+                                placeholder="- 1L Frische Vollmilch&#10;- 200g Südtiroler Speck&#10;- 1 Laib Brot..." 
+                                className="bg-transparent border-none focus-visible:ring-0 text-base leading-loose text-stone-800 placeholder:text-stone-400 min-h-[250px]"
+                                value={notes}
+                                onChange={e => setNotes(e.target.value)}
+                                disabled={isLoading}
+                            />
+                        </div>
                     </div>
-                     <div className="p-4 bg-secondary/30 rounded-lg space-y-4">
+                     <div className="p-4 bg-secondary rounded-lg space-y-4">
                         <h4 className="font-semibold">Lieferdetails</h4>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
@@ -96,7 +99,7 @@ export default function ConciergePage() {
                 <CardFooter>
                     <Button onClick={handleSubmit} disabled={isLoading || !notes.trim()} className="w-full" size="lg">
                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Einkaufszettel kostenpflichtig abschicken
+                        Bestellung an Senoner Team senden
                     </Button>
                 </CardFooter>
             </Card>
