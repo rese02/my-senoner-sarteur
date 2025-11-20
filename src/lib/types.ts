@@ -8,6 +8,12 @@ export interface User {
   password?: string; // Only for mock data, not in real DB
   customerSince?: string;
   loyaltyData?: LoyaltyData;
+  deliveryAddress?: {
+    street: string;
+    city: string;
+    notes?: string;
+  };
+  currentDebt?: number;
 }
 
 export interface LoyaltyData {
@@ -42,7 +48,8 @@ export interface Product {
   timesOrderedLast30Days?: number;
 }
 
-export type OrderStatus = 'new' | 'ready' | 'collected' | 'cancelled';
+export type OrderType = 'preorder' | 'grocery_list';
+export type OrderStatus = 'new' | 'picking' | 'ready' | 'collected' | 'ready_for_delivery' | 'delivered' | 'paid' | 'cancelled';
 
 export interface OrderItem {
   productId: string;
@@ -51,16 +58,35 @@ export interface OrderItem {
   price: number;
 }
 
+export interface ChecklistItem {
+    item: string;
+    isFound: boolean;
+}
+
 export interface Order {
   id: string;
   userId: string;
   customerName: string;
-  items: OrderItem[];
-  total: number;
-  pickupDate: string;
-  status: OrderStatus;
   createdAt: string;
+  
+  type: OrderType;
+  
+  // For 'preorder'
+  items?: OrderItem[];
+  pickupDate?: string;
+  
+  // For 'grocery_list'
+  rawList?: string;
+  checklist?: ChecklistItem[];
+  deliveryAddress?: { street: string; city: string; notes?: string };
+  deliveryDate?: string;
+  finalPrice?: number;
+  processedBy?: string; // Employee User ID
+
+  total?: number; // Can be pre-calculated for 'preorder' or set for 'grocery_list'
+  status: OrderStatus;
 }
+
 
 export interface SessionPayload {
   userId: string;

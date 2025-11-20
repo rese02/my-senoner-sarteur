@@ -3,38 +3,86 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, CheckCircle, Gift, Loader2, QrCode, X } from 'lucide-react';
-import { mockUsers } from '@/lib/mock-data';
-import type { User as UserType } from '@/lib/types';
+import { Camera, CheckCircle, Gift, Loader2, QrCode, X, ListTodo, Check } from 'lucide-react';
+import { mockUsers, mockOrders } from '@/lib/mock-data';
+import type { User as UserType, Order, ChecklistItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { getInitials } from '@/lib/utils';
+import { getInitials, cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { getLoyaltyTier, loyaltyTiers } from '@/lib/loyalty';
 import Webcam from 'react-webcam';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
-// Zustand 1: Bereit zum Scannen
-function ReadyToScanView({ onStartScan }: { onStartScan: () => void }) {
+// =================================================================
+// Zustand 1: Hauptansicht (mit Tabs)
+// =================================================================
+function MainView({ onStartScan, onStartPicking }: { onStartScan: () => void, onStartPicking: (order: Order) => void }) {
+    const newGroceryLists = mockOrders.filter(o => o.type === 'grocery_list' && o.status === 'new');
+    
     return (
-        <Card className="text-center shadow-xl border-none">
-            <CardHeader>
-                <div className="mx-auto bg-primary/10 text-primary rounded-full h-24 w-24 flex items-center justify-center mb-4">
-                    <QrCode className="w-12 h-12" />
-                </div>
-                <CardTitle className="text-3xl">Bereit zum Scannen</CardTitle>
-                <CardDescription>Klicken Sie auf den Button, um die Kamera zu aktivieren und die Kundenkarte zu scannen.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Button onClick={onStartScan} size="lg" className="w-full h-14 text-lg rounded-full">
-                    <Camera className="mr-2 h-6 w-6" />
-                    Scan starten
-                </Button>
-            </CardContent>
-        </Card>
+        <Tabs defaultValue="scanner" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 h-12">
+                <TabsTrigger value="scanner" className="h-10 text-base">QR Scanner</TabsTrigger>
+                <TabsTrigger value="lists" className="h-10 text-base">
+                    Einkaufszettel
+                    {newGroceryLists.length > 0 && <Badge className="ml-2 bg-primary text-primary-foreground">{newGroceryLists.length}</Badge>}
+                </TabsTrigger>
+            </TabsList>
+
+            {/* Tab 1: QR Code Scanner */}
+            <TabsContent value="scanner">
+                <Card className="text-center shadow-xl border-none mt-6">
+                    <CardHeader>
+                        <div className="mx-auto bg-primary/10 text-primary rounded-full h-24 w-24 flex items-center justify-center mb-4">
+                            <QrCode className="w-12 h-12" />
+                        </div>
+                        <CardTitle className="text-3xl">Bereit zum Scannen</CardTitle>
+                        <CardDescription>Klicken Sie auf den Button, um die Kamera zu aktivieren und die Kundenkarte zu scannen.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button onClick={onStartScan} size="lg" className="w-full h-14 text-lg rounded-full">
+                            <Camera className="mr-2 h-6 w-6" />
+                            Scan starten
+                        </Button>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+            
+            {/* Tab 2: Einkaufszettel */}
+            <TabsContent value="lists">
+                 <Card className="shadow-xl border-none mt-6">
+                    <CardHeader>
+                         <CardTitle>Offene Einkaufszettel</CardTitle>
+                         <CardDescription>Wählen Sie eine Liste, um mit dem Packen zu beginnen.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        {newGroceryLists.length === 0 ? (
+                            <p className="text-muted-foreground text-center py-8">Keine neuen Listen.</p>
+                        ) : (
+                            newGroceryLists.map(order => (
+                                <button key={order.id} onClick={() => onStartPicking(order)} className="w-full text-left p-4 rounded-lg border bg-card hover:bg-secondary transition-colors flex justify-between items-center">
+                                    <div>
+                                        <p className="font-bold">{order.customerName}</p>
+                                        <p className="text-sm text-muted-foreground">{order.rawList?.split('\n').length} Artikel</p>
+                                    </div>
+                                    <ListTodo className="text-primary"/>
+                                </button>
+                            ))
+                        )}
+                    </CardContent>
+                 </Card>
+            </TabsContent>
+        </Tabs>
     );
 }
 
+
+// =================================================================
 // Zustand 2: Aktiver Scanner
+// =================================================================
 function ActiveScannerView({ onScanSuccess, onCancel }: { onScanSuccess: (data: string) => void, onCancel: () => void }) {
     const webcamRef = useRef<Webcam>(null);
     const { toast } = useToast();
@@ -85,7 +133,9 @@ function ActiveScannerView({ onScanSuccess, onCancel }: { onScanSuccess: (data: 
     );
 }
 
-// Zustand 3: Ergebnis des Scans
+// =================================================================
+// Zustand 3: Scan Ergebnis
+// =================================================================
 function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustomer: () => void }) {
     const { toast } = useToast();
     const [loyaltyData, setLoyaltyData] = useState(user.loyaltyData);
@@ -133,18 +183,99 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
                     Gutschein einlösen
                 </Button>
                 <Button variant="secondary" onClick={onNextCustomer} className="mt-8 h-12 rounded-full">
-                    Nächsten Kunden scannen
+                    Zurück zum Menü
                 </Button>
             </CardContent>
         </Card>
     );
 }
 
+// =================================================================
+// Zustand 4: Picker Mode
+// =================================================================
+function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => void }) {
+    const initialChecklist = order.rawList?.split('\n').map(item => ({ item: item.trim(), isFound: false })).filter(i => i.item) || [];
+    const [checklist, setChecklist] = useState<ChecklistItem[]>(initialChecklist);
+    const [finalPrice, setFinalPrice] = useState('');
+    const { toast } = useToast();
+    
+    useEffect(() => {
+        // In a real app, update order status to 'picking' in Firestore here
+        console.log(`Started picking for order ${order.id}`);
+        if (navigator.vibrate) navigator.vibrate(100);
+    }, [order.id]);
 
+    const toggleItem = (index: number) => {
+        setChecklist(prev => {
+            const newChecklist = [...prev];
+            newChecklist[index].isFound = !newChecklist[index].isFound;
+            return newChecklist;
+        });
+        if (navigator.vibrate) navigator.vibrate(50);
+    };
+    
+    const handleFinish = () => {
+        if (!finalPrice || parseFloat(finalPrice) <= 0) {
+            toast({ variant: 'destructive', title: 'Ungültiger Preis', description: 'Bitte geben Sie eine gültige Endsumme ein.' });
+            return;
+        }
+        // In a real app, update order in Firestore with status 'ready_for_delivery', finalPrice, and checklist
+        console.log(`Finished picking for order ${order.id}. Final price: ${finalPrice}`);
+        toast({ title: 'Einkauf abgeschlossen!', description: `Die Endsumme von ${finalPrice}€ wurde gespeichert.` });
+        onFinish();
+    }
+
+    return (
+        <div className="fixed inset-0 z-50 bg-background flex flex-col">
+            <header className="p-4 border-b flex justify-between items-center bg-card">
+                 <div>
+                    <h2 className="font-bold text-lg">Einkauf für {order.customerName}</h2>
+                    <p className="text-sm text-muted-foreground">Haken Sie die gefundenen Artikel ab.</p>
+                 </div>
+                <Button variant="ghost" size="icon" onClick={onFinish} className="rounded-full">
+                    <X />
+                </Button>
+            </header>
+            <main className="flex-grow overflow-y-auto">
+                {checklist.map((entry, index) => (
+                    <div 
+                        key={index} 
+                        onClick={() => toggleItem(index)}
+                        className={cn("p-4 border-b flex items-center gap-4 cursor-pointer transition-colors", entry.isFound ? 'bg-green-50 text-muted-foreground line-through' : 'bg-card hover:bg-secondary/50')}
+                    >
+                        <div className={cn("w-6 h-6 rounded-md border-2 flex items-center justify-center", entry.isFound ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground")}>
+                           {entry.isFound && <Check className="w-4 h-4" />}
+                        </div>
+                        <span className="text-lg flex-1">{entry.item}</span>
+                    </div>
+                ))}
+            </main>
+            <footer className="p-4 bg-card border-t grid gap-2">
+                 <Label htmlFor="final-price">Endsumme (€)</Label>
+                 <Input 
+                    id="final-price"
+                    type="number" 
+                    className="text-2xl h-14" 
+                    placeholder="z.B. 34.50" 
+                    value={finalPrice}
+                    onChange={(e) => setFinalPrice(e.target.value)}
+                 />
+                 <Button onClick={handleFinish} className="w-full mt-2 h-12 text-lg">
+                    Abschließen & Preis speichern
+                </Button>
+            </footer>
+        </div>
+    )
+}
+
+// =================================================================
+// Hauptkomponente
+// =================================================================
 export default function ScannerPage() {
-    type ViewState = 'ready' | 'scanning' | 'result';
-    const [viewState, setViewState] = useState<ViewState>('ready');
+    type ViewState = 'main' | 'scanning' | 'result' | 'picking';
+    const [viewState, setViewState] = useState<ViewState>('main');
     const [scannedUser, setScannedUser] = useState<UserType | null>(null);
+    const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
     const { toast } = useToast();
 
     const handleScanSuccess = (userId: string) => {
@@ -152,18 +283,22 @@ export default function ScannerPage() {
         if (user) {
             setScannedUser(user);
             setViewState('result');
-            if (navigator.vibrate) {
-                navigator.vibrate(200);
-            }
+            if (navigator.vibrate) navigator.vibrate(200);
         } else {
             toast({ variant: 'destructive', title: 'Fehler', description: 'Kunde nicht gefunden.' });
-            setViewState('ready');
+            setViewState('main');
         }
     };
+    
+    const handleStartPicking = (order: Order) => {
+        setCurrentOrder(order);
+        setViewState('picking');
+    }
 
-    const resetScanner = () => {
-        setViewState('ready');
+    const resetToMain = () => {
+        setViewState('main');
         setScannedUser(null);
+        setCurrentOrder(null);
     };
     
     const startScanFlow = async () => {
@@ -171,9 +306,8 @@ export default function ScannerPage() {
              if (!navigator.mediaDevices?.getUserMedia) {
                 throw new Error("getUserMedia not supported");
             }
-            // Permission anfragen (oder Status prüfen)
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            stream.getTracks().forEach(track => track.stop()); // Stream sofort wieder schließen
+            stream.getTracks().forEach(track => track.stop());
             setViewState('scanning');
         } catch(err) {
              toast({ variant: 'destructive', title: 'Kamerazugriff verweigert', description: 'Bitte erlauben Sie den Kamerazugriff in Ihren Browser-Einstellungen.' });
@@ -181,12 +315,16 @@ export default function ScannerPage() {
     }
 
     if (viewState === 'scanning') {
-        return <ActiveScannerView onScanSuccess={handleScanSuccess} onCancel={resetScanner} />;
+        return <ActiveScannerView onScanSuccess={handleScanSuccess} onCancel={resetToMain} />;
     }
 
     if (viewState === 'result' && scannedUser) {
-        return <ScanResultView user={scannedUser} onNextCustomer={resetScanner} />;
+        return <ScanResultView user={scannedUser} onNextCustomer={resetToMain} />;
     }
 
-    return <ReadyToScanView onStartScan={startScanFlow} />;
+    if (viewState === 'picking' && currentOrder) {
+        return <PickerModeView order={currentOrder} onFinish={resetToMain} />
+    }
+
+    return <MainView onStartScan={startScanFlow} onStartPicking={handleStartPicking}/>;
 }
