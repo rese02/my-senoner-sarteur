@@ -66,6 +66,8 @@ export default function AdminProductsPage() {
             name: newCategoryName,
         };
         setCategories(prev => [...prev, newCategory]);
+        // In a real app, this would be a server action
+        mockCategories.push(newCategory);
         toast({ title: 'Kategorie erstellt!' });
         setNewCategoryName('');
         setIsCategoryModalOpen(false);
@@ -74,6 +76,17 @@ export default function AdminProductsPage() {
   
   const handleDeleteCategory = (categoryId: string) => {
       startTransition(() => {
+        // In a real app, this would be a server action
+        const categoryIndex = mockCategories.findIndex(c => c.id === categoryId);
+        if (categoryIndex > -1) {
+            mockCategories.splice(categoryIndex, 1);
+        }
+        
+        const productsToKeep = mockProducts.filter(p => p.categoryId !== categoryId);
+        mockProducts.length = 0;
+        Array.prototype.push.apply(mockProducts, productsToKeep);
+
+
         setCategories(prev => prev.filter(c => c.id !== categoryId));
         setProducts(prev => prev.filter(p => p.categoryId !== categoryId));
         toast({ title: 'Kategorie gelöscht' });

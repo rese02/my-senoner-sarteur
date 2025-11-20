@@ -3,23 +3,46 @@
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { mockUsers, mockOrders } from "@/lib/mock-data";
-import type { LoyaltyData, User } from "@/lib/types";
+import { mockUsers, mockOrders, mockProducts, mockCategories } from "@/lib/mock-data";
+import type { User, Order, Product, Category } from "@/lib/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Wand2, Send, RotateCw, Trophy } from "lucide-react";
-import { useState } from "react";
+import { Wand2, Send, RotateCw, Trophy, Filter } from "lucide-react";
+import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { improveTextWithAI } from "@/ai/flows/improve-newsletter-text";
 import { generateSeasonalPromotions } from "@/ai/flows/generate-seasonal-promotions";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { getLoyaltyTier, loyaltyTiers } from "@/lib/loyalty";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+
+// Helper function to get purchase history
+const getCustomerPurchaseCategories = (userId: string): Set<string> => {
+    const categories = new Set<string>();
+    const customerOrders = mockOrders.filter(o => o.userId === userId);
+    for (const order of customerOrders) {
+        for (const item of order.items) {
+            const product = mockProducts.find(p => p.id === item.productId);
+            if (product) {
+                categories.add(product.categoryId);
+            }
+        }
+    }
+    return categories;
+};
+
 
 export default function AdminCustomersPage() {
-    const customers = mockUsers.filter(u => u.role === 'customer');
+    const allCustomers = useMemo(() => mockUsers.filter(u => u.role === 'customer'), []);
+    
+    const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+    const [open, setOpen] = useState(false);
+
     const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
@@ -28,9 +51,21 @@ export default function AdminCustomersPage() {
     const [promotions, setPromotions] = useState<string[]>([]);
     const [isGenerating, setIsGenerating] = useState(false);
 
+    const filteredCustomers = useMemo(() => {
+        if (selectedCategories.length === 0) {
+            return allCustomers;
+        }
+        const selectedCategoryIds = new Set(selectedCategories.map(c => c.id));
+        return allCustomers.filter(customer => {
+            const purchaseHistory = getCustomerPurchaseCategories(customer.id);
+            return Array.from(selectedCategoryIds).some(catId => purchaseHistory.has(catId));
+        });
+    }, [allCustomers, selectedCategories]);
+
+
     const handleSelectAll = (checked: boolean | 'indeterminate') => {
         if (checked === true) {
-            setSelectedCustomers(customers.map(c => c.id));
+            setSelectedCustomers(filteredCustomers.map(c => c.id));
         } else {
             setSelectedCustomers([]);
         }
@@ -78,6 +113,16 @@ export default function AdminCustomersPage() {
         }
     };
 
+    const toggleCategory = (category: Category) => {
+        setSelectedCategories(prev => 
+            prev.some(c => c.id === category.id) 
+            ? prev.filter(c => c.id !== category.id)
+            : [...prev, category]
+        );
+        // Deselect customers when filter changes
+        setSelectedCustomers([]);
+    };
+
   return (
     <>
       <PageHeader title="Kunden & Marketing" description="Engagieren Sie sich mit Ihren Kunden und führen Sie Marketingkampagnen durch." />
@@ -85,8 +130,40 @@ export default function AdminCustomersPage() {
         <div className="lg:col-span-2 space-y-8">
             <Card>
                 <CardHeader>
-                    <CardTitle>Kundenliste</CardTitle>
-                    <CardDescription>Wählen Sie Kunden für Ihre Newsletter aus.</CardDescription>
+                    <div className="flex justify-between items-start gap-4">
+                        <div>
+                            <CardTitle>Kundenliste</CardTitle>
+                            <CardDescription>Segmentieren Sie Kunden nach Kaufhistorie für gezielte Newsletter.</CardDescription>
+                        </div>
+                        <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" className="shrink-0">
+                                    <Filter className="mr-2 h-4 w-4" />
+                                    Filter
+                                    {selectedCategories.length > 0 && <Badge variant="secondary" className="ml-2">{selectedCategories.length}</Badge>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[200px] p-0" align="end">
+                                <Command>
+                                <CommandInput placeholder="Kategorie suchen..." />
+                                <CommandList>
+                                <CommandEmpty>Keine Kategorien gefunden.</CommandEmpty>
+                                <CommandGroup>
+                                    {mockCategories.map((category) => (
+                                    <CommandItem
+                                        key={category.id}
+                                        onSelect={() => toggleCategory(category)}
+                                    >
+                                        <Checkbox className={cn("mr-2", selectedCategories.some(c => c.id === category.id) ? "bg-primary text-primary-foreground" : "")} checked={selectedCategories.some(c => c.id === category.id)} />
+                                        <span>{category.name}</span>
+                                    </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                                </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
                 </CardHeader>
                 <CardContent>
                     <Table>
@@ -94,27 +171,32 @@ export default function AdminCustomersPage() {
                         <TableRow>
                             <TableHead className="w-12">
                                 <Checkbox
-                                    checked={selectedCustomers.length === customers.length && customers.length > 0 ? true : (selectedCustomers.length > 0 ? 'indeterminate' : false) }
+                                    checked={selectedCustomers.length === filteredCustomers.length && filteredCustomers.length > 0}
                                     onCheckedChange={handleSelectAll}
                                 />
                             </TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Level</TableHead>
                             <TableHead>Email</TableHead>
-                            <TableHead>Kunde seit</TableHead>
-                            <TableHead className="text-center">Bestellungen</TableHead>
                             <TableHead className="text-right">Gesamtausgaben</TableHead>
                         </TableRow>
                         </TableHeader>
                         <TableBody>
-                        {customers.map((customer) => {
+                        {filteredCustomers.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                                    {selectedCategories.length > 0 ? "Keine Kunden für diese Auswahl gefunden." : "Keine Kunden vorhanden."}
+                                </TableCell>
+                            </TableRow>
+                        )}
+                        {filteredCustomers.map((customer) => {
                             const customerOrders = mockOrders.filter(o => o.userId === customer.id);
                             const totalSpent = customerOrders.reduce((sum, o) => sum + o.total, 0);
                             const loyaltyData = customer.loyaltyData;
                             const loyaltyTier = loyaltyData ? getLoyaltyTier(loyaltyData.points) : loyaltyTiers.bronze;
 
                             return (
-                                <TableRow key={customer.id} data-state={selectedCustomers.includes(customer.id) && "selected"}>
+                                <TableRow key={customer.id} data-state={selectedCustomers.includes(customer.id) ? "selected" : undefined}>
                                     <TableCell>
                                         <Checkbox checked={selectedCustomers.includes(customer.id)} onCheckedChange={(checked) => handleSelectCustomer(customer.id, !!checked)} />
                                     </TableCell>
@@ -126,8 +208,6 @@ export default function AdminCustomersPage() {
                                        </Badge>
                                     </TableCell>
                                     <TableCell>{customer.email}</TableCell>
-                                    <TableCell>{customer.customerSince ? format(new Date(customer.customerSince), "dd.MM.yyyy") : 'N/A'}</TableCell>
-                                    <TableCell className="text-center">{customerOrders.length}</TableCell>
                                     <TableCell className="text-right">€{totalSpent.toFixed(2)}</TableCell>
                                 </TableRow>
                             )
