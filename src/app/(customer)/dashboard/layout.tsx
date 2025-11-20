@@ -9,7 +9,7 @@ import { CustomerSidebar } from "./_components/CustomerSidebar";
 function DesktopSidebar() {
   return (
     <aside className="hidden md:flex flex-col w-60 bg-primary border-r border-primary-foreground/10">
-        <div className="p-4 border-b border-primary-foreground/10 h-12">
+        <div className="p-4 border-b border-primary-foreground/10 h-20 flex items-center justify-center">
             <Logo />
         </div>
         <CustomerSidebar />
@@ -30,8 +30,8 @@ export default async function CustomerLayout({
     <div className="flex min-h-screen bg-background text-foreground">
       <DesktopSidebar />
       <div className="flex-1 flex flex-col">
-        <header className="flex h-16 items-center justify-between border-b bg-primary text-primary-foreground px-4 md:px-6 sticky top-0 z-30">
-            <div className="md:hidden h-8">
+        <header className="flex h-16 items-center justify-between border-b bg-primary text-primary-foreground px-4 sticky top-0 z-30 md:hidden">
+            <div className="h-8">
               <Logo />
             </div>
             <div className="md:hidden">

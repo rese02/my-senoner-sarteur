@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { logout } from '@/app/actions/auth.actions';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', icon: ShoppingCart, label: 'Order' },
@@ -27,24 +28,27 @@ export function CustomerSidebar() {
   return (
     <div className="flex flex-col h-full text-primary-foreground">
       <nav className="flex-1 p-4 space-y-2">
-        {navItems.map((item) => (
-          <Button
-            key={item.label}
-            variant={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href)) ? 'secondary' : 'ghost'}
-            className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/20 hover:text-primary-foreground data-[variant=secondary]:text-primary"
-            asChild
-          >
-            <Link href={item.href}>
-              <item.icon className="mr-3 h-5 w-5" strokeWidth={1.75} />
-              {item.label}
+        {navItems.map((item) => {
+           const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+           return (
+            <Link
+              key={item.label}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors hover:bg-primary-foreground/10",
+                isActive ? "bg-card text-primary" : "text-primary-foreground"
+              )}
+            >
+              <item.icon className="h-5 w-5" strokeWidth={1.75} />
+              <span>{item.label}</span>
             </Link>
-          </Button>
-        ))}
+          )
+        })}
       </nav>
       <div className="mt-auto p-4">
         <Separator className="mb-4 bg-primary-foreground/10"/>
         <form action={logout}>
-          <Button variant="ghost" className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/20 hover:text-primary-foreground">
+          <Button variant="ghost" className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/20 text-primary-foreground px-4 py-3">
             <LogOut className="mr-3 h-5 w-5" strokeWidth={1.75}/>
             Sign Out
           </Button>
