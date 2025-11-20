@@ -9,6 +9,7 @@ import Image from "next/image";
 import { ChefHat, Clock } from "lucide-react";
 import type { Recipe } from "@/lib/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 export function RecipeCard({ recipe }: { recipe: Recipe }) {
 
@@ -28,6 +29,10 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
                              <Button variant="outline" className="mt-6 w-fit">Rezept ansehen</Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-4xl p-0 overflow-hidden rounded-2xl">
+                          <DialogHeader className="sr-only">
+                            <DialogTitle>{recipe.title}</DialogTitle>
+                            <DialogDescription>{recipe.subtitle}</DialogDescription>
+                          </DialogHeader>
                           <div className="grid md:grid-cols-2 max-h-[90vh]">
                             {/* LINKS: Bild (Vollflächig) */}
                             <div className="relative h-64 md:h-full w-full">
