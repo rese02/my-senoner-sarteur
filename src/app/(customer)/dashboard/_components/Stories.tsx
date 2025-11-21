@@ -5,6 +5,9 @@ import Image from 'next/image';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
@@ -49,12 +52,17 @@ export function Stories({ stories }: { stories: Story[] }) {
         {selectedStory && (
            <Dialog open={open} onOpenChange={setOpen}>
               <DialogContent className="p-0 m-0 bg-black border-none max-w-full w-full h-full max-h-screen sm:rounded-none">
+                  <DialogHeader className="sr-only">
+                    <DialogTitle>Story: {selectedStory.label}</DialogTitle>
+                    <DialogDescription>Vollbildansicht der Story von {selectedStory.author}.</DialogDescription>
+                  </DialogHeader>
                   <div className="relative h-full w-full">
                       <Image
                           src={selectedStory.imageUrl}
                           alt={selectedStory.label}
                           fill
                           className="object-contain"
+                          sizes="100vw"
                           data-ai-hint={selectedStory.imageHint}
                       />
                        <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/60 to-transparent flex items-center justify-between">
@@ -64,6 +72,7 @@ export function Stories({ stories }: { stories: Story[] }) {
                                       src={selectedStory.imageUrl}
                                       alt={selectedStory.label}
                                       fill
+                                      sizes="40px"
                                       className="rounded-full object-cover"
                                     />
                                  </div>
