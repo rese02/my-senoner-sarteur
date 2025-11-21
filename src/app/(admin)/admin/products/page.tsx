@@ -9,13 +9,14 @@ import { PlusCircle, Trash2, Edit, Loader2, Plus } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState, useTransition } from "react";
-import type { Product, Category } from "@/lib/types";
+import type { Product, Category, PackageItem } from "@/lib/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ImageUploader } from "@/components/custom/ImageUploader";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>(mockProducts);
@@ -30,6 +31,9 @@ export default function AdminProductsPage() {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
   const [currentCategoryId, setCurrentCategoryId] = useState<string | null>(null);
+
+  const [tempItem, setTempItem] = useState('');
+  const [tempAmount, setTempAmount] = useState('');
 
 
   const handleAvailabilityToggle = (productId: string) => {
@@ -94,7 +98,10 @@ export default function AdminProductsPage() {
   };
 
   const handleOpenProductModal = (product: Product | null, categoryId: string) => {
-      setEditingProduct(product ? { ...product } : { name: '', price: 0, unit: '', imageUrl: '', imageHint: ''});
+      const initialProductState: Partial<Product> = product 
+        ? { ...product } 
+        : { name: '', price: 0, unit: '', imageUrl: '', imageHint: '', type: 'product', packageContent: [] };
+      setEditingProduct(initialProductState);
       setCurrentCategoryId(categoryId);
       setIsProductModalOpen(true);
   };
@@ -104,6 +111,10 @@ export default function AdminProductsPage() {
       const { name, value } = e.target;
       setEditingProduct({ ...editingProduct, [name]: value });
   };
+   const handleProductTypeChange = (value: 'product' | 'package') => {
+      if (!editingProduct) return;
+      setEditingProduct({ ...editingProduct, type: value });
+    };
 
   const handleImageUpload = (url: string) => {
       if (!editingProduct) return;
@@ -147,6 +158,22 @@ export default function AdminProductsPage() {
       });
   };
 
+    const addPackageItem = () => {
+        if (!tempItem || !tempAmount || !editingProduct) return;
+        const newItem: PackageItem = { item: tempItem, amount: tempAmount };
+        const currentContent = editingProduct.packageContent || [];
+        setEditingProduct({ ...editingProduct, packageContent: [...currentContent, newItem] });
+        setTempItem('');
+        setTempAmount('');
+    };
+
+    const removePackageItem = (index: number) => {
+        if (!editingProduct || !editingProduct.packageContent) return;
+        const newContent = [...editingProduct.packageContent];
+        newContent.splice(index, 1);
+        setEditingProduct({ ...editingProduct, packageContent: newContent });
+    };
+
   return (
     <>
       <div className="flex justify-between items-center mb-8">
@@ -189,6 +216,7 @@ export default function AdminProductsPage() {
                        <Card key={product.id} className="overflow-hidden flex flex-col group relative transition-all hover:shadow-lg">
                         <div className="relative aspect-[4/3] bg-muted">
                            <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" data-ai-hint={product.imageHint} />
+                            {product.type === 'package' && <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground" variant="secondary">PAKET</Badge>}
                         </div>
                         <CardContent className="p-4 flex flex-col flex-1">
                             <h3 className="font-semibold text-lg">{product.name}</h3>
@@ -284,14 +312,27 @@ export default function AdminProductsPage() {
       
       {/* Create/Edit Product Modal */}
       <Dialog open={isProductModalOpen} onOpenChange={setIsProductModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
             <DialogHeader>
                 <DialogTitle>{editingProduct?.id ? 'Produkt bearbeiten' : 'Neues Produkt erstellen'}</DialogTitle>
                 <DialogDescription>
                     {editingProduct?.id ? 'Aktualisieren Sie die Details dieses Produkts.' : 'Fügen Sie ein neues Produkt zu dieser Kategorie hinzu.'}
                 </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleSaveProduct} className="grid gap-4 py-4">
+            <form onSubmit={handleSaveProduct} className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-4">
+                 <div className="space-y-2">
+                    <Label htmlFor="type">Produkttyp</Label>
+                    <Select value={editingProduct?.type} onValueChange={handleProductTypeChange}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Typ auswählen" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="product">Einzelnes Produkt</SelectItem>
+                            <SelectItem value="package">Paket</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
                 <div className="space-y-2">
                     <Label htmlFor="name">Name</Label>
                     <Input id="name" name="name" value={editingProduct?.name || ''} onChange={handleProductFormChange} required />
@@ -303,7 +344,7 @@ export default function AdminProductsPage() {
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="unit">Einheit</Label>
-                        <Input id="unit" name="unit" value={editingProduct?.unit || ''} onChange={handleProductFormChange} placeholder="z.B. kg, stück"/>
+                        <Input id="unit" name="unit" value={editingProduct?.unit || ''} onChange={handleProductFormChange} placeholder="z.B. kg, stück, paket"/>
                     </div>
                 </div>
                 <div className="space-y-2">
@@ -318,7 +359,48 @@ export default function AdminProductsPage() {
                     <Label htmlFor="imageHint">Bild-Hinweis für KI</Label>
                     <Input id="imageHint" name="imageHint" value={editingProduct?.imageHint || ''} onChange={handleProductFormChange} placeholder="z.B. sushi box" />
                 </div>
-                <DialogFooter>
+                
+                 {/* Nur sichtbar wenn type === 'package' */}
+                {editingProduct?.type === 'package' && (
+                    <div className="space-y-3 border p-4 rounded-lg bg-secondary/50">
+                    <h3 className="font-semibold text-primary">Paket-Inhalt definieren</h3>
+                    
+                    <div className="flex gap-2">
+                        <Input 
+                        placeholder="Menge (z.B. 200g)" 
+                        className="w-1/3 bg-background"
+                        value={tempAmount}
+                        onChange={e => setTempAmount(e.target.value)} 
+                        />
+                        <Input 
+                        placeholder="Produktname" 
+                        className="w-2/3 bg-background" 
+                        value={tempItem}
+                        onChange={e => setTempItem(e.target.value)}
+                        />
+                        <Button onClick={addPackageItem} type="button" variant="secondary">+</Button>
+                    </div>
+
+                    <ul className="space-y-2 mt-2">
+                        {editingProduct.packageContent?.map((content, idx) => (
+                        <li key={idx} className="flex justify-between items-center bg-background p-2 rounded border shadow-sm">
+                            <div>
+                                <span className="font-semibold">{content.item}</span>
+                                <span className="text-muted-foreground text-xs ml-2">({content.amount})</span>
+                            </div>
+                            <button onClick={() => removePackageItem(idx)} type="button" className="text-destructive hover:text-destructive/80">
+                            <Trash2 size={16} />
+                            </button>
+                        </li>
+                        ))}
+                         {(!editingProduct.packageContent || editingProduct.packageContent.length === 0) && (
+                            <p className="text-xs text-center text-muted-foreground py-2">Noch keine Artikel im Paket.</p>
+                        )}
+                    </ul>
+                    </div>
+                )}
+                
+                <DialogFooter className="mt-4 sticky bottom-0 bg-background py-4">
                     <DialogClose asChild><Button type="button" variant="outline">Abbrechen</Button></DialogClose>
                     <Button type="submit" disabled={isPending}>
                         {isPending && <Loader2 className="mr-2 animate-spin" />}

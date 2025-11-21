@@ -35,6 +35,11 @@ export interface Category {
   name: string;
 }
 
+export interface PackageItem {
+  item: string;
+  amount: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -47,6 +52,8 @@ export interface Product {
   availabilityDay?: 'Donnerstag' | 'Freitag';
   isAvailable: boolean;
   timesOrderedLast30Days?: number;
+  type?: 'product' | 'package';
+  packageContent?: PackageItem[];
 }
 
 export type OrderType = 'preorder' | 'grocery_list';

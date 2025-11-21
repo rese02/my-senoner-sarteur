@@ -67,17 +67,50 @@ export const mockCategories: Category[] = [
 ];
 
 export const mockProducts: Product[] = [
-  { id: 'prod-bundle-1', name: 'Südtiroler Frühstück', price: 29.90, unit: 'paket', categoryId: 'cat-4', description: 'Alles für den perfekten Start: Milch, Butter, Schüttelbrot, Speck, Marmelade, Kaffee.', ...getImage('bundle-breakfast'), isAvailable: true, timesOrderedLast30Days: 45 },
-  { id: 'prod-bundle-2', name: 'Anreise-Jause', price: 39.50, unit: 'paket', categoryId: 'cat-4', description: 'Der perfekte Genuss nach der Ankunft: Eine Flasche Wein, Almkäse, Speck und frisches Brot.', ...getImage('bundle-jause'), isAvailable: true, timesOrderedLast30Days: 38 },
-  { id: 'prod-bundle-3', name: 'Küchen-Essentials', price: 19.00, unit: 'paket', categoryId: 'cat-4', description: 'Die Grundausstattung für Ihre Ferienwohnung: Wasser, Salz, Öl, Nudeln und Sugo.', ...getImage('bundle-essentials'), isAvailable: true, timesOrderedLast30Days: 62 },
-  { id: 'prod-1', name: 'Kleine Sushi-Box', price: 15, unit: 'box', categoryId: 'cat-1', ...getImage('sushi-box-sm'), availabilityDay: 'Donnerstag', isAvailable: true, timesOrderedLast30Days: 25 },
-  { id: 'prod-2', name: 'Große Sushi-Box', price: 25, unit: 'box', categoryId: 'cat-1', ...getImage('sushi-box-lg'), availabilityDay: 'Donnerstag', isAvailable: true, timesOrderedLast30Days: 18 },
-  { id: 'prod-3', name: 'Frischer Fisch des Tages', price: 18, unit: 'kg', categoryId: 'cat-1', ...getImage('fresh-fish'), availabilityDay: 'Freitag', isAvailable: false, timesOrderedLast30Days: 12 },
-  { id: 'prod-4', name: 'Regionale Käseplatte', price: 12.5, unit: 'platte', categoryId: 'cat-2', ...getImage('regional-cheese'), isAvailable: true, timesOrderedLast30Days: 35 },
-  { id: 'prod-5', name: 'Südtiroler Speck', price: 22, unit: 'kg', categoryId: 'cat-2', ...getImage('speck'), isAvailable: true, timesOrderedLast30Days: 42 },
-  { id: 'prod-6', name: 'Lagrein Riserva', price: 19.90, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-red-1'), isAvailable: true },
-  { id: 'prod-7', name: 'Gewürztraminer', price: 14.50, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-white-1'), isAvailable: true },
-  { id: 'prod-8', name: 'Pinot Grigio', price: 12.80, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-white-2'), isAvailable: true },
+  { 
+    id: 'prod-bundle-1', name: 'Südtiroler Frühstück', price: 29.90, unit: 'paket', categoryId: 'cat-4', 
+    description: 'Alles für den perfekten Start: Milch, Butter, Schüttelbrot, Speck, Marmelade, Kaffee.', 
+    ...getImage('bundle-breakfast'), isAvailable: true, timesOrderedLast30Days: 45, type: 'package',
+    packageContent: [
+        { item: 'Frische Bergbauernmilch', amount: '1 Liter' },
+        { item: 'Südtiroler Markenbutter', amount: '250g' },
+        { item: 'Vinschger Paarl (Brot)', amount: '2 Stück' },
+        { item: 'Millefiori Honig', amount: '1 Glas' },
+        { item: 'Südtiroler Speck g.g.A.', amount: '200g' },
+        { item: 'Alpen-Kaffee', amount: '250g' }
+    ]
+  },
+  { 
+    id: 'prod-bundle-2', name: 'Anreise-Jause', price: 39.50, unit: 'paket', categoryId: 'cat-4', 
+    description: 'Der perfekte Genuss nach der Ankunft: Eine Flasche Wein, Almkäse, Speck und frisches Brot.', 
+    ...getImage('bundle-jause'), isAvailable: true, timesOrderedLast30Days: 38, type: 'package',
+    packageContent: [
+        { item: 'Flasche Vernatsch', amount: '0,75 l' },
+        { item: 'Südtiroler Almkäse', amount: '300g' },
+        { item: 'Südtiroler Speck g.g.A.', amount: '250g' },
+        { item: 'Schüttelbrot', amount: '1 Packung' }
+    ]
+  },
+  { 
+    id: 'prod-bundle-3', name: 'Küchen-Essentials', price: 19.00, unit: 'paket', categoryId: 'cat-4', 
+    description: 'Die Grundausstattung für Ihre Ferienwohnung: Wasser, Salz, Öl, Nudeln und Sugo.', 
+    ...getImage('bundle-essentials'), isAvailable: true, timesOrderedLast30Days: 62, type: 'package',
+     packageContent: [
+        { item: 'Mineralwasser', amount: '1 Flasche' },
+        { item: 'Feines Meersalz', amount: '1 Packung' },
+        { item: 'Olivenöl Extra Vergine', amount: '250ml' },
+        { item: 'Pasta (Spaghetti)', amount: '500g' },
+        { item: 'Tomatensugo', amount: '1 Glas' }
+    ]
+  },
+  { id: 'prod-1', name: 'Kleine Sushi-Box', price: 15, unit: 'box', categoryId: 'cat-1', ...getImage('sushi-box-sm'), availabilityDay: 'Donnerstag', isAvailable: true, timesOrderedLast30Days: 25, type: 'product' },
+  { id: 'prod-2', name: 'Große Sushi-Box', price: 25, unit: 'box', categoryId: 'cat-1', ...getImage('sushi-box-lg'), availabilityDay: 'Donnerstag', isAvailable: true, timesOrderedLast30Days: 18, type: 'product' },
+  { id: 'prod-3', name: 'Frischer Fisch des Tages', price: 18, unit: 'kg', categoryId: 'cat-1', ...getImage('fresh-fish'), availabilityDay: 'Freitag', isAvailable: false, timesOrderedLast30Days: 12, type: 'product' },
+  { id: 'prod-4', name: 'Regionale Käseplatte', price: 12.5, unit: 'platte', categoryId: 'cat-2', ...getImage('regional-cheese'), isAvailable: true, timesOrderedLast30Days: 35, type: 'product' },
+  { id: 'prod-5', name: 'Südtiroler Speck', price: 22, unit: 'kg', categoryId: 'cat-2', ...getImage('speck'), isAvailable: true, timesOrderedLast30Days: 42, type: 'product' },
+  { id: 'prod-6', name: 'Lagrein Riserva', price: 19.90, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-red-1'), isAvailable: true, type: 'product' },
+  { id: 'prod-7', name: 'Gewürztraminer', price: 14.50, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-white-1'), isAvailable: true, type: 'product' },
+  { id: 'prod-8', name: 'Pinot Grigio', price: 12.80, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-white-2'), isAvailable: true, type: 'product' },
 ];
 
 export const mockOrders: Order[] = [

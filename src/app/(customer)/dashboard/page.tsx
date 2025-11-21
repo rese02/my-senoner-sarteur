@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -12,6 +11,7 @@ import { ShoppingCart } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Stories } from './_components/Stories';
+import { PackageCard } from './_components/PackageCard';
 
 function CategoryFilter({ activeCategory, onSelect }: { activeCategory: string, onSelect: (category: string) => void }) {
   const categories = ["Alle", ...mockCategories.map(c => c.name)];
@@ -66,9 +66,12 @@ export default function CustomerDashboardPage() {
                                 <CategoryFilter activeCategory={selectedCategory} onSelect={setSelectedCategory} />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 md:px-0">
-                                {filteredProducts.map(product => (
-                                    <ProductCard key={product.id} product={product} />
-                                ))}
+                                {filteredProducts.map(product => {
+                                    if (product.type === 'package' && product.packageContent) {
+                                        return <PackageCard key={product.id} product={product} />
+                                    }
+                                    return <ProductCard key={product.id} product={product} />;
+                                })}
                             </div>
                         </section>
                     </div>
