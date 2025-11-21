@@ -20,8 +20,7 @@ const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/orders', label: 'Bestellungen', icon: ShoppingCart },
   { href: '/admin/products', label: 'Produkte', icon: Package },
-  { href: '/admin/customers', label: 'Kunden', icon: Users },
-  { href: '/admin/marketing', label: 'Marketing', icon: Megaphone },
+  { href: '/admin/customers', label: 'Kunden & Marketing', icon: Users },
   { href: '/admin/sommelier', label: 'Sommelier', icon: Sparkles },
 ];
 
@@ -29,7 +28,7 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-60 bg-primary text-primary-foreground">
+    <aside className="hidden md:flex flex-col w-64 bg-primary text-primary-foreground">
       <div className="p-4 border-b border-primary-foreground/10 h-16 flex items-center">
         <Logo />
       </div>

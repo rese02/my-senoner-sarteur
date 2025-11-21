@@ -3,6 +3,7 @@ import { Inter, Merriweather } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
   title: 'My Senoner Sarteur',
@@ -34,8 +35,10 @@ export default function RootLayout({
           merriweather.variable
         )}
       >
-        {children}
-        <Toaster />
+        <FirebaseClientProvider>
+          {children}
+          <Toaster />
+        </FirebaseClientProvider>
       </body>
     </html>
   );

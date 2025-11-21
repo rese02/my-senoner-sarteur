@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Feather } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { getSession } from "next-auth/react"; // Assuming you use NextAuth.js
 import { mockUsers } from "@/lib/mock-data";
 
 export default function ConciergePage() {
