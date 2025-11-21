@@ -54,14 +54,16 @@ function CustomerCard({ customer, isSelected, onSelect }: { customer: User, isSe
                 className="mt-1 shrink-0"
              />
             <div className="flex-grow">
-                <div className="flex justify-between items-start">
-                    <p className="font-semibold text-base">{customer.name}</p>
-                    <Badge variant="outline" className={`border-0 ${loyaltyTier.color.replace('text-', 'bg-').replace('600', '100')} ${loyaltyTier.color}`}>
+                <div className="flex justify-between items-start gap-2 flex-wrap">
+                    <div>
+                        <p className="font-semibold text-base break-all">{customer.name}</p>
+                        <p className="text-sm text-muted-foreground break-all">{customer.email}</p>
+                    </div>
+                    <Badge variant="outline" className={`border-0 shrink-0 ${loyaltyTier.color.replace('text-', 'bg-').replace('600', '100')} ${loyaltyTier.color}`}>
                        <Trophy className="w-3 h-3 mr-1.5" />
                        {loyaltyTier.name}
                     </Badge>
                 </div>
-                <p className="text-sm text-muted-foreground">{customer.email}</p>
                 <div className="text-right mt-2 font-semibold">
                     €{totalSpent.toFixed(2)}
                 </div>

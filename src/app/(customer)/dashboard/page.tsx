@@ -51,7 +51,7 @@ export default function CustomerDashboardPage() {
         <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8 lg:items-start">
             <div className="lg:col-span-1">
                 <div className="space-y-8">
-                     <div className="px-4 pt-6 md:px-0">
+                     <div className="overflow-hidden">
                        <Stories stories={stories} />
                     </div>
                     <div className="px-4 md:px-0">
