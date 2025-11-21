@@ -3,14 +3,15 @@
 
 import { useState } from 'react';
 import { PageHeader } from "@/components/common/PageHeader";
-import { mockCategories, mockProducts, mockAppConfig } from "@/lib/mock-data";
+import { mockCategories, mockProducts, mockAppConfig, mockStories } from "@/lib/mock-data";
 import { ProductCard } from "./_components/ProductCard";
 import { Cart } from "./_components/Cart";
 import { RecipeCard } from "./_components/RecipeCard";
-import type { Recipe, Product } from "@/lib/types";
+import type { Recipe, Product, Story } from "@/lib/types";
 import { ShoppingCart } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Stories } from './_components/Stories';
 
 function CategoryFilter({ activeCategory, onSelect }: { activeCategory: string, onSelect: (category: string) => void }) {
   const categories = ["Alle", ...mockCategories.map(c => c.name)];
@@ -33,6 +34,7 @@ function CategoryFilter({ activeCategory, onSelect }: { activeCategory: string, 
 
 export default function CustomerDashboardPage() {
     const [recipe] = useState<Recipe>(mockAppConfig.recipeOfTheWeek);
+    const [stories] = useState<Story[]>(mockStories);
     const [selectedCategory, setSelectedCategory] = useState<string>('Alle');
 
     const filteredProducts = selectedCategory === 'Alle'
@@ -51,13 +53,16 @@ export default function CustomerDashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2">
                     <div className="space-y-8">
+                         <div className="px-4 md:px-0">
+                           <Stories stories={stories} />
+                        </div>
                         <div className="px-4 md:px-0">
                             <RecipeCard recipe={recipe} />
                         </div>
                         
                         <section>
                             <div className="px-4 md:px-0">
-                                <h2 className="text-2xl font-bold mb-4">Produkte</h2>
+                                <h2 className="text-2xl font-bold mb-4 font-headline">Produkte</h2>
                                 <CategoryFilter activeCategory={selectedCategory} onSelect={setSelectedCategory} />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 md:px-0">

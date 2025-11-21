@@ -1,4 +1,4 @@
-import type { User, Category, Product, Order, LoyaltyData, AppConfig } from '@/lib/types';
+import type { User, Category, Product, Order, LoyaltyData, AppConfig, Story } from '@/lib/types';
 import { PlaceHolderImages } from './placeholder-images';
 
 const getImage = (id: string) => {
@@ -177,4 +177,10 @@ export let mockAppConfig: AppConfig = {
     isWheelOfFortuneActive: true,
 };
 
-    
+export const mockStories: Story[] = [
+    { id: 'story-1', imageUrl: 'https://images.unsplash.com/photo-1551723485-f559642472b7?q=80&w=1974&auto=format&fit=crop', imageHint: 'fresh fish', label: 'Heute Frisch', author: 'Fischtheke' },
+    { id: 'story-2', imageUrl: 'https://images.unsplash.com/photo-1559599554-ba8f2f6a6faa?q=80&w=1974&auto=format&fit=crop', imageHint: 'cheese counter', label: 'Käse des Tages', author: 'Käsetheke' },
+    { id: 'story-3', imageUrl: 'https://images.unsplash.com/photo-1617347454434-1199a45b7348?q=80&w=1964&auto=format&fit=crop', imageHint: 'butcher counter', label: 'Neues vom Metzger', author: 'Metzgerei' },
+    { id: 'story-4', imageUrl: 'https://images.unsplash.com/photo-1506368249639-73a05d6f6488?q=80&w=1974&auto=format&fit=crop', imageHint: 'wine cellar', label: 'Wein der Woche', author: 'Sommelier' },
+    { id: 'story-5', imageUrl: 'https://images.unsplash.com/photo-1599819022479-7d8b593f640c?q=80&w=1974&auto=format&fit=crop', imageHint: 'fresh bread', label: 'Frisch gebacken', author: 'Bäckerei' },
+];

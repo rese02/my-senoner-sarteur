@@ -115,4 +115,11 @@ export type CartItem = {
   quantity: number;
 };
 
-    
+export interface Story {
+  id: string;
+  imageUrl: string;
+  imageHint: string;
+  label: string;
+  author: string;
+  duration?: number;
+}
