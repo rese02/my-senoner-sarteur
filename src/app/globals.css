@@ -73,6 +73,7 @@
 
 @layer base {
   html {
+    @apply bg-primary;
     scroll-behavior: smooth;
   }
   * {
