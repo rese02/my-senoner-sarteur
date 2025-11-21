@@ -8,7 +8,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -23,7 +22,7 @@ export function Stories({ stories }: { stories: Story[] }) {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full overflow-hidden">
         <h2 className="text-xl font-bold mb-4 font-headline px-4 md:px-0">Daily Stories</h2>
         <div className="flex space-x-4 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
           {stories.map(story => (

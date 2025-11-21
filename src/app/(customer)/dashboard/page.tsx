@@ -16,8 +16,8 @@ import { useCartStore } from '@/hooks/use-cart-store';
 function CategoryFilter({ activeCategory, onSelect }: { activeCategory: string, onSelect: (category: string) => void }) {
   const categories = ["Alle", ...mockCategories.map(c => c.name)];
   return (
-    <div className="sticky top-0 bg-background/80 backdrop-blur-sm z-10 px-4 md:px-6 lg:px-0">
-        <div className="flex overflow-x-auto py-4 gap-2 scrollbar-hide">
+    <div className="sticky top-0 bg-background/80 backdrop-blur-sm z-10 px-4 md:px-0 -mx-4 md:mx-0">
+        <div className="flex overflow-x-auto py-4 gap-2 scrollbar-hide px-4 md:px-0">
           {categories.map((cat) => (
             <Button
               key={cat}
@@ -51,16 +51,16 @@ export default function CustomerDashboardPage() {
         <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8 lg:items-start">
             <div className="lg:col-span-1">
                 <div className="space-y-8">
-                     <div className="px-4 pt-6 md:px-6 lg:p-0">
+                     <div className="px-4 pt-6 md:px-0">
                        <Stories stories={stories} />
                     </div>
-                    <div className="px-4 md:px-6 lg:p-0">
+                    <div className="px-4 md:px-0">
                         <RecipeCard recipe={recipe} />
                     </div>
                     
-                    <section className="pb-24 lg:pb-8">
+                    <section>
                         <CategoryFilter activeCategory={selectedCategory} onSelect={setSelectedCategory} />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 md:px-6 lg:p-0 mt-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 md:px-0 mt-6">
                             {filteredProducts.map(product => {
                                 if (product.type === 'package') {
                                     return <PackageCard key={product.id} product={product} />

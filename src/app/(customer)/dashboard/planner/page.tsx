@@ -65,7 +65,7 @@ export default function PartyPlannerPage() {
   };
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 space-y-8 pb-24">
+    <div className="space-y-8">
       <PageHeader title="Party Planer" description="Planen Sie die perfekte Menge für Ihre Gäste." />
 
       {/* 1. Event Selection */}

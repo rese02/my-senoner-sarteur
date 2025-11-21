@@ -52,7 +52,7 @@ export default function ConciergePage() {
     };
 
     return (
-        <div className="p-4 md:p-6 lg:p-8">
+        <>
             <PageHeader title="Concierge Service" description="Ihr persönlicher Einkaufszettel & Lieferservice." />
             
             <Card className="shadow-lg border-none">
@@ -101,6 +101,6 @@ export default function ConciergePage() {
                     </Button>
                 </CardFooter>
             </Card>
-        </div>
+        </>
     );
 }
