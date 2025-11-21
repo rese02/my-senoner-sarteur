@@ -2,7 +2,6 @@ import { LoginForm } from './_components/login-form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Logo } from '@/components/common/Logo';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function LoginPage() {
   return (
@@ -10,7 +9,7 @@ export default function LoginPage() {
       {/* Linke, helle Aktions-Säule */}
       <div className="flex items-center justify-center py-12 px-4">
           <div className="w-full max-w-sm">
-            <div className="lg:hidden text-center mb-8">
+            <div className="mx-auto w-2/3 mb-8">
                 <Logo />
             </div>
             <Card className="shadow-lg border-none">
