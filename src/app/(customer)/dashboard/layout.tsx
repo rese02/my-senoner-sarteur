@@ -9,7 +9,7 @@ import { CustomerSidebar } from "./_components/CustomerSidebar";
 function DesktopSidebar() {
   return (
     <aside className="hidden md:flex flex-col w-60 bg-primary border-r border-primary-foreground/10">
-        <div className="p-4 border-b border-primary-foreground/10 h-20 flex items-center justify-center">
+        <div className="p-4 border-b border-primary-foreground/10 h-16 flex items-center justify-center">
             <Logo />
         </div>
         <CustomerSidebar />
@@ -27,10 +27,10 @@ export default async function CustomerLayout({
     const user = mockUsers.find(u => u.id === session?.userId);
     
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="flex h-[100dvh] bg-background text-foreground overflow-hidden">
       <DesktopSidebar />
       <div className="flex-1 flex flex-col">
-        <header className="flex h-16 items-center justify-between border-b bg-primary text-primary-foreground px-4 sticky top-0 z-30 md:hidden">
+        <header className="flex-none flex h-16 items-center justify-between border-b bg-primary text-primary-foreground px-4 sticky top-0 z-30 md:hidden">
             <div className="h-8">
               <Logo />
             </div>
@@ -41,7 +41,7 @@ export default async function CustomerLayout({
               {user && <UserProfileDropdown user={user} />}
             </div>
         </header>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-background pb-24 md:pb-8">
+        <main className="flex-1 overflow-y-auto bg-background">
             {children}
         </main>
       </div>

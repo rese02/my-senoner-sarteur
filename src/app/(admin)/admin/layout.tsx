@@ -3,7 +3,7 @@ import { AdminMobileNav } from "./_components/AdminMobileNav";
 import { Logo } from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth.actions";
-import { LogOut, Menu } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 
 export default function AdminLayout({
@@ -12,10 +12,10 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-secondary">
+    <div className="flex h-[100dvh] bg-secondary overflow-hidden">
       <AdminSidebar />
       <div className="flex-1 flex flex-col">
-         <header className="flex h-16 items-center justify-between md:justify-end border-b bg-primary text-primary-foreground md:bg-card md:text-card-foreground px-4 md:px-6 sticky top-0 z-20">
+         <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b bg-primary text-primary-foreground md:bg-card md:text-card-foreground px-4 md:px-6 sticky top-0 z-20">
             <div className="md:hidden h-8">
               <Logo />
             </div>
@@ -26,7 +26,7 @@ export default function AdminLayout({
               </Button>
             </form>
         </header>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-24 md:pb-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
             {children}
         </main>
       </div>
@@ -34,5 +34,3 @@ export default function AdminLayout({
     </div>
   );
 }
-
-    

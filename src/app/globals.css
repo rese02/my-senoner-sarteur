@@ -72,6 +72,15 @@
 }
 
 @layer base {
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden; 
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
   html {
     @apply bg-primary;
     scroll-behavior: smooth;
@@ -81,8 +90,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline text-foreground;
