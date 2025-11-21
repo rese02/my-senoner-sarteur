@@ -60,12 +60,16 @@ export const mockUsers: User[] = [
 ];
 
 export const mockCategories: Category[] = [
+  { id: 'cat-4', name: 'Pakete' },
   { id: 'cat-1', name: 'Spezielle Vorbestellungen' },
   { id: 'cat-2', name: 'Lokale Delikatessen' },
   { id: 'cat-3', name: 'Weine' },
 ];
 
 export const mockProducts: Product[] = [
+  { id: 'prod-bundle-1', name: 'Südtiroler Frühstück', price: 29.90, unit: 'paket', categoryId: 'cat-4', description: 'Alles für den perfekten Start: Milch, Butter, Schüttelbrot, Speck, Marmelade, Kaffee.', ...getImage('bundle-breakfast'), isAvailable: true, timesOrderedLast30Days: 45 },
+  { id: 'prod-bundle-2', name: 'Anreise-Jause', price: 39.50, unit: 'paket', categoryId: 'cat-4', description: 'Der perfekte Genuss nach der Ankunft: Eine Flasche Wein, Almkäse, Speck und frisches Brot.', ...getImage('bundle-jause'), isAvailable: true, timesOrderedLast30Days: 38 },
+  { id: 'prod-bundle-3', name: 'Küchen-Essentials', price: 19.00, unit: 'paket', categoryId: 'cat-4', description: 'Die Grundausstattung für Ihre Ferienwohnung: Wasser, Salz, Öl, Nudeln und Sugo.', ...getImage('bundle-essentials'), isAvailable: true, timesOrderedLast30Days: 62 },
   { id: 'prod-1', name: 'Kleine Sushi-Box', price: 15, unit: 'box', categoryId: 'cat-1', ...getImage('sushi-box-sm'), availabilityDay: 'Donnerstag', isAvailable: true, timesOrderedLast30Days: 25 },
   { id: 'prod-2', name: 'Große Sushi-Box', price: 25, unit: 'box', categoryId: 'cat-1', ...getImage('sushi-box-lg'), availabilityDay: 'Donnerstag', isAvailable: true, timesOrderedLast30Days: 18 },
   { id: 'prod-3', name: 'Frischer Fisch des Tages', price: 18, unit: 'kg', categoryId: 'cat-1', ...getImage('fresh-fish'), availabilityDay: 'Freitag', isAvailable: false, timesOrderedLast30Days: 12 },

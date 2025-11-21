@@ -61,6 +61,24 @@
       "imageHint": "white wine"
     },
     {
+      "id": "bundle-breakfast",
+      "description": "South Tyrolean Breakfast Bundle",
+      "imageUrl": "https://images.unsplash.com/photo-1555940280-66e815564223?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxicmVha2Zhc3QlMjB0YWJsZXxlbnwwfHx8fDE3NjM2MzE4NDF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "breakfast table"
+    },
+    {
+      "id": "bundle-jause",
+      "description": "Arrival Snack Bundle",
+      "imageUrl": "https://images.unsplash.com/photo-1561633852-1b9f8746fb05?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzbmFjayUyMGJvYXJkfGVufDB8fHx8MTc2MzYzMTg0MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "snack board"
+    },
+    {
+      "id": "bundle-essentials",
+      "description": "Kitchen Essentials Bundle",
+      "imageUrl": "https://images.unsplash.com/photo-1604112520892-74a44109723a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxraXRjaGVuJTIwZXNzZW50aWFsc3xlbnwwfHx8fDE3NjM2MzE4NDF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "kitchen essentials"
+    },
+    {
       "id": "placeholder-general",
       "description": "Generic placeholder image",
       "imageUrl": "https://images.unsplash.com/photo-1714578187218-d1828f5ebd6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwbGFjZWhvbGRlciUyMGltYWdlfGVufDB8fHx8MTc2MzMwMjE5M3ww&ixlib=rb-4.1.0&q=80&w=1080",

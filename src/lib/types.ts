@@ -43,6 +43,7 @@ export interface Product {
   imageUrl: string;
   imageHint: string;
   categoryId: string;
+  description?: string; // Added for bundles
   availabilityDay?: 'Donnerstag' | 'Freitag';
   isAvailable: boolean;
   timesOrderedLast30Days?: number;
