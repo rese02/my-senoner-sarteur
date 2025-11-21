@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Feather } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { mockUsers } from "@/lib/mock-data";
 
 export default function ConciergePage() {
     const [notes, setNotes] = useState('');
@@ -53,10 +52,10 @@ export default function ConciergePage() {
     };
 
     return (
-        <>
+        <div className="p-4 md:p-6 lg:p-8">
             <PageHeader title="Concierge Service" description="Ihr persönlicher Einkaufszettel & Lieferservice." />
             
-            <Card>
+            <Card className="shadow-lg border-none">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Feather className="w-6 h-6 text-primary"/>
@@ -69,7 +68,7 @@ export default function ConciergePage() {
                 <CardContent className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="shopping-list">Was darf es sein?</Label>
-                        <div className="bg-[#fffdf5] border border-stone-200 rounded-lg p-1 shadow-sm">
+                        <div className="bg-[#fffdf5] border border-stone-200 rounded-lg p-1 shadow-inner">
                             <Textarea 
                                 id="shopping-list"
                                 placeholder="- 1L Frische Vollmilch&#10;- 200g Südtiroler Speck&#10;- 1 Laib Brot..." 
@@ -80,7 +79,7 @@ export default function ConciergePage() {
                             />
                         </div>
                     </div>
-                     <div className="p-4 bg-secondary rounded-lg space-y-4">
+                     <div className="p-4 bg-secondary rounded-lg space-y-4 border">
                         <h4 className="font-semibold">Lieferdetails</h4>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
@@ -102,6 +101,6 @@ export default function ConciergePage() {
                     </Button>
                 </CardFooter>
             </Card>
-        </>
+        </div>
     );
 }

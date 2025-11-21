@@ -9,7 +9,7 @@ export default function LoginPage() {
       {/* Linke, helle Aktions-Säule */}
       <div className="flex items-center justify-center py-12 px-4">
           <div className="w-full max-w-sm">
-            <div className="mx-auto w-2/3 mb-8">
+            <div className="mx-auto w-1/2 mb-8">
                 <Logo />
             </div>
             <Card className="shadow-lg border-none">

@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { useCartStore } from '@/hooks/use-cart-store';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { PageHeader } from '@/components/common/PageHeader';
 
 // Hardcoded logic for the Party Planner
 const EVENTS = [
@@ -64,11 +65,8 @@ export default function PartyPlannerPage() {
   };
 
   return (
-    <div className="pb-24 space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-headline text-foreground font-bold">Party Planer</h1>
-        <p className="text-muted-foreground">Planen Sie die perfekte Menge für Ihre Gäste.</p>
-      </div>
+    <div className="p-4 md:p-6 lg:p-8 space-y-8 pb-24">
+      <PageHeader title="Party Planer" description="Planen Sie die perfekte Menge für Ihre Gäste." />
 
       {/* 1. Event Selection */}
       <div className="grid grid-cols-2 gap-4">
@@ -121,7 +119,7 @@ export default function PartyPlannerPage() {
           {/* Result Box */}
           <div className="bg-secondary p-5 rounded-xl border space-y-4">
             <div className="flex items-start gap-3">
-              <Info className="text-primary w-5 h-5 mt-0.5" />
+              <Info className="text-primary w-5 h-5 mt-0.5 shrink-0" />
               <div className="text-sm text-card-foreground">
                 Für <strong>{people} Personen</strong> empfehlen wir ca. 
                 <strong className="text-primary"> {totalAmount}{selectedEvent.unit}</strong> {selectedEvent.productName}.

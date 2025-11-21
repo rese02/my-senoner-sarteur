@@ -27,19 +27,19 @@ export function OrderCard({ order, statusMap, onStatusChange, onShowDetails }: O
   }
 
   return (
-    <Card className="mb-4 transition-all hover:shadow-md">
+    <Card className="shadow-md">
         <CardContent className="p-4">
           <div className="flex justify-between items-start" onClick={() => onShowDetails(order)}>
             <div>
               <p className="font-bold text-lg">{order.customerName}</p>
               <p className="text-sm text-muted-foreground">#{order.id.slice(-6)}</p>
             </div>
-             <p className={cn("text-sm font-medium", isToday(dueDate) ? "text-primary" : "")}>
+             <p className={cn("text-sm font-medium text-right shrink-0", isToday(dueDate) ? "text-primary" : "")}>
                 {isToday(dueDate) ? 'Heute' : format(dueDate, "EEE, dd.MM.", { locale: de })}
             </p>
           </div>
           <div className="mt-4 text-sm space-y-2" onClick={() => onShowDetails(order)}>
-            <p className="text-muted-foreground">{
+            <p className="text-muted-foreground truncate">{
                order.type === 'grocery_list'
                 ? `${order.rawList?.split('\n').length || 0} Artikel`
                 : order.items?.map(item => `${item.quantity}x ${item.productName}`).join(', ')
@@ -61,7 +61,7 @@ export function OrderCard({ order, statusMap, onStatusChange, onShowDetails }: O
                     ))}
                 </SelectContent>
               </Select>
-              <Button variant="ghost" onClick={() => onShowDetails(order)}>Details</Button>
+              <Button variant="outline" onClick={() => onShowDetails(order)}>Details</Button>
            </div>
         </CardContent>
     </Card>

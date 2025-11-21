@@ -29,31 +29,31 @@ export function Cart() {
     };
 
     return (
-        <Card className="shadow-lg h-full flex flex-col">
-            <CardHeader className="flex-shrink-0">
-                <CardTitle className="flex items-center gap-2">
+        <Card className="shadow-lg h-full flex flex-col border-none bg-card">
+            <CardHeader className="flex-shrink-0 p-4 border-b">
+                <CardTitle className="flex items-center gap-2 text-lg">
                     <ShoppingCart /> Ihre Vorbestellung
                 </CardTitle>
             </CardHeader>
-            <CardContent className="flex-grow overflow-hidden flex flex-col">
+            <CardContent className="flex-grow overflow-hidden flex flex-col p-0">
                 {items.length === 0 ? (
-                    <div className="flex-grow flex items-center justify-center text-center text-muted-foreground py-8">
+                    <div className="flex-grow flex items-center justify-center text-center text-muted-foreground p-4">
                         Ihr Warenkorb ist leer.
                     </div>
                 ) : (
-                    <ScrollArea className="flex-grow pr-4 -mr-4">
-                        <div className="space-y-4">
+                    <ScrollArea className="flex-grow">
+                        <div className="space-y-2 p-4">
                             {items.map(item => (
-                                <div key={item.productId} className="flex justify-between items-center">
+                                <div key={item.productId} className="flex justify-between items-center gap-2 py-2">
                                     <div>
-                                        <p className="font-semibold">{item.name}</p>
+                                        <p className="font-semibold leading-tight">{item.name}</p>
                                         <p className="text-sm text-muted-foreground">
                                             {item.quantity} x €{item.price.toFixed(2)}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <p className="font-semibold">€{(item.price * item.quantity).toFixed(2)}</p>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeFromCart(item.productId)}>
+                                        <p className="font-semibold text-right">€{(item.price * item.quantity).toFixed(2)}</p>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={() => removeFromCart(item.productId)}>
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </div>
@@ -64,8 +64,7 @@ export function Cart() {
                 )}
             </CardContent>
             {items.length > 0 && (
-                <CardFooter className="flex-shrink-0 flex flex-col items-stretch space-y-4 pt-6">
-                     <Separator />
+                <CardFooter className="flex-shrink-0 flex flex-col items-stretch space-y-4 p-4 border-t bg-secondary/50">
                      <div className="space-y-2">
                         <label htmlFor="pickup-date" className="text-sm font-medium">Abholdatum</label>
                         <Input id="pickup-date" type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)} min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]}/>

@@ -19,9 +19,8 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { OrderCard } from "@/components/admin/OrderCard";
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
@@ -230,7 +229,7 @@ export default function AdminOrdersPage() {
       </Card>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-md m-4">
           <DialogHeader>
             <DialogTitle>Bestelldetails</DialogTitle>
             <DialogDescription>
@@ -239,7 +238,7 @@ export default function AdminOrdersPage() {
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
-            <div className="grid gap-6 py-4">
+            <div className="grid gap-6 py-4 max-h-[70vh] overflow-y-auto pr-2">
               <div className="space-y-4">
                   <h3 className="font-semibold text-lg">Bestellübersicht</h3>
                    <div className="grid grid-cols-2 gap-2 text-sm">
@@ -278,10 +277,11 @@ export default function AdminOrdersPage() {
                           </div>
                       </div>
                   )}
-
-                  <div className="flex justify-end font-bold text-lg">
-                      Gesamt: €{selectedOrder.total?.toFixed(2) || 'N/A'}
-                  </div>
+                  {selectedOrder.total && (
+                    <div className="flex justify-end font-bold text-lg border-t pt-4 mt-2">
+                        Gesamt: €{selectedOrder.total.toFixed(2)}
+                    </div>
+                  )}
               </div>
               
               {customerDetails && (
@@ -297,6 +297,9 @@ export default function AdminOrdersPage() {
                       </div>
                   </div>
               )}
+               <DialogClose asChild>
+                <Button variant="outline" className="mt-4">Schließen</Button>
+              </DialogClose>
             </div>
           )}
         </DialogContent>

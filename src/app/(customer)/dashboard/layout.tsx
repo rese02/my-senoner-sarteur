@@ -27,7 +27,7 @@ export default async function CustomerLayout({
     const user = mockUsers.find(u => u.id === session?.userId);
     
   return (
-    <div className="flex h-[100dvh] bg-background text-foreground overflow-hidden">
+    <div className="flex h-[100dvh] bg-secondary text-foreground overflow-hidden">
       <DesktopSidebar />
       <div className="flex-1 flex flex-col">
         <header className="flex-none flex h-16 items-center justify-between border-b bg-primary text-primary-foreground px-4 sticky top-0 z-30 md:hidden">
@@ -44,8 +44,8 @@ export default async function CustomerLayout({
         <main className="flex-1 overflow-y-auto bg-background">
             {children}
         </main>
+         <MobileNav />
       </div>
-       <MobileNav />
     </div>
   );
 }
