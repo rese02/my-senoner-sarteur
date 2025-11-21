@@ -185,6 +185,7 @@ export const mockOrders: Order[] = [
     ],
     status: 'new',
     createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    deliveryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString()
   },
 ];
 

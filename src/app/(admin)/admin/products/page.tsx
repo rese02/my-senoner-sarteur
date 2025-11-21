@@ -132,7 +132,9 @@ export default function AdminProductsPage() {
       startTransition(() => {
           if (editingProduct.id) {
               // Update existing product
-              setProducts(products.map(p => p.id === editingProduct.id ? { ...p, ...editingProduct } as Product : p));
+              setProducts(products.map(p => p.id === editingProduct!.id ? { ...p, ...editingProduct } as Product : p));
+               const mockIndex = mockProducts.findIndex(p => p.id === editingProduct!.id);
+              if (mockIndex > -1) mockProducts[mockIndex] = { ...mockProducts[mockIndex], ...editingProduct } as Product;
               toast({ title: 'Produkt aktualisiert!' });
           } else {
               // Create new product
@@ -141,9 +143,11 @@ export default function AdminProductsPage() {
                   id: `prod-${Date.now()}`,
                   categoryId: currentCategoryId!,
                   isAvailable: true,
-                  price: Number(editingProduct.price)
+                  price: Number(editingProduct.price),
+                  type: editingProduct.type || 'product'
               } as Product;
               setProducts(prev => [...prev, newProduct]);
+              mockProducts.push(newProduct);
               toast({ title: 'Produkt erstellt!' });
           }
           setIsProductModalOpen(false);
@@ -154,6 +158,8 @@ export default function AdminProductsPage() {
   const handleDeleteProduct = (productId: string) => {
       startTransition(() => {
         setProducts(prev => prev.filter(p => p.id !== productId));
+        const mockIndex = mockProducts.findIndex(p => p.id === productId);
+        if (mockIndex > -1) mockProducts.splice(mockIndex, 1);
         toast({ title: 'Produkt gelöscht' });
       });
   };

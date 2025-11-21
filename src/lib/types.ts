@@ -52,7 +52,7 @@ export interface Product {
   availabilityDay?: 'Donnerstag' | 'Freitag';
   isAvailable: boolean;
   timesOrderedLast30Days?: number;
-  type?: 'product' | 'package';
+  type: 'product' | 'package';
   packageContent?: PackageItem[];
 }
 

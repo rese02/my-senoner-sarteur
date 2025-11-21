@@ -67,7 +67,7 @@ export default function CustomerDashboardPage() {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 md:px-0">
                                 {filteredProducts.map(product => {
-                                    if (product.type === 'package' && product.packageContent) {
+                                    if (product.type === 'package') {
                                         return <PackageCard key={product.id} product={product} />
                                     }
                                     return <ProductCard key={product.id} product={product} />;
