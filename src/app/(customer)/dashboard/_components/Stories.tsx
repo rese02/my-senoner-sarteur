@@ -88,7 +88,7 @@ export function Stories({ stories }: { stories: Story[] }) {
                                      </div>
                                 </div>
                                 <DialogTrigger asChild>
-                                   <Button variant="ghost" size="icon" className="text-white rounded-full hover:bg-white/20">
+                                   <Button variant="ghost" size="icon" className="text-white rounded-full hover:bg-white/20 hover:text-white">
                                         <X className="w-5 h-5"/>
                                    </Button>
                                 </DialogTrigger>

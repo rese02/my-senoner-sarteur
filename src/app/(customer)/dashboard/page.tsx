@@ -17,7 +17,7 @@ import { useCartStore } from '@/hooks/use-cart-store';
 function CategoryFilter({ activeCategory, onSelect }: { activeCategory: string, onSelect: (category: string) => void }) {
   const categories = ["Alle", ...mockCategories.map(c => c.name)];
   return (
-    <div className="sticky top-0 bg-background/80 backdrop-blur-sm z-10 py-4 -mx-4 px-4 border-b">
+    <div className="sticky top-0 bg-background/80 backdrop-blur-sm z-10 py-4">
         <div className="flex overflow-x-auto gap-2 scrollbar-hide">
           {categories.map((cat) => (
             <Button
@@ -50,27 +50,21 @@ export default function CustomerDashboardPage() {
 
     return (
         <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8 lg:items-start">
-            <div className="lg:col-span-1">
-                <div className="space-y-8">
-                     <div>
-                       <Stories stories={stories} />
+            <div className="flex flex-col gap-8">
+                <Stories stories={stories} />
+                <RecipeCard recipe={recipe} />
+                
+                <section>
+                    <CategoryFilter activeCategory={selectedCategory} onSelect={setSelectedCategory} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        {filteredProducts.map(product => {
+                            if (product.type === 'package') {
+                                return <PackageCard key={product.id} product={product} />
+                            }
+                            return <ProductCard key={product.id} product={product} />;
+                        })}
                     </div>
-                    <div>
-                        <RecipeCard recipe={recipe} />
-                    </div>
-                    
-                    <section>
-                        <CategoryFilter activeCategory={selectedCategory} onSelect={setSelectedCategory} />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                            {filteredProducts.map(product => {
-                                if (product.type === 'package') {
-                                    return <PackageCard key={product.id} product={product} />
-                                }
-                                return <ProductCard key={product.id} product={product} />;
-                            })}
-                        </div>
-                    </section>
-                </div>
+                </section>
             </div>
             
             <div className="hidden lg:block">
