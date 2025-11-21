@@ -43,15 +43,15 @@ export default function CustomerDashboardPage() {
         });
 
     return (
-        <div className="container mx-auto p-0">
-            <div className="hidden md:block">
+        <div className="lg:container lg:mx-auto lg:p-0">
+             <div className="hidden md:block">
                 <PageHeader title="Pre-Order Specials" description="Bestellen Sie Ihre Lieblingsartikel im Voraus." />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2">
                     <div className="space-y-8">
-                        <div className="md:px-0">
+                        <div className="px-4 md:px-0">
                             <RecipeCard recipe={recipe} />
                         </div>
                         
@@ -92,5 +92,3 @@ export default function CustomerDashboardPage() {
         </div>
     );
 }
-
-    
