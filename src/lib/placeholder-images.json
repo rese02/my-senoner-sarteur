@@ -79,6 +79,18 @@
       "imageHint": "kitchen essentials"
     },
     {
+      "id": "event-raclette",
+      "description": "Image for Raclette Event",
+      "imageUrl": "https://images.unsplash.com/photo-1577961236528-55444a737f37?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyYWNsZXR0ZSUyMGNoZWVzZXxlbnwwfHx8fDE3NjM4MTQ5Njh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "raclette cheese"
+    },
+    {
+      "id": "event-fondue",
+      "description": "Image for Fondue/Grill event",
+      "imageUrl": "https://images.unsplash.com/photo-1678921448622-a9b709549923?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmb25kdWUlMjBtZWF0fGVufDB8fHx8MTc2MzgxNDk2OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fondue meat"
+    },
+    {
       "id": "placeholder-general",
       "description": "Generic placeholder image",
       "imageUrl": "https://images.unsplash.com/photo-1714578187218-d1828f5ebd6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwbGFjZWhvbGRlciUyMGltYWdlfGVufDB8fHx8MTc2MzMwMjE5M3ww&ixlib=rb-4.1.0&q=80&w=1080",
