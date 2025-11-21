@@ -17,14 +17,14 @@ import { useCartStore } from '@/hooks/use-cart-store';
 function CategoryFilter({ activeCategory, onSelect }: { activeCategory: string, onSelect: (category: string) => void }) {
   const categories = ["Alle", ...mockCategories.map(c => c.name)];
   return (
-    <div className="sticky top-0 bg-background/80 backdrop-blur-sm z-10 py-4">
+    <div className="sticky top-0 bg-background/80 backdrop-blur-sm z-10 py-4 -mx-4 px-4">
         <div className="flex overflow-x-auto gap-2 scrollbar-hide">
           {categories.map((cat) => (
             <Button
               key={cat}
               onClick={() => onSelect(cat)}
               variant={activeCategory === cat ? "default" : "outline"}
-              className="rounded-full px-5 text-sm h-9 whitespace-nowrap"
+              className="rounded-full px-5 text-sm h-9 whitespace-nowrap shrink-0"
             >
               {cat}
             </Button>
