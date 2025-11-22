@@ -91,7 +91,7 @@ export default function PartyPlannerPage() {
   }
 
   return (
-    <div className="space-y-8 pb-24 md:pb-8">
+    <div className="space-y-8 pb-24 md:pb-8 overflow-x-hidden">
       <PageHeader title="Party Planer" description="Wählen Sie ein Event und wir berechnen die perfekte Menge für Ihre Gäste." />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -142,7 +142,7 @@ export default function PartyPlannerPage() {
                           <span className="text-sm sm:text-base font-medium break-words">
                             {ing.productName}
                           </span>
-                          <span className="font-bold text-primary bg-primary/10 px-2 py-1 rounded text-sm whitespace-nowrap self-start sm:self-auto">
+                          <span className="font-bold text-primary bg-primary/10 px-2 py-1 rounded text-sm whitespace-nowrap self-start sm:self-auto mt-1 sm:mt-0">
                             {totalAmount.toLocaleString('de-DE')} {ing.unit}
                           </span>
                         </li>
