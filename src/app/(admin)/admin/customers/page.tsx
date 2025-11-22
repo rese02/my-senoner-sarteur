@@ -13,7 +13,6 @@ import { Wand2, Send, RotateCw, Trophy, Filter } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { improveTextWithAI } from "@/ai/flows/improve-newsletter-text";
-import { generateSeasonalPromotions } from "@/ai/flows/generate-seasonal-promotions";
 import { Badge } from "@/components/ui/badge";
 import { getLoyaltyTier, loyaltyTiers } from "@/lib/loyalty";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -140,7 +139,7 @@ export default function AdminCustomersPage() {
     };
 
   return (
-    <div className="pb-24 md:pb-0">
+    <div className="space-y-8 pb-24 md:pb-8">
       <PageHeader title="Kunden" description="Engagieren Sie sich mit Ihren Kunden und führen Sie Marketingkampagnen durch." />
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-3 space-y-8">
@@ -235,7 +234,7 @@ export default function AdminCustomersPage() {
                     </div>
 
                     {/* Mobile Card List */}
-                    <div className="md:hidden space-y-3">
+                    <div className="block md:hidden space-y-3">
                          {filteredCustomers.length === 0 && (
                             <div className="text-center py-10 text-muted-foreground">
                                 {selectedCategories.length > 0 ? "Keine Kunden für diese Auswahl gefunden." : "Keine Kunden vorhanden."}
