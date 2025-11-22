@@ -4,15 +4,41 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Card, CardContent } from '@/components/ui/card';
-import { ShoppingCart, Info, Loader2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { ShoppingCart, Users, Info, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { useCartStore } from '@/hooks/use-cart-store';
 import { PageHeader } from '@/components/common/PageHeader';
 import { mockPlannerEvents, mockProducts } from '@/lib/mock-data';
 import type { PlannerEvent } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
+function EventSelectionCard({ event, onSelect, isSelected }: { event: PlannerEvent, onSelect: (event: PlannerEvent) => void, isSelected: boolean }) {
+    return (
+        <div 
+            onClick={() => onSelect(event)}
+            className={cn(
+                "rounded-2xl overflow-hidden cursor-pointer group relative transition-all duration-300 ease-in-out border-4",
+                isSelected ? "border-primary shadow-2xl" : "border-transparent hover:shadow-lg"
+            )}
+        >
+            <div className={cn("absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors z-10", isSelected && "bg-black/30")}></div>
+            <Image 
+                src={event.imageUrl} 
+                alt={event.title} 
+                fill 
+                sizes="(max-width: 768px) 100vw, 50vw" 
+                className={cn("object-cover transition-transform duration-500 ease-in-out", isSelected ? "scale-110" : "scale-100 group-hover:scale-105")}
+                data-ai-hint={event.imageHint}
+            />
+            <div className="relative z-20 flex flex-col items-center justify-center h-48 text-white text-center p-4">
+                <h3 className="font-headline text-3xl font-bold drop-shadow-md">{event.title}</h3>
+                <p className="text-sm drop-shadow-sm">{event.description}</p>
+            </div>
+        </div>
+    );
+}
 
 export default function PartyPlannerPage() {
   const [events, setEvents] = useState<PlannerEvent[]>([]);
@@ -23,9 +49,7 @@ export default function PartyPlannerPage() {
   const addToCart = useCartStore(state => state.addToCart); 
 
 
-  // 1. Daten laden (aus mock-data.ts)
   useEffect(() => {
-    // Simulating a fetch from a database
     setEvents(mockPlannerEvents);
     if (mockPlannerEvents.length > 0) {
       setSelectedEvent(mockPlannerEvents[0]);
@@ -36,25 +60,18 @@ export default function PartyPlannerPage() {
   const handleAddToCart = () => {
     if (!selectedEvent) return;
 
-    // Logik: Gehe durch alle Ingredients des selectedEvent
-    // Menge = ingredient.baseAmount * people
-    // AddToCart(ingredient.productId, Menge)
-    
     selectedEvent.ingredients.forEach(ingredient => {
         const product = mockProducts.find(p => p.id === ingredient.productId);
         if (product) {
             const totalAmount = ingredient.baseAmount * people;
-            // The price calculation needs to be smart.
-            // Example: if product unit is 'kg' and baseAmount is in 'g', we need conversion.
-            // This is a simplified example assuming price is per base unit.
-            // A real implementation would need a price-per-unit/gram logic.
-            const calculatedPrice = (totalAmount / (product.unit === 'kg' ? 1000 : 1)) * product.price;
+            const pricePerGram = product.unit === 'kg' ? product.price / 1000 : product.price; // assuming 'g' or 'stück' otherwise
+            const price = ingredient.unit === 'g' ? totalAmount * pricePerGram : totalAmount * product.price;
 
             addToCart({ 
-                productId: `${product.id}-${people}`, // Make ID unique per configuration
+                productId: `${product.id}-${people}`,
                 name: `${product.name} (für ${people} Pers.)`, 
-                quantity: 1, // We add the calculated amount as one item
-                price: calculatedPrice
+                quantity: 1,
+                price: price
             });
         }
     });
@@ -75,41 +92,32 @@ export default function PartyPlannerPage() {
 
   return (
     <div className="space-y-8 pb-24 md:pb-8">
-      <PageHeader title="Party Planer" description="Planen Sie die perfekte Menge für Ihre Gäste." />
+      <PageHeader title="Party Planer" description="Wählen Sie ein Event und wir berechnen die perfekte Menge für Ihre Gäste." />
 
-      {/* 1. Event Selection */}
-       <div className="w-full">
-        <div className="flex space-x-4 pb-4 overflow-x-auto scrollbar-hide">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {events.map((ev) => (
-            <button
-              key={ev.id}
-              onClick={() => setSelectedEvent(ev)}
-              className={`snap-center shrink-0 w-3/5 sm:w-48 h-32 rounded-xl relative overflow-hidden border-4 cursor-pointer transition-all duration-300 ${
-                selectedEvent?.id === ev.id ? 'border-primary ring-4 ring-primary/20 scale-105' : 'border-transparent opacity-75 hover:opacity-100'
-              }`}
-            >
-              <Image src={ev.imageUrl} fill sizes="200px" className="object-cover" alt={ev.title} data-ai-hint={ev.imageHint}/>
-              <div className="absolute bottom-0 bg-black/60 w-full p-2 text-white text-sm font-bold truncate">
-                {ev.title}
-              </div>
-            </button>
+            <EventSelectionCard 
+                key={ev.id}
+                event={ev}
+                onSelect={setSelectedEvent}
+                isSelected={selectedEvent?.id === ev.id}
+            />
           ))}
-        </div>
       </div>
 
 
-      {/* 2. The Calculator */}
       {selectedEvent && (
-        <Card className="border-none shadow-lg animate-in fade-in-50">
-            <CardContent className="p-4 sm:p-6 space-y-6">
+        <Card className="border-none shadow-lg animate-in fade-in-50 sticky top-4">
+            <CardHeader>
+                <CardTitle className="text-2xl font-headline">Mengenrechner für "{selectedEvent.title}"</CardTitle>
+                <CardDescription>Wie viele Gäste erwarten Sie?</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
             
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                <div>
-                <h2 className="text-xl font-bold text-primary">{selectedEvent.title}</h2>
-                <p className="text-sm text-muted-foreground">Wie viele Gäste erwarten Sie?</p>
-                </div>
-                <div className="text-4xl font-headline text-primary font-bold mt-2 sm:mt-0">
-                {people} <span className="text-base font-body text-muted-foreground font-normal">Pers.</span>
+            <div className="flex justify-between items-center bg-secondary p-4 rounded-xl border">
+                <Users className="w-8 h-8 text-primary" />
+                <div className="text-5xl font-headline text-primary font-bold">
+                    {people}
                 </div>
             </div>
 
@@ -122,8 +130,7 @@ export default function PartyPlannerPage() {
                 className="py-4"
             />
 
-            {/* Result Box */}
-            <div className="bg-secondary p-5 rounded-xl border">
+            <div className="bg-background p-5 rounded-xl border-2 border-dashed">
                 <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-bold mb-3 flex items-center gap-2">
                     <Info size={14}/> Unsere Empfehlung für {people} Personen:
                 </h3>
@@ -133,7 +140,7 @@ export default function PartyPlannerPage() {
                     return (
                         <li key={idx} className="flex justify-between items-center text-card-foreground text-lg">
                         <span>{ing.productName}</span>
-                        <span className="font-bold text-primary">
+                        <span className="font-bold text-primary bg-primary/10 px-3 py-1 rounded-full text-base">
                             {totalAmount.toLocaleString('de-DE')} {ing.unit}
                         </span>
                         </li>
