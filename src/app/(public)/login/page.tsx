@@ -9,9 +9,6 @@ export default function LoginPage() {
       {/* Linke, helle Aktions-Säule */}
       <div className="flex items-center justify-center py-12 px-4">
           <div className="w-full max-w-sm">
-            <div className="mx-auto w-1/2 mb-8">
-                <Logo />
-            </div>
             <Card className="shadow-lg border-none">
                 <CardHeader className="text-center">
                 <CardTitle className="text-3xl">Willkommen zurück</CardTitle>
