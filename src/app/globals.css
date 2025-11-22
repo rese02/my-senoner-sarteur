@@ -22,7 +22,7 @@
     --muted: 210 40% 90%;
     --muted-foreground: 210 30% 50%;
     
-    --accent: 22 40% 54%; /* #B97B58 - Bronze/Copper */
+    --accent: 217 91% 60%; /* #3b82f6 - Bright Blue (replaces bronze) */
     --accent-foreground: 0 0% 100%;
     
     --destructive: 0 84% 60%;
@@ -61,8 +61,8 @@
     --secondary-foreground: 210 40% 90%;
     --muted: 215 28% 30%;
     --muted-foreground: 210 30% 60%;
-    --accent: 25 80% 65%;
-    --accent-foreground: 215 40% 15%;
+    --accent: 217 91% 60%; /* Bright blue for dark mode too */
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
     --border: 215 28% 20%;

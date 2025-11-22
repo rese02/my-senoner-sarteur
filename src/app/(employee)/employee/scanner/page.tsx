@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, CheckCircle, Gift, Loader2, QrCode, X, ListTodo, Check } from 'lucide-react';
+import { Camera, CheckCircle, Gift, Loader2, QrCode, X, ListTodo, Check, Trophy } from 'lucide-react';
 import { mockUsers, mockOrders } from '@/lib/mock-data';
 import type { User as UserType, Order, ChecklistItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -172,7 +172,7 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
                     <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                 </Avatar>
                 <CardTitle className="text-2xl mt-2">{user.name}</CardTitle>
-                <Badge variant="outline" className={`border-0 text-sm mt-1 ${tier.color.replace('text-', 'bg-').replace('600', '100')} ${tier.color}`}>
+                <Badge variant="outline" className={`border-0 text-sm mt-1 bg-blue-100 text-blue-800`}>
                   <Trophy className="w-3 h-3 mr-1.5" />
                   {tier.name} - {loyaltyData?.points} Punkte
                 </Badge>
@@ -280,7 +280,7 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
                         value={finalPrice}
                         onChange={(e) => setFinalPrice(e.target.value)}
                     />
-                    <Button onClick={handleFinish} disabled={isSaving} className="h-14 px-6 text-lg">
+                    <Button onClick={handleFinish} disabled={isSaving || !finalPrice || parseFloat(finalPrice) <= 0} className="h-14 px-6 text-lg">
                         {isSaving ? <Loader2 className="animate-spin"/> : 'Fertig'}
                     </Button>
                  </div>

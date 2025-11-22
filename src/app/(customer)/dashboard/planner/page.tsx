@@ -129,20 +129,22 @@ export default function PartyPlannerPage() {
                 step={1}
                 className="py-4"
             />
-
-            <div className="bg-background p-5 rounded-xl border-2 border-dashed">
+            
+            <div className="bg-background p-5 rounded-xl border-2 border-dashed w-full max-w-full overflow-hidden">
                 <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-bold mb-3 flex items-center gap-2">
                     <Info size={14}/> Unsere Empfehlung für {people} Personen:
                 </h3>
-                <ul className="space-y-3">
+                <ul className="space-y-3 w-full">
                     {selectedEvent.ingredients.map((ing, idx) => {
                     const totalAmount = ing.baseAmount * people;
                     return (
-                        <li key={idx} className="flex justify-between items-center text-card-foreground sm:text-lg">
-                        <span className="flex-1 min-w-0 break-words pr-2">{ing.productName}</span>
-                        <span className="font-bold text-primary bg-primary/10 px-3 py-1 rounded-full text-base whitespace-nowrap">
+                        <li key={idx} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 text-card-foreground border-b last:border-0 pb-2 last:pb-0">
+                          <span className="text-sm sm:text-base font-medium break-words">
+                            {ing.productName}
+                          </span>
+                          <span className="font-bold text-primary bg-primary/10 px-2 py-1 rounded text-sm whitespace-nowrap self-start sm:self-auto">
                             {totalAmount.toLocaleString('de-DE')} {ing.unit}
-                        </span>
+                          </span>
                         </li>
                     );
                     })}
