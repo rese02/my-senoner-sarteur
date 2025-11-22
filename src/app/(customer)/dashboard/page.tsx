@@ -50,11 +50,10 @@ export default function CustomerDashboardPage() {
             return p.categoryId === category?.id && p.isAvailable;
         });
     
-    // Only show the floating cart button on the main dashboard page
     const showFloatingCart = pathname === '/dashboard';
 
     return (
-        <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8 lg:items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:gap-8 lg:items-start">
             <div className="flex flex-col gap-8">
                 <Stories stories={stories} />
                 <RecipeCard recipe={recipe} />
@@ -78,7 +77,6 @@ export default function CustomerDashboardPage() {
                  </div>
             </div>
             
-            {/* Mobile Cart Button & Sheet */}
             {showFloatingCart && (
               <div className="lg:hidden fixed bottom-[5.5rem] right-4 z-20">
                   <Sheet>
