@@ -78,21 +78,23 @@ export default function PartyPlannerPage() {
       <PageHeader title="Party Planer" description="Planen Sie die perfekte Menge für Ihre Gäste." />
 
       {/* 1. Event Selection */}
-       <div className="flex w-full overflow-x-auto gap-4 pb-4 -mx-4 px-4 scrollbar-hide snap-x">
-        {events.map((ev) => (
-          <div
-            key={ev.id}
-            onClick={() => setSelectedEvent(ev)}
-            className={`snap-center shrink-0 w-48 h-32 rounded-xl relative overflow-hidden border-4 cursor-pointer transition-all duration-300 ${
-              selectedEvent?.id === ev.id ? 'border-primary ring-4 ring-primary/20 scale-105' : 'border-transparent opacity-75 hover:opacity-100'
-            }`}
-          >
-            <Image src={ev.imageUrl} fill sizes="200px" className="object-cover" alt={ev.title} data-ai-hint={ev.imageHint}/>
-            <div className="absolute bottom-0 bg-black/60 w-full p-2 text-white text-sm font-bold truncate">
-              {ev.title}
+       <div className="w-full overflow-x-auto">
+        <div className="flex w-max space-x-4 pb-4">
+          {events.map((ev) => (
+            <div
+              key={ev.id}
+              onClick={() => setSelectedEvent(ev)}
+              className={`snap-center shrink-0 w-48 h-32 rounded-xl relative overflow-hidden border-4 cursor-pointer transition-all duration-300 ${
+                selectedEvent?.id === ev.id ? 'border-primary ring-4 ring-primary/20 scale-105' : 'border-transparent opacity-75 hover:opacity-100'
+              }`}
+            >
+              <Image src={ev.imageUrl} fill sizes="200px" className="object-cover" alt={ev.title} data-ai-hint={ev.imageHint}/>
+              <div className="absolute bottom-0 bg-black/60 w-full p-2 text-white text-sm font-bold truncate">
+                {ev.title}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
 
