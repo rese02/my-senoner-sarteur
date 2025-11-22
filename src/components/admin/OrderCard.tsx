@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-blue-100 text-blue-700' },
+  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg' },
   picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
   ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg' },
   ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg' },
@@ -21,7 +21,7 @@ const statusMap: Record<OrderStatus, {label: string, className: string}> = {
 const StatusBadge = ({ status }: { status: OrderStatus }) => {
   const statusInfo = statusMap[status];
   return (
-    <Badge className={cn("capitalize font-semibold text-xs", statusInfo.className)}>
+    <Badge className={cn("capitalize font-semibold text-xs border-transparent", statusInfo.className)}>
       {statusInfo.label}
     </Badge>
   );
@@ -30,24 +30,24 @@ const StatusBadge = ({ status }: { status: OrderStatus }) => {
 
 type OrderCardProps = {
     order: Order;
-    onClick?: () => void;
+    onShowDetails?: () => void;
 }
 
-export function OrderCard({ order, onClick }: OrderCardProps) {
+export function OrderCard({ order, onShowDetails }: OrderCardProps) {
   const isGroceryList = order.type === 'grocery_list';
   const pickupDate = order.pickupDate ? new Date(order.pickupDate) : new Date(order.createdAt);
   const itemCount = isGroceryList ? order.rawList?.split('\n').length : order.items?.length;
 
   return (
     <div 
-      onClick={onClick}
+      onClick={onShowDetails}
       className={cn(
-        "bg-card rounded-xl p-0 shadow-sm border hover:shadow-md transition-all duration-300 flex overflow-hidden group",
-        onClick && "cursor-pointer"
+        "bg-card rounded-xl p-0 shadow-sm border hover:shadow-md transition-all duration-300 flex overflow-hidden group relative",
+        onShowDetails && "cursor-pointer"
       )}>
       
       {/* Left color strip */}
-      <div className={cn("w-2", statusMap[order.status].className)} />
+      <div className={cn("w-2", statusMap[order.status].className.replace('text-', 'bg-'))} />
 
       <div className="p-4 flex-1 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         
@@ -75,15 +75,15 @@ export function OrderCard({ order, onClick }: OrderCardProps) {
         {/* Price & Status */}
         <div className="sm:text-right flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto">
           {order.total ? 
-            <p className="font-bold text-xl text-accent-foreground">€{order.total.toFixed(2)}</p>
+            <p className="font-bold text-xl text-accent">€{order.total.toFixed(2)}</p>
             : <p className="font-bold text-lg text-muted-foreground">-</p>
           }
           <StatusBadge status={order.status} />
         </div>
 
         {/* Action Button (appears on hover) */}
-        {onClick && (
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 sm:static sm:translate-y-0">
+        {onShowDetails && (
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 sm:static sm:translate-y-0 sm:ml-4">
             <Button variant="ghost" size="icon"><ChevronRight /></Button>
           </div>
         )}

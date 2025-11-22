@@ -266,9 +266,7 @@ export default function AdminOrdersPage() {
                 <OrderCard 
                     key={order.id} 
                     order={order}
-                    statusMap={statusMap}
-                    onStatusChange={handleStatusChange}
-                    onShowDetails={handleShowDetails}
+                    onShowDetails={() => handleShowDetails(order)}
                 />
              ))}
           </div>
