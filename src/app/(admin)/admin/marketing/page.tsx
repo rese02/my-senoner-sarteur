@@ -6,15 +6,16 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { mockAppConfig, mockStories } from "@/lib/mock-data";
+import { mockAppConfig, mockStories, mockPlannerEvents, mockProducts } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useTransition } from "react";
-import type { Recipe, Story } from "@/lib/types";
-import { Loader2, PlusCircle, Trash2, Edit } from "lucide-react";
+import type { Recipe, Story, PlannerEvent, PlannerIngredientRule } from "@/lib/types";
+import { Loader2, PlusCircle, Trash2, Edit, Plus, Save } from "lucide-react";
 import { ImageUploader } from "@/components/custom/ImageUploader";
 import Image from "next/image";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Helper component for story modal form
 function StoryForm({ story, onSave, isPending }: { story: Partial<Story> | null, onSave: (story: Partial<Story>) => void, isPending: boolean }) {
@@ -73,16 +74,134 @@ function StoryForm({ story, onSave, isPending }: { story: Partial<Story> | null,
     )
 }
 
+function PlannerEventForm({ event: initialEvent, onSave, isPending }: { event: Partial<PlannerEvent> | null, onSave: (event: Partial<PlannerEvent>) => void, isPending: boolean }) {
+    const [event, setEvent] = useState(initialEvent);
+    
+    const [tempRule, setTempRule] = useState<{productId: string, productName: string, baseAmount: string, unit: string}>({ productId: '', productName: '', baseAmount: '', unit: 'g' });
+
+    if (!event) return null;
+
+    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setEvent({ ...event, [name]: value });
+    };
+
+    const handleImageUpload = (url: string) => {
+        setEvent({ ...event, imageUrl: url });
+    };
+
+    const addRule = () => {
+        if (!tempRule.productId || !tempRule.baseAmount) {
+            alert('Produkt und Menge sind erforderlich.');
+            return;
+        }
+        const newRule: PlannerIngredientRule = {
+            productId: tempRule.productId,
+            productName: tempRule.productName,
+            baseAmount: parseFloat(tempRule.baseAmount),
+            unit: tempRule.unit,
+        };
+        const newIngredients = [...(event.ingredients || []), newRule];
+        setEvent({ ...event, ingredients: newIngredients });
+        setTempRule({ productId: '', productName: '', baseAmount: '', unit: 'g' });
+    };
+
+    const removeRule = (index: number) => {
+        const newIngredients = [...(event.ingredients || [])];
+        newIngredients.splice(index, 1);
+        setEvent({ ...event, ingredients: newIngredients });
+    };
+    
+    const handleFormSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSave(event);
+    };
+
+    return (
+        <form onSubmit={handleFormSubmit} className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-4">
+            <div className="space-y-2">
+                <Label htmlFor="title">Event Name</Label>
+                <Input id="title" name="title" value={event.title || ''} onChange={handleFormChange} required placeholder="z.B. Raclette Abend"/>
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="description">Kurzbeschreibung</Label>
+                <Input id="description" name="description" value={event.description || ''} onChange={handleFormChange} placeholder="Der Klassiker für gemütliche Abende."/>
+            </div>
+            <div className="space-y-2">
+                <Label>Event Bild</Label>
+                <ImageUploader onUploadComplete={handleImageUpload} currentImageUrl={event.imageUrl} folder="planner" />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="imageHint">Bild-Hinweis</Label>
+                <Input id="imageHint" name="imageHint" value={event.imageHint || ''} onChange={handleFormChange} placeholder="z.B. raclette cheese"/>
+            </div>
+
+            <div className="space-y-3 pt-4 border-t mt-4">
+                <Label>Zutaten-Regeln (Menge pro 1 Person)</Label>
+                <div className="flex gap-2 items-end bg-secondary p-3 rounded-lg border">
+                    <div className="flex-1">
+                        <Label className="text-xs">Produkt</Label>
+                         <Select onValueChange={(val) => {
+                            const product = mockProducts.find(p => p.id === val);
+                            setTempRule(r => ({...r, productId: val, productName: product?.name || ''}))
+                         }} value={tempRule.productId}>
+                            <SelectTrigger><SelectValue placeholder="Produkt wählen..." /></SelectTrigger>
+                            <SelectContent>
+                                {mockProducts.filter(p => p.isAvailable).map(p => (
+                                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                         </Select>
+                    </div>
+                     <div className="w-24">
+                        <Label className="text-xs">Menge</Label>
+                        <Input type="number" placeholder="150" value={tempRule.baseAmount} onChange={(e) => setTempRule(r => ({...r, baseAmount: e.target.value}))}/>
+                    </div>
+                     <div className="w-20">
+                        <Label className="text-xs">Einheit</Label>
+                        <Input placeholder="g" value={tempRule.unit} onChange={(e) => setTempRule(r => ({...r, unit: e.target.value}))} />
+                    </div>
+                    <Button type="button" size="icon" onClick={addRule}><Plus /></Button>
+                </div>
+                 <div className="space-y-2">
+                    {event.ingredients?.map((rule, index) => (
+                    <div key={index} className="flex justify-between items-center p-2 border rounded bg-background shadow-sm text-sm">
+                        <span><strong>{rule.baseAmount}{rule.unit}</strong> {rule.productName}</span>
+                        <button onClick={() => removeRule(index)} type="button" className="text-destructive p-1 rounded hover:bg-destructive/10">
+                            <Trash2 size={16} />
+                        </button>
+                    </div>
+                    ))}
+                </div>
+            </div>
+
+            <DialogFooter className="mt-4 sticky bottom-0 bg-background py-4">
+                <DialogClose asChild><Button type="button" variant="outline">Abbrechen</Button></DialogClose>
+                <Button type="submit" disabled={isPending}>
+                    {isPending && <Loader2 className="mr-2 animate-spin" />}
+                    Speichern
+                </Button>
+            </DialogFooter>
+        </form>
+    );
+}
+
+
 
 export default function MarketingPage() {
     const [recipe, setRecipe] = useState<Recipe>(mockAppConfig.recipeOfTheWeek);
     const [stories, setStories] = useState<Story[]>(mockStories);
+    const [plannerEvents, setPlannerEvents] = useState<PlannerEvent[]>(mockPlannerEvents);
 
     const [isRecipePending, startRecipeTransition] = useTransition();
     const [isStoryPending, startStoryTransition] = useTransition();
+    const [isPlannerPending, startPlannerTransition] = useTransition();
 
     const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
     const [editingStory, setEditingStory] = useState<Partial<Story> | null>(null);
+
+    const [isPlannerModalOpen, setIsPlannerModalOpen] = useState(false);
+    const [editingPlannerEvent, setEditingPlannerEvent] = useState<Partial<PlannerEvent> | null>(null);
 
     const { toast } = useToast();
 
@@ -147,9 +266,46 @@ export default function MarketingPage() {
         });
     };
 
+    // --- Planner Events Logic ---
+    const handleOpenPlannerModal = (event: PlannerEvent | null) => {
+        setEditingPlannerEvent(event ? { ...event } : { title: '', description: '', imageUrl: '', imageHint: '', ingredients: [] });
+        setIsPlannerModalOpen(true);
+    };
+
+    const handleSavePlannerEvent = (eventData: Partial<PlannerEvent>) => {
+        startPlannerTransition(() => {
+            if (eventData.id) {
+                // Update
+                const updatedEvents = plannerEvents.map(e => e.id === eventData.id ? eventData as PlannerEvent : e);
+                setPlannerEvents(updatedEvents);
+                const mockIndex = mockPlannerEvents.findIndex(e => e.id === eventData.id);
+                if (mockIndex > -1) mockPlannerEvents[mockIndex] = eventData as PlannerEvent;
+                toast({ title: "Planer Event aktualisiert!" });
+            } else {
+                // Create
+                const newEvent: PlannerEvent = { ...eventData, id: `plan-${Date.now()}` } as PlannerEvent;
+                setPlannerEvents([...plannerEvents, newEvent]);
+                mockPlannerEvents.push(newEvent);
+                toast({ title: "Neues Planer Event erstellt!" });
+            }
+            setIsPlannerModalOpen(false);
+            setEditingPlannerEvent(null);
+        });
+    };
+
+     const handleDeletePlannerEvent = (eventId: string) => {
+        startPlannerTransition(() => {
+            setPlannerEvents(plannerEvents.filter(e => e.id !== eventId));
+            const mockIndex = mockPlannerEvents.findIndex(e => e.id === eventId);
+            if (mockIndex > -1) mockPlannerEvents.splice(mockIndex, 1);
+            toast({ title: "Planer Event gelöscht." });
+        });
+    };
+
+
     return (
         <div className="pb-24 md:pb-0">
-            <PageHeader title="Marketing" description="Verwalten Sie hier Inhalte, die auf der Kundenseite angezeigt werden." />
+            <PageHeader title="Marketing & Events" description="Verwalten Sie hier Inhalte, die auf der Kundenseite angezeigt werden." />
             
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                  {/* Left Column */}
@@ -193,6 +349,48 @@ export default function MarketingPage() {
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel>Abbrechen</AlertDialogCancel>
                                                     <AlertDialogAction onClick={() => handleDeleteStory(story.id)}>Löschen</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+
+                     <Card>
+                        <CardHeader className="flex flex-row justify-between items-start">
+                           <div>
+                             <CardTitle>Party Planer Events</CardTitle>
+                             <CardDescription>
+                                Erstellen Sie Vorlagen für den Party-Planer Ihrer Kunden.
+                            </CardDescription>
+                           </div>
+                           <Button onClick={() => handleOpenPlannerModal(null)}><PlusCircle className="mr-2 h-4 w-4" />Neu</Button>
+                        </CardHeader>
+                        <CardContent className="grid sm:grid-cols-2 gap-4">
+                           {plannerEvents.map(event => (
+                                <div key={event.id} className="group relative border rounded-lg p-3 pr-10">
+                                    <p className="font-bold">{event.title}</p>
+                                    <p className="text-xs text-muted-foreground">{event.ingredients.length} Zutaten-Regeln</p>
+                                    <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Button variant="secondary" size="icon" className="h-7 w-7" onClick={() => handleOpenPlannerModal(event)}>
+                                            <Edit className="h-4 w-4" />
+                                        </Button>
+                                         <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="destructive" size="icon" className="h-7 w-7">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
+                                                    <AlertDialogDescription>Möchten Sie das Event '{event.title}' wirklich löschen?</AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDeletePlannerEvent(event.id)}>Löschen</AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
                                         </AlertDialog>
@@ -264,6 +462,19 @@ export default function MarketingPage() {
                         </DialogDescription>
                     </DialogHeader>
                     {editingStory && <StoryForm story={editingStory} onSave={handleSaveStory} isPending={isStoryPending} />}
+                </DialogContent>
+            </Dialog>
+
+             {/* Modal for creating/editing a planner event */}
+            <Dialog open={isPlannerModalOpen} onOpenChange={setIsPlannerModalOpen}>
+                <DialogContent className="sm:max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>{editingPlannerEvent?.id ? 'Planer Event bearbeiten' : 'Neues Planer Event erstellen'}</DialogTitle>
+                        <DialogDescription>
+                            Definieren Sie hier die Regeln für den Mengenrechner.
+                        </DialogDescription>
+                    </DialogHeader>
+                    {editingPlannerEvent && <PlannerEventForm event={editingPlannerEvent} onSave={handleSavePlannerEvent} isPending={isPlannerPending} />}
                 </DialogContent>
             </Dialog>
         </div>

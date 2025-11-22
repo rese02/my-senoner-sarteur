@@ -1,4 +1,4 @@
-import type { User, Category, Product, Order, LoyaltyData, AppConfig, Story } from '@/lib/types';
+import type { User, Category, Product, Order, LoyaltyData, AppConfig, Story, PlannerEvent } from '@/lib/types';
 import { PlaceHolderImages } from './placeholder-images';
 
 const getImage = (id: string) => {
@@ -221,4 +221,28 @@ export const mockStories: Story[] = [
     { id: 'story-3', imageUrl: 'https://images.unsplash.com/photo-1617347454434-1199a45b7348?q=80&w=1964&auto=format&fit=crop', imageHint: 'butcher counter', label: 'Neues vom Metzger', author: 'Metzgerei' },
     { id: 'story-4', imageUrl: 'https://images.unsplash.com/photo-1506368249639-73a05d6f6488?q=80&w=1974&auto=format&fit=crop', imageHint: 'wine cellar', label: 'Wein der Woche', author: 'Sommelier' },
     { id: 'story-5', imageUrl: 'https://images.unsplash.com/photo-1599819022479-7d8b593f640c?q=80&w=1974&auto=format&fit=crop', imageHint: 'fresh bread', label: 'Frisch gebacken', author: 'Bäckerei' },
+];
+
+export const mockPlannerEvents: PlannerEvent[] = [
+    {
+        id: 'plan-1',
+        title: 'Raclette Abend',
+        description: 'Der Klassiker für gemütliche Abende.',
+        imageUrl: getImage('event-raclette').imageUrl,
+        imageHint: getImage('event-raclette').imageHint,
+        ingredients: [
+            { productId: 'prod-4', productName: 'Regionale Käseplatte', baseAmount: 250, unit: 'g' },
+            { productId: 'prod-5', productName: 'Südtiroler Speck', baseAmount: 100, unit: 'g' }
+        ]
+    },
+    {
+        id: 'plan-2',
+        title: 'Grillfest',
+        description: 'Feinstes Fleisch für den besonderen Anlass.',
+        imageUrl: getImage('event-fondue').imageUrl,
+        imageHint: getImage('event-fondue').imageHint,
+        ingredients: [
+            { productId: 'prod-5', productName: 'Südtiroler Speck', baseAmount: 300, unit: 'g' }
+        ]
+    }
 ];

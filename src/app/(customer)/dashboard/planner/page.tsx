@@ -1,144 +1,152 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent } from '@/components/ui/card';
-import { ShoppingCart, Info } from 'lucide-react';
+import { ShoppingCart, Info, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { useCartStore } from '@/hooks/use-cart-store';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { PageHeader } from '@/components/common/PageHeader';
+import { mockPlannerEvents, mockProducts } from '@/lib/mock-data';
+import type { PlannerEvent } from '@/lib/types';
 
-// Hardcoded logic for the Party Planner
-const EVENTS = [
-  {
-    id: 'raclette',
-    name: 'Raclette Abend',
-    description: 'Der Klassiker für gemütliche Abende.',
-    image: PlaceHolderImages.find(p => p.id === 'event-raclette')?.imageUrl || '',
-    imageHint: PlaceHolderImages.find(p => p.id === 'event-raclette')?.imageHint || 'raclette cheese',
-    baseAmountPerPerson: 250, // Gramm
-    unit: 'g',
-    productName: 'Regionale Käseplatte',
-    productId: 'prod-4', // Hard-linked to the existing cheese platter product
-    pricePer100g: 12.50 / 4, // Assuming the 12.50 plate is ~400g
-  },
-  {
-    id: 'fondue',
-    name: 'Grillfest',
-    description: 'Feinstes Fleisch für den besonderen Anlass.',
-    image: PlaceHolderImages.find(p => p.id === 'event-fondue')?.imageUrl || '',
-    imageHint: PlaceHolderImages.find(p => p.id === 'event-fondue')?.imageHint || 'fondue meat',
-    baseAmountPerPerson: 300, // Gramm Fleisch
-    unit: 'g',
-    productName: 'Südtiroler Speck',
-    productId: 'prod-5', // Hard-linked to the existing speck product
-    pricePer100g: 22.00 / 10, // Price for 1kg is 22, so per 100g it's 2.20
-  }
-];
 
 export default function PartyPlannerPage() {
+  const [events, setEvents] = useState<PlannerEvent[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<PlannerEvent | null>(null);
   const [people, setPeople] = useState(4);
-  const [selectedEvent, setSelectedEvent] = useState(EVENTS[0]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const addToCart = useCartStore(state => state.addToCart); 
 
-  // Calculation
-  const totalAmount = people * selectedEvent.baseAmountPerPerson;
-  const estimatedPrice = (totalAmount / 100) * selectedEvent.pricePer100g;
+
+  // 1. Daten laden (aus mock-data.ts)
+  useEffect(() => {
+    // Simulating a fetch from a database
+    setEvents(mockPlannerEvents);
+    if (mockPlannerEvents.length > 0) {
+      setSelectedEvent(mockPlannerEvents[0]);
+    }
+    setLoading(false);
+  }, []);
 
   const handleAddToCart = () => {
-    addToCart({ 
-        productId: `${selectedEvent.productId}-${people}`, // Make ID unique per configuration
-        name: `${selectedEvent.productName} für ${people}`, 
-        quantity: 1, // We add it as one package item
-        price: estimatedPrice // The calculated price
+    if (!selectedEvent) return;
+
+    // Logik: Gehe durch alle Ingredients des selectedEvent
+    // Menge = ingredient.baseAmount * people
+    // AddToCart(ingredient.productId, Menge)
+    
+    selectedEvent.ingredients.forEach(ingredient => {
+        const product = mockProducts.find(p => p.id === ingredient.productId);
+        if (product) {
+            const totalAmount = ingredient.baseAmount * people;
+            // The price calculation needs to be smart.
+            // Example: if product unit is 'kg' and baseAmount is in 'g', we need conversion.
+            // This is a simplified example assuming price is per base unit.
+            // A real implementation would need a price-per-unit/gram logic.
+            const calculatedPrice = (totalAmount / (product.unit === 'kg' ? 1000 : 1)) * product.price;
+
+            addToCart({ 
+                productId: `${product.id}-${people}`, // Make ID unique per configuration
+                name: `${product.name} (für ${people} Pers.)`, 
+                quantity: 1, // We add the calculated amount as one item
+                price: calculatedPrice
+            });
+        }
     });
     
     toast({
       title: "Hinzugefügt!",
-      description: `${totalAmount}${selectedEvent.unit} ${selectedEvent.productName} im Warenkorb.`,
+      description: `Zutaten für "${selectedEvent.title}" für ${people} Personen im Warenkorb.`,
     });
   };
 
+  if (loading) {
+    return (
+        <div className="flex justify-center items-center h-64">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-24">
       <PageHeader title="Party Planer" description="Planen Sie die perfekte Menge für Ihre Gäste." />
 
       {/* 1. Event Selection */}
-      <div className="grid grid-cols-2 gap-4">
-        {EVENTS.map((ev) => (
+       <div className="flex w-full overflow-x-auto gap-4 pb-4 px-1 scrollbar-hide snap-x -mx-4 px-4">
+        {events.map((ev) => (
           <div
             key={ev.id}
             onClick={() => setSelectedEvent(ev)}
-            className={`relative h-32 rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${
-              selectedEvent.id === ev.id ? 'border-primary ring-2 ring-primary/20' : 'border-transparent opacity-70 hover:opacity-100'
+            className={`snap-start shrink-0 w-48 h-32 rounded-xl relative overflow-hidden border-4 cursor-pointer transition-all duration-300 ${
+              selectedEvent?.id === ev.id ? 'border-primary ring-4 ring-primary/20 scale-105' : 'border-transparent opacity-75 hover:opacity-100'
             }`}
           >
-             <Image 
-                src={ev.image} 
-                alt={ev.name} 
-                fill 
-                sizes="(max-width: 768px) 50vw, 33vw"
-                className="object-cover"
-                data-ai-hint={ev.imageHint}
-             />
-            <div className="absolute inset-0 bg-black/40 flex items-end p-3">
-              <span className="text-white font-bold">{ev.name}</span>
+            <Image src={ev.imageUrl} fill sizes="200px" className="object-cover" alt={ev.title} data-ai-hint={ev.imageHint}/>
+            <div className="absolute bottom-0 bg-black/60 w-full p-2 text-white text-sm font-bold truncate">
+              {ev.title}
             </div>
           </div>
         ))}
       </div>
 
+
       {/* 2. The Calculator */}
-      <Card className="border-none shadow-lg">
-        <CardContent className="p-6 space-y-8">
-          
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-xl font-bold text-primary">{selectedEvent.name}</h2>
-              <p className="text-sm text-muted-foreground">Wie viele Gäste erwarten Sie?</p>
-            </div>
-            <div className="text-4xl font-headline text-primary font-bold">
-              {people} <span className="text-base font-body text-muted-foreground font-normal">Pers.</span>
-            </div>
-          </div>
-
-          <Slider
-            value={[people]}
-            onValueChange={(val) => setPeople(val[0])}
-            min={2}
-            max={20}
-            step={1}
-            className="py-4"
-          />
-
-          {/* Result Box */}
-          <div className="bg-secondary p-5 rounded-xl border space-y-4">
-            <div className="flex items-start gap-3">
-              <Info className="text-primary w-5 h-5 mt-0.5 shrink-0" />
-              <div className="text-sm text-card-foreground">
-                Für <strong>{people} Personen</strong> empfehlen wir ca. 
-                <strong className="text-primary"> {totalAmount}{selectedEvent.unit}</strong> {selectedEvent.productName}.
-              </div>
-            </div>
+      {selectedEvent && (
+        <Card className="border-none shadow-lg animate-in fade-in-50">
+            <CardContent className="p-6 space-y-8">
             
-            <div className="flex justify-between items-end border-t pt-4">
-              <span className="text-muted-foreground text-sm">Geschätzter Preis</span>
-              <span className="text-2xl font-bold text-primary">~ {estimatedPrice.toFixed(2)} €</span>
+            <div className="flex justify-between items-center">
+                <div>
+                <h2 className="text-xl font-bold text-primary">{selectedEvent.title}</h2>
+                <p className="text-sm text-muted-foreground">Wie viele Gäste erwarten Sie?</p>
+                </div>
+                <div className="text-4xl font-headline text-primary font-bold">
+                {people} <span className="text-base font-body text-muted-foreground font-normal">Pers.</span>
+                </div>
             </div>
-          </div>
 
-          <Button onClick={handleAddToCart} className="w-full h-14 text-lg" size="lg">
-            <ShoppingCart className="mr-2 w-5 h-5" />
-            Menge in den Warenkorb
-          </Button>
+            <Slider
+                value={[people]}
+                onValueChange={(val) => setPeople(val[0])}
+                min={1}
+                max={30}
+                step={1}
+                className="py-4"
+            />
 
-        </CardContent>
-      </Card>
+            {/* Result Box */}
+            <div className="bg-secondary p-5 rounded-xl border">
+                <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-bold mb-3 flex items-center gap-2">
+                    <Info size={14}/> Unsere Empfehlung für {people} Personen:
+                </h3>
+                <ul className="space-y-3">
+                    {selectedEvent.ingredients.map((ing, idx) => {
+                    const totalAmount = ing.baseAmount * people;
+                    return (
+                        <li key={idx} className="flex justify-between items-center text-card-foreground text-lg">
+                        <span>{ing.productName}</span>
+                        <span className="font-bold text-primary">
+                            {totalAmount.toLocaleString('de-DE')} {ing.unit}
+                        </span>
+                        </li>
+                    );
+                    })}
+                </ul>
+            </div>
+
+            <Button onClick={handleAddToCart} className="w-full h-14 text-lg" size="lg">
+                <ShoppingCart className="mr-2 w-5 h-5" />
+                Gesamtpaket in den Warenkorb
+            </Button>
+
+            </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

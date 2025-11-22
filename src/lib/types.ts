@@ -131,3 +131,21 @@ export interface Story {
   author: string;
   duration?: number;
 }
+
+
+// --- Party Planner ---
+export interface PlannerIngredientRule {
+  productId: string;
+  productName: string;
+  baseAmount: number; // Amount for 1 person
+  unit: string; // e.g., 'g', 'ml', 'Stück'
+}
+
+export interface PlannerEvent {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  imageHint: string;
+  ingredients: PlannerIngredientRule[];
+}
