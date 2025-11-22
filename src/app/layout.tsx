@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Merriweather } from 'next/font/google';
+import { PT_Sans, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
@@ -10,12 +10,13 @@ export const metadata: Metadata = {
   description: 'Digital companion for customers of Senoner Sarteur supermarket.',
 };
 
-const inter = Inter({
+const ptSans = PT_Sans({
   subsets: ['latin'],
+  weight: ['400', '700'],
   variable: '--font-body',
 });
 
-const merriweather = Merriweather({
+const playfair = Playfair_Display({
   subsets: ['latin'],
   weight: ['400', '700'],
   variable: '--font-headline',
@@ -31,8 +32,8 @@ export default function RootLayout({
       <body
         className={cn(
           'font-body antialiased',
-          inter.variable,
-          merriweather.variable
+          ptSans.variable,
+          playfair.variable
         )}
       >
         <FirebaseClientProvider>

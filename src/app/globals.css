@@ -4,98 +4,85 @@
 
 @layer base {
   :root {
-    --background: 120 14% 97%; /* #F5F7F5 - Helles, natürliches Grau */
-    --foreground: 224 39% 10%; /* #1e293b - Sanftes Schwarz */
+    --background: 40 56% 96%; /* #F5F5DC - Light Beige */
+    --foreground: 120 60% 15%; /* Dark Greenish-Black */
     
-    --card: 0 0% 100%; /* #FFFFFF - Reines Weiß */
-    --card-foreground: 224 39% 10%;
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 120 60% 15%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 224 39% 10%;
+    --popover-foreground: 120 60% 15%;
     
-    --primary: 212 100% 16%; /* #00234f - Edel-Blau */
-    --primary-foreground: 210 20% 98%; /* Off-White */
+    --primary: 120 56% 23%; /* #1B5E20 - Deep Green */
+    --primary-foreground: 45 100% 95%; /* Light Yellowish-White */
     
-    --secondary: 220 14% 96%; /* #F0F2F5 - Sehr helles Grau */
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 40 56% 92%; /* Lighter Beige */
+    --secondary-foreground: 120 56% 23%;
     
-    --muted: 220 9% 46%; /* #64748b - Grau für Labels */
-    --muted-foreground: 220 9% 46%;
+    --muted: 120 10% 60%;
+    --muted-foreground: 120 10% 40%;
     
-    --accent: 38 92% 50%; /* #e5a50a - Gold/Ocker Akzent */
-    --accent-foreground: 222 47% 11%;
+    --accent: 45 100% 50%; /* #FFD700 - Gold */
+    --accent-foreground: 120 60% 15%;
     
-    --destructive: 0 84% 60%; /* #ef4444 - Gedämpftes Rot */
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --status-new-bg: 205 90% 88%; 
-    --status-new-fg: 205 90% 30%; 
+    --status-new-bg: 210 100% 92%; 
+    --status-new-fg: 210 100% 35%; 
     
-    --status-ready-bg: 45 93% 85%; /* Ocker-Gold BG */
-    --status-ready-fg: 35 93% 30%; /* Ocker-Gold FG */
+    --status-ready-bg: 45 100% 92%;
+    --status-ready-fg: 45 100% 30%;
 
-    --status-collected-bg: 145 63% 88%; /* Smaragdgrün BG */
-    --status-collected-fg: 145 63% 28%; /* Smaragdgrün FG */
+    --status-collected-bg: 120 30% 92%;
+    --status-collected-fg: 120 30% 30%;
 
-    --status-cancelled-bg: 0 80% 94%; 
-    --status-cancelled-fg: 0 60% 40%;
+    --status-cancelled-bg: 0 10% 92%; 
+    --status-cancelled-fg: 0 10% 40%;
     
-    --border: 220 13% 91%; /* #E2E8F0 */
-    --input: 220 13% 91%;
-    --ring: 212 100% 16%; /* #00234f */
+    --border: 40 30% 88%;
+    --input: 40 30% 88%;
+    --ring: 120 56% 23%;
     
     --radius: 0.75rem;
   }
 
   .dark {
-    /* Keeping dark theme as a fallback, but the main theme is now light */
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 210 40% 98%;
+    /* Dark theme is not the primary focus but is kept for compatibility */
+    --background: 120 10% 10%;
+    --foreground: 40 50% 90%;
+    --card: 120 10% 12%;
+    --card-foreground: 40 50% 90%;
+    --popover: 120 10% 10%;
+    --popover-foreground: 40 50% 90%;
+    --primary: 120 56% 40%;
+    --primary-foreground: 45 100% 95%;
+    --secondary: 120 10% 18%;
+    --secondary-foreground: 40 50% 90%;
+    --muted: 120 10% 30%;
+    --muted-foreground: 120 10% 60%;
+    --accent: 45 100% 60%;
+    --accent-foreground: 120 60% 15%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 120 10% 20%;
+    --input: 120 10% 20%;
+    --ring: 120 56% 40%;
+    --radius: 0.75rem;
   }
 }
 
 @layer base {
-  html, body {
-    height: 100%;
-    width: 100%;
-    overflow: hidden; 
-    overscroll-behavior: none;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-  
-  html {
-    @apply bg-primary;
-    scroll-behavior: smooth;
-  }
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline text-foreground;
-  }
-  * { 
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
   }
 }
 

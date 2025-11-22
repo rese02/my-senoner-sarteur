@@ -28,15 +28,15 @@ export default async function CustomerLayout({
     const user = mockUsers.find(u => u.id === session?.userId);
     
   return (
-    <div className="flex h-[100dvh] bg-secondary text-foreground overflow-hidden">
+    <div className="flex h-[100dvh] bg-background text-foreground overflow-hidden">
       <DesktopSidebar />
       <div className="flex-1 flex flex-col">
-        <header className="flex-none flex h-16 items-center justify-between border-b bg-primary text-primary-foreground px-4 sticky top-0 z-30 md:hidden">
+        <header className="flex-none flex h-16 items-center justify-between border-b bg-background/80 backdrop-blur-md border-b-white/20 text-foreground px-4 sticky top-0 z-30 md:hidden">
             <div className="h-8">
               <Logo />
             </div>
             <div className="flex items-center gap-2">
-              <a href="tel:+390471123456" className="p-2 text-white hover:bg-white/10 rounded-full transition-colors">
+              <a href="tel:+390471123456" className="p-2 text-foreground hover:bg-black/10 rounded-full transition-colors">
                 <Phone size={20} />
                 <span className="sr-only">Anrufen</span>
               </a>
