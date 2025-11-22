@@ -107,7 +107,7 @@ export default function PartyPlannerPage() {
 
 
       {selectedEvent && (
-        <Card className="border-none shadow-lg animate-in fade-in-50 sticky top-4">
+        <Card className="border-none shadow-lg animate-in fade-in-50">
             <CardHeader>
                 <CardTitle className="text-2xl font-headline">Mengenrechner für "{selectedEvent.title}"</CardTitle>
                 <CardDescription>Wie viele Gäste erwarten Sie?</CardDescription>
