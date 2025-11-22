@@ -130,7 +130,7 @@ export default function PartyPlannerPage() {
                 className="py-4"
             />
             
-            <div className="bg-background p-5 rounded-xl border-2 border-dashed w-full max-w-full overflow-hidden">
+            <div className="bg-background p-4 rounded-xl border-2 border-dashed w-full max-w-full overflow-hidden">
                 <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-bold mb-3 flex items-center gap-2">
                     <Info size={14}/> Unsere Empfehlung für {people} Personen:
                 </h3>
