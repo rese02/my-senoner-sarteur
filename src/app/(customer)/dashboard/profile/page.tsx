@@ -19,8 +19,8 @@ export default async function ProfilePage() {
         <div className="pb-24 md:pb-8">
             <PageHeader title="Mein Profil" description="Verwalten Sie hier Ihre Kontodetails." />
 
-            <div className="grid gap-8 md:grid-cols-3">
-                <Card className="md:col-span-2">
+            <div className="grid gap-8 md:grid-cols-1">
+                <Card>
                     <CardHeader>
                         <CardTitle>Persönliche Informationen</CardTitle>
                         <CardDescription>Aktualisieren Sie hier Ihren Namen. Die E-Mail-Adresse kann nicht geändert werden.</CardDescription>
@@ -40,19 +40,17 @@ export default async function ProfilePage() {
                     </CardFooter>
                 </Card>
 
-                <div className="space-y-8">
-                     <Card>
-                        <CardHeader>
-                            <CardTitle>Abmelden</CardTitle>
-                             <CardDescription>Beenden Sie Ihre aktuelle Sitzung.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <form action={logout} className="w-full">
-                                <Button variant="outline" className="w-full">Abmelden</Button>
-                            </form>
-                        </CardContent>
-                    </Card>
-                </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Abmelden</CardTitle>
+                        <CardDescription>Beenden Sie Ihre aktuelle Sitzung.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form action={logout} className="w-full">
+                            <Button variant="outline" className="w-full">Abmelden</Button>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
 
             <div className="mt-12 pt-6 border-t text-center space-y-4">
