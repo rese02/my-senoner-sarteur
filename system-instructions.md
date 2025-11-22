@@ -1,4 +1,3 @@
-
 # System Instructions for "My Senoner Sarteur" App
 
 ## 1. Core App Concept & Personas
@@ -29,7 +28,7 @@
 - **Color Palette (as implemented):**
     - **Primary:** A corporate, trustworthy blue (used for primary buttons, headers, and the customer sidebar). `hsl(var(--primary))`
     - **Secondary/Background:** Light, neutral grays and whites to create a clean and airy feel. `hsl(var(--background))`, `hsl(var(--secondary))`
-    - **Accent:** A subtle bronze/copper tone for highlighting specific elements. `hsl(var(--accent))`
+    - **Accent:** A vibrant, modern blue to replace any previous warm tones (like gold/bronze). Used for highlights, active states, and special badges. `hsl(var(--accent))`
 - **Fonts:**
     - **Body Text:** 'PT Sans' (`font-body`) for clear, accessible information.
     - **Headlines:** 'Playfair Display' (`font-headline`) for elegant titles.
@@ -44,10 +43,13 @@
 - **Customer - Seamless Mobile UX:** The customer dashboard, product lists, and special feature pages (Planner, Concierge, Loyalty) must provide a native-app-like experience on mobile, with no layout breaks or horizontal scrolling.
 - **Floating Action Button (Cart):** On the main customer dashboard, a floating cart button must be present in the bottom right corner on mobile, providing quick access to the order summary.
 - **Dialogs & Modals:** Must be used for displaying detailed information (e.g., order details, story views) without navigating away from the current page. They must be responsive and correctly sized on all devices.
+- **Layout Padding for Mobile Nav:** On pages with a fixed bottom navigation bar (Admin and Customer mobile views), the main content area must have a bottom padding (e.g., `pb-24`) to prevent content from being obscured by the navigation bar.
 
 ## 5. Detailed Application Structure & User Flows
 
 This section provides a comprehensive overview of each part of the application, broken down by user role.
+
+---
 
 ### 5.1 The Customer Journey
 
@@ -59,140 +61,134 @@ The customer is the primary user. Their experience is designed to be seamless, e
 
 #### 5.1.2 Main Dashboard (`/dashboard`)
 - **Core View:** This is the customer's landing page.
+- **Layout:**
+    - **Mobile:** A single-column layout. A blue `bg-primary` header contains the logo and user profile. Below it, a sticky category filter bar scrolls horizontally. The main content scrolls vertically. A floating cart button is fixed to the bottom right.
+    - **Desktop:** A two-column layout. A permanent blue sidebar is on the left. The main content area is on the right, next to a permanently visible, sticky cart sidebar.
 - **Components:**
-    - **Daily Stories:** A horizontal, scrollable list of stories (e.g., "Fish of the Day"). Tapping a story opens a full-screen, Instagram-like viewer.
-    - **Recipe of the Week:** A prominent card showcasing a special recipe. A button opens a dialog with full details, ingredients, and instructions.
-    - **Product Listing:** The main area, showing available products. This is filterable by category.
-    - **Category Filters:** A horizontal, scrollable list of buttons to filter products (e.g., "Alle", "Weine", "Pakete").
-    - **Product Cards:** Each product is displayed in a `ProductCard` (for single items) or `PackageCard` (for bundles), showing an image, name, price, and "Add to Cart" controls.
-- **Mobile Experience:**
-    - **Sticky Header:** On mobile, the category filters stick to the top of the screen as the user scrolls down the product list.
-    - **Floating Cart Button:** A floating action button with the cart icon and item count is displayed in the bottom-right corner, providing constant access to the cart. Tapping it opens the cart in a bottom sheet.
-- **Desktop Experience:**
-    - The cart is displayed as a permanent, sticky sidebar on the right.
+    - **Daily Stories:** A horizontal, scrollable list of stories (`Stories` component). Tapping a story opens a full-screen, responsive `Dialog` viewer.
+    - **Recipe of the Week:** A prominent `RecipeCard` component showcasing a special recipe. A button opens a `Dialog` with full details.
+    - **Product Listing:** The main area, showing available products grouped by category.
+    - **Category Filters:** A horizontal, scrollable list of `Button` components to filter products.
+    - **Product Cards:** Each product is displayed in a `ProductCard` (for single items) or `PackageCard` (for bundles).
+- **Navigation:** The main navigation is handled by the `CustomerSidebar` (desktop) or `MobileNav` (mobile).
 
 #### 5.1.3 AI Sommelier (`/dashboard/sommelier`)
-- **Functionality:** Provides an immersive, full-screen camera experience. Users can scan a picture of their food.
+- **Functionality:** An immersive, full-screen camera experience for wine recommendations.
 - **Flow:**
-    1. The page opens directly into a full-screen camera view.
-    2. User takes a photo.
-    3. The app shows a loading/analysis screen while the AI (Genkit flow) processes the image.
-    4. The results are displayed: the name of the detected food and a list of recommended wine `ProductCard`s from the store's inventory.
+    1. The page opens directly into the `SommelierCamera` component, which activates the user's camera (ideally the rear camera).
+    2. User takes a photo of their food.
+    3. An overlay appears, showing a loading state. The `suggestWinePairing` Genkit flow is called with the image data.
+    4. The results are displayed: the name of the detected food and a list of recommended `ProductCard`s for the wines.
     5. The user can add these wines directly to their cart.
-- **Navigation:** Accessed via the "AI Sommelier" tab/link. A close button (`X`) returns the user to the main dashboard.
+- **Navigation:** Accessed via the "AI Scan" tab/link. A close button (`X`) returns the user to the main dashboard.
 
 #### 5.1.4 Concierge Service (`/dashboard/concierge`)
-- **Functionality:** A simple page allowing customers to submit a free-form grocery list via a large text area.
+- **Functionality:** A simple page allowing customers to submit a free-form grocery list.
 - **Flow:**
-    1. User types their shopping list (e.g., "- 1L Milk, - 200g Speck").
-    2. The user's delivery address is pre-filled but can be edited.
-    3. On submission, the list is sent as an order of type `grocery_list` to the admin/employee backend. The order status starts as 'new'.
-- **Design:** Clean and simple, focusing on the text area. It's designed to feel like sending a quick note.
+    1. User types their shopping list into a large `Textarea`.
+    2. The user's delivery address is displayed in `Input` fields.
+    3. On submission, the list is sent as an order of type `grocery_list`.
+- **Design:** Clean and simple, focusing on the text area. It is fully responsive and uses a single-column layout on all devices.
 
 #### 5.1.5 Party Planer (`/dashboard/planner`)
-- **Functionality:** An AI-powered calculator to help users plan for events like Raclette or Fondue.
+- **Functionality:** An AI-powered calculator to help users plan for events.
+- **Layout:**
+    - At the top, a responsive grid (`grid-cols-1 md:grid-cols-2`) displays available events (`PlannerEvent`) as large, clickable image cards (`EventSelectionCard`).
+    - Below, a central `Card` contains the calculator for the selected event.
 - **Flow:**
-    1. The user is presented with visually appealing cards for different events (e.g., "Raclette Abend").
-    2. After selecting an event, a "calculator" card appears.
-    3. The user adjusts a slider to select the number of guests.
-    4. The page dynamically displays the recommended quantities for each required ingredient (e.g., "1000g Raclette Cheese", "400g Speck").
-    5. A single button allows the user to add all calculated ingredients as a single bundle to their cart.
+    1. User selects an event card.
+    2. The calculator card below updates. The user adjusts a `Slider` to select the number of guests.
+    3. The page dynamically displays the recommended quantities for each ingredient in a clean list. This list must wrap correctly on mobile.
+    4. A single button adds all calculated ingredients as a bundle to the cart.
 
 #### 5.1.6 My Loyalty Card (`/dashboard/loyalty`)
 - **Functionality:** The customer's digital loyalty hub.
+- **Layout:** A responsive grid (`grid-cols-1 md:grid-cols-3`) that stacks vertically on mobile.
 - **Components:**
-    - **QR Code:** A large, scannable QR code containing the user's ID. This is what employees scan at the checkout.
-    - **Points & Status:** Displays the user's current loyalty points, their tier (Bronze, Silver, Gold), and a progress bar showing how close they are to the next tier.
-    - **Available Coupons:** A list of rewards/coupons the user has earned through their points.
+    - **QR Code:** A large, scannable QR code containing the user's ID.
+    - **Loyalty Progress:** A `Card` displaying the user's current loyalty points, their tier (Bronze, Silver, Gold), and a `Progress` bar.
+    - **Available Coupons:** A list of rewards/coupons the user has earned.
 
 ---
 
 ### 5.2 The Employee Journey
 
-The employee experience is optimized for speed and efficiency at the point of sale. It's a tool, not a browsing experience.
+The employee experience is optimized for speed and efficiency at the point of sale. It's a tool, not a browsing experience. The layout is simple, robust, and centered on all devices.
 
 #### 5.2.1 Main View (`/employee/scanner`)
-- **Core View:** This is the only page for the employee, featuring a two-tab interface.
+- **Core View:** The only page for the employee, featuring a two-tab interface (`Tabs` component).
 - **Tab 1: QR Scanner:**
-    - **Functionality:** The primary tool. A large "Start Scan" button activates the device camera in a full-screen view.
+    - **Functionality:** The primary tool. A "Start Scan" `Button` activates the `Webcam` in a full-screen view.
     - **Flow:**
         1. Employee taps "Start Scan".
-        2. Employee scans the customer's QR code from the customer's app.
-        3. Upon successful scan, the view changes to show the `ScanResultView`:
-            - Customer's name, avatar, and loyalty tier are displayed for confirmation.
-            - Buttons appear to "Add Points" or "Redeem Coupon".
-    - **Navigation:** After completing the action, the employee is returned to the main scanner view to serve the next customer.
+        2. Employee scans the customer's QR code.
+        3. On success, the view changes to the `ScanResultView`, showing the customer's `Avatar`, name, and loyalty status.
+        4. Buttons appear to "Add Points" or "Redeem Coupon".
+    - **Navigation:** After action, the employee is returned to the main scanner view.
 - **Tab 2: Einkaufszettel (Grocery Lists):**
     - **Functionality:** A list of all open orders with `type: 'grocery_list'` and `status: 'new'`.
     - **Flow:**
-        1. Employee sees a list of customers who have submitted a shopping list.
-        2. Tapping a list starts the "Picking Mode".
-        3. The view changes to a checklist of all items from the customer's raw text list.
-        4. The employee walks through the store, tapping each item on the list to mark it as found.
-        5. Once all items are collected, the employee enters the final total price into an input field and clicks "Finish".
-        6. This updates the order status to `ready_for_delivery` and saves the final price. The employee is then returned to the main view.
+        1. Employee sees a list of customer orders.
+        2. Tapping an order starts "Picking Mode" (`PickerModeView`), a full-screen checklist.
+        3. The employee checks off items.
+        4. After collecting items, the employee enters the final total price into an `Input` field. The "Finish" button is disabled until a valid price is entered (`!finalPrice || finalPrice <= 0`).
+        5. This updates the order status to `ready_for_delivery`.
 
 ---
 
 ### 5.3 The Admin Journey
 
-The admin has a comprehensive, data-rich dashboard to manage the entire application. The layout is responsive, using tables on desktop and cards on mobile.
+The admin has a comprehensive dashboard. The layout is responsive, using tables on desktop and `Card`-based lists on mobile.
 
 #### 5.3.1 Main Layout (`/admin/layout.tsx`)
-- **Structure:** A two-column layout on desktop with a permanent sidebar on the left and content on the right. On mobile, the sidebar collapses into a bottom navigation bar.
+- **Structure:** A two-column layout on desktop with a permanent `AdminSidebar` on the left. On mobile, the sidebar collapses into a fixed `AdminMobileNav` at the bottom. The main content area has `pb-24` to avoid overlap.
 
 #### 5.3.2 Admin Dashboard (`/admin/dashboard`)
-- **Functionality:** A high-level overview of the store's current status.
+- **Functionality:** A high-level overview.
 - **Components:**
-    - **Stat Cards:** Key metrics like "New Orders Today," "Pickups Today," and "Overdue Pickups."
-    - **Recent Orders List:** A list of the most recent, active orders. Each order is a clickable `OrderCard` that opens a detail modal.
-- **Navigation:** Provides links to the full list pages (e.g., "View All Orders").
+    - **Stat Cards:** Key metrics.
+    - **Recent Orders List:** A list of recent `OrderCard`s. Clicking an order opens a detail `Dialog`.
 
 #### 5.3.3 Orders (`/admin/orders`)
-- **Functionality:** A detailed list of all orders, both pre-orders and grocery lists.
+- **Functionality:** A list of all orders.
 - **Features:**
-    - **Search & Filter:** Admins can search by customer name/ID and filter by order status.
-    - **Status Change:** The status of each order can be changed directly from the list via a dropdown.
-    - **Desktop View:** A detailed table with columns for ID, Customer, Type, Total, Status, etc.
-    - **Mobile View:** The table is replaced by a list of `OrderCard` components, each providing a summary.
-    - **Detail Modal:** Clicking on any order (in table or card view) opens a dialog with full customer and order details, and an option to permanently delete the order.
+    - **Search & Filter:** `Input` for search, `Select` for status filtering.
+    - **Desktop View:** A detailed `Table`.
+    - **Mobile View:** A list of `OrderCard` components.
+    - **Detail Modal:** Clicking an order opens a `Dialog` with full details and a "Delete" option.
 
 #### 5.3.4 Products (`/admin/products`)
-- **Functionality:** Full CRUD (Create, Read, Update, Delete) for all products and categories.
-- **Layout:** Products are grouped by category.
+- **Functionality:** Full CRUD for products and categories.
+- **Layout:** Products are grouped by category within `Card`s.
 - **Features:**
-    - **Category Management:** Admins can create and delete categories.
-    - **Product Management:** Admins can add, edit, or delete products within each category. This is done via a modal form.
-    - **Product Form:** The form allows editing all product details, including name, price, unit, image (via `ImageUploader`), and type (product vs. package). If 'package' is selected, a special UI appears to define the contents of the bundle.
-    - **Toggle Availability:** A switch on each product card allows admins to quickly make a product available or unavailable to customers.
+    - **Management via Modals:** All create/edit actions happen in a `Dialog`.
+    - **Product Form:** The modal form includes fields for name, price, unit, an `ImageUploader` component, and a `Select` for type ('product' vs. 'package'). If 'package', a UI to define contents appears.
+    - **Availability Toggle:** A `Switch` on each product card.
 
 #### 5.3.5 Customers (`/admin/customers`)
-- **Functionality:** View customer data and send targeted newsletters.
+- **Functionality:** View customers and send newsletters.
 - **Features:**
-    - **Customer List:** A responsive list (table on desktop, cards on mobile) of all customers.
-    - **Purchase History Filter:** A powerful feature allowing admins to filter the customer list based on what categories of products they have purchased in the past.
-    - **Newsletter Editor:**
-        1. Admin filters and selects a group of customers.
-        2. Admin writes a newsletter message in a text area.
-        3. An "Improve with AI" button uses a Genkit flow (`improveNewsletterText`) to refine the copy.
-        4. A "Send" button (currently mock) would send the newsletter to the selected customers.
+    - **Customer List:** A responsive list (table/cards).
+    - **Purchase History Filter:** A `Popover` with a `Command` component allows filtering customers by purchased product categories.
+    - **Newsletter Editor:** A `Textarea` for the message, with an "Improve with AI" button that calls the `improveTextWithAI` Genkit flow.
 
 #### 5.3.6 Marketing (`/admin/marketing`)
 - **Functionality:** A hub for managing customer-facing content.
+- **Layout:** A responsive grid (`grid-cols-1 xl:grid-cols-2`).
 - **Components:**
-    - **Recipe of the Week Editor:** A form to update the title, description, ingredients, and image for the recipe shown on the customer dashboard.
-    - **Daily Stories Manager:** A UI to create, edit, and delete the daily stories.
-    - **Party Planner Events Manager:** A UI to create, edit, and delete the events (like Raclette, Fondue) used in the customer's Party Planner, including defining the ingredient rules.
+    - **Recipe of the Week Editor:** A form to update the recipe.
+    - **Daily Stories Manager:** A UI to create/edit/delete stories via a `Dialog`.
+    - **Party Planner Events Manager:** A UI to create/edit/delete planner events, including defining ingredient rules in a `Dialog`.
 
 #### 5.3.7 AI Sommelier (`/admin/sommelier`)
-- **Functionality:** Manage the wine database that the AI Sommelier uses for recommendations.
+- **Functionality:** Manage the wine database for the AI Sommelier.
 - **Flow:**
-    1. Admin pastes a simple list of wine names (one per line) into a large text area.
-    2. On import, a Genkit flow (`enrichWineList`) is called. This flow takes the names and uses AI to automatically generate descriptive tags (e.g., "rotwein", "trocken", "passt zu fisch").
-    3. The enriched data is saved to the (mock) database.
-    - **Danger Zone:** A button allows the admin to completely wipe the wine database to start fresh.
+    1. Admin pastes a list of wine names into a `Textarea`.
+    2. On import, the `enrichWineList` Genkit flow is called to generate tags.
+    3. The enriched data is saved.
+    - **Danger Zone:** A section with a `Button` inside an `AlertDialog` to confirm deletion of all wines.
 
 #### 5.3.8 Settings (`/admin/settings`)
-- **Functionality:** Contains maintenance and administrative tools.
+- **Functionality:** Maintenance tools.
 - **Features:**
-    - **Database Cleanup:** A tool to delete old, completed orders (e.g., older than 6 months) to keep the database clean and performant. This is handled by the `deleteOldOrders` server action.
+    - **Database Cleanup:** A tool to delete old orders via the `deleteOldOrders` server action, with a `Select` dropdown to choose the time frame and an `AlertDialog` for confirmation.
