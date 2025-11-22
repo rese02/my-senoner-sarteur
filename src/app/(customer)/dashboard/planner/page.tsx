@@ -32,7 +32,7 @@ function EventSelectionCard({ event, onSelect, isSelected }: { event: PlannerEve
                 className={cn("object-cover transition-transform duration-500 ease-in-out", isSelected ? "scale-110" : "scale-100 group-hover:scale-105")}
                 data-ai-hint={event.imageHint}
             />
-            <div className="relative z-20 flex flex-col items-center justify-center h-48 text-white text-center p-4">
+            <div className="relative z-20 flex flex-col items-center justify-center h-40 text-white text-center p-4">
                 <h3 className="font-headline text-3xl font-bold drop-shadow-md">{event.title}</h3>
                 <p className="text-sm drop-shadow-sm">{event.description}</p>
             </div>
@@ -116,7 +116,7 @@ export default function PartyPlannerPage() {
             
             <div className="flex justify-between items-center bg-secondary p-4 rounded-xl border">
                 <Users className="w-8 h-8 text-primary" />
-                <div className="text-5xl font-headline text-primary font-bold">
+                <div className="text-4xl font-headline text-primary font-bold">
                     {people}
                 </div>
             </div>
