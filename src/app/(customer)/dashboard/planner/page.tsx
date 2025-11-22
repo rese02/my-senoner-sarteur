@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -77,12 +78,12 @@ export default function PartyPlannerPage() {
       <PageHeader title="Party Planer" description="Planen Sie die perfekte Menge für Ihre Gäste." />
 
       {/* 1. Event Selection */}
-       <div className="flex w-full overflow-x-auto gap-4 pb-4 px-1 scrollbar-hide snap-x -mx-4 px-4">
+       <div className="flex w-full overflow-x-auto gap-4 pb-4 -mx-4 px-4 scrollbar-hide snap-x">
         {events.map((ev) => (
           <div
             key={ev.id}
             onClick={() => setSelectedEvent(ev)}
-            className={`snap-start shrink-0 w-48 h-32 rounded-xl relative overflow-hidden border-4 cursor-pointer transition-all duration-300 ${
+            className={`snap-center shrink-0 w-48 h-32 rounded-xl relative overflow-hidden border-4 cursor-pointer transition-all duration-300 ${
               selectedEvent?.id === ev.id ? 'border-primary ring-4 ring-primary/20 scale-105' : 'border-transparent opacity-75 hover:opacity-100'
             }`}
           >
@@ -98,14 +99,14 @@ export default function PartyPlannerPage() {
       {/* 2. The Calculator */}
       {selectedEvent && (
         <Card className="border-none shadow-lg animate-in fade-in-50">
-            <CardContent className="p-6 space-y-8">
+            <CardContent className="p-4 sm:p-6 space-y-6">
             
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                 <h2 className="text-xl font-bold text-primary">{selectedEvent.title}</h2>
                 <p className="text-sm text-muted-foreground">Wie viele Gäste erwarten Sie?</p>
                 </div>
-                <div className="text-4xl font-headline text-primary font-bold">
+                <div className="text-4xl font-headline text-primary font-bold mt-2 sm:mt-0">
                 {people} <span className="text-base font-body text-muted-foreground font-normal">Pers.</span>
                 </div>
             </div>
