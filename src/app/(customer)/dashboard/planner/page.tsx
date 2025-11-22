@@ -78,10 +78,10 @@ export default function PartyPlannerPage() {
       <PageHeader title="Party Planer" description="Planen Sie die perfekte Menge für Ihre Gäste." />
 
       {/* 1. Event Selection */}
-       <div className="w-full overflow-x-auto">
-        <div className="flex w-max space-x-4 pb-4">
+       <div className="w-full">
+        <div className="flex space-x-4 pb-4 overflow-x-auto scrollbar-hide">
           {events.map((ev) => (
-            <div
+            <button
               key={ev.id}
               onClick={() => setSelectedEvent(ev)}
               className={`snap-center shrink-0 w-48 h-32 rounded-xl relative overflow-hidden border-4 cursor-pointer transition-all duration-300 ${
@@ -92,7 +92,7 @@ export default function PartyPlannerPage() {
               <div className="absolute bottom-0 bg-black/60 w-full p-2 text-white text-sm font-bold truncate">
                 {ev.title}
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
