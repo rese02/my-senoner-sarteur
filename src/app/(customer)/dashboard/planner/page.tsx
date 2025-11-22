@@ -84,7 +84,7 @@ export default function PartyPlannerPage() {
             <button
               key={ev.id}
               onClick={() => setSelectedEvent(ev)}
-              className={`snap-center shrink-0 w-48 h-32 rounded-xl relative overflow-hidden border-4 cursor-pointer transition-all duration-300 ${
+              className={`snap-center shrink-0 w-3/5 sm:w-48 h-32 rounded-xl relative overflow-hidden border-4 cursor-pointer transition-all duration-300 ${
                 selectedEvent?.id === ev.id ? 'border-primary ring-4 ring-primary/20 scale-105' : 'border-transparent opacity-75 hover:opacity-100'
               }`}
             >
