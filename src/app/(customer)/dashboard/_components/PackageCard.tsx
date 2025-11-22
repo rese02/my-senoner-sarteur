@@ -79,19 +79,19 @@ export function PackageCard({ product }: { product: Product }) {
           </ul>
         </CardContent>
 
-        <CardFooter className="p-4 pt-0 flex flex-wrap sm:flex-nowrap gap-2 mt-auto">
+        <CardFooter className="p-4 pt-0 flex flex-wrap gap-2 mt-auto">
           {/* BUTTON 1: Details (Öffnet Modal) */}
           <Button 
             variant="outline" 
             onClick={() => setIsOpen(true)}
-            className="w-full sm:w-1/2"
+            className="flex-1"
           >
             <ListPlus className="w-4 h-4 mr-2" />
             Inhalt
           </Button>
 
           {/* BUTTON 2: Kaufen */}
-          <Button className="w-full sm:w-1/2" onClick={handleAddToCart}>
+          <Button className="flex-1" onClick={handleAddToCart}>
             <ShoppingBag className="w-4 h-4 mr-2" />
             {product.price.toFixed(2)} €
           </Button>

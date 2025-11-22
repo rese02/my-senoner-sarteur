@@ -61,7 +61,7 @@ export default function CustomerDashboardPage() {
                 
                 <section>
                     <CategoryFilter activeCategory={selectedCategory} onSelect={setSelectedCategory} />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
                         {filteredProducts.map(product => {
                             if (product.type === 'package') {
                                 return <PackageCard key={product.id} product={product} />
@@ -80,7 +80,7 @@ export default function CustomerDashboardPage() {
             
             {/* Mobile Cart Button & Sheet */}
             {showFloatingCart && (
-              <div className="lg:hidden fixed bottom-[4.5rem] right-6 z-20">
+              <div className="lg:hidden fixed bottom-[4.5rem] right-4 z-20">
                   <Sheet>
                       <SheetTrigger asChild>
                           <Button size="lg" className="rounded-full h-16 w-16 shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground relative">
