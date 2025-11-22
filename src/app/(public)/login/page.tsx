@@ -5,10 +5,10 @@ import Link from 'next/link';
 
 export default function LoginPage() {
   return (
-    <div className="w-full min-h-screen grid place-content-center bg-background">
-      <div className="w-full max-w-sm">
-        <Card className="shadow-lg border-none">
-            <CardHeader className="text-center items-center">
+    <div className="w-full min-h-screen flex items-center justify-center bg-background md:p-4">
+      <div className="w-full max-w-sm h-full md:h-auto flex flex-col justify-center">
+        <Card className="shadow-none md:shadow-lg border-none rounded-none md:rounded-2xl flex-grow md:flex-grow-0 flex flex-col justify-center">
+            <CardHeader className="text-center items-center pt-12 md:pt-6">
                <div className="w-2/3 mb-4">
                  <Logo />
                </div>
