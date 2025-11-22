@@ -113,7 +113,7 @@ export default function AdminOrdersPage() {
   }, [orders, searchTerm, statusFilter]);
 
   return (
-    <>
+    <div className="pb-24 md:pb-0">
       <PageHeader title="Bestellungen" description="Verwalten Sie alle Vorbestellungen und Einkaufszettel." />
       <Card>
         <CardHeader>
@@ -166,7 +166,7 @@ export default function AdminOrdersPage() {
                   </TableRow>
                 )}
                 {filteredOrders.map((order) => (
-                  <TableRow key={order.id} className="transition-colors hover:bg-muted/50">
+                  <TableRow key={order.id} className="transition-colors hover:bg-secondary">
                     <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -304,6 +304,6 @@ export default function AdminOrdersPage() {
           )}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
