@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Search, FileText, ShoppingCart } from "lucide-react";
+import { Search, FileText, ShoppingCart, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo, useTransition, useEffect } from "react";
 import type { Order, OrderStatus, User } from "@/lib/types";
@@ -22,6 +22,10 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { OrderCard } from "@/components/admin/OrderCard";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { deleteOrder } from "@/app/actions/admin-cleanup.actions";
+import { useRouter } from "next/navigation";
+
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
   new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg border-transparent' },
@@ -48,6 +52,49 @@ const FormattedDate = ({ date, formatString, locale }: { date: Date, formatStrin
         return null;
     }
 };
+
+function OrderDetailsDeleteSection({ orderId }: { orderId: string }) {
+    const router = useRouter();
+    const { toast } = useToast();
+    const [isDeleting, startDeleteTransition] = useTransition();
+
+    const handleDelete = () => {
+        startDeleteTransition(async () => {
+            await deleteOrder(orderId);
+            toast({ title: "Gelöscht", description: "Bestellung wurde entfernt." });
+            router.refresh(); // Or revalidatePath in server action
+        });
+    };
+
+    return (
+        <div className="mt-8 pt-6 border-t">
+            <h3 className="text-sm font-bold text-muted-foreground uppercase mb-4">Verwaltung</h3>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="w-full md:w-auto">
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Diese Bestellung endgültig löschen
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Sind Sie absolut sicher?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Diese Aktion kann nicht rückgängig gemacht werden. Die Bestellung wird permanent aus der Datenbank entfernt.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-red-600 hover:bg-red-700 text-white">
+                            {isDeleting ? 'Löschen...' : 'Ja, löschen'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
+    );
+}
+
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>(mockOrders);
@@ -297,6 +344,9 @@ export default function AdminOrdersPage() {
                       </div>
                   </div>
               )}
+                
+              <OrderDetailsDeleteSection orderId={selectedOrder.id} />
+
                <DialogClose asChild>
                 <Button variant="outline" className="mt-4">Schließen</Button>
               </DialogClose>

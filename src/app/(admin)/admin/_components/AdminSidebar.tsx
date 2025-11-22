@@ -11,6 +11,7 @@ import {
   LogOut,
   Megaphone,
   Sparkles,
+  Settings,
 } from 'lucide-react';
 import { Logo } from '@/components/common/Logo';
 import { logout } from '@/app/actions/auth.actions';
@@ -23,6 +24,10 @@ const navItems = [
   { href: '/admin/customers', label: 'Kunden', icon: Users },
   { href: '/admin/marketing', label: 'Marketing', icon: Megaphone },
   { href: '/admin/sommelier', label: 'Sommelier', icon: Sparkles },
+];
+
+const secondaryNavItems = [
+    { href: '/admin/settings', label: 'Einstellungen', icon: Settings },
 ];
 
 export function AdminSidebar() {
@@ -48,14 +53,33 @@ export function AdminSidebar() {
           </Button>
         ))}
       </nav>
-      <Separator className="bg-primary-foreground/10" />
-      <div className="p-4">
-        <form action={logout}>
-          <Button variant="ghost" className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/20 text-primary-foreground">
-            <LogOut className="mr-3 h-5 w-5" strokeWidth={1.75}/>
-            Sign Out
-          </Button>
-        </form>
+
+      <div className="mt-auto">
+        <Separator className="bg-primary-foreground/10" />
+        <nav className="p-4 space-y-2">
+            {secondaryNavItems.map((item) => (
+            <Button
+                key={item.label}
+                variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
+                className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/20 data-[variant=ghost]:text-primary-foreground data-[variant=secondary]:text-primary"
+                asChild
+            >
+                <Link href={item.href}>
+                <item.icon className="mr-3 h-5 w-5" strokeWidth={1.75} />
+                {item.label}
+                </Link>
+            </Button>
+            ))}
+        </nav>
+        <Separator className="bg-primary-foreground/10" />
+        <div className="p-4">
+            <form action={logout}>
+            <Button variant="ghost" className="w-full justify-start text-base transition-colors duration-200 hover:bg-primary-foreground/20 text-primary-foreground">
+                <LogOut className="mr-3 h-5 w-5" strokeWidth={1.75}/>
+                Sign Out
+            </Button>
+            </form>
+        </div>
       </div>
     </aside>
   );
