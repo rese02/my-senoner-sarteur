@@ -19,7 +19,7 @@ function EventSelectionCard({ event, onSelect, isSelected }: { event: PlannerEve
         <div 
             onClick={() => onSelect(event)}
             className={cn(
-                "rounded-2xl overflow-hidden cursor-pointer group relative transition-all duration-300 ease-in-out border-4",
+                "rounded-2xl overflow-hidden cursor-pointer group relative transition-all duration-300 ease-in-out border-4 h-40",
                 isSelected ? "border-primary shadow-2xl" : "border-transparent hover:shadow-lg"
             )}
         >
@@ -32,7 +32,7 @@ function EventSelectionCard({ event, onSelect, isSelected }: { event: PlannerEve
                 className={cn("object-cover transition-transform duration-500 ease-in-out", isSelected ? "scale-110" : "scale-100 group-hover:scale-105")}
                 data-ai-hint={event.imageHint}
             />
-            <div className="relative z-20 flex flex-col items-center justify-center h-40 text-white text-center p-4">
+            <div className="relative z-20 flex flex-col items-center justify-center h-full text-white text-center p-4">
                 <h3 className="font-headline text-3xl font-bold drop-shadow-md">{event.title}</h3>
                 <p className="text-sm drop-shadow-sm">{event.description}</p>
             </div>
@@ -138,9 +138,9 @@ export default function PartyPlannerPage() {
                     {selectedEvent.ingredients.map((ing, idx) => {
                     const totalAmount = ing.baseAmount * people;
                     return (
-                        <li key={idx} className="flex justify-between items-center text-card-foreground text-lg">
-                        <span>{ing.productName}</span>
-                        <span className="font-bold text-primary bg-primary/10 px-3 py-1 rounded-full text-base">
+                        <li key={idx} className="flex justify-between items-center text-card-foreground sm:text-lg">
+                        <span className="flex-1 min-w-0 break-words pr-2">{ing.productName}</span>
+                        <span className="font-bold text-primary bg-primary/10 px-3 py-1 rounded-full text-base whitespace-nowrap">
                             {totalAmount.toLocaleString('de-DE')} {ing.unit}
                         </span>
                         </li>
