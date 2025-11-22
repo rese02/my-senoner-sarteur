@@ -5,6 +5,7 @@ import { UserProfileDropdown } from "@/components/custom/UserProfileDropdown";
 import { Logo } from "@/components/common/Logo";
 import { MobileNav } from "@/components/custom/MobileNav";
 import { CustomerSidebar } from "./_components/CustomerSidebar";
+import { Phone } from "lucide-react";
 
 function DesktopSidebar() {
   return (
@@ -34,10 +35,11 @@ export default async function CustomerLayout({
             <div className="h-8">
               <Logo />
             </div>
-            <div className="md:hidden">
-                 {user && <UserProfileDropdown user={user} />}
-            </div>
-            <div className="hidden md:flex-1 md:flex md:justify-end">
+            <div className="flex items-center gap-2">
+              <a href="tel:+390471123456" className="p-2 text-white hover:bg-white/10 rounded-full transition-colors">
+                <Phone size={20} />
+                <span className="sr-only">Anrufen</span>
+              </a>
               {user && <UserProfileDropdown user={user} />}
             </div>
         </header>

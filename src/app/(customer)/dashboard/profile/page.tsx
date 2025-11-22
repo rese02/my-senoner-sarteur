@@ -16,44 +16,59 @@ export default async function ProfilePage() {
     }
 
     return (
-        <>
-            <PageHeader title="My Profile" description="Manage your account details." />
+        <div className="pb-24">
+            <PageHeader title="Mein Profil" description="Verwalten Sie hier Ihre Kontodetails." />
 
             <div className="grid gap-8 md:grid-cols-3">
                 <Card className="md:col-span-2">
                     <CardHeader>
-                        <CardTitle>Personal Information</CardTitle>
-                        <CardDescription>Update your name here. Email cannot be changed.</CardDescription>
+                        <CardTitle>Persönliche Informationen</CardTitle>
+                        <CardDescription>Aktualisieren Sie hier Ihren Namen. Die E-Mail-Adresse kann nicht geändert werden.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name">Full Name</Label>
+                            <Label htmlFor="name">Vollständiger Name</Label>
                             <Input id="name" defaultValue={user.name} />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email">E-Mail</Label>
                             <Input id="email" value={user.email} readOnly disabled />
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button>Save Changes</Button>
+                        <Button>Änderungen speichern</Button>
                     </CardFooter>
                 </Card>
 
                 <div className="space-y-8">
                      <Card>
                         <CardHeader>
-                            <CardTitle>Sign Out</CardTitle>
-                             <CardDescription>End your current session.</CardDescription>
+                            <CardTitle>Abmelden</CardTitle>
+                             <CardDescription>Beenden Sie Ihre aktuelle Sitzung.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <form action={logout} className="w-full">
-                                <Button variant="outline" className="w-full">Sign Out</Button>
+                                <Button variant="outline" className="w-full">Abmelden</Button>
                             </form>
                         </CardContent>
                     </Card>
                 </div>
             </div>
-        </>
+
+            <div className="mt-12 pt-6 border-t text-center space-y-4">
+                <p className="text-xs text-muted-foreground">
+                    &copy; {new Date().getFullYear()} Senoner Sarteur. Wolkenstein in Gröden.
+                </p>
+                
+                <div className="flex justify-center gap-6 text-xs text-muted-foreground font-medium">
+                    <a href="https://www.senoner-sarteur.it/impressum" target="_blank" rel="noopener noreferrer" className="hover:text-primary">Impressum</a>
+                    <a href="https://www.senoner-sarteur.it/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-primary">Datenschutz</a>
+                </div>
+
+                <p className="text-[10px] text-muted-foreground max-w-xs mx-auto">
+                    Hinweis zu Allergenen: Informationen zu Inhaltsstoffen erhalten Sie direkt in unseren Filialen oder telefonisch.
+                </p>
+            </div>
+        </div>
     );
 }

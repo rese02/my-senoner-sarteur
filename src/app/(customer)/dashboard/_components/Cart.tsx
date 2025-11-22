@@ -1,24 +1,47 @@
-
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { ShoppingCart, Trash2 } from 'lucide-react';
 import { useCartStore } from '@/hooks/use-cart-store';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { DatePicker } from '@/components/custom/DatePicker';
+import { add, isBefore } from 'date-fns';
+import { BUSINESS_HOURS } from '@/lib/constants';
 
 export function Cart() {
     const { items, removeFromCart, clearCart } = useCartStore();
-    const [pickupDate, setPickupDate] = useState<string>(new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+    const [pickupDate, setPickupDate] = useState<Date | undefined>(() => {
+        // Set initial date to tomorrow, respecting business hours
+        return add(new Date(), { days: 1 });
+    });
     const { toast } = useToast();
     
     const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
     const handleOrder = () => {
+        if (!pickupDate) {
+            toast({
+                variant: 'destructive',
+                title: 'Abholdatum fehlt',
+                description: 'Bitte wählen Sie ein gültiges Abholdatum.',
+            });
+            return;
+        }
+
+        const earliestPickupTime = add(new Date(), { hours: BUSINESS_HOURS.minPrepTimeHours });
+        if (isBefore(pickupDate, earliestPickupTime)) {
+            toast({
+                variant: 'destructive',
+                title: 'Zu frühes Abholdatum',
+                description: `Bitte wählen Sie eine Zeit, die mindestens ${BUSINESS_HOURS.minPrepTimeHours} Stunden in der Zukunft liegt.`,
+            });
+            return;
+        }
+
         // Here we would call a server action `placeOrder`
         console.log("Placing order for:", { items, total, pickupDate });
         toast({
@@ -53,7 +76,7 @@ export function Cart() {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <p className="font-semibold text-right">€{(item.price * item.quantity).toFixed(2)}</p>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={() => removeFromCart(item.productId)}>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0 active:scale-95" onClick={() => removeFromCart(item.productId)}>
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </div>
@@ -67,7 +90,7 @@ export function Cart() {
                 <CardFooter className="flex-shrink-0 flex flex-col items-stretch space-y-4 p-4 border-t bg-secondary/50">
                      <div className="space-y-2">
                         <label htmlFor="pickup-date" className="text-sm font-medium">Abholdatum</label>
-                        <Input id="pickup-date" type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)} min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]}/>
+                        <DatePicker date={pickupDate} setDate={setPickupDate} />
                      </div>
                      <Separator />
                     <div className="flex justify-between font-bold text-lg">
