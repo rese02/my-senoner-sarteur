@@ -46,7 +46,10 @@ function CustomerCard({ customer, isSelected, onSelect }: { customer: User, isSe
     return (
         <div 
             onClick={() => onSelect(customer.id, !isSelected)}
-            className={cn("p-4 border rounded-lg transition-colors flex items-start gap-4", isSelected ? "bg-secondary border-primary" : "bg-card hover:bg-secondary/50")}
+            className={cn(
+                "p-4 border rounded-lg transition-colors flex items-start gap-4", 
+                isSelected ? "bg-secondary border-primary ring-2 ring-primary" : "bg-card hover:bg-secondary/50"
+            )}
         >
              <Checkbox 
                 checked={isSelected}
@@ -145,14 +148,14 @@ export default function AdminCustomersPage() {
         <div className="lg:col-span-3 space-y-8">
             <Card>
                 <CardHeader>
-                    <div className="flex justify-between items-start gap-4">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <CardTitle>Kundenliste</CardTitle>
                             <CardDescription>Segmentieren Sie Kunden nach Kaufhistorie für gezielte Newsletter.</CardDescription>
                         </div>
                         <Popover open={open} onOpenChange={setOpen}>
                             <PopoverTrigger asChild>
-                                <Button variant="outline" className="shrink-0">
+                                <Button variant="outline" className="shrink-0 w-full sm:w-auto">
                                     <Filter className="mr-2 h-4 w-4" />
                                     Filter
                                     {selectedCategories.length > 0 && <Badge variant="secondary" className="ml-2">{selectedCategories.length}</Badge>}
@@ -261,12 +264,12 @@ export default function AdminCustomersPage() {
                     <Input placeholder="Betreff des Newsletters" value={subject} onChange={e => setSubject(e.target.value)} />
                     <Textarea placeholder="Schreiben Sie hier Ihre Newsletter-Nachricht..." className="min-h-[200px]" value={message} onChange={e => setMessage(e.target.value)} />
                      <p className="text-xs text-muted-foreground flex items-start gap-2">Ihre Nachricht wird von einem KI-Dienst zur Verbesserung verarbeitet. Bitte geben Sie keine sensiblen Daten ein.</p>
-                    <div className="flex justify-between items-center">
-                        <Button variant="outline" onClick={handleImproveText} disabled={isImproving}>
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <Button variant="outline" onClick={handleImproveText} disabled={isImproving} className="w-full sm:w-auto">
                             {isImproving ? <RotateCw className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
                             Mit KI verbessern
                         </Button>
-                        <Button disabled={selectedCustomers.length === 0}>
+                        <Button disabled={selectedCustomers.length === 0} className="w-full sm:w-auto">
                             <Send className="mr-2 h-4 w-4" />
                             Senden an {selectedCustomers.length} Kunde(n)
                         </Button>
