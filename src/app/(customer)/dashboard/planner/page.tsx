@@ -12,6 +12,7 @@ import { mockPlannerEvents, mockProducts } from '@/lib/mock-data';
 import type { PlannerEvent } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { Label } from '@/components/ui/label';
 
 function EventSelectionCarousel({ events, onSelect, selectedEvent }: { events: PlannerEvent[], onSelect: (event: PlannerEvent) => void, selectedEvent: PlannerEvent | null }) {
     return (
