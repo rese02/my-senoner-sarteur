@@ -34,7 +34,7 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-gradient-to-br from-primary to-[#124215] text-primary-foreground shadow-2xl">
+    <aside className="hidden md:flex flex-col w-64 bg-gradient-to-br from-primary to-[#003366] text-primary-foreground shadow-2xl">
       <div className="p-6 border-b border-primary-foreground/10 h-20 flex items-center">
         <Logo />
       </div>
