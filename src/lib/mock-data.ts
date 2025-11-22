@@ -1,4 +1,4 @@
-import type { User, Category, Product, Order, LoyaltyData, AppConfig, Story, PlannerEvent } from '@/lib/types';
+import type { User, Category, Product, Order, AppConfig, Story, PlannerEvent } from '@/lib/types';
 import { PlaceHolderImages } from './placeholder-images';
 
 const getImage = (id: string) => {
@@ -33,14 +33,7 @@ export const mockUsers: User[] = [
     role: 'customer', 
     password: 'password123', 
     customerSince: new Date('2023-01-15').toISOString(),
-    loyaltyData: {
-        points: 750,
-        availableCoupons: [],
-        scanHistory: [
-            { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), addedPoints: 50 },
-            { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), addedPoints: 120 }
-        ]
-    }
+    loyaltyStamps: 7,
   },
   { id: 'user-2-employee', name: 'Mitarbeiter Max', email: 'employee@example.com', role: 'employee', password: 'password123' },
   { id: 'user-3-admin', name: 'Senoner Admin', email: 'admin@example.com', role: 'admin', password: 'password123' },
@@ -51,11 +44,7 @@ export const mockUsers: User[] = [
     role: 'customer', 
     password: 'password123', 
     customerSince: new Date('2024-05-20').toISOString(),
-    loyaltyData: {
-        points: 1620,
-        availableCoupons: [{id: 'coupon-1', type: 'discount', value: 5, description: '€5 Rabatt'}],
-        scanHistory: []
-    }
+    loyaltyStamps: 12,
   },
 ];
 

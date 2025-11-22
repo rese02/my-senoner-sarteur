@@ -1,10 +1,10 @@
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { getSession } from "@/lib/session";
 import { mockUsers } from "@/lib/mock-data";
-import { Gift, Trophy } from "lucide-react";
-import { getLoyaltyTier, loyaltyTiers } from "@/lib/loyalty";
+import { Gift, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 
 async function QrCodeDisplay({ userId }: { userId: string }) {
     // In a real app, you would use a library to generate a QR code.
@@ -20,94 +20,136 @@ async function QrCodeDisplay({ userId }: { userId: string }) {
     );
 }
 
-function LoyaltyProgress({ points }: { points: number }) {
-    const currentTier = getLoyaltyTier(points);
-    const nextTier = currentTier.name === 'Gold' ? loyaltyTiers.gold : (currentTier.name === 'Silber' ? loyaltyTiers.gold : loyaltyTiers.silver);
-    
-    const pointsInCurrentTier = points - currentTier.points;
-    const pointsForNextTier = nextTier.points - currentTier.points;
-    const progress = nextTier.name === 'Gold' && currentTier.name === 'Gold' ? 100 : (pointsInCurrentTier / pointsForNextTier) * 100;
-
+function Stamp({ filled }: { filled: boolean }) {
     return (
-      <div className="w-full">
-         <div className="flex justify-between items-center mb-2">
-            <div className="flex items-center gap-2">
-              <Trophy className={`w-6 h-6 ${currentTier.color}`} />
-              <p className="text-lg font-bold">{currentTier.name}-Status</p>
-            </div>
-            <p className="font-bold text-lg">{points.toLocaleString('de-DE')} <span className="text-sm font-normal text-muted-foreground">Punkte</span></p>
+        <div className={cn(
+            "w-full aspect-square rounded-full flex items-center justify-center transition-all duration-500",
+            filled ? "bg-accent/20 border-2 border-dashed border-accent" : "bg-secondary"
+        )}>
+            {filled && <Sparkles className="w-1/2 h-1/2 text-accent animate-in fade-in-50 zoom-in-75" />}
         </div>
-        <Progress value={progress} className="h-4" />
-        <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
-            <span>{currentTier.points.toLocaleString('de-DE')} Pkt.</span>
-            { currentTier.name !== 'Gold' ? (
-                 <p className="font-medium">Noch { (nextTier.points - points).toLocaleString('de-DE')} Punkte bis {nextTier.name}</p>
-            ) : (
-                <p className="font-medium">Sie haben den höchsten Status erreicht!</p>
-            )}
-            <span>{nextTier.name !== 'Gold' ? nextTier.points.toLocaleString('de-DE') + ' Pkt.' : ''}</span>
-        </div>
-      </div>
     );
-  }
+}
 
 export default async function LoyaltyPage() {
     const session = await getSession();
     const user = mockUsers.find(u => u.id === session?.userId);
 
-    if (!session || !user || !user.loyaltyData) {
-        return <PageHeader title="Not Found" description="Loyalty data not found." />;
+    if (!session || !user) {
+        return <PageHeader title="Not Found" description="User not found." />;
     }
     
-    const loyaltyData = user.loyaltyData;
+    const stamps = user.loyaltyStamps || 0;
+    
+    // Calculations for progress bars
+    const progressSmall = Math.min(stamps, 5) / 5 * 100;
+    const progressBig = Math.min(stamps, 10) / 10 * 100;
 
     return (
         <>
-            <PageHeader title="My Loyalty Card" description="Show this QR code at checkout to collect points and redeem rewards." />
+            <PageHeader title="Meine Treuekarte" description="Zeigen Sie Ihren QR-Code an der Kasse, um Stempel zu sammeln und Belohnungen einzulösen." />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="md:col-span-1">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Linke Spalte: QR Code & Stempelkarte */}
+                <div className="lg:col-span-1 space-y-8">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Ihre digitale Karte</CardTitle>
+                            <CardTitle>Ihr QR-Code</CardTitle>
                         </CardHeader>
                         <CardContent>
                            <QrCodeDisplay userId={session.userId} />
                         </CardContent>
                     </Card>
-                </div>
-
-                <div className="md:col-span-2 space-y-8">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Ihr Treue-Status</CardTitle>
+                            <CardTitle>Stempelkarte</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <LoyaltyProgress points={loyaltyData.points} />
+                            <div className="grid grid-cols-5 gap-2">
+                                {Array.from({ length: 10 }).map((_, i) => (
+                                    <Stamp key={i} filled={i < stamps} />
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Rechte Spalte: Belohnungen */}
+                <div className="lg:col-span-2 space-y-8">
+                    <Card className="bg-gradient-to-br from-primary to-[#003366] text-primary-foreground border-none">
+                        <CardHeader>
+                            <CardTitle>Ihr Status</CardTitle>
+                        </CardHeader>
+                         <CardContent className="flex items-center justify-center text-center">
+                            <div className="flex items-baseline gap-2">
+                                <p className="text-7xl font-bold">{stamps}</p>
+                                <p className="text-xl">Stempel</p>
+                            </div>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Verfügbare Gutscheine</CardTitle>
-                            <CardDescription>Gutscheine, die Sie verdient haben.</CardDescription>
+                            <CardTitle>Ihre Belohnungen</CardTitle>
+                            <CardDescription>Sparen Sie für noch größere Vorteile!</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            {/* Ziel 1: 5 Stempel */}
+                            <div className={cn("p-4 rounded-lg transition-all", stamps >= 5 ? "bg-accent/10 border-2 border-dashed border-accent" : "bg-secondary")}>
+                                <div className="flex justify-between items-center">
+                                    <div className="flex items-center gap-3">
+                                        <Gift className={cn("w-6 h-6", stamps >= 5 ? "text-accent" : "text-muted-foreground")} />
+                                        <p className="font-bold text-lg">3€ Rabatt</p>
+                                    </div>
+                                    <span className="font-mono text-sm text-muted-foreground">5 Stempel</span>
+                                </div>
+                                <div className="h-2 bg-background rounded-full overflow-hidden mt-3">
+                                    <div 
+                                    className="h-full bg-accent transition-all duration-1000" 
+                                    style={{ width: `${progressSmall}%` }} 
+                                    />
+                                </div>
+                                 {stamps >= 5 && stamps < 10 && (
+                                    <p className="text-xs text-accent-foreground mt-2 font-bold animate-pulse text-center">
+                                    Bereit zum Einlösen! (Oder weiter sparen für 7€)
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Ziel 2: 10 Stempel */}
+                            <div className={cn("p-4 rounded-lg transition-all", stamps >= 10 ? "bg-accent/10 border-2 border-dashed border-accent" : "bg-secondary")}>
+                                <div className="flex justify-between items-center">
+                                     <div className="flex items-center gap-3">
+                                        <Gift className={cn("w-6 h-6", stamps >= 10 ? "text-accent" : "text-muted-foreground")} />
+                                        <p className="font-bold text-lg">7€ Rabatt (Super-Bonus)</p>
+                                    </div>
+                                    <span className="font-mono text-sm text-muted-foreground">10 Stempel</span>
+                                </div>
+                                <div className="h-2 bg-background rounded-full overflow-hidden mt-3">
+                                    <div 
+                                    className="h-full bg-accent transition-all duration-1000" 
+                                    style={{ width: `${progressBig}%` }} 
+                                    />
+                                </div>
+                                {stamps >= 10 && (
+                                    <p className="text-xs text-accent-foreground mt-2 font-bold text-center">
+                                    Maximale Belohnung erreicht!
+                                    </p>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                           <CardTitle>So funktioniert's</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            {loyaltyData.availableCoupons.length > 0 ? (
-                                <ul className="space-y-3">
-                                    {loyaltyData.availableCoupons.map(coupon => (
-                                        <li key={coupon.id} className="flex items-center gap-4 p-4 bg-accent/20 rounded-lg border-2 border-dashed border-accent">
-                                            <Gift className="w-8 h-8 text-accent" />
-                                            <div>
-                                                <p className="font-bold text-lg">{coupon.description}</p>
-                                                <p className="text-sm text-muted-foreground">Zeigen Sie Ihren QR-Code, um ihn einzulösen</p>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p className="text-muted-foreground">Keine Gutscheine verfügbar. Sammeln Sie weiter Punkte!</p>
-                            )}
+                            <ul className="text-sm text-muted-foreground list-disc pl-4 space-y-1">
+                                <li>Pro <strong>15€ Einkaufswert</strong> erhalten Sie 1 Stempel.</li>
+                                <li>Bei <strong>5 Stempeln</strong> können Sie 3€ Sofort-Rabatt einlösen.</li>
+                                <li>Bei <strong>10 Stempeln</strong> können Sie 7€ Sofort-Rabatt einlösen.</li>
+                            </ul>
                         </CardContent>
                     </Card>
                 </div>

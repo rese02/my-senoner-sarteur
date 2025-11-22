@@ -3,18 +3,18 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, CheckCircle, Gift, Loader2, QrCode, X, ListTodo, Check, Trophy } from 'lucide-react';
+import { Camera, CheckCircle, Gift, Loader2, QrCode, X, ListTodo, Check } from 'lucide-react';
 import { mockUsers, mockOrders } from '@/lib/mock-data';
 import type { User as UserType, Order, ChecklistItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getInitials, cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { getLoyaltyTier, loyaltyTiers } from '@/lib/loyalty';
 import Webcam from 'react-webcam';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { addStamp, redeemReward } from '@/app/actions/loyalty.actions';
+
 
 // =================================================================
 // Zustand 1: Hauptansicht (mit Tabs)
@@ -137,61 +137,118 @@ function ActiveScannerView({ onScanSuccess, onCancel }: { onScanSuccess: (data: 
 }
 
 // =================================================================
-// Zustand 3: Scan Ergebnis
+// Zustand 3: Scan Ergebnis - NEUES Stempelsystem
 // =================================================================
 function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustomer: () => void }) {
-    const { toast } = useToast();
-    const [loyaltyData, setLoyaltyData] = useState(user.loyaltyData);
-    const tier = loyaltyData ? getLoyaltyTier(loyaltyData.points) : loyaltyTiers.bronze;
+  const [purchaseAmount, setPurchaseAmount] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  
+  // Directly use the stamps from the user object
+  const stamps = user.loyaltyStamps || 0;
+  const canRedeemSmall = stamps >= 5;
+  const canRedeemBig = stamps >= 10;
 
-    const handleAddPoints = () => {
-        if (!loyaltyData) return;
-        const newPoints = loyaltyData.points + 50;
-        setLoyaltyData(prev => prev ? { ...prev, points: newPoints } : null);
-        toast({ title: 'Punkte hinzugefügt!', description: `${user?.name} hat jetzt ${newPoints} Punkte.` });
-        if (typeof window.navigator.vibrate === 'function') {
-            window.navigator.vibrate([100, 50, 100]);
-        }
-    };
+  const handleAddStamp = async () => {
+    if (!purchaseAmount || parseFloat(purchaseAmount) < 15) {
+      toast({ variant: 'destructive', title: "Mindesteinkauf 15€!"}); 
+      return;
+    }
+    setLoading(true);
+    try {
+      await addStamp(user.id, parseFloat(purchaseAmount));
+      toast({ title: "Stempel vergeben!" });
+      onNextCustomer(); // Reset view after action
+    } catch(e: any) {
+        toast({ variant: 'destructive', title: "Fehler", description: e.message });
+        setLoading(false);
+    }
+  };
 
-    const handleRedeemCoupon = () => {
-        if (!loyaltyData || loyaltyData.availableCoupons.length === 0) return;
-        setLoyaltyData(prev => prev ? { ...prev, availableCoupons: [] } : null);
-        toast({ title: 'Coupon eingelöst!', description: `Ein 5€-Gutschein wurde für ${user?.name} eingelöst.` });
-         if (typeof window.navigator.vibrate === 'function') {
-            window.navigator.vibrate(100);
-        }
-    };
+  const handleRedeem = async (tier: 'small' | 'big') => {
+    const discount = tier === 'big' ? '7€' : '3€';
+    if(!confirm(`Kunde möchte ${discount} Rabatt nutzen?`)) return;
+    
+    setLoading(true);
+    try {
+      await redeemReward(user.id, tier);
+      toast({ title: "Rabatt angewendet!", description: `Bitte ${discount} vom Endpreis abziehen.`});
+      onNextCustomer(); // Reset view after action
+    } catch(e: any) {
+        toast({ variant: 'destructive', title: "Fehler", description: e.message });
+        setLoading(false);
+    }
+  };
 
-    return (
-         <Card className="w-full text-center shadow-xl animate-in fade-in-50 border-none">
-            <CardHeader className="items-center">
-                <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
-                 <Avatar className="w-24 h-24 mt-4 border-4 border-white shadow-md">
-                    <AvatarImage src={`https://api.dicebear.com/8.x/initials/svg?seed=${user.name}`} alt={user.name} />
-                    <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-                </Avatar>
-                <CardTitle className="text-2xl mt-2">{user.name}</CardTitle>
-                <Badge variant="outline" className={`border-0 text-sm mt-1 bg-blue-100 text-blue-800`}>
-                  <Trophy className="w-3 h-3 mr-1.5" />
-                  {tier.name} - {loyaltyData?.points} Punkte
-                </Badge>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-                <Button onClick={handleAddPoints} className="h-16 text-lg rounded-full">
-                    Punkte hinzufügen
-                </Button>
-                <Button variant="outline" onClick={handleRedeemCoupon} className="h-16 text-lg rounded-full" disabled={!loyaltyData || loyaltyData.availableCoupons.length === 0}>
-                    <Gift className="mr-2 h-6 w-6" />
-                    Gutschein einlösen
-                </Button>
-                <Button variant="secondary" onClick={onNextCustomer} className="mt-8 h-12 rounded-full">
-                    Zurück zum Menü
-                </Button>
-            </CardContent>
-        </Card>
-    );
+  return (
+    <Card className="w-full p-4 md:p-6 space-y-6 shadow-xl border-none animate-in fade-in-50">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold font-headline">{user.name}</h2>
+        <div className="text-5xl font-bold text-primary my-2">
+          {stamps} <span className="text-xl text-muted-foreground font-normal">Stempel</span>
+        </div>
+      </div>
+
+      {/* BEREICH 1: BELOHNUNGEN */}
+      {(canRedeemSmall || canRedeemBig) && (
+        <div className="bg-accent/10 p-4 rounded-xl border border-accent/30 space-y-3">
+          <h3 className="font-bold text-accent-foreground text-sm uppercase flex items-center gap-2"><Gift className="w-4 h-4" />Belohnung verfügbar!</h3>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <Button 
+              onClick={() => handleRedeem('small')}
+              disabled={!canRedeemSmall || loading}
+              variant="outline"
+              className="border-primary/50 text-primary bg-background hover:bg-primary/5 h-auto flex flex-col py-2"
+            >
+              <span className="font-bold text-lg">3€ Rabatt</span>
+              <span className="text-xs font-normal">(kostet 5 Stempel)</span>
+            </Button>
+
+            <Button 
+              onClick={() => handleRedeem('big')}
+              disabled={!canRedeemBig || loading}
+              className="h-auto flex flex-col py-2"
+            >
+               <span className="font-bold text-lg">7€ Rabatt</span>
+              <span className="text-xs font-normal">(kostet 10 Stempel)</span>
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* BEREICH 2: EINKAUF ERFASSEN */}
+      <div className="space-y-3 pt-4 border-t">
+        <Label className="text-sm font-bold text-muted-foreground">Neuer Einkaufswert (€)</Label>
+        <div className="flex gap-2">
+          <Input 
+            type="number" 
+            placeholder="0.00" 
+            className="text-xl h-14" 
+            value={purchaseAmount}
+            onChange={e => setPurchaseAmount(e.target.value)}
+            disabled={loading}
+          />
+          <Button 
+            onClick={handleAddStamp} 
+            disabled={loading || !purchaseAmount || parseFloat(purchaseAmount) < 15}
+            className="w-1/2 h-14"
+          >
+            {loading ? <Loader2 className="animate-spin" /> : '+1 Stempel'}
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground text-center">
+          1 Stempel pro Einkauf ab 15,00€
+        </p>
+      </div>
+
+       <Button variant="secondary" onClick={onNextCustomer} className="w-full">
+            Schließen & Nächster Kunde
+        </Button>
+    </Card>
+  );
 }
+
 
 // =================================================================
 // Zustand 4: Picker Mode
@@ -349,5 +406,3 @@ export default function ScannerPage() {
 
     return <MainView onStartScan={startScanFlow} onStartPicking={handleStartPicking}/>;
 }
-
-    

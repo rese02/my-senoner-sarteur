@@ -7,7 +7,7 @@ export interface User {
   role: UserRole;
   password?: string; // Only for mock data, not in real DB
   customerSince?: string;
-  loyaltyData?: LoyaltyData;
+  loyaltyStamps?: number; // New stamp system
   deliveryAddress?: {
     street: string;
     city: string;
@@ -17,18 +17,12 @@ export interface User {
 }
 
 export interface LoyaltyData {
-  points: number;
-  availableCoupons: {
-    id: string;
-    type: string;
-    value: number;
-    description: string;
-  }[];
-  scanHistory: {
-    date: string;
-    addedPoints: number;
-  }[];
+  // This interface is now deprecated in favor of loyaltyStamps on User
+  // Kept for potential history or other data in the future
+  stamps?: number;
+  history?: { date: string; action: string; amount: number; note: string }[];
 }
+
 
 export interface Category {
   id: string;

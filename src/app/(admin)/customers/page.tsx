@@ -3,45 +3,102 @@
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { mockUsers, mockLoyaltyData, mockOrders } from "@/lib/mock-data";
+import { mockUsers, mockOrders, mockProducts, mockCategories } from "@/lib/mock-data";
+import type { User, Order, Product, Category } from "@/lib/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Wand2, Send, RotateCw, Trophy } from "lucide-react";
-import { useState } from "react";
+import { Wand2, Send, RotateCw, Filter, Sparkles } from "lucide-react";
+import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { improveTextWithAI } from "@/ai/flows/improve-newsletter-text";
-import { generateSeasonalPromotions } from "@/ai/flows/generate-seasonal-promotions";
-import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
-const loyaltyTiers = {
-  bronze: { name: 'Bronze', points: 0, next: 500, color: 'text-yellow-600' },
-  silver: { name: 'Silber', points: 500, next: 1500, color: 'text-slate-500' },
-  gold: { name: 'Gold', points: 1500, next: Infinity, color: 'text-amber-500' }
+// Helper function to get purchase history
+const getCustomerPurchaseCategories = (userId: string): Set<string> => {
+    const categories = new Set<string>();
+    const customerOrders = mockOrders.filter(o => o.userId === userId);
+    for (const order of customerOrders) {
+        if (Array.isArray(order.items)) {
+            for (const item of order.items) {
+                const product = mockProducts.find(p => p.id === item.productId);
+                if (product) {
+                    categories.add(product.categoryId);
+                }
+            }
+        }
+    }
+    return categories;
 };
 
-const getLoyaltyTier = (points: number) => {
-  if (points >= loyaltyTiers.gold.points) return loyaltyTiers.gold;
-  if (points >= loyaltyTiers.silver.points) return loyaltyTiers.silver;
-  return loyaltyTiers.bronze;
-};
 
+function CustomerCard({ customer, isSelected, onSelect }: { customer: User, isSelected: boolean, onSelect: (id: string, checked: boolean) => void }) {
+    const customerOrders = mockOrders.filter(o => o.userId === customer.id);
+    const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total ?? 0), 0);
+    const stamps = customer.loyaltyStamps || 0;
+
+    return (
+        <div 
+            onClick={() => onSelect(customer.id, !isSelected)}
+            className={cn(
+                "p-4 border rounded-lg transition-colors flex items-start gap-4", 
+                isSelected ? "bg-secondary border-primary ring-2 ring-primary" : "bg-card hover:bg-secondary/50"
+            )}
+        >
+             <Checkbox 
+                checked={isSelected}
+                className="mt-1 shrink-0"
+             />
+            <div className="flex-grow min-w-0">
+                <div className="flex justify-between items-start gap-2 flex-wrap">
+                    <div className="min-w-0">
+                        <p className="font-semibold text-base break-words">{customer.name}</p>
+                        <p className="text-sm text-muted-foreground break-words">{customer.email}</p>
+                    </div>
+                    <Badge variant="outline" className="border-accent bg-accent/10 text-accent-foreground">
+                       <Sparkles className="w-3 h-3 mr-1.5" />
+                       {stamps} Stempel
+                    </Badge>
+                </div>
+                <div className="text-right mt-2 font-semibold">
+                    €{totalSpent.toFixed(2)}
+                </div>
+            </div>
+        </div>
+    )
+}
 
 export default function AdminCustomersPage() {
-    const customers = mockUsers.filter(u => u.role === 'customer');
+    const allCustomers = useMemo(() => mockUsers.filter(u => u.role === 'customer'), []);
+    
+    const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+    const [open, setOpen] = useState(false);
+
     const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
     const [isImproving, setIsImproving] = useState(false);
     const { toast } = useToast();
-    const [promotions, setPromotions] = useState<string[]>([]);
-    const [isGenerating, setIsGenerating] = useState(false);
+
+    const filteredCustomers = useMemo(() => {
+        if (selectedCategories.length === 0) {
+            return allCustomers;
+        }
+        const selectedCategoryIds = new Set(selectedCategories.map(c => c.id));
+        return allCustomers.filter(customer => {
+            const purchaseHistory = getCustomerPurchaseCategories(customer.id);
+            return Array.from(selectedCategoryIds).some(catId => purchaseHistory.has(catId));
+        });
+    }, [allCustomers, selectedCategories]);
+
 
     const handleSelectAll = (checked: boolean | 'indeterminate') => {
         if (checked === true) {
-            setSelectedCustomers(customers.map(c => c.id));
+            setSelectedCustomers(filteredCustomers.map(c => c.id));
         } else {
             setSelectedCustomers([]);
         }
@@ -57,94 +114,142 @@ export default function AdminCustomersPage() {
     
     const handleImproveText = async () => {
         if (!message) {
-            toast({ variant: 'destructive', title: 'Message is empty' });
+            toast({ variant: 'destructive', title: 'Die Nachricht ist leer.' });
             return;
         }
         setIsImproving(true);
         try {
             const { improvedText } = await improveTextWithAI({ text: message });
             setMessage(improvedText);
-            toast({ title: 'Text improved with AI!' });
+            toast({ title: 'Text mit KI verbessert!' });
         } catch (error) {
-            toast({ variant: 'destructive', title: 'AI Improvement Failed', description: 'Could not improve the text.' });
+            toast({ variant: 'destructive', title: 'KI-Verbesserung fehlgeschlagen', description: 'Der Text konnte nicht verbessert werden.' });
         } finally {
             setIsImproving(false);
         }
     };
 
-    const handleGeneratePromotions = async () => {
-        setIsGenerating(true);
-        try {
-            const { promotionIdeas } = await generateSeasonalPromotions({
-                season: 'Herbst',
-                availableProducts: ['Sushi', 'Frischer Fisch', 'Regionaler Käse', 'Speck'],
-                marketTrends: 'Fokus auf lokale und Bio-Produkte, gemütliches Comfort-Food.'
-            });
-            setPromotions(promotionIdeas);
-            toast({ title: 'Neue Promotion-Ideen generiert!' });
-        } catch(error) {
-             toast({ variant: 'destructive', title: 'AI Generation Failed', description: 'Could not generate promotions.' });
-        } finally {
-            setIsGenerating(false);
-        }
+    const toggleCategory = (category: Category) => {
+        setSelectedCategories(prev => 
+            prev.some(c => c.id === category.id) 
+            ? prev.filter(c => c.id !== category.id)
+            : [...prev, category]
+        );
+        // Deselect customers when filter changes
+        setSelectedCustomers([]);
     };
 
   return (
-    <>
-      <PageHeader title="Kunden & Marketing" description="Engagieren Sie sich mit Ihren Kunden und führen Sie Marketingkampagnen durch." />
+    <div className="space-y-8 pb-24 md:pb-8">
+      <PageHeader title="Kunden" description="Engagieren Sie sich mit Ihren Kunden und führen Sie Marketingkampagnen durch." />
       <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-3 space-y-8">
             <Card>
                 <CardHeader>
-                    <CardTitle>Kundenliste</CardTitle>
-                    <CardDescription>Wählen Sie Kunden für Ihren Newsletter aus.</CardDescription>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <CardTitle>Kundenliste</CardTitle>
+                            <CardDescription>Segmentieren Sie Kunden nach Kaufhistorie für gezielte Newsletter.</CardDescription>
+                        </div>
+                        <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" className="shrink-0 w-full sm:w-auto">
+                                    <Filter className="mr-2 h-4 w-4" />
+                                    Filter
+                                    {selectedCategories.length > 0 && <Badge variant="secondary" className="ml-2">{selectedCategories.length}</Badge>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[200px] p-0" align="end">
+                                <Command>
+                                <CommandInput placeholder="Kategorie suchen..." />
+                                <CommandList>
+                                <CommandEmpty>Keine Kategorien gefunden.</CommandEmpty>
+                                <CommandGroup>
+                                    {mockCategories.map((category) => (
+                                    <CommandItem
+                                        key={category.id}
+                                        onSelect={() => toggleCategory(category)}
+                                    >
+                                        <Checkbox className={cn("mr-2", selectedCategories.some(c => c.id === category.id) ? "bg-primary text-primary-foreground" : "")} checked={selectedCategories.some(c => c.id === category.id)} />
+                                        <span>{category.name}</span>
+                                    </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                                </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-12">
-                                <Checkbox
-                                    checked={selectedCustomers.length === customers.length && customers.length > 0 ? true : (selectedCustomers.length > 0 ? 'indeterminate' : false) }
-                                    onCheckedChange={handleSelectAll}
-                                />
-                            </TableHead>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Level</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead>Kunde seit</TableHead>
-                            <TableHead className="text-center">Bestellungen</TableHead>
-                            <TableHead className="text-right">Gesamtausgaben</TableHead>
-                        </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                        {customers.map((customer) => {
-                            const customerOrders = mockOrders.filter(o => o.userId === customer.id);
-                            const totalSpent = customerOrders.reduce((sum, o) => sum + o.total, 0);
-                            const loyaltyData = mockLoyaltyData.find(l => l.userId === customer.id);
-                            const loyaltyTier = loyaltyData ? getLoyaltyTier(loyaltyData.points) : loyaltyTiers.bronze;
-
-                            return (
-                                <TableRow key={customer.id} data-state={selectedCustomers.includes(customer.id) && "selected"}>
-                                    <TableCell>
-                                        <Checkbox checked={selectedCustomers.includes(customer.id)} onCheckedChange={(checked) => handleSelectCustomer(customer.id, !!checked)} />
+                    {/* Desktop Table */}
+                    <div className="hidden md:block">
+                        <Table>
+                            <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-12">
+                                    <Checkbox
+                                        checked={selectedCustomers.length === filteredCustomers.length && filteredCustomers.length > 0}
+                                        onCheckedChange={handleSelectAll}
+                                    />
+                                </TableHead>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Stempel</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead className="text-right">Gesamtausgaben</TableHead>
+                            </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                            {filteredCustomers.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                                        {selectedCategories.length > 0 ? "Keine Kunden für diese Auswahl gefunden." : "Keine Kunden vorhanden."}
                                     </TableCell>
-                                    <TableCell className="font-medium">{customer.name}</TableCell>
-                                    <TableCell>
-                                       <Badge variant="outline" className={`border-0 ${loyaltyTier.color.replace('text-', 'bg-').replace('500', '100')} ${loyaltyTier.color}`}>
-                                          <Trophy className="w-3 h-3 mr-1.5" />
-                                          {loyaltyTier.name}
-                                       </Badge>
-                                    </TableCell>
-                                    <TableCell>{customer.email}</TableCell>
-                                    <TableCell>{customer.customerSince ? format(new Date(customer.customerSince), "dd.MM.yyyy") : 'N/A'}</TableCell>
-                                    <TableCell className="text-center">{customerOrders.length}</TableCell>
-                                    <TableCell className="text-right">€{totalSpent.toFixed(2)}</TableCell>
                                 </TableRow>
-                            )
-                        })}
-                        </TableBody>
-                    </Table>
+                            )}
+                            {filteredCustomers.map((customer) => {
+                                const customerOrders = mockOrders.filter(o => o.userId === customer.id);
+                                const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total ?? 0), 0);
+                                const stamps = customer.loyaltyStamps || 0;
+
+                                return (
+                                    <TableRow key={customer.id} data-state={selectedCustomers.includes(customer.id) ? "selected" : undefined}>
+                                        <TableCell>
+                                            <Checkbox checked={selectedCustomers.includes(customer.id)} onCheckedChange={(checked) => handleSelectCustomer(customer.id, !!checked)} />
+                                        </TableCell>
+                                        <TableCell className="font-medium">{customer.name}</TableCell>
+                                        <TableCell>
+                                        <Badge variant="outline" className="border-accent bg-accent/10 text-accent-foreground">
+                                            <Sparkles className="w-3 h-3 mr-1.5" />
+                                            {stamps} Stempel
+                                        </Badge>
+                                        </TableCell>
+                                        <TableCell>{customer.email}</TableCell>
+                                        <TableCell className="text-right">€{totalSpent.toFixed(2)}</TableCell>
+                                    </TableRow>
+                                )
+                            })}
+                            </TableBody>
+                        </Table>
+                    </div>
+
+                    {/* Mobile Card List */}
+                    <div className="block md:hidden space-y-3">
+                         {filteredCustomers.length === 0 && (
+                            <div className="text-center py-10 text-muted-foreground">
+                                {selectedCategories.length > 0 ? "Keine Kunden für diese Auswahl gefunden." : "Keine Kunden vorhanden."}
+                            </div>
+                        )}
+                        {filteredCustomers.map(customer => (
+                            <CustomerCard
+                                key={customer.id}
+                                customer={customer}
+                                isSelected={selectedCustomers.includes(customer.id)}
+                                onSelect={handleSelectCustomer}
+                            />
+                        ))}
+                    </div>
+
                 </CardContent>
             </Card>
 
@@ -155,12 +260,13 @@ export default function AdminCustomersPage() {
                 <CardContent className="space-y-4">
                     <Input placeholder="Betreff des Newsletters" value={subject} onChange={e => setSubject(e.target.value)} />
                     <Textarea placeholder="Schreiben Sie hier Ihre Newsletter-Nachricht..." className="min-h-[200px]" value={message} onChange={e => setMessage(e.target.value)} />
-                    <div className="flex justify-between items-center">
-                        <Button variant="outline" onClick={handleImproveText} disabled={isImproving}>
+                     <p className="text-xs text-muted-foreground flex items-start gap-2">Ihre Nachricht wird von einem KI-Dienst zur Verbesserung verarbeitet. Bitte geben Sie keine sensiblen Daten ein.</p>
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <Button variant="outline" onClick={handleImproveText} disabled={isImproving} className="w-full sm:w-auto">
                             {isImproving ? <RotateCw className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
                             Mit KI verbessern
                         </Button>
-                        <Button disabled={selectedCustomers.length === 0}>
+                        <Button disabled={selectedCustomers.length === 0} className="w-full sm:w-auto">
                             <Send className="mr-2 h-4 w-4" />
                             Senden an {selectedCustomers.length} Kunde(n)
                         </Button>
@@ -168,30 +274,7 @@ export default function AdminCustomersPage() {
                 </CardContent>
             </Card>
         </div>
-
-        <div className="lg:col-span-1">
-            <Card>
-                <CardHeader>
-                    <CardTitle>KI Promotion-Ideen</CardTitle>
-                    <CardDescription>Erhalten Sie saisonale Marketingideen von der KI.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button className="w-full" onClick={handleGeneratePromotions} disabled={isGenerating}>
-                        {isGenerating ? <RotateCw className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                        Ideen generieren
-                    </Button>
-                    {promotions.length > 0 && (
-                        <div className="mt-4 space-y-3 text-sm">
-                            <h4 className="font-semibold">Generierte Ideen:</h4>
-                            <ul className="list-disc list-inside bg-secondary/50 p-4 rounded-md space-y-2">
-                                {promotions.map((promo, i) => <li key={i}>{promo}</li>)}
-                            </ul>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-        </div>
       </div>
-    </>
+    </div>
   );
 }
