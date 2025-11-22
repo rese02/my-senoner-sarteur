@@ -20,7 +20,8 @@ const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/orders', label: 'Bestellungen', icon: ShoppingCart },
   { href: '/admin/products', label: 'Produkte', icon: Package },
-  { href: '/admin/customers', label: 'Kunden & Marketing', icon: Users },
+  { href: '/admin/customers', label: 'Kunden', icon: Users },
+  { href: '/admin/marketing', label: 'Marketing', icon: Megaphone },
   { href: '/admin/sommelier', label: 'Sommelier', icon: Sparkles },
 ];
 

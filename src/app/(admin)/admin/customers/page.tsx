@@ -83,8 +83,6 @@ export default function AdminCustomersPage() {
     const [message, setMessage] = useState('');
     const [isImproving, setIsImproving] = useState(false);
     const { toast } = useToast();
-    const [promotions, setPromotions] = useState<string[]>([]);
-    const [isGenerating, setIsGenerating] = useState(false);
 
     const filteredCustomers = useMemo(() => {
         if (selectedCategories.length === 0) {
@@ -131,23 +129,6 @@ export default function AdminCustomersPage() {
         }
     };
 
-    const handleGeneratePromotions = async () => {
-        setIsGenerating(true);
-        try {
-            const { promotionIdeas } = await generateSeasonalPromotions({
-                season: 'Herbst',
-                availableProducts: ['Sushi', 'Frischer Fisch', 'Regionaler Käse', 'Speck'],
-                marketTrends: 'Fokus auf lokale und Bio-Produkte, gemütliches Comfort-Food.'
-            });
-            setPromotions(promotionIdeas);
-            toast({ title: 'Neue Promotion-Ideen generiert!' });
-        } catch(error) {
-             toast({ variant: 'destructive', title: 'KI-Generierung fehlgeschlagen', description: 'Promotionen konnten nicht generiert werden.' });
-        } finally {
-            setIsGenerating(false);
-        }
-    };
-
     const toggleCategory = (category: Category) => {
         setSelectedCategories(prev => 
             prev.some(c => c.id === category.id) 
@@ -159,10 +140,10 @@ export default function AdminCustomersPage() {
     };
 
   return (
-    <>
-      <PageHeader title="Kunden & Marketing" description="Engagieren Sie sich mit Ihren Kunden und führen Sie Marketingkampagnen durch." />
+    <div className="pb-24 md:pb-0">
+      <PageHeader title="Kunden" description="Engagieren Sie sich mit Ihren Kunden und führen Sie Marketingkampagnen durch." />
       <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-3 space-y-8">
             <Card>
                 <CardHeader>
                     <div className="flex justify-between items-start gap-4">
@@ -294,31 +275,7 @@ export default function AdminCustomersPage() {
                 </CardContent>
             </Card>
         </div>
-
-        <div className="lg:col-span-1">
-            <Card>
-                <CardHeader>
-                    <CardTitle>KI Promotion-Ideen</CardTitle>
-                    <CardDescription>Erhalten Sie saisonale Marketingideen von der KI.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button className="w-full" onClick={handleGeneratePromotions} disabled={isGenerating}>
-                        {isGenerating ? <RotateCw className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                        Ideen generieren
-                    </Button>
-                    {promotions.length > 0 && (
-                        <div className="mt-4 space-y-3 text-sm">
-                            <h4 className="font-semibold">Generierte Ideen:</h4>
-                            <ul className="list-disc list-inside bg-secondary/50 p-4 rounded-md space-y-2">
-                                {promotions.map((promo, i) => <li key={i}>{promo}</li>)}
-                            </ul>
-                        </div>
-                    )}
-                     <p className="text-xs text-muted-foreground mt-4">Ihre Eingaben werden von einem KI-Dienst zur Ideengenerierung verarbeitet.</p>
-                </CardContent>
-            </Card>
-        </div>
       </div>
-    </>
+    </div>
   );
 }
