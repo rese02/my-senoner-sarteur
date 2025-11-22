@@ -73,7 +73,7 @@ export default function PartyPlannerPage() {
   }
 
   return (
-    <div className="space-y-8 pb-24">
+    <div className="space-y-8 pb-24 md:pb-8">
       <PageHeader title="Party Planer" description="Planen Sie die perfekte Menge für Ihre Gäste." />
 
       {/* 1. Event Selection */}

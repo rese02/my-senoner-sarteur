@@ -16,7 +16,7 @@ export default async function ProfilePage() {
     }
 
     return (
-        <div className="pb-24">
+        <div className="pb-24 md:pb-8">
             <PageHeader title="Mein Profil" description="Verwalten Sie hier Ihre Kontodetails." />
 
             <div className="grid gap-8 md:grid-cols-3">
