@@ -11,7 +11,7 @@ export default function RegisterPage() {
               <div className="mx-auto w-2/3 mb-6">
                 <Logo />
             </div>
-            <CardTitle className="text-2xl">Konto erstellen</CardTitle>
+            <CardTitle className="text-2xl text-primary-foreground">Konto erstellen</CardTitle>
             <CardDescription className="text-primary-foreground/80">Werden Sie Teil unserer Community.</CardDescription>
           </CardHeader>
           <CardContent className="pt-8">

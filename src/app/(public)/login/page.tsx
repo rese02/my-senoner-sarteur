@@ -11,7 +11,7 @@ export default function LoginPage() {
               <div className="w-2/3 mb-4">
                 <Logo />
               </div>
-          <CardTitle className="text-2xl">Anmelden</CardTitle>
+          <CardTitle className="text-2xl text-primary-foreground">Anmelden</CardTitle>
           <CardDescription className="text-primary-foreground/80">Geben Sie Ihre Daten ein, um sich anzumelden.</CardDescription>
           </CardHeader>
           <CardContent className="pt-8">
