@@ -1,50 +1,57 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+'use server';
 
-// WICHTIG: Importiere HIER KEINE eigenen Hilfsfunktionen aus /lib oder /actions!
-// Keine 'getSession', keine 'firebase-admin', nichts.
-// Die Middleware muss "dumm" bleiben.
+import { NextResponse, type NextRequest } from 'next/server';
+import { getSession } from '@/lib/session';
 
-export function middleware(request: NextRequest) {
-  // 1. Wir prüfen nur, ob der Cookie existiert. Wir validieren ihn hier NICHT.
-  // (Die Validierung passiert später im Layout/Page Server, wo Node.js verfügbar ist)
-  const sessionCookie = request.cookies.get('session');
+// IMPORTANT: This export forces the middleware to run on the Node.js runtime.
+// This is required because getSession() uses firebase-admin, which is not compatible
+// with the default 'edge' runtime.
+export const runtime = 'nodejs';
 
+const PUBLIC_ROUTES = ['/login', '/register'];
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const session = await getSession();
 
-  // Pfade definieren
-  const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register');
-  const isAdminRoute = pathname.startsWith('/admin');
-  const isEmployeeRoute = pathname.startsWith('/employee');
-  const isCustomerRoute = pathname.startsWith('/dashboard');
+  const isPublicRoute = PUBLIC_ROUTES.some(path => pathname.startsWith(path));
 
-  // REGEL 1: Wer eingeloggt ist (Cookie da), soll nicht auf Login/Register
-  if (isAuthRoute && sessionCookie) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
+  if (session) {
+    const { role } = session;
+    let userHomePage = '/dashboard'; // Default for customer
+    if (role === 'admin') userHomePage = '/admin/dashboard';
+    if (role === 'employee') userHomePage = '/employee/scanner';
+    
+    // If user is logged in and tries to access a public route, redirect them to their home page
+    if (isPublicRoute) {
+      return NextResponse.redirect(new URL(userHomePage, request.url));
+    }
 
-  // REGEL 2: Wer NICHT eingeloggt ist (kein Cookie), darf nicht in geschützte Bereiche
-  if (!sessionCookie && (isAdminRoute || isEmployeeRoute || isCustomerRoute)) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-  
-  // REGEL 3: Root URL weiterleitung
-  if (pathname === '/') {
-    return NextResponse.redirect(new URL('/login', request.url));
+    // Role-based access control
+    if (pathname.startsWith('/admin') && role !== 'admin') {
+      return NextResponse.redirect(new URL(userHomePage, request.url));
+    }
+    if (pathname.startsWith('/employee') && role !== 'employee' && role !== 'admin') { // Admins can access employee routes
+      return NextResponse.redirect(new URL(userHomePage, request.url));
+    }
+    if (pathname.startsWith('/dashboard') && role !== 'customer') {
+      return NextResponse.redirect(new URL(userHomePage, request.url));
+    }
+    
+  } else {
+    // If user is not logged in and tries to access a protected route, redirect to login
+    if (!isPublicRoute && pathname !== '/') {
+        return NextResponse.redirect(new URL('/login', request.url));
+    }
+    if (pathname === '/') {
+        return NextResponse.redirect(new URL('/login', request.url));
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+  // Match all routes except for static assets, API routes, and Next.js internals
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
