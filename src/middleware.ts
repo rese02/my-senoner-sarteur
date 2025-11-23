@@ -1,5 +1,10 @@
+'use server';
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSession } from '@/lib/session';
+
+// Force the middleware to run on the Node.js runtime
+// as `firebase-admin` (used in `getSession`) is not compatible with the Edge runtime.
+export const runtime = 'nodejs';
 
 const PUBLIC_ROUTES = ['/login', '/register'];
 
