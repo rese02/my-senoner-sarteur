@@ -6,12 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import imageCompression from 'browser-image-compression';
-// Assume storage is exported from your config. If not, you need to initialize it.
-// import { storage } from '@/firebase/config'; 
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { UploadCloud, CheckCircle, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
+import { useStorage } from '@/firebase/provider';
 
 
 // This component receives a function to send the final URL to the parent component
@@ -27,6 +26,7 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
   const [error, setError] = useState<string | null>(null);
   const [finalImageUrl, setFinalImageUrl] = useState<string | null>(currentImageUrl || null);
   const { toast } = useToast();
+  const storage = useStorage(); // Use the hook to get storage instance
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -36,7 +36,8 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
     setIsUploading(true);
     setError(null);
     setProgress(0);
-    setFinalImageUrl(null);
+    // Do not clear finalImageUrl immediately, looks better to keep old one until new is ready
+    // setFinalImageUrl(null);
 
     // 1. Compression
     const options = {
@@ -49,7 +50,6 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
       const compressedFile = await imageCompression(file, options);
 
       // 2. Upload to Firebase Storage
-      const storage = getStorage();
       const storageRef = ref(storage, `images/${folder}/${Date.now()}_${compressedFile.name}`);
       const uploadTask = uploadBytesResumable(storageRef, compressedFile);
 

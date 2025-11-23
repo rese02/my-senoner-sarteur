@@ -1,18 +1,17 @@
 import type { User, Category, Product, Order, AppConfig, Story, PlannerEvent } from '@/lib/types';
 import { PlaceHolderImages } from './placeholder-images';
 
+// MOCK DATA IS NOW DEPRECATED AND WILL BE REPLACED BY FIRESTORE CALLS.
+// Some data might be kept for fallback or initial structure reference.
+
 const getImage = (id: string) => {
     let image = PlaceHolderImages.find(p => p.id === id);
     if (!image) {
         console.warn(`Placeholder image with id "${id}" not found. Using generic fallback.`);
-        // Fallback to a generic placeholder to avoid crashes
         image = PlaceHolderImages.find(p => p.id === 'placeholder-general');
     }
     
-    // Final check in case the general placeholder is also missing
     if (!image) {
-        // This is a critical fallback that should ideally never be hit.
-        // It provides a failsafe URL to prevent the app from crashing due to an empty src.
         return { 
             imageUrl: `https://picsum.photos/seed/critical-fallback/600/400`, 
             imageHint: 'placeholder' 
@@ -25,160 +24,7 @@ const getImage = (id: string) => {
     };
 };
 
-export const mockUsers: User[] = [
-  { 
-    id: 'user-1-customer', 
-    name: 'Maria Muster', 
-    email: 'customer@example.com', 
-    role: 'customer', 
-    password: 'password123', 
-    customerSince: new Date('2023-01-15').toISOString(),
-    loyaltyStamps: 7,
-  },
-  { id: 'user-2-employee', name: 'Mitarbeiter Max', email: 'employee@example.com', role: 'employee', password: 'password123' },
-  { id: 'user-3-admin', name: 'Senoner Admin', email: 'admin@example.com', role: 'admin', password: 'password123' },
-  { 
-    id: 'user-4-customer', 
-    name: 'John Doe', 
-    email: 'john@example.com', 
-    role: 'customer', 
-    password: 'password123', 
-    customerSince: new Date('2024-05-20').toISOString(),
-    loyaltyStamps: 12,
-  },
-];
-
-export const mockCategories: Category[] = [
-  { id: 'cat-4', name: 'Pakete' },
-  { id: 'cat-1', name: 'Spezielle Vorbestellungen' },
-  { id: 'cat-2', name: 'Lokale Delikatessen' },
-  { id: 'cat-3', name: 'Weine' },
-];
-
-export const mockProducts: Product[] = [
-  { 
-    id: 'prod-bundle-1', name: 'Südtiroler Frühstück', price: 29.90, unit: 'paket', categoryId: 'cat-4', 
-    description: 'Alles für den perfekten Start: Milch, Butter, Schüttelbrot, Speck, Marmelade, Kaffee.', 
-    ...getImage('bundle-breakfast'), isAvailable: true, timesOrderedLast30Days: 45, type: 'package',
-    packageContent: [
-        { item: 'Frische Bergbauernmilch', amount: '1 Liter' },
-        { item: 'Südtiroler Markenbutter', amount: '250g' },
-        { item: 'Vinschger Paarl (Brot)', amount: '2 Stück' },
-        { item: 'Millefiori Honig', amount: '1 Glas' },
-        { item: 'Südtiroler Speck g.g.A.', amount: '200g' },
-        { item: 'Alpen-Kaffee', amount: '250g' }
-    ]
-  },
-  { 
-    id: 'prod-bundle-2', name: 'Anreise-Jause', price: 39.50, unit: 'paket', categoryId: 'cat-4', 
-    description: 'Der perfekte Genuss nach der Ankunft: Eine Flasche Wein, Almkäse, Speck und frisches Brot.', 
-    ...getImage('bundle-jause'), isAvailable: true, timesOrderedLast30Days: 38, type: 'package',
-    packageContent: [
-        { item: 'Flasche Vernatsch', amount: '0,75 l' },
-        { item: 'Südtiroler Almkäse', amount: '300g' },
-        { item: 'Südtiroler Speck g.g.A.', amount: '250g' },
-        { item: 'Schüttelbrot', amount: '1 Packung' }
-    ]
-  },
-  { 
-    id: 'prod-bundle-3', name: 'Küchen-Essentials', price: 19.00, unit: 'paket', categoryId: 'cat-4', 
-    description: 'Die Grundausstattung für Ihre Ferienwohnung: Wasser, Salz, Öl, Nudeln und Sugo.', 
-    ...getImage('bundle-essentials'), isAvailable: true, timesOrderedLast30Days: 62, type: 'package',
-     packageContent: [
-        { item: 'Mineralwasser', amount: '1 Flasche' },
-        { item: 'Feines Meersalz', amount: '1 Packung' },
-        { item: 'Olivenöl Extra Vergine', amount: '250ml' },
-        { item: 'Pasta (Spaghetti)', amount: '500g' },
-        { item: 'Tomatensugo', amount: '1 Glas' }
-    ]
-  },
-  { id: 'prod-1', name: 'Kleine Sushi-Box', price: 15, unit: 'box', categoryId: 'cat-1', ...getImage('sushi-box-sm'), availabilityDay: 'Donnerstag', isAvailable: true, timesOrderedLast30Days: 25, type: 'product' },
-  { id: 'prod-2', name: 'Große Sushi-Box', price: 25, unit: 'box', categoryId: 'cat-1', ...getImage('sushi-box-lg'), availabilityDay: 'Donnerstag', isAvailable: true, timesOrderedLast30Days: 18, type: 'product' },
-  { id: 'prod-3', name: 'Frischer Fisch des Tages', price: 18, unit: 'kg', categoryId: 'cat-1', ...getImage('fresh-fish'), availabilityDay: 'Freitag', isAvailable: false, timesOrderedLast30Days: 12, type: 'product' },
-  { id: 'prod-4', name: 'Regionale Käseplatte', price: 12.5, unit: 'platte', categoryId: 'cat-2', ...getImage('regional-cheese'), isAvailable: true, timesOrderedLast30Days: 35, type: 'product' },
-  { id: 'prod-5', name: 'Südtiroler Speck', price: 22, unit: 'kg', categoryId: 'cat-2', ...getImage('speck'), isAvailable: true, timesOrderedLast30Days: 42, type: 'product' },
-  { id: 'prod-6', name: 'Lagrein Riserva', price: 19.90, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-red-1'), isAvailable: true, type: 'product' },
-  { id: 'prod-7', name: 'Gewürztraminer', price: 14.50, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-white-1'), isAvailable: true, type: 'product' },
-  { id: 'prod-8', name: 'Pinot Grigio', price: 12.80, unit: 'flasche', categoryId: 'cat-3', ...getImage('wine-white-2'), isAvailable: true, type: 'product' },
-];
-
-export const mockOrders: Order[] = [
-  {
-    id: 'order-1',
-    type: 'preorder',
-    userId: 'user-1-customer',
-    customerName: 'Maria Muster',
-    items: [{ productId: 'prod-1', productName: 'Kleine Sushi-Box', quantity: 2, price: 15 }],
-    total: 30,
-    pickupDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: 'new',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'order-2',
-    type: 'preorder',
-    userId: 'user-4-customer',
-    customerName: 'John Doe',
-    items: [
-        { productId: 'prod-2', productName: 'Große Sushi-Box', quantity: 1, price: 25 },
-        { productId: 'prod-3', productName: 'Frischer Fisch des Tages', quantity: 1, price: 18 }
-    ],
-    total: 43,
-    pickupDate: new Date().toISOString().split('T')[0],
-    status: 'ready',
-    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-    {
-    id: 'order-3',
-    type: 'preorder',
-    userId: 'user-1-customer',
-    customerName: 'Maria Muster',
-    items: [{ productId: 'prod-4', productName: 'Regionale Käseplatte', quantity: 1, price: 12.5 }],
-    total: 12.5,
-    pickupDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: 'collected',
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-    {
-    id: 'order-4',
-    type: 'preorder',
-    userId: 'user-4-customer',
-    customerName: 'John Doe',
-    items: [{ productId: 'prod-5', productName: 'Südtiroler Speck', quantity: 1, price: 22 }],
-    total: 22,
-    pickupDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: 'new',
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-  },
-    {
-    id: 'order-5',
-    type: 'preorder',
-    userId: 'user-1-customer',
-    customerName: 'Maria Muster',
-    items: [{ productId: 'prod-1', productName: 'Kleine Sushi-Box', quantity: 1, price: 15 }],
-    total: 15,
-    pickupDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: 'ready', // This is an overdue pickup
-    createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-   {
-    id: 'order-6-grocery',
-    type: 'grocery_list',
-    userId: 'user-4-customer',
-    customerName: 'John Doe',
-    rawList: '1L Frische Vollmilch\n200g Südtiroler Speck\n1 Laib Brot',
-    checklist: [
-      { item: '1L Frische Vollmilch', isFound: false },
-      { item: '200g Südtiroler Speck', isFound: false },
-      { item: '1 Laib Brot', isFound: false }
-    ],
-    status: 'new',
-    createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-    deliveryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString()
-  },
-];
-
-
+// This is now only for fallback display if firestore fails.
 export let mockAppConfig: AppConfig = {
     recipeOfTheWeek: {
         title: 'Frische Pfifferlinge mit Rahmsauce',
@@ -204,34 +50,10 @@ export let mockAppConfig: AppConfig = {
     isWheelOfFortuneActive: true,
 };
 
-export const mockStories: Story[] = [
-    { id: 'story-1', imageUrl: 'https://images.unsplash.com/photo-1551723485-f559642472b7?q=80&w=1974&auto=format&fit=crop', imageHint: 'fresh fish', label: 'Heute Frisch', author: 'Fischtheke' },
-    { id: 'story-2', imageUrl: 'https://images.unsplash.com/photo-1559599554-ba8f2f6a6faa?q=80&w=1974&auto=format&fit=crop', imageHint: 'cheese counter', label: 'Käse des Tages', author: 'Käsetheke' },
-    { id: 'story-3', imageUrl: 'https://images.unsplash.com/photo-1617347454434-1199a45b7348?q=80&w=1964&auto=format&fit=crop', imageHint: 'butcher counter', label: 'Neues vom Metzger', author: 'Metzgerei' },
-    { id: 'story-4', imageUrl: 'https://images.unsplash.com/photo-1506368249639-73a05d6f6488?q=80&w=1974&auto=format&fit=crop', imageHint: 'wine cellar', label: 'Wein der Woche', author: 'Sommelier' },
-    { id: 'story-5', imageUrl: 'https://images.unsplash.com/photo-1599819022479-7d8b593f640c?q=80&w=1974&auto=format&fit=crop', imageHint: 'fresh bread', label: 'Frisch gebacken', author: 'Bäckerei' },
-];
-
-export const mockPlannerEvents: PlannerEvent[] = [
-    {
-        id: 'plan-1',
-        title: 'Raclette Abend',
-        description: 'Der Klassiker für gemütliche Abende.',
-        imageUrl: getImage('event-raclette').imageUrl,
-        imageHint: getImage('event-raclette').imageHint,
-        ingredients: [
-            { productId: 'prod-4', productName: 'Regionale Käseplatte', baseAmount: 250, unit: 'g' },
-            { productId: 'prod-5', productName: 'Südtiroler Speck', baseAmount: 100, unit: 'g' }
-        ]
-    },
-    {
-        id: 'plan-2',
-        title: 'Grillfest',
-        description: 'Feinstes Fleisch für den besonderen Anlass.',
-        imageUrl: getImage('event-fondue').imageUrl,
-        imageHint: getImage('event-fondue').imageHint,
-        ingredients: [
-            { productId: 'prod-5', productName: 'Südtiroler Speck', baseAmount: 300, unit: 'g' }
-        ]
-    }
-];
+// Deprecated mock data arrays. Kept for reference, but should not be used in production code.
+export const mockUsers: User[] = [];
+export const mockCategories: Category[] = [];
+export const mockProducts: Product[] = [];
+export const mockOrders: Order[] = [];
+export const mockStories: Story[] = [];
+export const mockPlannerEvents: PlannerEvent[] = [];

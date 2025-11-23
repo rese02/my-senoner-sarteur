@@ -3,8 +3,11 @@
 import { z } from 'zod';
 import { redirect } from 'next/navigation';
 import { createSession, deleteSession } from '@/lib/session';
-import { mockUsers } from '@/lib/mock-data';
-import type { User, UserRole } from '@/lib/types';
+import type { UserRole } from '@/lib/types';
+import { initializeFirebase } from '@/firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { revalidatePath } from 'next/cache';
 
 // --- Schemas ---
 const LoginSchema = z.object({
@@ -41,17 +44,32 @@ export async function login(credentials: z.infer<typeof LoginSchema>) {
   }
 
   const { email, password } = validatedFields.data;
+  const { auth, firestore } = initializeFirebase();
 
-  // In a real app, you'd query your database and verify the hashed password.
-  const user = mockUsers.find((u) => u.email === email);
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-  if (!user || user.password !== password) {
+    // Get user role from Firestore
+    const userDocRef = doc(firestore, 'users', user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      // This case should ideally not happen if registration is handled correctly
+      return { error: 'User data not found in database.' };
+    }
+
+    const userData = userDoc.data();
+    const role = userData.role || 'customer';
+
+    await createSession(user.uid, role);
+    
+    return { redirectPath: getRedirectPath(role) };
+
+  } catch (error: any) {
+    console.error('Login error:', error.code);
     return { error: 'Invalid email or password.' };
   }
-
-  await createSession(user.id, user.role);
-  
-  return { redirectPath: getRedirectPath(user.role) };
 }
 
 export async function register(data: z.infer<typeof RegisterSchema>) {
@@ -62,25 +80,35 @@ export async function register(data: z.infer<typeof RegisterSchema>) {
     }
 
     const { name, email, password } = validatedFields.data;
-    
-    // Check if user already exists
-    if (mockUsers.some(u => u.email === email)) {
-        return { error: 'An account with this email already exists.' };
+    const { auth, firestore } = initializeFirebase();
+
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Create user document in Firestore
+        const userDocRef = doc(firestore, 'users', user.uid);
+        await setDoc(userDocRef, {
+            id: user.uid,
+            name,
+            email,
+            role: 'customer',
+            loyaltyStamps: 0,
+            customerSince: new Date().toISOString(),
+        });
+
+        await createSession(user.uid, 'customer');
+        
+        revalidatePath('/');
+        return { success: true };
+
+    } catch (error: any) {
+        console.error('Registration error:', error.code);
+        if (error.code === 'auth/email-already-in-use') {
+            return { error: 'An account with this email already exists.' };
+        }
+        return { error: 'Registration failed. Please try again.' };
     }
-
-    // Create new user (mock)
-    const newUser: User = {
-        id: `user-${Date.now()}`,
-        name,
-        email,
-        password,
-        role: 'customer'
-    };
-    mockUsers.push(newUser);
-
-    await createSession(newUser.id, newUser.role);
-    
-    return { success: true };
 }
 
 export async function logout() {

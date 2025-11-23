@@ -6,12 +6,14 @@ import { createContext, useContext, type ReactNode } from 'react';
 import type { FirebaseApp } from 'firebase/app';
 import type { Auth } from 'firebase/auth';
 import type { Firestore } from 'firebase/firestore';
+import type { FirebaseStorage } from 'firebase/storage';
 
 // Define the context type for Firebase services
 interface FirebaseContextType {
   app: FirebaseApp | null;
   auth: Auth | null;
   firestore: Firestore | null;
+  storage: FirebaseStorage | null;
 }
 
 // Create the context with an initial value of null
@@ -19,6 +21,7 @@ const FirebaseContext = createContext<FirebaseContextType>({
   app: null,
   auth: null,
   firestore: null,
+  storage: null,
 });
 
 // Create the provider component
@@ -27,14 +30,16 @@ export function FirebaseProvider({
   app,
   auth,
   firestore,
+  storage,
 }: {
   children: ReactNode;
   app: FirebaseApp;
   auth: Auth;
   firestore: Firestore;
+  storage: FirebaseStorage;
 }) {
   return (
-    <FirebaseContext.Provider value={{ app, auth, firestore }}>
+    <FirebaseContext.Provider value={{ app, auth, firestore, storage }}>
       {children}
     </FirebaseContext.Provider>
   );
@@ -46,7 +51,7 @@ export function useFirebase() {
   if (context === undefined) {
     throw new Error('useFirebase must be used within a FirebaseProvider');
   }
-  if (!context.app || !context.auth || !context.firestore) {
+  if (!context.app || !context.auth || !context.firestore || !context.storage) {
     throw new Error('Firebase has not been initialized correctly.');
   }
   return context;
@@ -62,4 +67,8 @@ export function useFirestore() {
 
 export function useAuth() {
   return useFirebase().auth;
+}
+
+export function useStorage() {
+  return useFirebase().storage;
 }

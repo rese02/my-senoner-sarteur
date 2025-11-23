@@ -1,6 +1,5 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
-import { mockCategories, mockProducts } from "@/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -8,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { PlusCircle, Trash2, Edit, Loader2, Plus } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import type { Product, Category, PackageItem } from "@/lib/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -17,10 +16,15 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ImageUploader } from "@/components/custom/ImageUploader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { collection, getDocs, doc, updateDoc, addDoc, deleteDoc, writeBatch } from "firebase/firestore";
+import { useFirestore } from "@/firebase/provider";
+import { revalidatePath } from "next/cache";
+import { createCategory, deleteCategory, updateProduct, createProduct, deleteProduct, toggleProductAvailability, getAdminDashboardData } from "@/app/actions/product.actions";
 
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState<Product[]>(mockProducts);
-  const [categories, setCategories] = useState<Category[]>(mockCategories);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isDataLoading, setIsDataLoading] = useState(true);
 
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
@@ -35,26 +39,36 @@ export default function AdminProductsPage() {
   const [tempItem, setTempItem] = useState('');
   const [tempAmount, setTempAmount] = useState('');
 
+  const loadData = async () => {
+      setIsDataLoading(true);
+      try {
+          const { products: fetchedProducts, categories: fetchedCategories } = await getAdminDashboardData();
+          setProducts(fetchedProducts);
+          setCategories(fetchedCategories);
+      } catch (error) {
+          toast({ variant: "destructive", title: "Fehler beim Laden", description: "Produktdaten konnten nicht geladen werden." });
+      } finally {
+          setIsDataLoading(false);
+      }
+  };
 
-  const handleAvailabilityToggle = (productId: string) => {
-    startTransition(() => {
-        const originalProducts = [...products];
-        setProducts(prevProducts =>
-            prevProducts.map(p =>
-                p.id === productId ? { ...p, isAvailable: !p.isAvailable } : p
-            )
-        );
-        new Promise<boolean>((resolve) => {
-            setTimeout(() => {
-                const success = Math.random() > 0.1; // 90% success rate
-                resolve(success);
-            }, 300);
-        }).then(success => {
-            if (!success) {
-                setProducts(originalProducts);
-                toast({ variant: 'destructive', title: 'Update fehlgeschlagen' });
-            }
-        });
+  useEffect(() => {
+    loadData();
+  }, []);
+
+
+  const handleAvailabilityToggle = (productId: string, currentStatus: boolean) => {
+    startTransition(async () => {
+        try {
+            await toggleProductAvailability(productId, !currentStatus);
+            setProducts(prevProducts =>
+                prevProducts.map(p =>
+                    p.id === productId ? { ...p, isAvailable: !p.isAvailable } : p
+                )
+            );
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Update fehlgeschlagen' });
+        }
     });
   };
 
@@ -63,33 +77,29 @@ export default function AdminProductsPage() {
         toast({ variant: 'destructive', title: 'Kategoriename ist erforderlich' });
         return;
       }
-      startTransition(() => {
-        const newCategory: Category = {
-            id: `cat-${Date.now()}`,
-            name: newCategoryName,
-        };
-        setCategories(prev => [...prev, newCategory]);
-        mockCategories.push(newCategory);
-        toast({ title: 'Kategorie erstellt!' });
-        setNewCategoryName('');
-        setIsCategoryModalOpen(false);
+      startTransition(async () => {
+        try {
+          const newCategory = await createCategory(newCategoryName);
+          setCategories(prev => [...prev, newCategory]);
+          toast({ title: 'Kategorie erstellt!' });
+          setNewCategoryName('');
+          setIsCategoryModalOpen(false);
+        } catch (error) {
+          toast({ variant: "destructive", title: "Fehler", description: "Kategorie konnte nicht erstellt werden."});
+        }
       });
   };
   
   const handleDeleteCategory = (categoryId: string) => {
-      startTransition(() => {
-        const categoryIndex = mockCategories.findIndex(c => c.id === categoryId);
-        if (categoryIndex > -1) {
-            mockCategories.splice(categoryIndex, 1);
+      startTransition(async () => {
+        try {
+          await deleteCategory(categoryId);
+          setCategories(prev => prev.filter(c => c.id !== categoryId));
+          setProducts(prev => prev.filter(p => p.categoryId !== categoryId));
+          toast({ title: 'Kategorie gelöscht' });
+        } catch(error) {
+          toast({ variant: "destructive", title: "Fehler", description: "Kategorie konnte nicht gelöscht werden."});
         }
-        
-        const productsToKeep = mockProducts.filter(p => p.categoryId !== categoryId);
-        mockProducts.length = 0;
-        Array.prototype.push.apply(mockProducts, productsToKeep);
-
-        setCategories(prev => prev.filter(c => c.id !== categoryId));
-        setProducts(prev => prev.filter(p => p.categoryId !== categoryId));
-        toast({ title: 'Kategorie gelöscht' });
       });
   };
 
@@ -125,36 +135,42 @@ export default function AdminProductsPage() {
           return;
       }
 
-      startTransition(() => {
-          if (editingProduct.id) {
-              setProducts(products.map(p => p.id === editingProduct!.id ? { ...p, ...editingProduct } as Product : p));
-               const mockIndex = mockProducts.findIndex(p => p.id === editingProduct!.id);
-              if (mockIndex > -1) mockProducts[mockIndex] = { ...mockProducts[mockIndex], ...editingProduct } as Product;
-              toast({ title: 'Produkt aktualisiert!' });
-          } else {
-              const newProduct: Product = {
+      startTransition(async () => {
+          try {
+            if (editingProduct.id) {
+                await updateProduct(editingProduct as Product);
+                setProducts(products.map(p => p.id === editingProduct!.id ? { ...p, ...editingProduct } as Product : p));
+                toast({ title: 'Produkt aktualisiert!' });
+            } else {
+                const newProductData = {
                   ...editingProduct,
-                  id: `prod-${Date.now()}`,
                   categoryId: currentCategoryId!,
                   isAvailable: true,
                   price: Number(editingProduct.price),
                   type: editingProduct.type || 'product'
-              } as Product;
-              setProducts(prev => [...prev, newProduct]);
-              mockProducts.push(newProduct);
-              toast({ title: 'Produkt erstellt!' });
+                } as Omit<Product, 'id'>;
+
+                const newProduct = await createProduct(newProductData);
+                setProducts(prev => [...prev, newProduct]);
+                toast({ title: 'Produkt erstellt!' });
+            }
+            setIsProductModalOpen(false);
+            setEditingProduct(null);
+          } catch(error) {
+            toast({ variant: "destructive", title: "Fehler beim Speichern", description: "Produkt konnte nicht gespeichert werden." });
           }
-          setIsProductModalOpen(false);
-          setEditingProduct(null);
       });
   };
 
   const handleDeleteProduct = (productId: string) => {
-      startTransition(() => {
-        setProducts(prev => prev.filter(p => p.id !== productId));
-        const mockIndex = mockProducts.findIndex(p => p.id === productId);
-        if (mockIndex > -1) mockProducts.splice(mockIndex, 1);
-        toast({ title: 'Produkt gelöscht' });
+      startTransition(async () => {
+        try {
+          await deleteProduct(productId);
+          setProducts(prev => prev.filter(p => p.id !== productId));
+          toast({ title: 'Produkt gelöscht' });
+        } catch(error) {
+          toast({ variant: "destructive", title: "Fehler", description: "Produkt konnte nicht gelöscht werden." });
+        }
       });
   };
 
@@ -181,107 +197,113 @@ export default function AdminProductsPage() {
         <Button onClick={() => setIsCategoryModalOpen(true)} className="hidden md:flex" size="sm"><PlusCircle className="mr-2 h-4 w-4"/>Neue Kategorie</Button>
       </div>
       
-      <div className="space-y-6">
-        {categories.map((category) => {
-          const productsInCategory = products.filter(p => p.categoryId === category.id);
-          return (
-            <Card key={category.id}>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>{category.name}</CardTitle>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" className="hidden md:flex" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt hinzufügen</Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-destructive h-8 w-8 hidden md:flex"><Trash2 className="w-4 h-4" /></Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Möchten Sie die Kategorie '{category.name}' wirklich löschen? Alle darin enthaltenen Produkte werden ebenfalls entfernt. Diese Aktion kann nicht rückgängig gemacht werden.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDeleteCategory(category.id)}>Löschen</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {productsInCategory.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {productsInCategory.map(product => (
-                       <Card key={product.id} className="overflow-hidden flex flex-col group relative transition-all hover:shadow-lg">
-                        <div className="relative aspect-[4/3] bg-muted">
-                           <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" data-ai-hint={product.imageHint} />
-                            {product.type === 'package' && <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground" variant="secondary">PAKET</Badge>}
-                        </div>
-                        <CardContent className="p-3 flex flex-col flex-1">
-                            <h3 className="font-semibold text-base leading-tight">{product.name}</h3>
-                            <div className="flex items-baseline justify-between mt-1">
-                                <p className="text-lg font-bold text-primary">€{product.price.toFixed(2)}</p>
-                                <span className="text-xs text-muted-foreground">/ {product.unit}</span>
-                            </div>
-                            {product.availabilityDay && <Badge variant="secondary" className="mt-1 w-fit text-xs">{product.availabilityDay} only</Badge>}
-                            <div className="mt-2 text-xs text-muted-foreground">
-                                <span>Bestellt (30T): </span>
-                                <span className="font-bold">{product.timesOrderedLast30Days ?? 0}</span>
-                            </div>
-                             <div className="mt-auto pt-3 flex items-center justify-between gap-4 border-t mt-3">
-                                <div className="flex items-center space-x-2">
-                                    <Switch 
-                                        id={`availability-${product.id}`} 
-                                        checked={product.isAvailable} 
-                                        onCheckedChange={() => handleAvailabilityToggle(product.id)}
-                                        disabled={isPending}
-                                    />
-                                    <Label htmlFor={`availability-${product.id}`} className="text-xs">
-                                        {product.isAvailable ? "Verfügbar" : "Inaktiv"}
-                                    </Label>
-                                </div>
-                                <div className="flex items-center">
-                                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenProductModal(product, category.id)}>
-                                      <Edit className="h-4 w-4" />
-                                  </Button>
-                                   <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                                        <Trash2 className="w-4 h-4"/>
-                                      </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          Möchten Sie das Produkt '{product.name}' wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>Löschen</AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                </div>
-                            </div>
-                        </CardContent>
-                       </Card>
-                    ))}
+      {isDataLoading ? (
+        <div className="flex justify-center items-center h-64">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {categories.map((category) => {
+            const productsInCategory = products.filter(p => p.categoryId === category.id);
+            return (
+              <Card key={category.id}>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>{category.name}</CardTitle>
+                  <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" className="hidden md:flex" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt hinzufügen</Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="text-destructive h-8 w-8 hidden md:flex"><Trash2 className="w-4 h-4" /></Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Möchten Sie die Kategorie '{category.name}' wirklich löschen? Alle darin enthaltenen Produkte werden ebenfalls entfernt. Diese Aktion kann nicht rückgängig gemacht werden.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteCategory(category.id)}>Löschen</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                   </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground bg-secondary/30 rounded-md">
-                    <p className="text-sm">Noch keine Produkte in dieser Kategorie.</p>
-                    <Button variant="link" size="sm" className="mt-1" onClick={() => handleOpenProductModal(null, category.id)}>Fügen Sie das erste Produkt hinzu</Button>
-                  </div>
-                )}
-                 <Button variant="outline" size="sm" className="flex md:hidden w-full mt-4" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt hinzufügen</Button>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
+                </CardHeader>
+                <CardContent>
+                  {productsInCategory.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {productsInCategory.map(product => (
+                         <Card key={product.id} className="overflow-hidden flex flex-col group relative transition-all hover:shadow-lg">
+                          <div className="relative aspect-[4/3] bg-muted">
+                             <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" data-ai-hint={product.imageHint} />
+                              {product.type === 'package' && <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground" variant="secondary">PAKET</Badge>}
+                          </div>
+                          <CardContent className="p-3 flex flex-col flex-1">
+                              <h3 className="font-semibold text-base leading-tight">{product.name}</h3>
+                              <div className="flex items-baseline justify-between mt-1">
+                                  <p className="text-lg font-bold text-primary">€{product.price.toFixed(2)}</p>
+                                  <span className="text-xs text-muted-foreground">/ {product.unit}</span>
+                              </div>
+                              {product.availabilityDay && <Badge variant="secondary" className="mt-1 w-fit text-xs">{product.availabilityDay} only</Badge>}
+                              <div className="mt-2 text-xs text-muted-foreground">
+                                  <span>Bestellt (30T): </span>
+                                  <span className="font-bold">{product.timesOrderedLast30Days ?? 0}</span>
+                              </div>
+                               <div className="mt-auto pt-3 flex items-center justify-between gap-4 border-t mt-3">
+                                  <div className="flex items-center space-x-2">
+                                      <Switch 
+                                          id={`availability-${product.id}`} 
+                                          checked={product.isAvailable} 
+                                          onCheckedChange={() => handleAvailabilityToggle(product.id, product.isAvailable)}
+                                          disabled={isPending}
+                                      />
+                                      <Label htmlFor={`availability-${product.id}`} className="text-xs">
+                                          {product.isAvailable ? "Verfügbar" : "Inaktiv"}
+                                      </Label>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenProductModal(product, category.id)}>
+                                        <Edit className="h-4 w-4" />
+                                    </Button>
+                                     <AlertDialog>
+                                      <AlertDialogTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                                          <Trash2 className="w-4 h-4"/>
+                                        </Button>
+                                      </AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
+                                          <AlertDialogDescription>
+                                            Möchten Sie das Produkt '{product.name}' wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+                                          </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                          <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>Löschen</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                  </div>
+                              </div>
+                          </CardContent>
+                         </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground bg-secondary/30 rounded-md">
+                      <p className="text-sm">Noch keine Produkte in dieser Kategorie.</p>
+                      <Button variant="link" size="sm" className="mt-1" onClick={() => handleOpenProductModal(null, category.id)}>Fügen Sie das erste Produkt hinzu</Button>
+                    </div>
+                  )}
+                   <Button variant="outline" size="sm" className="flex md:hidden w-full mt-4" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt hinzufügen</Button>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+      )}
 
        <div className="md:hidden fixed bottom-20 right-4 z-20">
           <Button size="lg" className="rounded-full h-14 w-14 shadow-lg" onClick={() => setIsCategoryModalOpen(true)}>

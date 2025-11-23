@@ -7,7 +7,7 @@ import { initializeFirebase } from '.';
 import { FirebaseProvider } from './provider';
 
 // Initialize Firebase on the client
-const { app, auth, firestore } = initializeFirebase();
+const { app, auth, firestore, storage } = initializeFirebase();
 
 /**
  * A client-side component that initializes Firebase and provides it to its children.
@@ -25,7 +25,7 @@ export function FirebaseClientProvider({
   children: React.ReactNode;
 }) {
   return (
-    <FirebaseProvider app={app} auth={auth} firestore={firestore}>
+    <FirebaseProvider app={app} auth={auth} firestore={firestore} storage={storage}>
       {children}
     </FirebaseProvider>
   );
