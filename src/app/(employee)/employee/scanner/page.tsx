@@ -3,11 +3,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, CheckCircle, Gift, Loader2, QrCode, X, ListTodo, Check } from 'lucide-react';
+import { Camera, Gift, Loader2, QrCode, X, ListTodo, Check } from 'lucide-react';
 import { mockUsers, mockOrders } from '@/lib/mock-data';
 import type { User as UserType, Order, ChecklistItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { getInitials, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import Webcam from 'react-webcam';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -24,9 +24,9 @@ function MainView({ onStartScan, onStartPicking }: { onStartScan: () => void, on
     
     return (
         <Tabs defaultValue="scanner" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 h-14">
-                <TabsTrigger value="scanner" className="h-12 text-base">QR Scanner</TabsTrigger>
-                <TabsTrigger value="lists" className="h-12 text-base relative">
+            <TabsList className="grid w-full grid-cols-2 h-12">
+                <TabsTrigger value="scanner" className="h-10 text-base">QR Scanner</TabsTrigger>
+                <TabsTrigger value="lists" className="h-10 text-base relative">
                     Einkaufszettel
                     {newGroceryLists.length > 0 && <Badge className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0">{newGroceryLists.length}</Badge>}
                 </TabsTrigger>
@@ -34,17 +34,17 @@ function MainView({ onStartScan, onStartPicking }: { onStartScan: () => void, on
 
             {/* Tab 1: QR Code Scanner */}
             <TabsContent value="scanner">
-                <Card className="text-center shadow-xl border-none mt-6">
+                <Card className="text-center shadow-xl border-none mt-4">
                     <CardHeader>
-                        <div className="mx-auto bg-primary/10 text-primary rounded-full h-24 w-24 flex items-center justify-center mb-4">
-                            <QrCode className="w-12 h-12" />
+                        <div className="mx-auto bg-primary/10 text-primary rounded-full h-20 w-20 flex items-center justify-center mb-4">
+                            <QrCode className="w-10 h-10" />
                         </div>
-                        <CardTitle className="text-3xl">Bereit zum Scannen</CardTitle>
-                        <CardDescription>Klicken Sie auf den Button, um die Kamera zu aktivieren und die Kundenkarte zu scannen.</CardDescription>
+                        <CardTitle className="text-2xl">Bereit zum Scannen</CardTitle>
+                        <CardDescription>Kamera aktivieren, um Kundenkarte zu scannen.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Button onClick={onStartScan} size="lg" className="w-full h-14 text-lg rounded-full">
-                            <Camera className="mr-2 h-6 w-6" />
+                        <Button onClick={onStartScan} size="lg" className="w-full h-12 text-lg rounded-full">
+                            <Camera className="mr-2 h-5 w-5" />
                             Scan starten
                         </Button>
                     </CardContent>
@@ -53,23 +53,23 @@ function MainView({ onStartScan, onStartPicking }: { onStartScan: () => void, on
             
             {/* Tab 2: Einkaufszettel */}
             <TabsContent value="lists">
-                 <Card className="shadow-xl border-none mt-6">
+                 <Card className="shadow-xl border-none mt-4">
                     <CardHeader>
                          <CardTitle>Offene Einkaufszettel</CardTitle>
-                         <CardDescription>Wählen Sie eine Liste, um mit dem Packen zu beginnen.</CardDescription>
+                         <CardDescription>Wählen Sie eine Liste zum Packen.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-3">
+                    <CardContent className="space-y-2">
                         {newGroceryLists.length === 0 ? (
                             <div className="text-muted-foreground text-center py-8">
-                                <ListTodo className="mx-auto h-12 w-12 text-gray-300" />
-                                <p className="mt-4">Keine neuen Einkaufszettel vorhanden.</p>
+                                <ListTodo className="mx-auto h-10 w-10 text-gray-300" />
+                                <p className="mt-2 text-sm">Keine neuen Einkaufszettel.</p>
                             </div>
                         ) : (
                             newGroceryLists.map(order => (
-                                <button key={order.id} onClick={() => onStartPicking(order)} className="w-full text-left p-4 rounded-lg border bg-card hover:bg-secondary transition-colors flex justify-between items-center">
+                                <button key={order.id} onClick={() => onStartPicking(order)} className="w-full text-left p-3 rounded-lg border bg-card hover:bg-secondary transition-colors flex justify-between items-center">
                                     <div>
-                                        <p className="font-bold">{order.customerName}</p>
-                                        <p className="text-sm text-muted-foreground">{order.rawList?.split('\n').length} Artikel</p>
+                                        <p className="font-bold text-sm">{order.customerName}</p>
+                                        <p className="text-xs text-muted-foreground">{order.rawList?.split('\n').length} Artikel</p>
                                     </div>
                                     <ListTodo className="text-primary"/>
                                 </button>
@@ -123,12 +123,12 @@ function ActiveScannerView({ onScanSuccess, onCancel }: { onScanSuccess: (data: 
                     className="h-full w-full object-cover"
                 />
                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-64 h-64 border-4 border-white/50 rounded-2xl animate-pulse" />
+                    <div className="w-60 h-60 border-4 border-white/50 rounded-2xl animate-pulse" />
                 </div>
             </main>
-            <footer className="p-6 bg-gradient-to-t from-black/50 to-transparent">
-                 <Button onClick={handleMockScan} className="w-full h-14 text-lg rounded-full" >
-                    <QrCode className="mr-2 h-6 w-6" />
+            <footer className="p-4 bg-gradient-to-t from-black/50 to-transparent">
+                 <Button onClick={handleMockScan} className="w-full h-12 text-lg rounded-full" >
+                    <QrCode className="mr-2 h-5 w-5" />
                     Code simulieren
                 </Button>
             </footer>
@@ -144,7 +144,6 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   
-  // Directly use the stamps from the user object
   const stamps = user.loyaltyStamps || 0;
   const canRedeemSmall = stamps >= 5;
   const canRedeemBig = stamps >= 10;
@@ -158,7 +157,7 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
     try {
       await addStamp(user.id, parseFloat(purchaseAmount));
       toast({ title: "Stempel vergeben!" });
-      onNextCustomer(); // Reset view after action
+      onNextCustomer(); 
     } catch(e: any) {
         toast({ variant: 'destructive', title: "Fehler", description: e.message });
         setLoading(false);
@@ -173,7 +172,7 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
     try {
       await redeemReward(user.id, tier);
       toast({ title: "Rabatt angewendet!", description: `Bitte ${discount} vom Endpreis abziehen.`});
-      onNextCustomer(); // Reset view after action
+      onNextCustomer(); 
     } catch(e: any) {
         toast({ variant: 'destructive', title: "Fehler", description: e.message });
         setLoading(false);
@@ -181,28 +180,27 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
   };
 
   return (
-    <Card className="w-full p-4 md:p-6 space-y-6 shadow-xl border-none animate-in fade-in-50">
+    <Card className="w-full p-4 space-y-4 shadow-xl border-none animate-in fade-in-50">
       <div className="text-center">
-        <h2 className="text-2xl font-bold font-headline">{user.name}</h2>
-        <div className="text-5xl font-bold text-primary my-2">
-          {stamps} <span className="text-xl text-muted-foreground font-normal">Stempel</span>
+        <h2 className="text-xl font-bold font-headline">{user.name}</h2>
+        <div className="text-5xl font-bold text-primary my-1">
+          {stamps} <span className="text-lg text-muted-foreground font-normal">Stempel</span>
         </div>
       </div>
 
-      {/* BEREICH 1: BELOHNUNGEN */}
       {(canRedeemSmall || canRedeemBig) && (
-        <div className="bg-accent/10 p-4 rounded-xl border border-accent/30 space-y-3">
-          <h3 className="font-bold text-accent-foreground text-sm uppercase flex items-center gap-2"><Gift className="w-4 h-4" />Belohnung verfügbar!</h3>
+        <div className="bg-accent/10 p-3 rounded-xl border border-accent/30 space-y-2">
+          <h3 className="font-bold text-accent-foreground text-xs uppercase flex items-center gap-2"><Gift className="w-4 h-4" />Belohnung verfügbar!</h3>
           
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             <Button 
               onClick={() => handleRedeem('small')}
               disabled={!canRedeemSmall || loading}
               variant="outline"
               className="border-primary/50 text-primary bg-background hover:bg-primary/5 h-auto flex flex-col py-2"
             >
-              <span className="font-bold text-lg">3€ Rabatt</span>
-              <span className="text-xs font-normal">(kostet 5 Stempel)</span>
+              <span className="font-bold text-base">3€ Rabatt</span>
+              <span className="text-xs font-normal">(5 Stempel)</span>
             </Button>
 
             <Button 
@@ -210,21 +208,20 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
               disabled={!canRedeemBig || loading}
               className="h-auto flex flex-col py-2"
             >
-               <span className="font-bold text-lg">7€ Rabatt</span>
-              <span className="text-xs font-normal">(kostet 10 Stempel)</span>
+               <span className="font-bold text-base">7€ Rabatt</span>
+              <span className="text-xs font-normal">(10 Stempel)</span>
             </Button>
           </div>
         </div>
       )}
 
-      {/* BEREICH 2: EINKAUF ERFASSEN */}
-      <div className="space-y-3 pt-4 border-t">
-        <Label className="text-sm font-bold text-muted-foreground">Neuer Einkaufswert (€)</Label>
+      <div className="space-y-2 pt-3 border-t">
+        <Label className="text-xs font-bold text-muted-foreground">Neuer Einkaufswert (€)</Label>
         <div className="flex gap-2">
           <Input 
             type="number" 
             placeholder="0.00" 
-            className="text-xl h-14" 
+            className="text-lg h-12" 
             value={purchaseAmount}
             onChange={e => setPurchaseAmount(e.target.value)}
             disabled={loading}
@@ -232,7 +229,7 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
           <Button 
             onClick={handleAddStamp} 
             disabled={loading || !purchaseAmount || parseFloat(purchaseAmount) < 15}
-            className="w-1/2 h-14"
+            className="w-2/5 h-12"
           >
             {loading ? <Loader2 className="animate-spin" /> : '+1 Stempel'}
           </Button>
@@ -261,7 +258,6 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
     const [isSaving, setIsSaving] = useState(false);
     
     useEffect(() => {
-        // In a real app, update order status to 'picking' in Firestore here
         console.log(`Started picking for order ${order.id}`);
         if (navigator.vibrate) navigator.vibrate(100);
     }, [order.id]);
@@ -282,17 +278,13 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
         }
         setIsSaving(true);
         
-        // In a real app, update order in Firestore with status 'ready_for_delivery', finalPrice, and checklist
-        console.log(`Finished picking for order ${order.id}. Final price: ${finalPrice}`);
-
         setTimeout(() => {
-            // Mock server action
             const orderIndex = mockOrders.findIndex(o => o.id === order.id);
             if (orderIndex !== -1) {
                 mockOrders[orderIndex].status = 'ready_for_delivery';
                 mockOrders[orderIndex].total = parseFloat(finalPrice);
                 mockOrders[orderIndex].checklist = checklist;
-                mockOrders[orderIndex].processedBy = 'user-2-employee'; // Mock employee
+                mockOrders[orderIndex].processedBy = 'user-2-employee'; 
             }
             
             toast({ title: 'Einkauf abgeschlossen!', description: `Die Endsumme von €${finalPrice} wurde gespeichert.` });
@@ -305,8 +297,8 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
         <div className="fixed inset-0 z-50 bg-background flex flex-col">
             <header className="p-4 border-b flex justify-between items-center bg-card sticky top-0">
                  <div>
-                    <h2 className="font-bold text-lg">Einkauf für {order.customerName}</h2>
-                    <p className="text-sm text-muted-foreground">Haken Sie die gefundenen Artikel ab.</p>
+                    <h2 className="font-bold text-base">Einkauf für {order.customerName}</h2>
+                    <p className="text-xs text-muted-foreground">Gefundene Artikel abhaken.</p>
                  </div>
                 <Button variant="ghost" size="icon" onClick={onFinish} className="rounded-full">
                     <X />
@@ -317,27 +309,27 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
                     <div 
                         key={index} 
                         onClick={() => toggleItem(index)}
-                        className={cn("p-4 border-b flex items-center gap-4 cursor-pointer transition-colors", entry.isFound ? 'bg-green-50 text-muted-foreground' : 'bg-card hover:bg-secondary/50')}
+                        className={cn("p-4 border-b flex items-center gap-3 cursor-pointer transition-colors", entry.isFound ? 'bg-green-50 text-muted-foreground' : 'bg-card hover:bg-secondary/50')}
                     >
-                        <div className={cn("w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all", entry.isFound ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground")}>
+                        <div className={cn("w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all", entry.isFound ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground")}>
                            {entry.isFound && <Check className="w-4 h-4" />}
                         </div>
-                        <span className={cn("text-lg flex-1", entry.isFound && 'line-through')}>{entry.item}</span>
+                        <span className={cn("text-base flex-1", entry.isFound && 'line-through')}>{entry.item}</span>
                     </div>
                 ))}
             </main>
-            <footer className="fixed bottom-0 left-0 right-0 p-4 bg-card border-t shadow-lg grid gap-2 animate-in slide-in-from-bottom-10">
-                 <Label htmlFor="final-price">Endsumme (€)</Label>
+            <footer className="fixed bottom-0 left-0 right-0 p-3 bg-card border-t shadow-lg grid gap-2 animate-in slide-in-from-bottom-10">
+                 <Label htmlFor="final-price" className="text-xs">Endsumme (€)</Label>
                  <div className="flex gap-2">
                     <Input 
                         id="final-price"
                         type="number" 
-                        className="text-2xl h-14" 
+                        className="text-xl h-12" 
                         placeholder="0.00" 
                         value={finalPrice}
                         onChange={(e) => setFinalPrice(e.target.value)}
                     />
-                    <Button onClick={handleFinish} disabled={isSaving || !finalPrice || parseFloat(finalPrice) <= 0} className="h-14 px-6 text-lg">
+                    <Button onClick={handleFinish} disabled={isSaving || !finalPrice || parseFloat(finalPrice) <= 0} className="h-12 px-5 text-base">
                         {isSaving ? <Loader2 className="animate-spin"/> : 'Fertig'}
                     </Button>
                  </div>

@@ -41,24 +41,24 @@ export function ProductCard({ product }: { product: Product }) {
                 <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={product.imageHint} />
                 {product.availabilityDay && <Badge className="absolute top-2 right-2" variant="secondary">{product.availabilityDay} only</Badge>}
             </div>
-            <CardContent className="p-4 flex flex-col flex-1">
-                <h3 className="text-lg font-bold font-headline">{product.name}</h3>
+            <CardContent className="p-3 flex flex-col flex-1">
+                <h3 className="text-base font-bold font-headline leading-tight">{product.name}</h3>
                 {product.description && (
-                    <p className="text-sm text-muted-foreground mt-1 flex-grow">{product.description}</p>
+                    <p className="text-xs text-muted-foreground mt-1 flex-grow">{product.description}</p>
                 )}
                 <div className="flex items-baseline justify-between mt-2">
-                    <p className="text-xl font-bold text-primary">€{product.price.toFixed(2)}</p>
-                    <span className="text-sm text-muted-foreground">/ {product.unit}</span>
+                    <p className="text-lg font-bold text-primary">€{product.price.toFixed(2)}</p>
+                    <span className="text-xs text-muted-foreground">/ {product.unit}</span>
                 </div>
-                <div className="flex items-center gap-2 mt-4 pt-4 border-t">
-                    <Button variant="outline" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))} className="active:scale-95 transition-transform h-10 w-10 rounded-full">
+                <div className="flex items-center gap-2 mt-3 pt-3 border-t">
+                    <Button variant="outline" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))} className="active:scale-95 transition-transform h-9 w-9 rounded-full">
                         <Minus className="h-4 w-4" />
                     </Button>
-                    <span className="w-10 text-center font-bold text-lg">{quantity}</span>
-                     <Button variant="outline" size="icon" onClick={() => setQuantity(q => q + 1)} className="active:scale-95 transition-transform h-10 w-10 rounded-full">
+                    <span className="w-8 text-center font-bold text-base">{quantity}</span>
+                     <Button variant="outline" size="icon" onClick={() => setQuantity(q => q + 1)} className="active:scale-95 transition-transform h-9 w-9 rounded-full">
                         <Plus className="h-4 w-4" />
                     </Button>
-                    <Button className="flex-1 ml-2 active:scale-[0.98] transition-transform rounded-full h-10" onClick={handleAddToCart}>
+                    <Button size="sm" className="flex-1 ml-2 active:scale-[0.98] transition-transform rounded-full h-9" onClick={handleAddToCart}>
                         <ShoppingCart className="mr-2 h-4 w-4" /> Hinzufügen
                     </Button>
                 </div>

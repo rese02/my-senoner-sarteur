@@ -43,7 +43,7 @@ function StoryForm({ story, onSave, isPending }: { story: Partial<Story> | null,
 
     return (
         <form onSubmit={handleFormSubmit} className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-4">
-             <div className="space-y-2">
+             <div className="space-y-1.5">
                 <Label>Story Bild</Label>
                 <ImageUploader 
                     onUploadComplete={handleImageUpload}
@@ -51,22 +51,22 @@ function StoryForm({ story, onSave, isPending }: { story: Partial<Story> | null,
                     folder="stories"
                 />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
                 <Label htmlFor="label">Titel (z.B. "Käse des Tages")</Label>
                 <Input id="label" name="label" value={currentStory.label || ''} onChange={handleChange} required />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
                 <Label htmlFor="author">Autor (z.B. "Käsetheke")</Label>
                 <Input id="author" name="author" value={currentStory.author || ''} onChange={handleChange} required />
             </div>
-             <div className="space-y-2">
+             <div className="space-y-1.5">
                 <Label htmlFor="imageHint">Bild-Hinweis für KI</Label>
                 <Input id="imageHint" name="imageHint" value={currentStory.imageHint || ''} onChange={handleChange} placeholder="z.B. cheese counter" />
             </div>
             <DialogFooter className="mt-4 sticky bottom-0 bg-background py-4">
                 <DialogClose asChild><Button type="button" variant="outline">Abbrechen</Button></DialogClose>
                 <Button type="submit" disabled={isPending}>
-                    {isPending && <Loader2 className="mr-2 animate-spin" />}
+                    {isPending && <Loader2 className="mr-2 animate-spin h-4 w-4" />}
                     Speichern
                 </Button>
             </DialogFooter>
@@ -119,33 +119,33 @@ function PlannerEventForm({ event: initialEvent, onSave, isPending }: { event: P
 
     return (
         <form onSubmit={handleFormSubmit} className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-4">
-            <div className="space-y-2">
+            <div className="space-y-1.5">
                 <Label htmlFor="title">Event Name</Label>
                 <Input id="title" name="title" value={event.title || ''} onChange={handleFormChange} required placeholder="z.B. Raclette Abend"/>
             </div>
-             <div className="space-y-2">
+             <div className="space-y-1.5">
                 <Label htmlFor="description">Kurzbeschreibung</Label>
                 <Input id="description" name="description" value={event.description || ''} onChange={handleFormChange} placeholder="Der Klassiker für gemütliche Abende."/>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
                 <Label>Event Bild</Label>
                 <ImageUploader onUploadComplete={handleImageUpload} currentImageUrl={event.imageUrl} folder="planner" />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
                 <Label htmlFor="imageHint">Bild-Hinweis</Label>
                 <Input id="imageHint" name="imageHint" value={event.imageHint || ''} onChange={handleFormChange} placeholder="z.B. raclette cheese"/>
             </div>
 
             <div className="space-y-3 pt-4 border-t mt-4">
                 <Label>Zutaten-Regeln (Menge pro 1 Person)</Label>
-                <div className="flex gap-2 items-end bg-secondary p-3 rounded-lg border">
-                    <div className="flex-1">
+                <div className="flex gap-2 items-end bg-secondary p-2 rounded-lg border">
+                    <div className="flex-1 space-y-1">
                         <Label className="text-xs">Produkt</Label>
                          <Select onValueChange={(val) => {
                             const product = mockProducts.find(p => p.id === val);
                             setTempRule(r => ({...r, productId: val, productName: product?.name || ''}))
                          }} value={tempRule.productId}>
-                            <SelectTrigger><SelectValue placeholder="Produkt wählen..." /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder="Wählen..." /></SelectTrigger>
                             <SelectContent>
                                 {mockProducts.filter(p => p.isAvailable).map(p => (
                                     <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
@@ -153,15 +153,15 @@ function PlannerEventForm({ event: initialEvent, onSave, isPending }: { event: P
                             </SelectContent>
                          </Select>
                     </div>
-                     <div className="w-24">
+                     <div className="w-20 space-y-1">
                         <Label className="text-xs">Menge</Label>
                         <Input type="number" placeholder="150" value={tempRule.baseAmount} onChange={(e) => setTempRule(r => ({...r, baseAmount: e.target.value}))}/>
                     </div>
-                     <div className="w-20">
+                     <div className="w-16 space-y-1">
                         <Label className="text-xs">Einheit</Label>
                         <Input placeholder="g" value={tempRule.unit} onChange={(e) => setTempRule(r => ({...r, unit: e.target.value}))} />
                     </div>
-                    <Button type="button" size="icon" onClick={addRule}><Plus /></Button>
+                    <Button type="button" size="icon" onClick={addRule}><Plus className="h-4 w-4" /></Button>
                 </div>
                  <div className="space-y-2">
                     {event.ingredients?.map((rule, index) => (
@@ -178,7 +178,7 @@ function PlannerEventForm({ event: initialEvent, onSave, isPending }: { event: P
             <DialogFooter className="mt-4 sticky bottom-0 bg-background py-4">
                 <DialogClose asChild><Button type="button" variant="outline">Abbrechen</Button></DialogClose>
                 <Button type="submit" disabled={isPending}>
-                    {isPending && <Loader2 className="mr-2 animate-spin" />}
+                    {isPending && <Loader2 className="mr-2 animate-spin h-4 w-4" />}
                     Speichern
                 </Button>
             </DialogFooter>
@@ -205,7 +205,6 @@ export default function MarketingPage() {
 
     const { toast } = useToast();
 
-    // --- Recipe of the Week Logic ---
     const handleRecipeInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         if (name === 'ingredients') {
@@ -230,7 +229,6 @@ export default function MarketingPage() {
         });
     };
     
-    // --- Daily Stories Logic ---
     const handleOpenStoryModal = (story: Story | null) => {
         setEditingStory(story ? { ...story } : { label: '', author: '', imageUrl: '', imageHint: '' });
         setIsStoryModalOpen(true);
@@ -239,14 +237,12 @@ export default function MarketingPage() {
     const handleSaveStory = (storyData: Partial<Story>) => {
         startStoryTransition(() => {
             if (storyData.id) {
-                // Update
                 const updatedStories = stories.map(s => s.id === storyData.id ? storyData as Story : s);
                 setStories(updatedStories);
                 const mockIndex = mockStories.findIndex(s => s.id === storyData.id);
                 if (mockIndex > -1) mockStories[mockIndex] = storyData as Story;
                 toast({ title: "Story aktualisiert!" });
             } else {
-                // Create
                 const newStory: Story = { ...storyData, id: `story-${Date.now()}` } as Story;
                 setStories([...stories, newStory]);
                 mockStories.push(newStory);
@@ -266,7 +262,6 @@ export default function MarketingPage() {
         });
     };
 
-    // --- Planner Events Logic ---
     const handleOpenPlannerModal = (event: PlannerEvent | null) => {
         setEditingPlannerEvent(event ? { ...event } : { title: '', description: '', imageUrl: '', imageHint: '', ingredients: [] });
         setIsPlannerModalOpen(true);
@@ -275,14 +270,12 @@ export default function MarketingPage() {
     const handleSavePlannerEvent = (eventData: Partial<PlannerEvent>) => {
         startPlannerTransition(() => {
             if (eventData.id) {
-                // Update
                 const updatedEvents = plannerEvents.map(e => e.id === eventData.id ? eventData as PlannerEvent : e);
                 setPlannerEvents(updatedEvents);
                 const mockIndex = mockPlannerEvents.findIndex(e => e.id === eventData.id);
                 if (mockIndex > -1) mockPlannerEvents[mockIndex] = eventData as PlannerEvent;
                 toast({ title: "Planer Event aktualisiert!" });
             } else {
-                // Create
                 const newEvent: PlannerEvent = { ...eventData, id: `plan-${Date.now()}` } as PlannerEvent;
                 setPlannerEvents([...plannerEvents, newEvent]);
                 mockPlannerEvents.push(newEvent);
@@ -307,23 +300,22 @@ export default function MarketingPage() {
         <div className="pb-24 md:pb-0">
             <PageHeader title="Marketing & Events" description="Verwalten Sie hier Inhalte, die auf der Kundenseite angezeigt werden." />
             
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                 {/* Left Column */}
-                 <div className="space-y-8">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                 <div className="space-y-6">
                     <Card>
                         <CardHeader className="flex flex-row justify-between items-start">
                            <div>
                              <CardTitle>Daily Stories</CardTitle>
                              <CardDescription>
-                                Verwalten Sie die Stories, die auf dem Dashboard der Kunden angezeigt werden.
+                                Verwalten Sie die Stories auf dem Kunden-Dashboard.
                             </CardDescription>
                            </div>
-                           <Button onClick={() => handleOpenStoryModal(null)}><PlusCircle className="mr-2 h-4 w-4" />Neu</Button>
+                           <Button onClick={() => handleOpenStoryModal(null)} size="sm"><PlusCircle className="mr-2 h-4 w-4" />Neu</Button>
                         </CardHeader>
-                        <CardContent className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <CardContent className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
                             {stories.map(story => (
                                 <div key={story.id} className="group relative">
-                                    <div className="relative aspect-square w-full rounded-xl overflow-hidden shadow-md">
+                                    <div className="relative aspect-square w-full rounded-lg overflow-hidden shadow-md">
                                         <Image src={story.imageUrl} alt={story.label} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                                         <div className="absolute bottom-2 left-2 text-white">
@@ -331,7 +323,7 @@ export default function MarketingPage() {
                                             <p className="text-xs opacity-80">{story.author}</p>
                                         </div>
                                     </div>
-                                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <Button variant="secondary" size="icon" className="h-7 w-7" onClick={() => handleOpenStoryModal(story)}>
                                             <Edit className="h-4 w-4" />
                                         </Button>
@@ -363,15 +355,15 @@ export default function MarketingPage() {
                            <div>
                              <CardTitle>Party Planer Events</CardTitle>
                              <CardDescription>
-                                Erstellen Sie Vorlagen für den Party-Planer Ihrer Kunden.
+                                Erstellen Sie Vorlagen für den Party-Planer.
                             </CardDescription>
                            </div>
-                           <Button onClick={() => handleOpenPlannerModal(null)}><PlusCircle className="mr-2 h-4 w-4" />Neu</Button>
+                           <Button onClick={() => handleOpenPlannerModal(null)} size="sm"><PlusCircle className="mr-2 h-4 w-4" />Neu</Button>
                         </CardHeader>
-                        <CardContent className="grid sm:grid-cols-2 gap-4">
+                        <CardContent className="grid sm:grid-cols-2 gap-3">
                            {plannerEvents.map(event => (
                                 <div key={event.id} className="group relative border rounded-lg p-3 pr-10">
-                                    <p className="font-bold">{event.title}</p>
+                                    <p className="font-bold text-sm">{event.title}</p>
                                     <p className="text-xs text-muted-foreground">{event.ingredients.length} Zutaten-Regeln</p>
                                     <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <Button variant="secondary" size="icon" className="h-7 w-7" onClick={() => handleOpenPlannerModal(event)}>
@@ -401,27 +393,26 @@ export default function MarketingPage() {
                     </Card>
                  </div>
                  
-                 {/* Right Column */}
-                 <div className="space-y-8">
+                 <div className="space-y-6">
                      <Card>
                         <CardHeader>
                             <CardTitle>Rezept der Woche</CardTitle>
                             <CardDescription>
-                                Füllen Sie die Felder aus, um das Rezept zu aktualisieren. Änderungen sind nach dem Veröffentlichen sofort sichtbar.
+                                Änderungen sind nach dem Veröffentlichen sofort sichtbar.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="grid gap-6">
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
+                        <CardContent className="grid gap-4">
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
                                     <Label htmlFor="title">Titel</Label>
                                     <Input id="title" name="title" value={recipe.title} onChange={handleRecipeInputChange} placeholder="z.B. Frische Pfifferlinge..." />
                                 </div>
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <Label htmlFor="subtitle">Untertitel</Label>
                                     <Input id="subtitle" name="subtitle" value={recipe.subtitle} onChange={handleRecipeInputChange} placeholder="z.B. Ein herbstlicher Genuss" />
                                 </div>
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                                 <Label>Rezeptbild</Label>
                                 <ImageUploader 
                                     onUploadComplete={handleRecipeImageUpload}
@@ -429,17 +420,17 @@ export default function MarketingPage() {
                                     folder="recipes"
                                 />
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                                 <Label htmlFor="description">Kurzbeschreibung (auf der Hauptkarte)</Label>
                                 <Textarea id="description" name="description" value={recipe.description} onChange={handleRecipeInputChange} placeholder="Eine kurze, ansprechende Beschreibung..." />
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                                 <Label htmlFor="ingredients">Zutaten (eine pro Zeile)</Label>
-                                <Textarea id="ingredients" name="ingredients" value={recipe.ingredients.join('\n')} onChange={handleRecipeInputChange} placeholder="500g Pfifferlinge\n1 Zwiebel..." className="min-h-32" />
+                                <Textarea id="ingredients" name="ingredients" value={recipe.ingredients.join('\n')} onChange={handleRecipeInputChange} placeholder="500g Pfifferlinge\n1 Zwiebel..." className="min-h-24" />
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                                 <Label htmlFor="instructions">Anleitung</Label>
-                                <Textarea id="instructions" name="instructions" value={recipe.instructions} onChange={handleRecipeInputChange} placeholder="1. Pilze putzen...\n2. Zwiebeln anbraten..." className="min-h-48" />
+                                <Textarea id="instructions" name="instructions" value={recipe.instructions} onChange={handleRecipeInputChange} placeholder="1. Pilze putzen...\n2. Zwiebeln anbraten..." className="min-h-32" />
                             </div>
                         </CardContent>
                         <CardFooter>
@@ -452,7 +443,6 @@ export default function MarketingPage() {
                 </div>
             </div>
 
-            {/* Modal for creating/editing a story */}
             <Dialog open={isStoryModalOpen} onOpenChange={setIsStoryModalOpen}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
@@ -465,7 +455,6 @@ export default function MarketingPage() {
                 </DialogContent>
             </Dialog>
 
-             {/* Modal for creating/editing a planner event */}
             <Dialog open={isPlannerModalOpen} onOpenChange={setIsPlannerModalOpen}>
                 <DialogContent className="sm:max-w-lg">
                     <DialogHeader>

@@ -62,18 +62,18 @@ function OrderDetailsDeleteSection({ orderId }: { orderId: string }) {
         startDeleteTransition(async () => {
             await deleteOrder(orderId);
             toast({ title: "Gelöscht", description: "Bestellung wurde entfernt." });
-            router.refresh(); // Or revalidatePath in server action
+            router.refresh(); 
         });
     };
 
     return (
-        <div className="mt-8 pt-6 border-t">
-            <h3 className="text-sm font-bold text-muted-foreground uppercase mb-4">Verwaltung</h3>
+        <div className="mt-6 pt-4 border-t">
+            <h3 className="text-sm font-bold text-muted-foreground uppercase mb-3">Verwaltung</h3>
             <AlertDialog>
                 <AlertDialogTrigger asChild>
-                    <Button variant="destructive" className="w-full md:w-auto">
+                    <Button variant="destructive" className="w-full md:w-auto" size="sm">
                         <Trash2 className="w-4 h-4 mr-2" />
-                        Diese Bestellung endgültig löschen
+                        Bestellung endgültig löschen
                     </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -167,7 +167,7 @@ export default function AdminOrdersPage() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
              <CardTitle>Alle Bestellungen</CardTitle>
              <div className="flex gap-2 w-full md:w-auto">
-                <div className="relative w-full md:w-64">
+                <div className="relative w-full md:w-auto flex-1">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input 
                         placeholder="Kunde oder ID suchen..." 
@@ -177,7 +177,7 @@ export default function AdminOrdersPage() {
                     />
                 </div>
                 <Select value={statusFilter} onValueChange={(value: OrderStatus | 'all') => setStatusFilter(value)}>
-                    <SelectTrigger className="w-full md:w-[180px] bg-card">
+                    <SelectTrigger className="w-full md:w-[160px] bg-card flex-1">
                         <SelectValue placeholder="Status filtern" />
                     </SelectTrigger>
                     <SelectContent>
@@ -258,7 +258,7 @@ export default function AdminOrdersPage() {
           </div>
 
           {/* Mobile Card List */}
-          <div className="md:hidden space-y-4">
+          <div className="md:hidden space-y-3">
              {filteredOrders.length === 0 && (
                 <div className="text-center text-muted-foreground py-16">Keine Bestellungen gefunden.</div>
              )}
@@ -283,10 +283,10 @@ export default function AdminOrdersPage() {
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
-            <div className="grid gap-6 py-4 max-h-[70vh] overflow-y-auto pr-2">
-              <div className="space-y-4">
-                  <h3 className="font-semibold text-lg">Bestellübersicht</h3>
-                   <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
+              <div className="space-y-3">
+                  <h3 className="font-semibold text-base">Bestellübersicht</h3>
+                   <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
                         <p className="text-muted-foreground">{selectedOrder.type === 'grocery_list' ? 'Lieferung:' : 'Abholung:'}</p>
                         <p className="font-medium"><FormattedDate date={new Date(selectedOrder.pickupDate || selectedOrder.deliveryDate || selectedOrder.createdAt)} formatString="EEEE, dd.MM.yyyy" locale={de} /></p>
                         <p className="text-muted-foreground">Status:</p>
@@ -316,23 +316,23 @@ export default function AdminOrdersPage() {
 
                   {selectedOrder.type === 'grocery_list' && selectedOrder.rawList && (
                       <div>
-                          <h4 className="font-semibold mt-4 mb-2">Einkaufszettel</h4>
-                          <div className="p-4 bg-secondary rounded-md text-sm whitespace-pre-line text-muted-foreground">
+                          <h4 className="font-semibold mt-3 mb-2">Einkaufszettel</h4>
+                          <div className="p-3 bg-secondary rounded-md text-sm whitespace-pre-line text-muted-foreground">
                             {selectedOrder.rawList}
                           </div>
                       </div>
                   )}
                   {selectedOrder.total && (
-                    <div className="flex justify-end font-bold text-lg border-t pt-4 mt-2">
+                    <div className="flex justify-end font-bold text-lg border-t pt-3 mt-2">
                         Gesamt: €{selectedOrder.total.toFixed(2)}
                     </div>
                   )}
               </div>
               
               {customerDetails && (
-                  <div className="space-y-4 pt-4 border-t">
-                      <h3 className="font-semibold text-lg">Kundendetails</h3>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="space-y-3 pt-3 border-t">
+                      <h3 className="font-semibold text-base">Kundendetails</h3>
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
                           <p className="text-muted-foreground">Name:</p>
                           <p className="font-medium">{customerDetails.name}</p>
                           <p className="text-muted-foreground">Email:</p>

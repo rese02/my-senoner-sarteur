@@ -54,7 +54,7 @@ export function Cart() {
     return (
         <Card className="shadow-lg h-full flex flex-col border-none bg-card">
             <CardHeader className="flex-shrink-0 p-4 border-b">
-                <CardTitle className="flex items-center gap-2 text-lg">
+                <CardTitle className="flex items-center gap-2 text-base">
                     <ShoppingCart /> Ihre Vorbestellung
                 </CardTitle>
             </CardHeader>
@@ -65,17 +65,17 @@ export function Cart() {
                     </div>
                 ) : (
                     <ScrollArea className="flex-grow">
-                        <div className="space-y-2 p-4">
+                        <div className="space-y-1 p-2">
                             {items.map(item => (
-                                <div key={item.productId} className="flex justify-between items-center gap-2 py-2">
+                                <div key={item.productId} className="flex justify-between items-center gap-2 py-2 px-2 rounded-md">
                                     <div>
-                                        <p className="font-semibold leading-tight">{item.name}</p>
-                                        <p className="text-sm text-muted-foreground">
+                                        <p className="font-semibold text-sm leading-tight">{item.name}</p>
+                                        <p className="text-xs text-muted-foreground">
                                             {item.quantity} x €{item.price.toFixed(2)}
                                         </p>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <p className="font-semibold text-right">€{(item.price * item.quantity).toFixed(2)}</p>
+                                    <div className="flex items-center gap-1">
+                                        <p className="font-semibold text-sm text-right">€{(item.price * item.quantity).toFixed(2)}</p>
                                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0 active:scale-95" onClick={() => removeFromCart(item.productId)}>
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
@@ -87,17 +87,17 @@ export function Cart() {
                 )}
             </CardContent>
             {items.length > 0 && (
-                <CardFooter className="flex-shrink-0 flex flex-col items-stretch space-y-4 p-4 border-t bg-secondary/50">
-                     <div className="space-y-2">
-                        <label htmlFor="pickup-date" className="text-sm font-medium">Abholdatum</label>
+                <CardFooter className="flex-shrink-0 flex flex-col items-stretch space-y-3 p-4 border-t bg-secondary/50">
+                     <div className="space-y-1.5">
+                        <label htmlFor="pickup-date" className="text-xs font-medium">Abholdatum</label>
                         <DatePicker date={pickupDate} setDate={setPickupDate} />
                      </div>
                      <Separator />
-                    <div className="flex justify-between font-bold text-lg">
+                    <div className="flex justify-between font-bold text-base">
                         <span>Gesamt</span>
                         <span>€{total.toFixed(2)}</span>
                     </div>
-                    <Button size="lg" onClick={handleOrder}>
+                    <Button onClick={handleOrder}>
                         Jetzt vorbestellen
                     </Button>
                 </CardFooter>

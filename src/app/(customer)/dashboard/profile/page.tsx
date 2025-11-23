@@ -19,18 +19,18 @@ export default async function ProfilePage() {
         <div className="pb-24 md:pb-8">
             <PageHeader title="Mein Profil" description="Verwalten Sie hier Ihre Kontodetails." />
 
-            <div className="grid gap-8 md:grid-cols-1">
+            <div className="grid gap-6 md:grid-cols-1 max-w-lg mx-auto">
                 <Card>
                     <CardHeader>
                         <CardTitle>Persönliche Informationen</CardTitle>
-                        <CardDescription>Aktualisieren Sie hier Ihren Namen. Die E-Mail-Adresse kann nicht geändert werden.</CardDescription>
+                        <CardDescription>Die E-Mail-Adresse kann nicht geändert werden.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <Label htmlFor="name">Vollständiger Name</Label>
                             <Input id="name" defaultValue={user.name} />
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <Label htmlFor="email">E-Mail</Label>
                             <Input id="email" value={user.email} readOnly disabled />
                         </div>
@@ -53,12 +53,12 @@ export default async function ProfilePage() {
                 </Card>
             </div>
 
-            <div className="mt-12 pt-6 border-t text-center space-y-4">
+            <div className="mt-12 pt-6 border-t text-center space-y-3">
                 <p className="text-xs text-muted-foreground">
                     &copy; {new Date().getFullYear()} Senoner Sarteur. Wolkenstein in Gröden.
                 </p>
                 
-                <div className="flex justify-center gap-6 text-xs text-muted-foreground font-medium">
+                <div className="flex justify-center gap-4 text-xs text-muted-foreground font-medium">
                     <a href="https://www.senoner-sarteur.it/impressum" target="_blank" rel="noopener noreferrer" className="hover:text-primary">Impressum</a>
                     <a href="https://www.senoner-sarteur.it/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-primary">Datenschutz</a>
                 </div>

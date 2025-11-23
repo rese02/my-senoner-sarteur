@@ -45,13 +45,13 @@ function OrderDetailsDeleteSection({ orderId }: { orderId: string }) {
     };
 
     return (
-        <div className="mt-8 pt-6 border-t">
-            <h3 className="text-sm font-bold text-muted-foreground uppercase mb-4">Verwaltung</h3>
+        <div className="mt-6 pt-4 border-t">
+            <h3 className="text-sm font-bold text-muted-foreground uppercase mb-3">Verwaltung</h3>
             <AlertDialog>
                 <AlertDialogTrigger asChild>
-                    <Button variant="destructive" className="w-full md:w-auto">
+                    <Button variant="destructive" className="w-full md:w-auto" size="sm">
                         <Trash2 className="w-4 h-4 mr-2" />
-                        Diese Bestellung endgültig löschen
+                        Bestellung endgültig löschen
                     </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -105,7 +105,7 @@ export default function AdminDashboardPage() {
     };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <PageHeader title="Dashboard" description="Was muss ich heute sofort wissen?" />
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
@@ -156,7 +156,7 @@ export default function AdminDashboardPage() {
                 </div>
             )}
              <div className="mt-6 text-center">
-                <Button asChild variant="outline">
+                <Button asChild variant="outline" size="sm">
                     <Link href="/admin/orders">Alle Bestellungen anzeigen</Link>
                 </Button>
             </div>
@@ -174,10 +174,10 @@ export default function AdminDashboardPage() {
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
-            <div className="grid gap-6 py-4 max-h-[70vh] overflow-y-auto pr-2">
-              <div className="space-y-4">
-                  <h3 className="font-semibold text-lg">Bestellübersicht</h3>
-                   <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
+              <div className="space-y-3">
+                  <h3 className="font-semibold text-base">Bestellübersicht</h3>
+                   <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
                         <p className="text-muted-foreground">{selectedOrder.type === 'grocery_list' ? 'Lieferung:' : 'Abholung:'}</p>
                         <p className="font-medium">{format(new Date(selectedOrder.pickupDate || selectedOrder.deliveryDate || selectedOrder.createdAt), "EEEE, dd.MM.yyyy", { locale: de })}</p>
                         <p className="text-muted-foreground">Status:</p>
@@ -207,23 +207,23 @@ export default function AdminDashboardPage() {
 
                   {selectedOrder.type === 'grocery_list' && selectedOrder.rawList && (
                       <div>
-                          <h4 className="font-semibold mt-4 mb-2">Einkaufszettel</h4>
-                          <div className="p-4 bg-secondary rounded-md text-sm whitespace-pre-line text-muted-foreground">
+                          <h4 className="font-semibold mt-3 mb-2">Einkaufszettel</h4>
+                          <div className="p-3 bg-secondary rounded-md text-sm whitespace-pre-line text-muted-foreground">
                             {selectedOrder.rawList}
                           </div>
                       </div>
                   )}
                   {selectedOrder.total && (
-                    <div className="flex justify-end font-bold text-lg border-t pt-4 mt-2">
+                    <div className="flex justify-end font-bold text-lg border-t pt-3 mt-2">
                         Gesamt: €{selectedOrder.total.toFixed(2)}
                     </div>
                   )}
               </div>
               
               {customerDetails && (
-                  <div className="space-y-4 pt-4 border-t">
-                      <h3 className="font-semibold text-lg">Kundendetails</h3>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="space-y-3 pt-3 border-t">
+                      <h3 className="font-semibold text-base">Kundendetails</h3>
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
                           <p className="text-muted-foreground">Name:</p>
                           <p className="font-medium">{customerDetails.name}</p>
                           <p className="text-muted-foreground">Email:</p>

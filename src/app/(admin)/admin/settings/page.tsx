@@ -35,19 +35,18 @@ export default function AdminSettingsPage() {
     <>
       <PageHeader title="Einstellungen & Wartung" description="Halten Sie Ihre App schnell und sauber." />
 
-      <Card className="border-destructive/20 max-w-2xl">
+      <Card className="border-destructive/20 max-w-xl">
         <CardHeader className="bg-destructive/5">
-          <CardTitle className="text-destructive flex items-center gap-2">
+          <CardTitle className="text-destructive flex items-center gap-2 text-xl">
             <Trash className="w-5 h-5" /> Datenbank bereinigen
           </CardTitle>
           <CardDescription className="!text-destructive/90">
-            Löschen Sie alte Bestellungen, um die App schnell zu halten. 
-            Dies betrifft nur Bestellungen mit Status "Abgeholt" oder "Storniert".
+            Löschen Sie alte Bestellungen (Status "Abgeholt", "Storniert"), um die App schnell zu halten.
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-4 items-center md:items-end">
-            <div className="w-full md:w-1/2 space-y-2">
+          <div className="flex flex-col sm:flex-row gap-3 items-center sm:items-end">
+            <div className="w-full sm:w-1/2 space-y-1.5">
               <label className="text-sm font-medium text-foreground">Löschen, wenn älter als:</label>
               <Select value={months} onValueChange={setMonths}>
                 <SelectTrigger>
@@ -66,9 +65,9 @@ export default function AdminSettingsPage() {
               variant="destructive" 
               onClick={handleBulkDelete} 
               disabled={isLoading}
-              className="w-full md:w-auto"
+              className="w-full sm:w-auto"
             >
-              {isLoading ? <Loader2 className="animate-spin mr-2" /> : <Trash className="mr-2 w-4 h-4" />}
+              {isLoading ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Trash className="mr-2 w-4 h-4" />}
               Jetzt bereinigen
             </Button>
           </div>

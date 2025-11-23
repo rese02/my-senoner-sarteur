@@ -37,7 +37,7 @@ export function PackageCard({ product }: { product: Product }) {
     <>
       <Card className="h-full flex flex-col overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
         {/* Bild Bereich */}
-        <div className="relative h-48 w-full overflow-hidden">
+        <div className="relative h-40 w-full overflow-hidden">
           <Image 
             src={product.imageUrl} 
             alt={product.name} 
@@ -46,25 +46,22 @@ export function PackageCard({ product }: { product: Product }) {
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             data-ai-hint={product.imageHint}
           />
-          {/* Badge für Paket */}
           <div className="absolute top-2 right-2 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded shadow-sm">
             PAKET
           </div>
         </div>
 
-        {/* Inhalt */}
-        <CardHeader className="p-4 pb-2">
-          <h3 className="font-headline text-xl text-foreground font-bold leading-tight">
+        <CardHeader className="p-3 pb-1">
+          <h3 className="font-headline text-lg text-foreground font-bold leading-tight">
             {product.name}
           </h3>
-          <p className="text-muted-foreground text-sm mt-1 line-clamp-2">
+          <p className="text-muted-foreground text-xs mt-1 line-clamp-2">
             {product.description || 'Das Rundum-Sorglos-Paket für Ihren Start.'}
           </p>
         </CardHeader>
 
-        <CardContent className="p-4 pt-0 flex-grow">
-          {/* Vorschau der ersten 2 Items */}
-          <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+        <CardContent className="p-3 pt-0 flex-grow">
+          <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
             {product.packageContent?.slice(0, 2).map((content, i) => (
               <li key={i} className="flex items-center">
                 <Check className="w-3 h-3 text-primary mr-2" /> 
@@ -79,10 +76,10 @@ export function PackageCard({ product }: { product: Product }) {
           </ul>
         </CardContent>
 
-        <CardFooter className="p-4 pt-0 flex flex-wrap gap-2 mt-auto">
-          {/* BUTTON 1: Details (Öffnet Modal) */}
+        <CardFooter className="p-3 pt-0 flex flex-wrap gap-2 mt-auto">
           <Button 
             variant="outline" 
+            size="sm"
             onClick={() => setIsOpen(true)}
             className="flex-1"
           >
@@ -90,15 +87,13 @@ export function PackageCard({ product }: { product: Product }) {
             Inhalt
           </Button>
 
-          {/* BUTTON 2: Kaufen */}
-          <Button className="flex-1" onClick={handleAddToCart}>
+          <Button size="sm" className="flex-1" onClick={handleAddToCart}>
             <ShoppingBag className="w-4 h-4 mr-2" />
             {product.price.toFixed(2)} €
           </Button>
         </CardFooter>
       </Card>
 
-      {/* DAS MODAL (Detailansicht) */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-md rounded-xl">
           <DialogHeader>
@@ -116,7 +111,6 @@ export function PackageCard({ product }: { product: Product }) {
               Dieses Paket enthält:
             </h4>
             
-            {/* Die vollständige Liste */}
             <div className="bg-secondary rounded-lg border p-1 max-h-[300px] overflow-y-auto">
               {product.packageContent?.map((content, index) => (
                 <div 
