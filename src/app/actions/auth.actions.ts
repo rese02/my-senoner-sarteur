@@ -1,27 +1,11 @@
 'use server';
 
-import { z } from 'zod';
+import { cookies } from 'next/headers';
+import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { redirect } from 'next/navigation';
-import { createSession, deleteSession } from '@/lib/session';
-import type { UserRole } from '@/lib/types';
-import { initializeFirebase } from '@/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
+import type { UserRole } from '@/lib/types';
 
-// --- Schemas ---
-const LoginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
-});
-
-const RegisterSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  password: z.string().min(8),
-});
-
-// --- Helper Functions ---
 function getRedirectPath(role: UserRole): string {
   switch (role) {
     case 'admin':
@@ -34,84 +18,64 @@ function getRedirectPath(role: UserRole): string {
   }
 }
 
-// --- Server Actions ---
-
-export async function login(credentials: z.infer<typeof LoginSchema>) {
-  const validatedFields = LoginSchema.safeParse(credentials);
-
-  if (!validatedFields.success) {
-    return { error: 'Invalid fields!' };
-  }
-
-  const { email, password } = validatedFields.data;
-  const { auth, firestore } = initializeFirebase();
-
+// This function is called AFTER the user has successfully signed in or registered on the client.
+export async function createSession(idToken: string) {
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    // 1. Verify the ID token passed from the client.
+    const decodedToken = await adminAuth.verifyIdToken(idToken);
+    const uid = decodedToken.uid;
 
-    // Get user role from Firestore
-    const userDocRef = doc(firestore, 'users', user.uid);
-    const userDoc = await getDoc(userDocRef);
-
-    if (!userDoc.exists()) {
-      // This case should ideally not happen if registration is handled correctly
-      return { error: 'User data not found in database.' };
-    }
-
-    const userData = userDoc.data();
-    const role = userData.role || 'customer';
-
-    await createSession(user.uid, role);
+    // 2. Check if the user document exists in Firestore.
+    const userDocRef = adminDb.collection('users').doc(uid);
+    const userDoc = await userDocRef.get();
     
-    return { redirectPath: getRedirectPath(role) };
+    let userRole: UserRole = 'customer'; // Default role
 
-  } catch (error: any) {
-    console.error('Login error:', error.code);
-    return { error: 'Invalid email or password.' };
+    if (!userDoc.exists) {
+      // 4a. If user does NOT exist (first registration), create the document.
+      // This is the critical step that was missing.
+       await userDocRef.set({
+        id: uid,
+        name: decodedToken.name || decodedToken.email,
+        email: decodedToken.email,
+        role: 'customer',
+        loyaltyStamps: 0,
+        customerSince: new Date().toISOString(),
+      });
+    } else {
+       // 4b. If user DOES exist, get their role.
+       userRole = userDoc.data()?.role || 'customer';
+    }
+
+    // 3. Generate the session cookie.
+    const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
+    const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
+
+    // 4. Set the cookie on the browser.
+    // This is a secure, server-side cookie that the browser can't tamper with.
+    cookies().set('session', sessionCookie, {
+      maxAge: expiresIn,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      sameSite: 'lax',
+    });
+
+    // 5. Redirect based on role.
+    const redirectPath = getRedirectPath(userRole);
+    revalidatePath(redirectPath);
+    redirect(redirectPath);
+
+  } catch (error) {
+    console.error('Session creation failed:', error);
+    // You might want to clear any client-side auth state here if possible
+    throw new Error('Authentication process failed on the server.');
   }
-}
-
-export async function register(data: z.infer<typeof RegisterSchema>) {
-    const validatedFields = RegisterSchema.safeParse(data);
-
-    if (!validatedFields.success) {
-        return { error: 'Invalid fields!' };
-    }
-
-    const { name, email, password } = validatedFields.data;
-    const { auth, firestore } = initializeFirebase();
-
-    try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // Create user document in Firestore
-        const userDocRef = doc(firestore, 'users', user.uid);
-        await setDoc(userDocRef, {
-            id: user.uid,
-            name,
-            email,
-            role: 'customer',
-            loyaltyStamps: 0,
-            customerSince: new Date().toISOString(),
-        });
-
-        await createSession(user.uid, 'customer');
-        
-        revalidatePath('/');
-        return { success: true };
-
-    } catch (error: any) {
-        console.error('Registration error:', error.code);
-        if (error.code === 'auth/email-already-in-use') {
-            return { error: 'An account with this email already exists.' };
-        }
-        return { error: 'Registration failed. Please try again.' };
-    }
 }
 
 export async function logout() {
-  await deleteSession();
+  // Clear the session cookie.
+  cookies().delete('session');
+  // Redirect to the login page.
   redirect('/login');
 }
