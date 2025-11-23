@@ -1,10 +1,7 @@
+'use server';
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSession } from '@/lib/session';
-
-// IMPORTANT: This middleware runs in the Node.js runtime, NOT the edge.
-// This is crucial because getSession() uses firebase-admin, which requires Node.js APIs.
-export const runtime = 'nodejs';
 
 const PUBLIC_ROUTES = ['/login', '/register'];
 
@@ -27,7 +24,7 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/admin') && role !== 'admin') {
       return NextResponse.redirect(new URL(userHomePage, request.url));
     }
-    if (pathname.startsWith('/employee') && role !== 'employee' && role !== 'admin') {
+    if (pathname.startsWith('/employee') && !['employee', 'admin'].includes(role)) {
        return NextResponse.redirect(new URL(userHomePage, request.url));
     }
     if (pathname.startsWith('/dashboard') && role !== 'customer') {

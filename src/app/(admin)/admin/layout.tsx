@@ -13,14 +13,17 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // HIER passiert die echte Prüfung
   const session = await getSession();
 
-  // 1. Nicht eingeloggt? Raus!
-  if (!session) redirect('/login');
+  // 1. Not logged in? Redirect to login!
+  if (!session) {
+    redirect('/login');
+  }
 
-  // 2. Falsche Rolle? Raus zum Dashboard!
-  if (session.role !== 'admin') redirect('/dashboard');
+  // 2. Wrong role? Redirect to their respective dashboard!
+  if (session.role !== 'admin') {
+    redirect('/dashboard'); // Or another appropriate page for non-admins
+  }
 
 
   return (
@@ -46,4 +49,3 @@ export default async function AdminLayout({
     </div>
   );
 }
-

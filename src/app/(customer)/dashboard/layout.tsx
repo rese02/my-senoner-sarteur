@@ -32,8 +32,12 @@ export default async function CustomerLayout({
     }
 
     // Admins and employees should not be in the customer dashboard
-    if (session.role === 'admin') redirect('/admin/dashboard');
-    if (session.role === 'employee') redirect('/employee/scanner');
+    if (session.role === 'admin') {
+      redirect('/admin/dashboard');
+    }
+    if (session.role === 'employee') {
+      redirect('/employee/scanner');
+    }
     
   return (
     <div className="flex h-[100dvh] bg-background text-foreground overflow-hidden">

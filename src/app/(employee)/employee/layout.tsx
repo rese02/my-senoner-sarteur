@@ -13,9 +13,14 @@ export default async function EmployeeLayout({
 }) {
   const session = await getSession();
 
-  if (!session) redirect('/login');
+  if (!session) {
+    redirect('/login');
+  }
+  
   // Redirect if not an employee OR an admin (admins might need access)
-  if (!['employee', 'admin'].includes(session.role)) redirect('/dashboard');
+  if (!['employee', 'admin'].includes(session.role)) {
+    redirect('/dashboard');
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
