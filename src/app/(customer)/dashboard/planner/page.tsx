@@ -16,15 +16,14 @@ import { Label } from '@/components/ui/label';
 function EventSelectionCarousel({ events, onSelect, selectedEvent }: { events: PlannerEvent[], onSelect: (event: PlannerEvent) => void, selectedEvent: PlannerEvent | null }) {
     return (
         <div className="w-full">
-            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide px-4 -mx-4 md:px-0 md:-mx-0">
-                {events.map((event, index) => (
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide px-4 md:px-0">
+                {events.map((event) => (
                     <div 
                         key={event.id}
                         onClick={() => onSelect(event)}
                         className={cn(
                             "flex-shrink-0 w-48 h-28 rounded-2xl overflow-hidden cursor-pointer group relative transition-all duration-300 ease-in-out border-4",
-                             selectedEvent?.id === event.id ? "border-primary shadow-2xl" : "border-transparent hover:shadow-lg",
-                             index === 0 && "ml-4 md:ml-0" // Add margin to the first item on mobile
+                             selectedEvent?.id === event.id ? "border-primary shadow-2xl" : "border-transparent hover:shadow-lg"
                         )}
                     >
                         <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors z-10"></div>
