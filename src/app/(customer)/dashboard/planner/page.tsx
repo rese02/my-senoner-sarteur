@@ -97,7 +97,7 @@ export default function PartyPlannerPage() {
   }
 
   return (
-    <div className="space-y-8 pb-24 md:pb-8">
+    <div className="w-full space-y-8 pb-24 md:pb-8">
       <PageHeader title="Party Planer" description="Wählen Sie ein Event und wir berechnen die perfekte Menge für Ihre Gäste." />
       
        <EventSelectionCarousel events={events} onSelect={setSelectedEvent} selectedEvent={selectedEvent} />
