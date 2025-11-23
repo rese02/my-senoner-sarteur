@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ShoppingCart, Users, Info, Loader2, Minus, Plus } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -97,7 +97,7 @@ export default function PartyPlannerPage() {
   }
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden space-y-8 pb-24 md:pb-8">
+    <div className="w-full overflow-x-hidden space-y-8 pb-24 md:pb-8">
       <div className="px-4 md:px-0">
           <PageHeader title="Party Planer" description="Wählen Sie ein Event und wir berechnen die perfekte Menge für Ihre Gäste." />
       </div>
