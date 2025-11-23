@@ -1,11 +1,12 @@
 
 import { getSession } from "@/lib/session";
-import { mockUsers } from "@/lib/mock-data";
 import { UserProfileDropdown } from "@/components/custom/UserProfileDropdown";
 import { Logo } from "@/components/common/Logo";
 import { MobileNav } from "@/components/custom/MobileNav";
 import { CustomerSidebar } from "./_components/CustomerSidebar";
 import { Phone } from "lucide-react";
+import { redirect } from "next/navigation";
+import type { User } from "@/lib/types";
 
 function DesktopSidebar() {
   return (
@@ -25,7 +26,14 @@ export default async function CustomerLayout({
   children: React.ReactNode;
 }) {
     const session = await getSession();
-    const user = mockUsers.find(u => u.id === session?.userId);
+    
+    if (!session) {
+      redirect('/login');
+    }
+
+    // Admins and employees should not be in the customer dashboard
+    if (session.role === 'admin') redirect('/admin/dashboard');
+    if (session.role === 'employee') redirect('/employee/scanner');
     
   return (
     <div className="flex h-[100dvh] bg-background text-foreground overflow-hidden">
@@ -40,7 +48,7 @@ export default async function CustomerLayout({
                 <Phone size={20} />
                 <span className="sr-only">Anrufen</span>
               </a>
-              {user && <UserProfileDropdown user={user} />}
+              {session && <UserProfileDropdown user={session as User} />}
             </div>
         </header>
         <main className="flex-1 overflow-y-auto bg-background p-4 pt-0 md:pt-4 md:p-6 lg:p-8 pb-24 md:pb-8">

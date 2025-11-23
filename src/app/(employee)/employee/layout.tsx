@@ -3,12 +3,20 @@ import { Logo } from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth.actions";
 import { LogOut } from "lucide-react";
+import { getSession } from "@/lib/session";
+import { redirect } from "next/navigation";
 
-export default function EmployeeLayout({
+export default async function EmployeeLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getSession();
+
+  if (!session) redirect('/login');
+  // Redirect if not an employee OR an admin (admins might need access)
+  if (!['employee', 'admin'].includes(session.role)) redirect('/dashboard');
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="flex items-center justify-between p-4 border-b bg-primary text-primary-foreground">

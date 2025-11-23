@@ -4,13 +4,25 @@ import { Logo } from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth.actions";
 import { LogOut } from "lucide-react";
+import { getSession } from "@/lib/session";
+import { redirect } from 'next/navigation';
 
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // HIER passiert die echte Prüfung
+  const session = await getSession();
+
+  // 1. Nicht eingeloggt? Raus!
+  if (!session) redirect('/login');
+
+  // 2. Falsche Rolle? Raus zum Dashboard!
+  if (session.role !== 'admin') redirect('/dashboard');
+
+
   return (
     <div className="flex h-[100dvh] bg-secondary overflow-hidden">
       <AdminSidebar />
@@ -35,4 +47,3 @@ export default function AdminLayout({
   );
 }
 
-    
