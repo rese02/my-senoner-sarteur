@@ -18,6 +18,7 @@ import { getLoyaltyTier, loyaltyTiers } from "@/lib/loyalty";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 // Helper function to get purchase history
 const getCustomerPurchaseCategories = (userId: string): Set<string> => {
@@ -58,7 +59,9 @@ function CustomerCard({ customer, isSelected, onSelect }: { customer: User, isSe
             <div className="flex-grow min-w-0">
                 <div className="flex justify-between items-start gap-2 flex-wrap">
                     <div className="min-w-0">
-                        <p className="font-semibold text-sm break-words">{customer.name}</p>
+                        <p className="font-semibold text-sm break-words">
+                            <Link href={`/admin/customers/${customer.id}`} className="hover:underline">{customer.name}</Link>
+                        </p>
                         <p className="text-xs text-muted-foreground break-words">{customer.email}</p>
                     </div>
                     <Badge variant="outline" className={`border-0 shrink-0 text-xs ${loyaltyTier.color.replace('text-', 'bg-').replace('600', '100')} ${loyaltyTier.color}`}>
@@ -218,7 +221,9 @@ export default function AdminCustomersPage() {
                                         <TableCell>
                                             <Checkbox checked={selectedCustomers.includes(customer.id)} onCheckedChange={(checked) => handleSelectCustomer(customer.id, !!checked)} />
                                         </TableCell>
-                                        <TableCell className="font-medium">{customer.name}</TableCell>
+                                        <TableCell className="font-medium">
+                                            <Link href={`/admin/customers/${customer.id}`} className="hover:underline">{customer.name}</Link>
+                                        </TableCell>
                                         <TableCell>
                                         <Badge variant="outline" className={`border-0 ${loyaltyTier.color.replace('text-', 'bg-').replace('600', '100')} ${loyaltyTier.color}`}>
                                             <Trophy className="w-3 h-3 mr-1.5" />
@@ -278,3 +283,5 @@ export default function AdminCustomersPage() {
     </div>
   );
 }
+
+    
