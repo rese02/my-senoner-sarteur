@@ -28,24 +28,13 @@ export default function LoginPage() {
       </Card>
 
       {/* Mobile View */}
-      <div className="md:hidden w-full h-[100dvh] flex flex-col bg-slate-900">
-        <div className="relative flex-grow h-1/3 flex flex-col items-center justify-center pt-12 px-4 text-center">
-            <Image 
-                src="https://images.unsplash.com/photo-1542856336-074a3f8c88e9?q=80&w=1974&auto=format&fit=crop"
-                alt="Dolomites background"
-                fill
-                className="object-cover"
-                data-ai-hint="dolomites mountains"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
-
-            <div className="relative z-10 flex flex-col items-center justify-end h-full w-full pb-8">
-                <div className="w-2/5 mb-4">
-                    <Logo />
-                </div>
+       <div className="md:hidden w-full h-[100dvh] flex flex-col bg-gradient-to-b from-[#001a3b] via-[#003366] to-primary">
+        <div className="flex-grow flex flex-col items-center justify-center pt-12 px-4 text-center">
+            <div className="w-2/5">
+                <Logo />
             </div>
         </div>
-        <div className="flex-shrink-0 bg-background rounded-t-3xl p-6 pt-8 -mt-6 z-20">
+        <div className="flex-shrink-0 bg-background rounded-t-3xl p-6 pt-8 z-10">
             <div className="text-center mb-6">
                 <h1 className="text-2xl font-bold font-headline">Willkommen!</h1>
                 <p className="text-muted-foreground text-sm">Bitte melden Sie sich an.</p>
