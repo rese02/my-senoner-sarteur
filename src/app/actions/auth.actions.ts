@@ -51,7 +51,6 @@ export async function createSession(idToken: string) {
     const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
 
     // 4. Set the cookie on the browser.
-    // We set 'secure' to false in development to avoid issues in cloud IDEs.
     cookies().set('session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
