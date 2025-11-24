@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { redirect } from 'next/navigation';
 import type { UserRole } from '@/lib/types';
+import { revalidatePath } from 'next/cache';
 
 function getRedirectPath(role: UserRole): string {
   switch (role) {
