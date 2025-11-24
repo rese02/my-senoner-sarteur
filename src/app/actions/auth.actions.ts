@@ -3,7 +3,6 @@
 import { cookies } from 'next/headers';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { redirect } from 'next/navigation';
-import { revalidatePath } from 'next/cache';
 import type { UserRole } from '@/lib/types';
 
 function getRedirectPath(role: UserRole): string {
@@ -33,7 +32,6 @@ export async function createSession(idToken: string) {
 
     if (!userDoc.exists) {
       // 4a. If user does NOT exist (first registration), create the document.
-      // This is the critical step that was missing.
        await userDocRef.set({
         id: uid,
         name: decodedToken.name || decodedToken.email,
@@ -52,7 +50,7 @@ export async function createSession(idToken: string) {
     const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
 
     // 4. Set the cookie on the browser.
-    // This is a secure, server-side cookie that the browser can't tamper with.
+    // We set 'secure' to false in development to avoid issues in cloud IDEs.
     cookies().set('session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,

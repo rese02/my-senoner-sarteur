@@ -53,11 +53,17 @@ export function LoginForm() {
       });
 
     } catch (error: any) {
-      console.error("Login failed:", error.code);
+      console.error("Login failed:", error);
+      
+      let msg = "Invalid email or password. Please try again.";
+      if (error.message && error.message.includes("Session creation failed")) {
+        msg = "Server connection failed. Please check environment variables.";
+      }
+      
       toast({
         variant: 'destructive',
         title: 'Login Failed',
-        description: 'Invalid email or password. Please try again.',
+        description: msg,
       });
       setIsSubmitting(false);
     }
