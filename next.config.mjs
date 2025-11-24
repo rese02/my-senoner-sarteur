@@ -1,17 +1,15 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Hier kommen deine Einstellungen rein, z.B. für Bilder:
+  experimental: {
+    serverActions: {
+      allowedOrigins: ["*"],
+    },
+  },
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'firebasestorage.googleapis.com',
-      },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
     ],
   },
 };
