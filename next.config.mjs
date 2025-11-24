@@ -1,15 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Erlaubt Server Actions von überall (Wichtig für Firebase Studio!)
   experimental: {
     serverActions: {
-      allowedOrigins: ["*"],
+      allowedOrigins: ['*'], 
     },
   },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
-      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: 'picsum.photos' },
     ],
   },
 };
