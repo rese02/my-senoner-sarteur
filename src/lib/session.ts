@@ -19,7 +19,8 @@ export async function getSession() {
     
     if (!userDoc.exists) {
         // This case can happen if the user is deleted from Firestore but the cookie still exists
-        return null;
+        cookies().delete('session');
+        redirect('/login');
     }
 
     const userData = userDoc.data();
@@ -27,6 +28,7 @@ export async function getSession() {
     return {
       userId: decodedClaims.uid,
       email: decodedClaims.email,
+      name: userData?.name || 'No Name',
       role: userData?.role || 'customer',
       ...userData
     };
@@ -35,8 +37,4 @@ export async function getSession() {
     // In a real app, you might want to log this error.
     return null;
   }
-}
-
-export async function deleteSession() {
-  cookies().delete('session');
 }
