@@ -22,7 +22,9 @@ export default async function AdminLayout({
 
   // 2. Wrong role? Redirect to their respective dashboard!
   if (session.role !== 'admin') {
-    redirect('/dashboard'); // Or another appropriate page for non-admins
+     // A customer or employee trying to access /admin will be sent to their correct dashboard
+    const homePage = session.role === 'employee' ? '/employee/scanner' : '/dashboard';
+    redirect(homePage);
   }
 
 
