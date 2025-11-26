@@ -1,25 +1,26 @@
-import 'server-only'; // Ganz wichtig! Schützt vor Client-Nutzung.
+'use server';
 
-import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
-import { getFirestore, type Firestore } from 'firebase-admin/firestore';
-import { getAuth, type Auth } from 'firebase-admin/auth';
+import admin from 'firebase-admin';
 
-// Wir prüfen, ob die Keys da sind. Wenn nicht, werfen wir sofort einen Fehler, damit du es merkst.
-if (!process.env.FIREBASE_PRIVATE_KEY || !process.env.FIREBASE_CLIENT_EMAIL) {
-  throw new Error('FEHLER: Firebase Admin Keys fehlen in .env.local');
+// This file is for server-side code only.
+
+// Prevent re-initialization in development
+if (!admin.apps.length) {
+  try {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        // Use `JSON.parse` to handle the escaped newlines in the private key from env variables
+        privateKey: process.env.FIREBASE_PRIVATE_KEY
+          ? JSON.parse(`"${process.env.FIREBASE_PRIVATE_KEY}"`)
+          : undefined,
+      }),
+    });
+  } catch (error: any) {
+    console.error('Firebase admin initialization error', error.stack);
+  }
 }
 
-const serviceAccount = {
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  // Der Replace-Trick ist zwingend nötig für Vercel/Cloud-Umgebungen
-  privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-};
-
-// Singleton: Verhindert, dass die App versucht, sich 2x zu verbinden (Crash-Ursache)
-const app: App = getApps().length 
-  ? getApps()[0] 
-  : initializeApp({ credential: cert(serviceAccount) });
-
-export const adminAuth: Auth = getAuth(app);
-export const adminDb: Firestore = getFirestore(app);
+export const adminAuth = admin.auth();
+export const adminDb = admin.firestore();
