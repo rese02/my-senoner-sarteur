@@ -26,23 +26,36 @@ export async function getAdminDashboardData() {
 
     const productSnapshot = await getDocs(productsQuery);
     const categorySnapshot = await getDocs(categoriesQuery);
-
-    const products = productSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Product[];
-    const categories = categorySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Category[];
     
-    // Convert non-serializable data to plain objects
-    const serializableProducts = products.map(product => {
-        const plainProduct = { ...product };
-        // Convert any Date objects to strings
-        if (plainProduct.timesOrderedLast30Days && plainProduct.timesOrderedLast30Days instanceof Date) {
-            // This is the fix: convert the Date to a serializable string
-            (plainProduct as any).timesOrderedLast30Days = plainProduct.timesOrderedLast30Days.toISOString();
-        }
-        return plainProduct;
+    // Manually create plain objects to ensure serializability
+    const products = productSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            name: data.name,
+            price: data.price,
+            unit: data.unit,
+            imageUrl: data.imageUrl,
+            imageHint: data.imageHint,
+            categoryId: data.categoryId,
+            description: data.description,
+            availabilityDay: data.availabilityDay,
+            isAvailable: data.isAvailable,
+            timesOrderedLast30Days: data.timesOrderedLast30Days || 0,
+            type: data.type,
+            packageContent: data.packageContent || [],
+        } as Product;
     });
 
+    const categories = categorySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            name: data.name
+        } as Category;
+    });
 
-    return { products: serializableProducts, categories };
+    return { products, categories };
 }
 
 // Toggle product availability
