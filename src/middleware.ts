@@ -9,8 +9,8 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = PUBLIC_ROUTES.some(path => pathname.startsWith(path));
 
   // If a session cookie exists and the user is on a public route,
-  // redirect them to a default dashboard. We can't know their role here,
-  // but the destination layout will handle the final role-based redirect.
+  // redirect them to a default dashboard. The destination layout will handle
+  // the final role-based redirect.
   if (sessionCookie && isPublicRoute) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
