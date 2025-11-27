@@ -1,3 +1,4 @@
+
 'use server';
 
 import { initializeFirebase } from '@/firebase';
@@ -28,8 +29,20 @@ export async function getAdminDashboardData() {
 
     const products = productSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Product[];
     const categories = categorySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Category[];
+    
+    // Convert non-serializable data to plain objects
+    const serializableProducts = products.map(product => {
+        const plainProduct = { ...product };
+        // Convert any Date objects to strings
+        if (plainProduct.timesOrderedLast30Days && plainProduct.timesOrderedLast30Days instanceof Date) {
+            // This is the fix: convert the Date to a serializable string
+            (plainProduct as any).timesOrderedLast30Days = plainProduct.timesOrderedLast30Days.toISOString();
+        }
+        return plainProduct;
+    });
 
-    return { products, categories };
+
+    return { products: serializableProducts, categories };
 }
 
 // Toggle product availability
