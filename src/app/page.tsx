@@ -8,13 +8,17 @@ export default async function RootPage() {
       switch (session.role) {
         case 'admin':
           redirect('/admin/dashboard');
+          break;
         case 'employee':
           redirect('/employee/scanner');
+          break;
         case 'customer':
         default:
           redirect('/dashboard');
+          break;
       }
   }
 
+  // If no session, redirect to login
   redirect('/login');
 }

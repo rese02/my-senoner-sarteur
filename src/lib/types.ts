@@ -90,10 +90,10 @@ export interface Order {
 }
 
 
-export interface SessionPayload {
+export interface Session {
   userId: string;
   role: UserRole;
-  expiresAt: Date;
+  [key: string]: any;
 }
 
 export interface Recipe {

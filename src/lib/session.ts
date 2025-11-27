@@ -29,7 +29,7 @@ export async function getSession() {
       userId: decodedClaims.uid,
       email: decodedClaims.email,
       name: userData?.name || 'No Name',
-      role: userData?.role || 'customer',
+      role: (userData?.role as UserRole) || 'customer',
       ...userData
     };
   } catch (error) {

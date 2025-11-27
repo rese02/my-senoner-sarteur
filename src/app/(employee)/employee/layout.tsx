@@ -11,7 +11,7 @@ export default async function EmployeeLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await get_session();
+  const session = await getSession();
 
   if (!session) {
     redirect('/login');
