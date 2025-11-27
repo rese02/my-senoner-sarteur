@@ -1,26 +1,36 @@
+
 'use server';
 import 'server-only';
-import admin from 'firebase-admin';
+import { initializeApp, getApps, getApp, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
 
-// This file is for server-side code only.
+// 1. Service Account vorbereiten
+// Wir prüfen, ob die Variablen da sind, um kryptische Fehler zu vermeiden.
+const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+const privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
-// Prevent re-initialization in development
-if (!admin.apps.length) {
-  try {
-    admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        // Use `JSON.parse` to handle the escaped newlines in the private key from env variables
-        privateKey: process.env.FIREBASE_PRIVATE_KEY
-          ? JSON.parse(`"${process.env.FIREBASE_PRIVATE_KEY}"`)
-          : undefined,
-      }),
-    });
-  } catch (error: any) {
-    console.error('Firebase admin initialization error', error.stack);
-  }
+if (!projectId || !clientEmail || !privateKey) {
+  // Warnung im Terminal, falls Keys fehlen (App stürzt nicht sofort ab, aber Auth geht nicht)
+  console.error("⚠️ FEHLER: Firebase Admin Environment Variablen fehlen in .env.local");
 }
 
-export const adminAuth = admin.auth();
-export const adminDb = admin.firestore();
+const serviceAccount = {
+  projectId,
+  clientEmail,
+  // WICHTIG: Ersetzt \\n durch echte Zeilenumbrüche (für Vercel/Hosting)
+  privateKey: privateKey ? privateKey.replace(/\\n/g, '\n') : undefined,
+};
+
+// 2. Initialisierung (Singleton Pattern)
+// Wir prüfen: Gibt es schon eine App? Wenn ja, nimm die. Wenn nein, starte neu.
+const app = getApps().length > 0 
+  ? getApp() 
+  : initializeApp({
+      credential: cert(serviceAccount),
+    });
+
+// 3. Exportiere die Instanzen
+export const adminAuth = getAuth(app);
+export const adminDb = getFirestore(app);
