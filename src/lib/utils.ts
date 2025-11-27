@@ -15,3 +15,11 @@ export const getInitials = (name: string) => {
     .join('')
     .toUpperCase();
 };
+
+// Diese Funktion macht Firebase-Daten "browser-freundlich"
+export function toPlainObject<T>(data: T): T {
+  if (data === null || data === undefined) {
+    return data;
+  }
+  return JSON.parse(JSON.stringify(data));
+}

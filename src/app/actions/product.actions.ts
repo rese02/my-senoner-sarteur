@@ -6,6 +6,7 @@ import type { Product, Category } from '@/lib/types';
 import { getSession } from '@/lib/session';
 import { collection, getDocs, doc, updateDoc, addDoc, deleteDoc, writeBatch, query, where } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
+import { toPlainObject } from '@/lib/utils';
 
 // Helper to check for Admin role
 async function isAdmin() {
@@ -27,33 +28,8 @@ export async function getAdminDashboardData() {
     const productSnapshot = await getDocs(productsQuery);
     const categorySnapshot = await getDocs(categoriesQuery);
     
-    // Manually create plain objects to ensure serializability
-    const products = productSnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-            id: doc.id,
-            name: data.name,
-            price: data.price,
-            unit: data.unit,
-            imageUrl: data.imageUrl,
-            imageHint: data.imageHint,
-            categoryId: data.categoryId,
-            description: data.description,
-            availabilityDay: data.availabilityDay,
-            isAvailable: data.isAvailable,
-            timesOrderedLast30Days: data.timesOrderedLast30Days || 0,
-            type: data.type,
-            packageContent: data.packageContent || [],
-        } as Product;
-    });
-
-    const categories = categorySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-            id: doc.id,
-            name: data.name
-        } as Category;
-    });
+    const products = productSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Product));
+    const categories = categorySnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Category));
 
     return { products, categories };
 }
@@ -113,9 +89,10 @@ export async function createProduct(productData: Omit<Product, 'id'>): Promise<P
     await isAdmin();
     const { firestore } = initializeFirebase();
     const productsCollection = collection(firestore, "products");
-    const docRef = await addDoc(productsCollection, productData);
+    const docRef = await addDoc(productsCollection, { ...productData, createdAt: new Date() });
     revalidatePath('/admin/products');
-    return { id: docRef.id, ...productData };
+    const newProduct = { id: docRef.id, ...productData } as Product;
+    return toPlainObject(newProduct);
 }
 
 // Delete a product

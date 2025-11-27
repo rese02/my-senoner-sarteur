@@ -16,9 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ImageUploader } from "@/components/custom/ImageUploader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { collection, getDocs, doc, updateDoc, addDoc, deleteDoc, writeBatch } from "firebase/firestore";
-import { useFirestore } from "@/firebase/provider";
-import { revalidatePath } from "next/cache";
 import { createCategory, deleteCategory, updateProduct, createProduct, deleteProduct, toggleProductAvailability, getAdminDashboardData } from "@/app/actions/product.actions";
 
 export default function AdminProductsPage() {
@@ -45,8 +42,8 @@ export default function AdminProductsPage() {
           const { products: fetchedProducts, categories: fetchedCategories } = await getAdminDashboardData();
           setProducts(fetchedProducts);
           setCategories(fetchedCategories);
-      } catch (error) {
-          toast({ variant: "destructive", title: "Fehler beim Laden", description: "Produktdaten konnten nicht geladen werden." });
+      } catch (error: any) {
+          toast({ variant: "destructive", title: "Fehler beim Laden", description: error.message || "Produktdaten konnten nicht geladen werden." });
       } finally {
           setIsDataLoading(false);
       }
@@ -54,7 +51,7 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [toast]);
 
 
   const handleAvailabilityToggle = (productId: string, currentStatus: boolean) => {
@@ -84,8 +81,8 @@ export default function AdminProductsPage() {
           toast({ title: 'Kategorie erstellt!' });
           setNewCategoryName('');
           setIsCategoryModalOpen(false);
-        } catch (error) {
-          toast({ variant: "destructive", title: "Fehler", description: "Kategorie konnte nicht erstellt werden."});
+        } catch (error: any) {
+          toast({ variant: "destructive", title: "Fehler", description: error.message || "Kategorie konnte nicht erstellt werden."});
         }
       });
   };
@@ -97,8 +94,8 @@ export default function AdminProductsPage() {
           setCategories(prev => prev.filter(c => c.id !== categoryId));
           setProducts(prev => prev.filter(p => p.categoryId !== categoryId));
           toast({ title: 'Kategorie gelöscht' });
-        } catch(error) {
-          toast({ variant: "destructive", title: "Fehler", description: "Kategorie konnte nicht gelöscht werden."});
+        } catch(error: any) {
+          toast({ variant: "destructive", title: "Fehler", description: error.message || "Kategorie konnte nicht gelöscht werden."});
         }
       });
   };
@@ -156,8 +153,8 @@ export default function AdminProductsPage() {
             }
             setIsProductModalOpen(false);
             setEditingProduct(null);
-          } catch(error) {
-            toast({ variant: "destructive", title: "Fehler beim Speichern", description: "Produkt konnte nicht gespeichert werden." });
+          } catch(error: any) {
+            toast({ variant: "destructive", title: "Fehler beim Speichern", description: error.message || "Produkt konnte nicht gespeichert werden." });
           }
       });
   };
@@ -168,8 +165,8 @@ export default function AdminProductsPage() {
           await deleteProduct(productId);
           setProducts(prev => prev.filter(p => p.id !== productId));
           toast({ title: 'Produkt gelöscht' });
-        } catch(error) {
-          toast({ variant: "destructive", title: "Fehler", description: "Produkt konnte nicht gelöscht werden." });
+        } catch(error: any) {
+          toast({ variant: "destructive", title: "Fehler", description: error.message || "Produkt konnte nicht gelöscht werden." });
         }
       });
   };
