@@ -1,4 +1,5 @@
 'use server';
+import 'server-only';
 /**
  * @fileOverview This file defines a Genkit flow to enrich a list of wine names with metadata.
  *

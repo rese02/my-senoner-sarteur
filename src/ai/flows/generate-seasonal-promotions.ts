@@ -1,4 +1,5 @@
 'use server';
+import 'server-only';
 
 /**
  * @fileOverview Generates seasonal marketing promotion ideas using AI.

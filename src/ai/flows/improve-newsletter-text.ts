@@ -1,4 +1,5 @@
 'use server';
+import 'server-only';
 
 /**
  * @fileOverview This file defines a Genkit flow to improve newsletter text using AI, supporting both German and Italian.

@@ -1,5 +1,5 @@
 'use server';
-
+import 'server-only';
 import admin from 'firebase-admin';
 
 // This file is for server-side code only.

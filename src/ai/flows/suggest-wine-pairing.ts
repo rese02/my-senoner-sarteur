@@ -1,4 +1,5 @@
 'use server';
+import 'server-only';
 
 /**
  * @fileOverview An AI flow to suggest wine pairings for a given food image.
