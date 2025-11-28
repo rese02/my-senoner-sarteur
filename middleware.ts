@@ -1,41 +1,36 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { getSession } from '@/lib/session';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 const PUBLIC_ROUTES = ['/login', '/register'];
-const CUSTOMER_ROUTES = ['/dashboard'];
-const EMPLOYEE_ROUTES = ['/employee'];
-const ADMIN_ROUTES = ['/admin'];
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const session = await getSession();
+  
+  // 1. Wir prüfen NUR, ob der Cookie existiert (ohne ihn zu verifizieren)
+  // Das ist sicher für die Edge Runtime.
+  const hasSession = request.cookies.has('session');
 
   const isPublicRoute = PUBLIC_ROUTES.some(path => pathname.startsWith(path));
 
-  if (session) {
-    const { role } = session;
-    const userHomePage = role === 'admin' ? '/admin/dashboard' : role === 'employee' ? '/employee/scanner' : '/dashboard';
-
-    // If user is logged in and tries to access a public route, redirect them to their home page
+  // FALL A: User ist eingeloggt (Cookie da)
+  if (hasSession) {
+    // Wenn er versucht, sich nochmal einzuloggen -> ab zum Dashboard
     if (isPublicRoute) {
-      return NextResponse.redirect(new URL(userHomePage, request.url));
+      return NextResponse.redirect(new URL('/dashboard', request.url));
     }
+    // Ansonsten lassen wir ihn durch.
+    // Die Prüfung, ob er wirklich "Admin" ist, macht dann die Admin-Seite selbst.
+    return NextResponse.next();
+  }
 
-    // Check role-based access
-    if (pathname.startsWith('/admin') && role !== 'admin') {
-      return NextResponse.redirect(new URL(userHomePage, request.url));
-    }
-    if (pathname.startsWith('/employee') && role !== 'employee') {
-      return NextResponse.redirect(new URL(userHomePage, request.url));
-    }
-    if (pathname.startsWith('/dashboard') && role !== 'customer') {
-      return NextResponse.redirect(new URL(userHomePage, request.url));
-    }
-    
-  } else {
-    // If user is not logged in and tries to access a protected route, redirect to login
+  // FALL B: User ist NICHT eingeloggt (Kein Cookie)
+  else {
+    // Er will auf eine geschützte Seite -> Ab zum Login
     if (!isPublicRoute) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      const loginUrl = new URL('/login', request.url);
+      // Optional: Merken, wo er hin wollte
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
     }
   }
 
@@ -43,6 +38,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Match all routes except for static assets, API routes, and Next.js internals
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
+

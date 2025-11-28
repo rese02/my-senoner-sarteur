@@ -70,3 +70,4 @@ export async function logout() {
   cookieStore.delete('session');
   redirect('/login');
 }
+
