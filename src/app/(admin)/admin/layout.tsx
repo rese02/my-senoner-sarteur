@@ -32,7 +32,7 @@ export default async function AdminLayout({
     <div className="flex h-[100dvh] bg-secondary overflow-hidden">
       <AdminSidebar />
       <div className="flex-1 flex flex-col">
-         <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b bg-primary text-primary-foreground md:bg-card md:text-card-foreground px-4 md:px-6 sticky top-0 z-20">
+         <header className="flex-none h-20 flex items-center justify-between md:justify-end border-b bg-primary text-primary-foreground md:bg-card md:text-card-foreground px-4 md:px-6 sticky top-0 z-20">
             <div className="md:hidden h-8">
               <Logo />
             </div>

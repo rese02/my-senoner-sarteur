@@ -16,6 +16,7 @@ import {
 import { Logo } from '@/components/common/Logo';
 import { logout } from '@/app/actions/auth.actions';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -40,26 +41,23 @@ export function AdminSidebar() {
       </div>
       <nav className="flex-1 p-4 space-y-2">
         {navItems.map((item) => {
-          const isActive = pathname.startsWith(item.href);
+          const isActive = pathname.startsWith(item.href) && (item.href !== '/admin/dashboard' || pathname === '/admin/dashboard');
           return (
-            <Button
+            <Link
               key={item.label}
-              variant={isActive ? 'secondary' : 'ghost'}
-              className={`w-full justify-start text-base font-medium transition-all duration-300 group rounded-lg
+              href={item.href}
+              className={cn(`group flex w-full items-center justify-start rounded-lg px-3 py-2.5 text-base font-medium transition-all duration-300
                 ${isActive
                   ? 'bg-card text-primary shadow-md translate-x-1'
                   : 'text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-white'
-                }`}
-              asChild
+                }`)}
             >
-              <Link href={item.href}>
-                <item.icon 
-                  className={`mr-3 h-5 w-5 transition-colors duration-300 
-                  ${isActive ? 'text-accent' : 'text-primary-foreground/70 group-hover:text-white'}`} 
-                  strokeWidth={1.75} />
-                {item.label}
-              </Link>
-            </Button>
+              <item.icon 
+                className={`mr-3 h-5 w-5 transition-colors duration-300 
+                ${isActive ? 'text-accent' : 'text-primary-foreground/70 group-hover:text-white'}`} 
+                strokeWidth={1.75} />
+              {item.label}
+            </Link>
           )
         })}
       </nav>
@@ -70,23 +68,20 @@ export function AdminSidebar() {
             {secondaryNavItems.map((item) => {
                const isActive = pathname.startsWith(item.href);
                return (
-                <Button
+                <Link
                     key={item.label}
-                    variant={isActive ? 'secondary' : 'ghost'}
-                    className={`w-full justify-start text-base font-medium transition-all duration-300 group rounded-lg
+                    href={item.href}
+                    className={cn(`group flex w-full items-center justify-start rounded-lg px-3 py-2.5 text-base font-medium transition-all duration-300
                       ${isActive
                         ? 'bg-card text-primary shadow-md translate-x-1'
                         : 'text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-white'
-                      }`}
-                    asChild
+                      }`)}
                 >
-                    <Link href={item.href}>
-                      <item.icon className={`mr-3 h-5 w-5 transition-colors duration-300 
-                        ${isActive ? 'text-accent' : 'text-primary-foreground/70 group-hover:text-white'}`} 
-                        strokeWidth={1.75} />
-                      {item.label}
-                    </Link>
-                </Button>
+                    <item.icon className={`mr-3 h-5 w-5 transition-colors duration-300 
+                    ${isActive ? 'text-accent' : 'text-primary-foreground/70 group-hover:text-white'}`} 
+                    strokeWidth={1.75} />
+                    {item.label}
+                </Link>
                )
             })}
         </nav>

@@ -1,23 +1,43 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { getSession } from '@/lib/session';
 
-const PROTECTED_ROUTES = ['/dashboard', '/admin', '/employee'];
 const PUBLIC_ROUTES = ['/login', '/register'];
+const CUSTOMER_ROUTES = ['/dashboard'];
+const EMPLOYEE_ROUTES = ['/employee'];
+const ADMIN_ROUTES = ['/admin'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const sessionCookie = request.cookies.get('session');
+  const session = await getSession();
 
-  const isProtectedRoute = PROTECTED_ROUTES.some(path => pathname.startsWith(path));
+  const isPublicRoute = PUBLIC_ROUTES.some(path => pathname.startsWith(path));
 
-  // If the user has no session cookie and is trying to access a protected route,
-  // redirect them to the login page.
-  if (!sessionCookie && isProtectedRoute) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  if (session) {
+    const { role } = session;
+    const userHomePage = role === 'admin' ? '/admin/dashboard' : role === 'employee' ? '/employee/scanner' : '/dashboard';
+
+    // If user is logged in and tries to access a public route, redirect them to their home page
+    if (isPublicRoute) {
+      return NextResponse.redirect(new URL(userHomePage, request.url));
+    }
+
+    // Check role-based access
+    if (pathname.startsWith('/admin') && role !== 'admin') {
+      return NextResponse.redirect(new URL(userHomePage, request.url));
+    }
+    if (pathname.startsWith('/employee') && role !== 'employee') {
+      return NextResponse.redirect(new URL(userHomePage, request.url));
+    }
+    if (pathname.startsWith('/dashboard') && role !== 'customer') {
+      return NextResponse.redirect(new URL(userHomePage, request.url));
+    }
+    
+  } else {
+    // If user is not logged in and tries to access a protected route, redirect to login
+    if (!isPublicRoute) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
   }
-
-  // If the user has a session cookie and is trying to access a public route (like login),
-  // we'll let the page's logic handle the redirect. This is simpler and avoids
-  // a flash of content. The page itself will redirect to the correct dashboard.
 
   return NextResponse.next();
 }

@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Wir entfernen 'eslint' und 'typescript' hier, um den Config-Fehler zu vermeiden.
-  // Stattdessen nutzen wir Webpack, um den 'node:process' Fehler zu beheben.
-
+  // Our Fix for the "node:process" error
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -25,7 +23,7 @@ const nextConfig = {
             compiler.hooks.normalModuleFactory.tap("RemoveNodePrefix", (nmf) => {
               nmf.hooks.beforeResolve.tap("RemoveNodePrefix", (resolve) => {
                 if (resolve.request.startsWith("node:")) {
-                  resolve.request = resolve.request.substring(5); 
+                  resolve.request = resolve.request.substring(5);
                 }
               });
             });
