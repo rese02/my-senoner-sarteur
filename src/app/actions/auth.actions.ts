@@ -18,7 +18,8 @@ function getRedirectPath(role: UserRole): string {
 }
 
 export async function createSession(idToken: string) {
-  const cookieStore = cookies(); 
+  // NEXT.JS 15+ CHANGE: We must now wait for cookies()
+  const cookieStore = await cookies(); 
   
   let userRole: UserRole = 'customer';
   
@@ -26,7 +27,7 @@ export async function createSession(idToken: string) {
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     const uid = decodedToken.uid;
 
-    const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 Tage
+    const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
     const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
 
     const userRef = adminDb.collection('users').doc(uid);
@@ -64,7 +65,8 @@ export async function createSession(idToken: string) {
 }
 
 export async function logout() {
-  const cookieStore = cookies();
+  // NEXT.JS 15+ CHANGE: We must now wait for cookies()
+  const cookieStore = await cookies();
   cookieStore.delete('session');
   redirect('/login');
 }

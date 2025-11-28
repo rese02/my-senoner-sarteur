@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useTransition } from 'react';
+import { useState, useMemo, useTransition, useEffect } from 'react';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,15 +35,30 @@ function UnpaidOrderRow({ order, onMarkAsPaid, isPending }: { order: Order; onMa
     );
 }
 
-export default function CustomerDetailPage({ params }: { params: { id: string } }) {
-    const customerId = params.id;
+export default function CustomerDetailPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
+    const [params, setParams] = useState<{ id: string } | null>(null);
+
+    useEffect(() => {
+        paramsPromise.then(setParams);
+    }, [paramsPromise]);
+
+    const customerId = params?.id;
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
 
     // Use a state for orders to reflect changes immediately
     const [customerOrders, setCustomerOrders] = useState(() => mockOrders.filter(o => o.userId === customerId));
 
-    const customer = useMemo(() => mockUsers.find(u => u.id === customerId), [customerId]);
+     useEffect(() => {
+        if (customerId) {
+            setCustomerOrders(mockOrders.filter(o => o.userId === customerId));
+        }
+    }, [customerId]);
+
+    const customer = useMemo(() => {
+        if (!customerId) return null;
+        return mockUsers.find(u => u.id === customerId);
+    }, [customerId]);
     
     const unpaidGroceryOrders = useMemo(() => {
         return customerOrders.filter(o => 
@@ -68,6 +83,14 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
             }
         });
     };
+
+    if (!params) {
+        return (
+             <div className="flex justify-center items-center h-64">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+        )
+    }
 
     if (!customer) {
         return (
@@ -116,5 +139,3 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
         </div>
     );
 }
-
-    
