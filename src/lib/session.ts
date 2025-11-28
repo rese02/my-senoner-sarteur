@@ -6,7 +6,9 @@ import type { UserRole } from './types';
 
 
 export async function getSession() {
-  const sessionCookie = cookies().get('session')?.value;
+  // NEXT.JS 15/16 FIX: await cookies()
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get('session')?.value;
   
   if (!sessionCookie) return null;
 
