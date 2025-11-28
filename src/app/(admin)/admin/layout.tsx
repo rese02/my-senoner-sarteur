@@ -15,14 +15,14 @@ export default async function AdminLayout({
 }) {
   const session = await getSession();
 
-  // 1. Not logged in? Redirect to login!
+  // 1. Nicht eingeloggt? Weiterleitung zum Login!
   if (!session) {
     redirect('/login');
   }
 
-  // 2. Wrong role? Redirect to their respective dashboard!
+  // 2. Falsche Rolle? Weiterleitung zum jeweiligen Dashboard!
   if (session.role !== 'admin') {
-     // A customer or employee trying to access /admin will be sent to their correct dashboard
+     // Ein Kunde oder Mitarbeiter, der versucht /admin aufzurufen, wird zu seiner korrekten Startseite geleitet
     const homePage = session.role === 'employee' ? '/employee/scanner' : '/dashboard';
     redirect(homePage);
   }
