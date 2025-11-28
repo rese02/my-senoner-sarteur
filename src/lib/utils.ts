@@ -21,5 +21,8 @@ export function toPlainObject<T>(data: T): T {
   if (data === null || data === undefined) {
     return data;
   }
+  // This is a simplified serialization. For a more robust solution,
+  // you might recursively check for Timestamps and convert them.
+  // However, for many use cases, JSON.stringify/parse is sufficient.
   return JSON.parse(JSON.stringify(data));
 }

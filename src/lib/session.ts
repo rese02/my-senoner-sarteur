@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { redirect } from 'next/navigation';
 import type { UserRole } from './types';
+import { toPlainObject } from './utils';
 
 
 export async function getSession() {
@@ -27,12 +28,15 @@ export async function getSession() {
 
     const userData = userDoc.data();
 
+    // The FIX: Convert Firestore data (with Timestamps) to a plain object
+    const plainUserData = toPlainObject(userData);
+
     return {
       userId: decodedClaims.uid,
       email: decodedClaims.email,
-      name: userData?.name || 'No Name',
-      role: (userData?.role as UserRole) || 'customer',
-      ...userData
+      name: plainUserData?.name || 'No Name',
+      role: (plainUserData?.role as UserRole) || 'customer',
+      ...plainUserData
     };
   } catch (error) {
     // Session cookie is invalid or expired.
