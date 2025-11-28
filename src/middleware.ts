@@ -1,39 +1,30 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { getSession } from '@/lib/session';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 const PUBLIC_ROUTES = ['/login', '/register'];
-const CUSTOMER_ROUTES = ['/dashboard'];
-const EMPLOYEE_ROUTES = ['/employee'];
-const ADMIN_ROUTES = ['/admin'];
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const session = await getSession();
+  
+  // WICHTIG: Wir prüfen nur, ob der Cookie existiert.
+  // Wir importieren NICHTS aus @/lib/session oder firebase-admin!
+  const hasSession = request.cookies.has('session');
 
   const isPublicRoute = PUBLIC_ROUTES.some(path => pathname.startsWith(path));
 
-  if (session) {
-    const { role } = session;
-    const userHomePage = role === 'admin' ? '/admin/dashboard' : role === 'employee' ? '/employee/scanner' : '/dashboard';
-
-    // If user is logged in and tries to access a public route, redirect them to their home page
+  // FALL A: User hat einen Cookie
+  if (hasSession) {
+    // Wenn er auf Login will -> Dashboard
     if (isPublicRoute) {
-      return NextResponse.redirect(new URL(userHomePage, request.url));
+      return NextResponse.redirect(new URL('/dashboard', request.url));
     }
+    // Sonst darf er passieren. Ob er Admin ist, prüft die Seite selbst, nicht die Middleware.
+    return NextResponse.next();
+  }
 
-    // Check role-based access
-    if (pathname.startsWith('/admin') && role !== 'admin') {
-      return NextResponse.redirect(new URL(userHomePage, request.url));
-    }
-    if (pathname.startsWith('/employee') && role !== 'employee') {
-      return NextResponse.redirect(new URL(userHomePage, request.url));
-    }
-    if (pathname.startsWith('/dashboard') && role !== 'customer') {
-      return NextResponse.redirect(new URL(userHomePage, request.url));
-    }
-    
-  } else {
-    // If user is not logged in and tries to access a protected route, redirect to login
+  // FALL B: Kein Cookie
+  else {
+    // Er will auf eine geschützte Seite -> Login
     if (!isPublicRoute) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
@@ -43,6 +34,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Match all routes except for static assets, API routes, and Next.js internals
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
