@@ -6,7 +6,7 @@ export function Logo() {
     <Link href="/" className="flex items-center justify-center gap-2 h-full">
       {/* Use the local logo from the /public folder */}
       <Image 
-        src="/logo.png" 
+        src="public/logo.png" 
         alt="Senoner Sarteur Logo" 
         width={432}
         height={96}
