@@ -7,6 +7,7 @@ const nextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "firebasestorage.googleapis.com" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
+      { protocol: "https", hostname: "picsum.photos" },
     ],
   },
 
@@ -22,6 +23,7 @@ const nextConfig = {
         )
       );
 
+      // 2. Jetzt definieren wir, dass "process" (und die anderen) leer sein sollen.
       config.resolve.fallback = {
         ...config.resolve.fallback,
         process: false,
