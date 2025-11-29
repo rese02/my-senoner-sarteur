@@ -43,27 +43,30 @@ export function LoginForm() {
       // 2. Get the ID token from the signed-in user
       const idToken = await userCredential.user.getIdToken();
 
-      // 3. Call the server action. It will handle the redirect on success.
-      // If it fails, it will throw an error which we catch below.
+      // 3. Call the server action. It will handle the redirect on success by throwing NEXT_REDIRECT.
       await createSession(idToken);
       
-      // The redirect will happen inside the server action, but we'll toast here for feedback.
-      // This part might not even be reached if the redirect is instantaneous.
+      // This part should not be reached if redirect works, but as a fallback:
       toast({
         title: 'Login Successful',
         description: 'Redirecting to your dashboard...',
       });
 
     } catch (error: any) {
+      // THE FIX: Check for the specific NEXT_REDIRECT error.
+      // If it's a redirect error, we must re-throw it so Next.js can handle it.
+      if (error.digest?.includes('NEXT_REDIRECT')) {
+        throw error;
+      }
+      
       console.error("Login process failed:", error);
       
-      // Display a toast with the error message.
+      // Display a toast for all other, "real" errors.
       toast({
         variant: 'destructive',
         title: 'Login Failed',
         description: "Invalid email or password. Please try again.",
       });
-      // IMPORTANT: We stop the process and do NOT redirect.
       setIsSubmitting(false);
     }
   }
