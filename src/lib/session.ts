@@ -7,40 +7,42 @@ import { toPlainObject } from './utils';
 
 
 export async function getSession() {
-  // NEXT.JS 15/16 FIX: await cookies()
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get('session')?.value;
-  
-  if (!sessionCookie) return null;
+
+  if (!sessionCookie) {
+    // console.log("SESSION DEBUG: Kein Cookie gefunden"); // Optional
+    return null;
+  }
 
   try {
-    // 1. Cookie verifizieren (Das geht nur im Node.js Server, nicht Middleware)
     const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
     
-    // 2. User Daten aus Firestore holen (für die Rolle)
-    const userDoc = await adminDb.collection('users').doc(decodedClaims.uid).get();
-    
-    if (!userDoc.exists) {
-        // This case can happen if the user is deleted from Firestore but the cookie still exists
-        cookies().delete('session');
-        redirect('/login');
+    // Wir holen die Daten, aber wenn DB fehlschlägt, lassen wir den User trotzdem rein (Fallback)
+    let role: UserRole = 'customer';
+    let userData = {};
+
+    try {
+        const userDoc = await adminDb.collection('users').doc(decodedClaims.uid).get();
+        if (userDoc.exists) {
+            const rawData = userDoc.data();
+            userData = toPlainObject(rawData); // Ensure data is serializable
+            role = (userData as any).role || 'customer';
+        }
+    } catch (dbError) {
+        console.error("SESSION DEBUG: DB Fehler, aber Token ist gültig.", dbError);
     }
-
-    const userData = userDoc.data();
-
-    // The FIX: Convert Firestore data (with Timestamps) to a plain object
-    const plainUserData = toPlainObject(userData);
 
     return {
       userId: decodedClaims.uid,
       email: decodedClaims.email,
-      name: plainUserData?.name || 'No Name',
-      role: (plainUserData?.role as UserRole) || 'customer',
-      ...plainUserData
+      name: (userData as any)?.name || 'No Name',
+      role: role,
+      ...userData
     };
   } catch (error) {
     // Session cookie is invalid or expired.
-    // In a real app, you might want to log this error.
+    console.error('SESSION DEBUG: Token ungültig:', error);
     return null;
   }
 }

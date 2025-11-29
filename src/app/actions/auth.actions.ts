@@ -18,7 +18,6 @@ function getRedirectPath(role: UserRole): string {
 }
 
 export async function createSession(idToken: string) {
-  // NEXT.JS 15+ CHANGE: We must now wait for cookies()
   const cookieStore = await cookies(); 
   
   let userRole: UserRole = 'customer';
@@ -50,9 +49,10 @@ export async function createSession(idToken: string) {
     cookieStore.set('session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      // WICHTIG: Angepasst für die Cloud-Umgebung
+      secure: false, 
+      sameSite: 'lax', // 'lax' ist toleranter als 'strict'
       path: '/',
-      sameSite: 'lax',
     });
 
   } catch (error) {
@@ -65,9 +65,7 @@ export async function createSession(idToken: string) {
 }
 
 export async function logout() {
-  // NEXT.JS 15+ CHANGE: We must now wait for cookies()
   const cookieStore = await cookies();
   cookieStore.delete('session');
   redirect('/login');
 }
-
