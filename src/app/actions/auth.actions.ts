@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { redirect } from 'next/navigation';
 import type { UserRole } from '@/lib/types';
+import { toPlainObject } from '@/lib/utils';
 
 function getRedirectPath(role: UserRole): string {
   switch (role) {
@@ -23,11 +24,15 @@ export async function createSession(idToken: string) {
   let userRole: UserRole = 'customer';
   
   try {
+    console.log("Starte Session Erstellung...");
+
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     const uid = decodedToken.uid;
+    console.log("Token verifiziert für UID:", uid);
 
     const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
     const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
+    console.log("Session Cookie generiert.");
 
     const userRef = adminDb.collection('users').doc(uid);
     const userSnap = await userRef.get();
@@ -35,31 +40,36 @@ export async function createSession(idToken: string) {
     if (userSnap.exists) {
         userRole = (userSnap.data()?.role as UserRole) || 'customer';
     } else {
-        await userRef.set({
+        const newUser = {
             id: uid,
             name: decodedToken.name || decodedToken.email,
             email: decodedToken.email,
             role: 'customer', 
+            customerSince: new Date(),
             lastLogin: new Date(),
             loyaltyStamps: 0,
-            customerSince: new Date().toISOString(),
-        }, { merge: true });
+        };
+        await userRef.set(toPlainObject(newUser), { merge: true });
+        console.log("Neuer User in DB erstellt:", uid);
     }
-
+    
+    console.log("Setze Cookie...");
     cookieStore.set('session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
-      // WICHTIG: Angepasst für die Cloud-Umgebung
-      secure: false, 
-      sameSite: 'lax', // 'lax' ist toleranter als 'strict'
+      secure: false, // MUSS false sein im Dev Mode
+      sameSite: 'lax',
       path: '/',
     });
+    console.log("Cookie gesetzt!");
 
   } catch (error) {
     console.error('CRITICAL SESSION ERROR:', error);
-    redirect('/login?error=session_creation_failed');
+    // Wir werfen den Fehler weiter, damit die Login-Seite Bescheid weiß
+    throw new Error('Session creation failed');
   }
 
+  // Redirect NUR wenn alles oben geklappt hat
   const redirectPath = getRedirectPath(userRole);
   redirect(redirectPath);
 }

@@ -43,28 +43,27 @@ export function LoginForm() {
       // 2. Get the ID token from the signed-in user
       const idToken = await userCredential.user.getIdToken();
 
-      // 3. Call the server action to create a session cookie and handle redirection
+      // 3. Call the server action. It will handle the redirect on success.
+      // If it fails, it will throw an error which we catch below.
       await createSession(idToken);
       
-      // The redirect will happen inside the server action, but we'll toast here.
+      // The redirect will happen inside the server action, but we'll toast here for feedback.
+      // This part might not even be reached if the redirect is instantaneous.
       toast({
         title: 'Login Successful',
         description: 'Redirecting to your dashboard...',
       });
 
     } catch (error: any) {
-      console.error("Login failed:", error);
+      console.error("Login process failed:", error);
       
-      let msg = "Invalid email or password. Please try again.";
-      if (error.message && error.message.includes("Session creation failed")) {
-        msg = "Server connection failed. Please check environment variables.";
-      }
-      
+      // Display a toast with the error message.
       toast({
         variant: 'destructive',
         title: 'Login Failed',
-        description: msg,
+        description: "Invalid email or password. Please try again.",
       });
+      // IMPORTANT: We stop the process and do NOT redirect.
       setIsSubmitting(false);
     }
   }
