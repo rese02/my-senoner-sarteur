@@ -7,6 +7,7 @@ import { getSession } from '@/lib/session';
 import { collection, getDocs, doc, updateDoc, addDoc, deleteDoc, writeBatch, query, where } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
 import { toPlainObject } from '@/lib/utils';
+import { adminDb } from '@/lib/firebase-admin';
 
 // Helper to check for Admin role
 async function isAdmin() {
@@ -20,10 +21,9 @@ async function isAdmin() {
 // Fetch all products and categories for the admin dashboard
 export async function getAdminDashboardData() {
     await isAdmin();
-    const { firestore } = initializeFirebase();
-
-    const productsQuery = collection(firestore, "products");
-    const categoriesQuery = collection(firestore, "categories");
+    
+    const productsQuery = collection(adminDb, "products");
+    const categoriesQuery = collection(adminDb, "categories");
 
     const productSnapshot = await getDocs(productsQuery);
     const categorySnapshot = await getDocs(categoriesQuery);
@@ -35,19 +35,18 @@ export async function getAdminDashboardData() {
 }
 
 // Toggle product availability
-export async function toggleProductAvailability(productId: string, isAvailable: boolean) {
+export async function toggleProductAvailability(productId: string, isAvailable: boolean): Promise<{isAvailable: boolean}> {
     await isAdmin();
-    const { firestore } = initializeFirebase();
-    const productRef = doc(firestore, "products", productId);
+    const productRef = doc(adminDb, "products", productId);
     await updateDoc(productRef, { isAvailable });
     revalidatePath('/admin/products');
+    return { isAvailable };
 }
 
 // Create a new category
 export async function createCategory(name: string): Promise<Category> {
     await isAdmin();
-    const { firestore } = initializeFirebase();
-    const categoryCollection = collection(firestore, "categories");
+    const categoryCollection = collection(adminDb, "categories");
     const docRef = await addDoc(categoryCollection, { name });
     revalidatePath('/admin/products');
     return { id: docRef.id, name };
@@ -56,15 +55,14 @@ export async function createCategory(name: string): Promise<Category> {
 // Delete a category and all its products
 export async function deleteCategory(categoryId: string) {
     await isAdmin();
-    const { firestore } = initializeFirebase();
-    const batch = writeBatch(firestore);
+    const batch = writeBatch(adminDb);
 
     // Delete category document
-    const categoryRef = doc(firestore, "categories", categoryId);
+    const categoryRef = doc(adminDb, "categories", categoryId);
     batch.delete(categoryRef);
 
     // Find and delete all products in this category
-    const productsQuery = query(collection(firestore, "products"), where("categoryId", "==", categoryId));
+    const productsQuery = query(collection(adminDb, "products"), where("categoryId", "==", categoryId));
     const productsSnapshot = await getDocs(productsQuery);
     productsSnapshot.forEach(doc => {
         batch.delete(doc.ref);
@@ -77,19 +75,17 @@ export async function deleteCategory(categoryId: string) {
 // Update a product
 export async function updateProduct(productData: Product) {
     await isAdmin();
-    const { firestore } = initializeFirebase();
     const { id, ...data } = productData;
-    const productRef = doc(firestore, "products", id);
-    await updateDoc(productRef, data);
+    const productRef = doc(adminDb, "products", id);
+    await updateDoc(productRef, toPlainObject(data));
     revalidatePath('/admin/products');
 }
 
 // Create a new product
 export async function createProduct(productData: Omit<Product, 'id'>): Promise<Product> {
     await isAdmin();
-    const { firestore } = initializeFirebase();
-    const productsCollection = collection(firestore, "products");
-    const docRef = await addDoc(productsCollection, { ...productData, createdAt: new Date() });
+    const productsCollection = collection(adminDb, "products");
+    const docRef = await addDoc(productsCollection, { ...toPlainObject(productData), createdAt: new Date() });
     revalidatePath('/admin/products');
     const newProduct = { id: docRef.id, ...productData } as Product;
     return toPlainObject(newProduct);
@@ -98,8 +94,7 @@ export async function createProduct(productData: Omit<Product, 'id'>): Promise<P
 // Delete a product
 export async function deleteProduct(productId: string) {
     await isAdmin();
-    const { firestore } = initializeFirebase();
-    const productRef = doc(firestore, "products", productId);
+    const productRef = doc(adminDb, "products", productId);
     await deleteDoc(productRef);
     revalidatePath('/admin/products');
 }

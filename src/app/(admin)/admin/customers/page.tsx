@@ -3,7 +3,6 @@
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { mockUsers, mockOrders, mockProducts, mockCategories } from "@/lib/mock-data";
 import type { User, Order, Product, Category } from "@/lib/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -19,15 +18,16 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { toPlainObject } from "@/lib/utils";
 
-// Helper function to get purchase history
-const getCustomerPurchaseCategories = (userId: string): Set<string> => {
+// This function needs to be passed mock data as props since we can't fetch on the client easily
+const getCustomerPurchaseCategories = (userId: string, allOrders: Order[], allProducts: Product[]): Set<string> => {
     const categories = new Set<string>();
-    const customerOrders = mockOrders.filter(o => o.userId === userId);
+    const customerOrders = allOrders.filter(o => o.userId === userId);
     for (const order of customerOrders) {
         if (Array.isArray(order.items)) {
             for (const item of order.items) {
-                const product = mockProducts.find(p => p.id === item.productId);
+                const product = allProducts.find(p => p.id === item.productId);
                 if (product) {
                     categories.add(product.categoryId);
                 }
@@ -37,11 +37,10 @@ const getCustomerPurchaseCategories = (userId: string): Set<string> => {
     return categories;
 };
 
-
-function CustomerCard({ customer, isSelected, onSelect }: { customer: User, isSelected: boolean, onSelect: (id: string, checked: boolean) => void }) {
-    const customerOrders = mockOrders.filter(o => o.userId === customer.id);
+function CustomerCard({ customer, isSelected, onSelect, orders, products }: { customer: User, isSelected: boolean, onSelect: (id: string, checked: boolean) => void, orders: Order[], products: Product[] }) {
+    const customerOrders = orders.filter(o => o.userId === customer.id);
     const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total ?? 0), 0);
-    const loyaltyData = customer.loyaltyData;
+    const loyaltyData = customer.loyaltyStamps ? { points: customer.loyaltyStamps * 15 } : { points: 0 }; // Simulate points
     const loyaltyTier = loyaltyData ? getLoyaltyTier(loyaltyData.points) : loyaltyTiers.bronze;
 
     return (
@@ -77,8 +76,40 @@ function CustomerCard({ customer, isSelected, onSelect }: { customer: User, isSe
     )
 }
 
-export default function AdminCustomersPage() {
-    const allCustomers = useMemo(() => mockUsers.filter(u => u.role === 'customer'), []);
+// AdminCustomersPage is now a wrapper for a client component
+// This pattern allows us to fetch data securely on the server
+import { adminDb } from '@/lib/firebase-admin';
+import { collection, getDocs, where as firestoreWhere, query } from 'firebase/firestore';
+
+export default function AdminCustomersPageWrapper() {
+    const [customers, setCustomers] = useState<User[]>([]);
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useMemo(async () => {
+        const customerSnap = await getDocs(query(collection(adminDb, 'users'), firestoreWhere('role', '==', 'customer')));
+        const orderSnap = await getDocs(collection(adminDb, 'orders'));
+        const productSnap = await getDocs(collection(adminDb, 'products'));
+        const categorySnap = await getDocs(collection(adminDb, 'categories'));
+
+        setCustomers(customerSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as User)));
+        setOrders(orderSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as Order)));
+        setProducts(productSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as Product)));
+        setCategories(categorySnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as Category)));
+        setLoading(false);
+    }, []);
+
+    if (loading) {
+        return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+    }
+
+    return <AdminCustomersPageClient customers={customers} orders={orders} products={products} categories={categories} />;
+}
+
+
+function AdminCustomersPageClient({ customers, orders, products, categories }: { customers: User[], orders: Order[], products: Product[], categories: Category[] }) {
     
     const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
     const [open, setOpen] = useState(false);
@@ -91,14 +122,14 @@ export default function AdminCustomersPage() {
 
     const filteredCustomers = useMemo(() => {
         if (selectedCategories.length === 0) {
-            return allCustomers;
+            return customers;
         }
         const selectedCategoryIds = new Set(selectedCategories.map(c => c.id));
-        return allCustomers.filter(customer => {
-            const purchaseHistory = getCustomerPurchaseCategories(customer.id);
+        return customers.filter(customer => {
+            const purchaseHistory = getCustomerPurchaseCategories(customer.id, orders, products);
             return Array.from(selectedCategoryIds).some(catId => purchaseHistory.has(catId));
         });
-    }, [allCustomers, selectedCategories]);
+    }, [customers, orders, products, selectedCategories]);
 
 
     const handleSelectAll = (checked: boolean | 'indeterminate') => {
@@ -169,7 +200,7 @@ export default function AdminCustomersPage() {
                                 <CommandList>
                                 <CommandEmpty>Keine Kategorien gefunden.</CommandEmpty>
                                 <CommandGroup>
-                                    {mockCategories.map((category) => (
+                                    {categories.map((category) => (
                                     <CommandItem
                                         key={category.id}
                                         onSelect={() => toggleCategory(category)}
@@ -211,9 +242,9 @@ export default function AdminCustomersPage() {
                                 </TableRow>
                             )}
                             {filteredCustomers.map((customer) => {
-                                const customerOrders = mockOrders.filter(o => o.userId === customer.id);
+                                const customerOrders = orders.filter(o => o.userId === customer.id);
                                 const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total ?? 0), 0);
-                                const loyaltyData = customer.loyaltyData;
+                                const loyaltyData = customer.loyaltyStamps ? { points: customer.loyaltyStamps * 15 } : { points: 0 };
                                 const loyaltyTier = loyaltyData ? getLoyaltyTier(loyaltyData.points) : loyaltyTiers.bronze;
 
                                 return (
@@ -251,6 +282,8 @@ export default function AdminCustomersPage() {
                                 customer={customer}
                                 isSelected={selectedCustomers.includes(customer.id)}
                                 onSelect={handleSelectCustomer}
+                                orders={orders}
+                                products={products}
                             />
                         ))}
                     </div>
@@ -283,5 +316,3 @@ export default function AdminCustomersPage() {
     </div>
   );
 }
-
-    

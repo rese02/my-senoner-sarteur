@@ -1,6 +1,5 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
-import { mockOrders, mockUsers } from "@/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -95,6 +94,9 @@ function OrderDetailsDeleteSection({ orderId }: { orderId: string }) {
     );
 }
 
+// MOCK DATA - To be replaced by server-fetched data
+import { mockOrders, mockUsers } from "@/lib/mock-data";
+
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>(mockOrders);
@@ -148,8 +150,10 @@ export default function AdminOrdersPage() {
     return orders
       .filter(order => {
         const lowerSearchTerm = searchTerm.toLowerCase();
+        const customer = mockUsers.find(u => u.id === order.userId);
+        const customerName = customer ? customer.name : '';
         const matchesSearch = 
-          order.customerName.toLowerCase().includes(lowerSearchTerm) ||
+          customerName.toLowerCase().includes(lowerSearchTerm) ||
           order.id.toLowerCase().includes(lowerSearchTerm);
         
         const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
@@ -212,7 +216,9 @@ export default function AdminOrdersPage() {
                     <TableCell colSpan={8} className="h-24 text-center">Keine Bestellungen gefunden.</TableCell>
                   </TableRow>
                 )}
-                {filteredOrders.map((order) => (
+                {filteredOrders.map((order) => {
+                  const customer = mockUsers.find(u => u.id === order.userId);
+                  return (
                   <TableRow key={order.id} className="transition-colors hover:bg-secondary">
                     <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
                     <TableCell>
@@ -224,7 +230,7 @@ export default function AdminOrdersPage() {
                          <span className="text-xs">{order.type === 'grocery_list' ? 'Liste' : 'Vorb.'}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium">{order.customerName}</TableCell>
+                    <TableCell className="font-medium">{customer?.name}</TableCell>
                     <TableCell className="text-muted-foreground text-xs">{
                       order.type === 'grocery_list' 
                       ? `${order.rawList?.split('\n').length} Artikel`
@@ -252,7 +258,7 @@ export default function AdminOrdersPage() {
                       <Button variant="ghost" size="sm" onClick={() => handleShowDetails(order)}>Details</Button>
                     </TableCell>
                   </TableRow>
-                ))}
+                )})}
               </TableBody>
             </Table>
           </div>
