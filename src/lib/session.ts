@@ -1,7 +1,7 @@
+
 import 'server-only';
 import { cookies } from 'next/headers';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
-import { redirect } from 'next/navigation';
 import type { UserRole } from './types';
 import { toPlainObject } from './utils';
 
@@ -11,38 +11,30 @@ export async function getSession() {
   const sessionCookie = cookieStore.get('session')?.value;
 
   if (!sessionCookie) {
-    // console.log("SESSION DEBUG: Kein Cookie gefunden"); // Optional
+    // console.log("SESSION: Kein Cookie gefunden (Logout)");
     return null;
   }
 
   try {
     const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
     
-    // Wir holen die Daten, aber wenn DB fehlschlägt, lassen wir den User trotzdem rein (Fallback)
-    let role: UserRole = 'customer';
-    let userData = {};
+    // User Daten holen
+    const userDoc = await adminDb.collection('users').doc(decodedClaims.uid).get();
+    const userData = userDoc.data();
+    
+    const role = (userData?.role as UserRole) || 'customer';
 
-    try {
-        const userDoc = await adminDb.collection('users').doc(decodedClaims.uid).get();
-        if (userDoc.exists) {
-            const rawData = userDoc.data();
-            userData = toPlainObject(rawData); // Ensure data is serializable
-            role = (userData as any).role || 'customer';
-        }
-    } catch (dbError) {
-        console.error("SESSION DEBUG: DB Fehler, aber Token ist gültig.", dbError);
-    }
+    const plainUserData = userData ? toPlainObject(userData) : {};
 
     return {
       userId: decodedClaims.uid,
       email: decodedClaims.email,
-      name: (userData as any)?.name || 'No Name',
+      name: (plainUserData as any)?.name || 'No Name',
       role: role,
-      ...userData
+      ...plainUserData
     };
   } catch (error) {
-    // Session cookie is invalid or expired.
-    console.error('SESSION DEBUG: Token ungültig:', error);
+    console.error('SESSION ERROR: Cookie ungültig:', error);
     return null;
   }
 }

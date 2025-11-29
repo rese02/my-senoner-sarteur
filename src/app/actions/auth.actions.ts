@@ -1,3 +1,4 @@
+
 'use server';
 
 import { cookies } from 'next/headers';
@@ -54,11 +55,14 @@ export async function createSession(idToken: string) {
     }
     
     console.log("Setze Cookie...");
+    // 4. Cookie setzen (Update für Firebase Studio / HTTPS)
     cookieStore.set('session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
-      secure: false, // MUSS false sein im Dev Mode
-      sameSite: 'lax',
+      // 'None' erlaubt den Cookie auch in iframes oder Cloud-Proxies
+      sameSite: 'none', 
+      // Zwingend true, weil Firebase Studio HTTPS nutzt!
+      secure: true, 
       path: '/',
     });
     console.log("Cookie gesetzt!");
