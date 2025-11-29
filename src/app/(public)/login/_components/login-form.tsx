@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -53,8 +54,8 @@ export function LoginForm() {
       });
 
     } catch (error: any) {
-      // THE FIX: Check for the specific NEXT_REDIRECT error.
-      // If it's a redirect error, we must re-throw it so Next.js can handle it.
+      // If the error is a redirect error, we must re-throw it so Next.js can handle it.
+      // This is the intended behavior for Server Action redirects.
       if (error.digest?.includes('NEXT_REDIRECT')) {
         throw error;
       }
