@@ -1,12 +1,6 @@
 {
   "placeholderImages": [
     {
-      "id": "logo",
-      "description": "Senoner Sarteur Logo",
-      "imageUrl": "https://images.unsplash.com/photo-1571845398021-becaddc6265e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxsb2dvJTIwbW91bnRhaW58ZW58MHx8fHwxNzY0NDMxMDY3fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "logo mountain"
-    },
-    {
       "id": "sushi-box-sm",
       "description": "Small Sushi Box",
       "imageUrl": "https://images.unsplash.com/photo-1719464458230-4fbb4dd29051?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxzdXNoaSUyMGJveHxlbnwwfHx8fDE3NjMyMjU3OTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
