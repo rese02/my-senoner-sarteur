@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // TypeScript & ESLint Fehler im Build ignorieren
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
 
@@ -9,11 +8,13 @@ const nextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "firebasestorage.googleapis.com" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
+      { protocol: "https", hostname: "picsum.photos" }, // For your test images
     ],
   },
 
   webpack: (config, { webpack, isServer }) => {
     if (!isServer) {
+      // 1. The plugin: Removes "node:" from imports
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(
           /^node:/,
@@ -23,6 +24,7 @@ const nextConfig = {
         )
       );
 
+      // 2. The fallbacks: Empty modules for Node stuff
       config.resolve.fallback = {
         ...config.resolve.fallback,
         process: false,
