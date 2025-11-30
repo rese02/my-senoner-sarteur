@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useAuth } from '@/firebase/provider'; // Client Auth Hook!
-import { createSession } from '@/app/actions/auth.actions'; // Our Server Action
+import { auth } from '@/lib/firebase/config'; // WICHTIG: Direktimport statt Hook
+import { createSession } from '@/actions/auth-actions'; // WICHTIG: Die reparierte Datei nutzen!
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -16,15 +15,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
 const formSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email.' }),
-  password: z.string().min(1, { message: 'Password is required.' }),
+  email: z.string().email({ message: 'Bitte geben Sie eine gültige E-Mail ein.' }),
+  password: z.string().min(1, { message: 'Passwort ist erforderlich.' }),
 });
 
 export function LoginForm() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-  const auth = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -38,35 +36,32 @@ export function LoginForm() {
     setIsSubmitting(true);
     
     try {
-      // 1. Sign in using the client SDK
+      // 1. Firebase Login (Client)
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       
-      // 2. Get the ID token from the signed-in user
+      // 2. Token holen
       const idToken = await userCredential.user.getIdToken();
 
-      // 3. Call the server action. It will handle the redirect on success by throwing NEXT_REDIRECT.
+      // 3. Server Action aufrufen (Cookie setzen & Redirect)
+      // Diese Funktion enthält unsere Fixes für die Cloud-Umgebung!
       await createSession(idToken);
       
-      // This part should not be reached if redirect works, but as a fallback:
-      toast({
-        title: 'Login Successful',
-        description: 'Redirecting to your dashboard...',
-      });
+      // Hinweis: Der Code hier drunter wird meist gar nicht erreicht, 
+      // weil createSession einen Redirect auslöst.
 
     } catch (error: any) {
-      // If the error is a redirect error, we must re-throw it so Next.js can handle it.
-      // This is the intended behavior for Server Action redirects.
-      if (error.digest?.includes('NEXT_REDIRECT')) {
+      // WICHTIG: Next.js Redirects werfen einen Fehler ('NEXT_REDIRECT').
+      // Diesen müssen wir durchlassen, sonst funktioniert die Weiterleitung nicht!
+      if (error.message === 'NEXT_REDIRECT' || error.digest?.includes('NEXT_REDIRECT')) {
         throw error;
       }
       
       console.error("Login process failed:", error);
       
-      // Display a toast for all other, "real" errors.
       toast({
         variant: 'destructive',
-        title: 'Login Failed',
-        description: "Invalid email or password. Please try again.",
+        title: 'Anmeldung fehlgeschlagen',
+        description: "Ungültige E-Mail oder Passwort.",
       });
       setIsSubmitting(false);
     }
@@ -82,7 +77,7 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="name@example.com" {...field} />
+                <Input placeholder="admin@senoner.it" {...field} disabled={isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -93,9 +88,9 @@ export function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Passwort</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
+                <Input type="password" placeholder="••••••••" {...field} disabled={isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -103,9 +98,10 @@ export function LoginForm() {
         />
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isSubmitting ? 'Signing in...' : 'Sign In'}
+          {isSubmitting ? 'Anmelden...' : 'Anmelden'}
         </Button>
       </form>
     </Form>
   );
 }
+
