@@ -15,14 +15,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  email: z.string().email({ message: 'Please enter a valid email.' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
+  name: z.string().min(2, { message: 'Name muss mindestens 2 Zeichen lang sein.' }),
+  email: z.string().email({ message: 'Bitte geben Sie eine gültige E-Mail ein.' }),
+  password: z.string().min(8, { message: 'Das Passwort muss mindestens 8 Zeichen lang sein.' }),
+  phone: z.string().min(5, { message: 'Bitte geben Sie eine gültige Telefonnummer ein.'}),
+  street: z.string().min(3, { message: 'Bitte geben Sie eine Straße ein.'}),
+  city: z.string().min(2, { message: 'Bitte geben Sie einen Ort ein.'}),
+  zip: z.string().min(4, { message: 'Bitte geben Sie eine PLZ ein.'}),
+  province: z.string().min(2, { message: 'Bitte geben Sie eine Provinz ein.'}),
 });
 
 export function RegisterForm() {
   const { toast } = useToast();
-  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const auth = useAuth();
 
@@ -32,6 +36,11 @@ export function RegisterForm() {
       name: '',
       email: '',
       password: '',
+      phone: '',
+      street: '',
+      city: '',
+      zip: '',
+      province: 'BZ',
     },
   });
 
@@ -50,32 +59,43 @@ export function RegisterForm() {
       // 3. Get the ID token from the newly created user
       const idToken = await userCredential.user.getIdToken();
 
-      // 4. Call our server action to create the session cookie and the Firestore user document
-      await createSession(idToken);
+      // 4. Prepare extra data for server action
+      const extraData = {
+        name: values.name,
+        phone: values.phone,
+        deliveryAddress: {
+          street: values.street,
+          city: values.city,
+          zip: values.zip,
+          province: values.province,
+        }
+      }
+
+      // 5. Call our server action to create the session cookie and the Firestore user document
+      await createSession(idToken, extraData);
 
       // The redirect happens inside the server action.
       toast({
-        title: 'Registration Successful',
-        description: 'Redirecting to your dashboard...',
+        title: 'Registrierung erfolgreich',
+        description: 'Sie werden zum Dashboard weitergeleitet...',
       });
 
     } catch (error: any) {
-      // This is the fix: Re-throw the redirect error so Next.js can handle it.
       if (error.digest?.includes('NEXT_REDIRECT')) {
         throw error;
       }
       
       console.error("Registration failed:", error.code);
-      let msg = "An unexpected error occurred.";
+      let msg = "Ein unerwarteter Fehler ist aufgetreten.";
       if (error.code === 'auth/email-already-in-use') {
-        msg = "This email address is already in use.";
+        msg = "Diese E-Mail-Adresse wird bereits verwendet.";
       } else if (error.code === 'auth/weak-password') {
-        msg = "The password must be at least 8 characters long.";
+        msg = "Das Passwort muss mindestens 8 Zeichen lang sein.";
       }
       
       toast({
         variant: "destructive",
-        title: "Registration Failed",
+        title: "Registrierung fehlgeschlagen",
         description: msg
       });
       setIsSubmitting(false);
@@ -90,9 +110,9 @@ export function RegisterForm() {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full Name</FormLabel>
+              <FormLabel>Vollständiger Name</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input placeholder="Max Mustermann" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -116,7 +136,7 @@ export function RegisterForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Passwort</FormLabel>
               <FormControl>
                 <Input type="password" placeholder="••••••••" {...field} />
               </FormControl>
@@ -124,9 +144,78 @@ export function RegisterForm() {
             </FormItem>
           )}
         />
+         <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Telefonnummer</FormLabel>
+              <FormControl>
+                <Input placeholder="+39 123 4567890" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="street"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Straße & Nr.</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Musterweg 1" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ort</FormLabel>
+                  <FormControl>
+                    <Input placeholder="St. Ulrich" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+        </div>
+         <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="zip"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>PLZ</FormLabel>
+                  <FormControl>
+                    <Input placeholder="39046" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="province"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Provinz</FormLabel>
+                  <FormControl>
+                    <Input placeholder="BZ" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+        </div>
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isSubmitting ? 'Creating account...' : 'Create Account'}
+          {isSubmitting ? 'Konto wird erstellt...' : 'Konto erstellen'}
         </Button>
       </form>
     </Form>

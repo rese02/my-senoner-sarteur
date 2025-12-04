@@ -4,8 +4,10 @@
 import { cookies } from 'next/headers';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { redirect } from 'next/navigation';
-import type { UserRole } from '@/lib/types';
+import type { User, UserRole } from '@/lib/types';
 import { toPlainObject } from '@/lib/utils';
+import { revalidatePath } from 'next/cache';
+import { getSession } from '@/lib/session';
 
 function getRedirectPath(role: UserRole): string {
   switch (role) {
@@ -19,7 +21,7 @@ function getRedirectPath(role: UserRole): string {
   }
 }
 
-export async function createSession(idToken: string) {
+export async function createSession(idToken: string, extraData?: Partial<User>) {
   const cookieStore = await cookies(); 
   
   let userRole: UserRole = 'customer';
@@ -40,28 +42,30 @@ export async function createSession(idToken: string) {
     
     if (userSnap.exists) {
         userRole = (userSnap.data()?.role as UserRole) || 'customer';
+        // If user exists, just update last login
+        await userRef.update({ lastLogin: new Date().toISOString() });
     } else {
-        const newUser = {
-            id: uid,
-            name: decodedToken.name || decodedToken.email,
-            email: decodedToken.email,
-            role: 'customer', 
-            customerSince: new Date(),
-            lastLogin: new Date(),
+        // Enforce customer role on the server for all new sign-ups
+        userRole = 'customer';
+        const newUser: Omit<User, 'id'> = {
+            name: extraData?.name || decodedToken.name || decodedToken.email!,
+            email: decodedToken.email!,
+            role: userRole, 
+            customerSince: new Date().toISOString(),
+            lastLogin: new Date().toISOString(),
             loyaltyStamps: 0,
+            phone: extraData?.phone || '',
+            deliveryAddress: extraData?.deliveryAddress || { street: '', city: '', zip: '', province: '' },
         };
-        await userRef.set(toPlainObject(newUser), { merge: true });
+        await userRef.set(toPlainObject(newUser));
         console.log("Neuer User in DB erstellt:", uid);
     }
     
     console.log("Setze Cookie...");
-    // 4. Cookie setzen (Update für Firebase Studio / HTTPS)
     cookieStore.set('session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
-      // 'None' erlaubt den Cookie auch in iframes oder Cloud-Proxies
       sameSite: 'none', 
-      // Zwingend true, weil Firebase Studio HTTPS nutzt!
       secure: true, 
       path: '/',
     });
@@ -69,7 +73,6 @@ export async function createSession(idToken: string) {
 
   } catch (error) {
     console.error('CRITICAL SESSION ERROR:', error);
-    // Wir werfen den Fehler weiter, damit die Login-Seite Bescheid weiß
     throw new Error('Session creation failed');
   }
 
@@ -82,4 +85,31 @@ export async function logout() {
   const cookieStore = await cookies();
   cookieStore.delete('session');
   redirect('/login');
+}
+
+export async function updateUserProfile(formData: FormData) {
+  const session = await getSession();
+  if (!session?.userId) {
+    throw new Error('Not authenticated');
+  }
+
+  const dataToUpdate = {
+    name: formData.get('name') as string,
+    phone: formData.get('phone') as string,
+    deliveryAddress: {
+      street: formData.get('street') as string,
+      city: formData.get('city') as string,
+      zip: formData.get('zip') as string,
+      province: formData.get('province') as string,
+    }
+  };
+
+  try {
+    await adminDb.collection('users').doc(session.userId).update(toPlainObject(dataToUpdate));
+    revalidatePath('/dashboard/profile');
+    return { success: true, message: 'Profil erfolgreich aktualisiert.' };
+  } catch(error) {
+    console.error("Profile update failed:", error);
+    return { success: false, message: 'Aktualisierung fehlgeschlagen.' };
+  }
 }

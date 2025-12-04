@@ -8,10 +8,12 @@ export interface User {
   password?: string; // Only for mock data, not in real DB
   customerSince?: string;
   loyaltyStamps?: number; // New stamp system
+  phone?: string;
   deliveryAddress?: {
     street: string;
     city: string;
-    notes?: string;
+    zip: string;
+    province: string;
   };
   currentDebt?: number;
 }
@@ -123,7 +125,7 @@ export interface Story {
   imageHint: string;
   label: string;
   author: string;
-  duration?: number;
+  expiresAt: string;
 }
 
 
