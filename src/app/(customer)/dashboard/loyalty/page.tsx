@@ -1,12 +1,10 @@
-'use client';
+'use server';
 
 import { PageHeader } from "@/components/common/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { getSession } from "@/lib/session";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Gift, Sparkles, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
-import type { User } from "@/lib/types";
 import { QRCodeSVG } from 'qrcode.react';
 
 function QrCodeDisplay({ userId }: { userId: string }) {
@@ -30,40 +28,8 @@ function Stamp({ filled }: { filled: boolean }) {
     );
 }
 
-export default function LoyaltyPage() {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        // Fetch the session data from our new API route on the client side
-        const fetchSession = async () => {
-            try {
-                const res = await fetch('/api/get-session');
-                if (res.ok) {
-                    const sessionData = await res.json();
-                    setUser(sessionData.user);
-                } else {
-                    // Handle cases where the session might not be found or an error occurs
-                    console.error("Failed to fetch session");
-                }
-            } catch (error) {
-                console.error("Error fetching session:", error);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchSession();
-
-    }, []);
-
-    if (loading) {
-        return (
-             <div className="flex justify-center items-center h-64">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-        )
-    }
+export default async function LoyaltyPage() {
+    const user = await getSession();
 
     if (!user) {
         return <PageHeader title="Nicht angemeldet" description="Bitte melden Sie sich an, um Ihre Treuekarte zu sehen." />;
