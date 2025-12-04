@@ -60,6 +60,11 @@ export function RegisterForm() {
       });
 
     } catch (error: any) {
+      // This is the fix: Re-throw the redirect error so Next.js can handle it.
+      if (error.digest?.includes('NEXT_REDIRECT')) {
+        throw error;
+      }
+      
       console.error("Registration failed:", error.code);
       let msg = "An unexpected error occurred.";
       if (error.code === 'auth/email-already-in-use') {
