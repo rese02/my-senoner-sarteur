@@ -1,10 +1,12 @@
 'use server';
 
 import { adminDb } from '@/lib/firebase-admin';
-import { getSession } from '@/lib/session';
-import { toPlainObject } from '@/lib/utils';
-import type { Story, PlannerEvent } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/lib/session';
+import type { Story, PlannerEvent, Product, Recipe } from '@/lib/types';
+import { toPlainObject } from '@/lib/utils';
+import { mockAppConfig } from '@/lib/mock-data';
+
 
 async function isAdmin() {
   const session = await getSession();
@@ -23,15 +25,22 @@ export async function saveStory(storyData: Partial<Story>): Promise<Story> {
     if (!data.label || !data.author || !data.imageUrl) {
         throw new Error("Missing required story fields.");
     }
+    
+    // Add expiresAt for new stories
+    const storyToSave = {
+      ...data,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+    }
 
     if (id && id.startsWith('story-')) { // New story
-        const newDocRef = await adminDb.collection('stories').add(toPlainObject(data));
+        const newDocRef = await adminDb.collection('stories').add(toPlainObject(storyToSave));
         revalidatePaths();
-        return { ...data, id: newDocRef.id } as Story;
+        return { ...storyToSave, id: newDocRef.id } as Story;
     } else { // Existing story
-        await adminDb.collection('stories').doc(id!).update(toPlainObject(data));
+        // When updating, we might not want to change expiry, but for now we do
+        await adminDb.collection('stories').doc(id!).update(toPlainObject(storyToSave));
         revalidatePaths();
-        return { ...data, id: id! } as Story;
+        return { ...storyToSave, id: id! } as Story;
     }
 }
 
@@ -69,6 +78,16 @@ export async function deletePlannerEvent(eventId: string) {
     revalidatePaths();
 }
 
+// --- Recipe of the Week Action ---
+export async function saveRecipeOfTheWeek(recipeData: Recipe) {
+    await isAdmin();
+    // This is a mock implementation. In a real app, this would save to Firestore.
+    // For now, we update the in-memory mock data.
+    mockAppConfig.recipeOfTheWeek = toPlainObject(recipeData);
+    revalidatePaths(); // Revalidate paths to show changes
+    return { success: true };
+}
+
 
 // --- Data Fetching Actions ---
 export async function getMarketingPageData() {
@@ -77,11 +96,17 @@ export async function getMarketingPageData() {
     const plannerEventsSnap = await adminDb.collection('plannerEvents').get();
     const productsSnap = await adminDb.collection('products').where('isAvailable', '==', true).get();
 
-    const stories = storiesSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Story));
+    const stories = storiesSnap.docs
+      .map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Story))
+      .filter(story => new Date(story.expiresAt || 0) > new Date()); // Filter out expired stories
+      
     const plannerEvents = plannerEventsSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as PlannerEvent));
-    const products = productsSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as any));
+    const products = productsSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Product));
     
-    return { stories, plannerEvents, products };
+    // For the recipe, we still use mock data as per instructions
+    const recipe = mockAppConfig.recipeOfTheWeek;
+
+    return { stories, plannerEvents, products, recipe };
 }
 
 export async function getPlannerPageData() {
@@ -89,7 +114,7 @@ export async function getPlannerPageData() {
     const productsSnap = await adminDb.collection('products').where('isAvailable', '==', true).get();
     
     const plannerEvents = plannerEventsSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as PlannerEvent));
-    const products = productsSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as any));
+    const products = productsSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Product));
 
     return { plannerEvents, products };
 }

@@ -1,11 +1,11 @@
 'use server';
 
 import { PageHeader } from "@/components/common/PageHeader";
-import { getMarketingPageData, savePlannerEvent, saveStory, deletePlannerEvent, deleteStory } from "@/app/actions/marketing.actions";
+import { getMarketingPageData } from "@/app/actions/marketing.actions";
 import { MarketingClient } from './client';
 
 export default async function MarketingPage() {
-    const { stories, plannerEvents, products } = await getMarketingPageData();
+    const { stories, plannerEvents, products, recipe } = await getMarketingPageData();
 
     return (
         <div>
@@ -14,6 +14,7 @@ export default async function MarketingPage() {
                 initialStories={stories}
                 initialPlannerEvents={plannerEvents}
                 availableProducts={products}
+                initialRecipe={recipe}
             />
         </div>
     );
