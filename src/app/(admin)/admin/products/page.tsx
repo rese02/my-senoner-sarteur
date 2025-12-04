@@ -1,24 +1,42 @@
-
-import { adminDb } from '@/lib/firebase-admin';
-import { toPlainObject } from '@/lib/utils';
-import type { Product, Category } from '@/lib/types'; 
+'use client';
 import { ProductsClient } from './client';
+import { getProductsPageData } from '@/app/actions/product.actions';
+import { useState, useEffect } from 'react';
+import type { Product, Category } from '@/lib/types';
+import { Loader2 } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
+export default function ProductsPage() {
+  const [initialProducts, setInitialProducts] = useState<Product[]>([]);
+  const [initialCategories, setInitialCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function ProductsPage() {
-  const productsSnapshot = await adminDb.collection('products').orderBy('name').get();
-  const categoriesSnapshot = await adminDb.collection('categories').orderBy('name').get();
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const { products, categories } = await getProductsPageData();
+        setInitialProducts(products);
+        setInitialCategories(categories);
+      } catch (error) {
+        console.error("Failed to fetch products data", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
-  const products = productsSnapshot.docs.map(doc => 
-    toPlainObject({ ...doc.data(), id: doc.id } as Product)
-  );
-
-  const categories = categoriesSnapshot.docs.map(doc => 
-    toPlainObject({ ...doc.data(), id: doc.id } as Category)
-  );
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
-      <ProductsClient initialProducts={products} initialCategories={categories} />
+    <ProductsClient
+      initialProducts={initialProducts}
+      initialCategories={initialCategories}
+    />
   );
 }

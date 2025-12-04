@@ -1,19 +1,22 @@
 import { PageHeader } from "@/components/common/PageHeader";
 import { getSession } from "@/lib/session";
-import { mockUsers } from "@/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth.actions";
+import { redirect } from "next/navigation";
 
 export default async function ProfilePage() {
     const session = await getSession();
-    const user = mockUsers.find(u => u.id === session?.userId);
-
-    if (!user) {
-        return <PageHeader title="User not found" />;
+    
+    // If there is no session, redirect to login.
+    if (!session) {
+        redirect('/login');
     }
+
+    // The user data is directly available in the session object.
+    const user = session;
 
     return (
         <div className="pb-24 md:pb-8">
