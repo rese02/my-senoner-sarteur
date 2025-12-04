@@ -1,14 +1,13 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, ShoppingCart, Truck, AlertCircle, Trash2 } from "lucide-react";
-import { mockOrders, mockUsers } from "@/lib/mock-data";
+import { Users, ShoppingCart, Truck, AlertCircle, Trash2, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { isToday, isFuture, isPast, format } from "date-fns";
+import { isToday, isFuture, isPast, format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useState, useMemo, useTransition } from "react";
+import { useState, useMemo, useTransition, useEffect } from "react";
 import type { Order, User, OrderStatus } from "@/lib/types";
 import { OrderCard } from "@/components/admin/OrderCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
@@ -18,6 +17,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { deleteOrder } from "@/app/actions/admin-cleanup.actions";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { getDashboardPageData } from "@/app/actions/dashboard.actions";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
@@ -31,7 +31,7 @@ const statusMap: Record<OrderStatus, {label: string, className: string}> = {
   cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg border-transparent' }
 };
 
-function OrderDetailsDeleteSection({ orderId }: { orderId: string }) {
+function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onClose: () => void }) {
     const router = useRouter();
     const { toast } = useToast();
     const [isDeleting, startDeleteTransition] = useTransition();
@@ -40,7 +40,7 @@ function OrderDetailsDeleteSection({ orderId }: { orderId: string }) {
         startDeleteTransition(async () => {
             await deleteOrder(orderId);
             toast({ title: "Gelöscht", description: "Bestellung wurde entfernt." });
-            router.refresh(); 
+            onClose();
         });
     };
 
@@ -73,36 +73,63 @@ function OrderDetailsDeleteSection({ orderId }: { orderId: string }) {
     );
 }
 
+
 export default function AdminDashboardPage() {
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(true);
+
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [customerDetails, setCustomerDetails] = useState<User | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    useEffect(() => {
+        async function loadData() {
+            setLoading(true);
+            try {
+                const { orders: fetchedOrders, users: fetchedUsers } = await getDashboardPageData();
+                setOrders(fetchedOrders);
+                setUsers(fetchedUsers);
+            } catch(error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        if (!isModalOpen) {
+           loadData();
+        }
+    }, [isModalOpen]); // Reload data when modal is closed
 
     const stats = useMemo(() => {
-        const newOrdersToday = mockOrders.filter(o => isToday(new Date(o.createdAt)) && o.status === 'new').length;
-        const pickupsToday = mockOrders.filter(o => o.pickupDate && isToday(new Date(o.pickupDate))).length;
-        const overduePickups = mockOrders.filter(o => {
-            const pickup = o.pickupDate ? new Date(o.pickupDate) : null;
+        const newOrdersToday = orders.filter(o => isToday(parseISO(o.createdAt)) && o.status === 'new').length;
+        const pickupsToday = orders.filter(o => o.pickupDate && isToday(parseISO(o.pickupDate))).length;
+        const overduePickups = orders.filter(o => {
+            const pickup = o.pickupDate ? parseISO(o.pickupDate) : null;
             if (!pickup) return false;
             return isPast(pickup) && !isToday(pickup) && ['new', 'ready', 'picking', 'ready_for_delivery'].includes(o.status);
         }).length;
 
         return { newOrdersToday, pickupsToday, overduePickups };
-    }, []);
+    }, [orders]);
 
     const recentAndUpcomingOrders = useMemo(() => {
-        return mockOrders
+        return orders
             .filter(o => ['new', 'picking', 'ready', 'ready_for_delivery'].includes(o.status))
             .sort((a, b) => new Date(a.pickupDate || a.createdAt).getTime() - new Date(b.pickupDate || b.createdAt).getTime())
             .slice(0, 10);
-    }, []);
+    }, [orders]);
 
     const handleShowDetails = (order: Order) => {
         setSelectedOrder(order);
-        const customer = mockUsers.find(u => u.id === order.userId) || null;
+        const customer = users.find(u => u.id === order.userId) || null;
         setCustomerDetails(customer);
         setIsModalOpen(true);
     };
+
+    if (loading) {
+        return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+    }
 
   return (
     <div className="space-y-6">
@@ -170,7 +197,7 @@ export default function AdminDashboardPage() {
             <DialogTitle>Bestelldetails</DialogTitle>
             <DialogDescription>
               Bestellung #{selectedOrder?.id.slice(-6)} vom{' '}
-              {selectedOrder && format(new Date(selectedOrder.createdAt), "dd.MM.yyyy, HH:mm")}
+              {selectedOrder && format(parseISO(selectedOrder.createdAt), "dd.MM.yyyy, HH:mm")}
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
@@ -179,7 +206,7 @@ export default function AdminDashboardPage() {
                   <h3 className="font-semibold text-base">Bestellübersicht</h3>
                    <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
                         <p className="text-muted-foreground">{selectedOrder.type === 'grocery_list' ? 'Lieferung:' : 'Abholung:'}</p>
-                        <p className="font-medium">{format(new Date(selectedOrder.pickupDate || selectedOrder.deliveryDate || selectedOrder.createdAt), "EEEE, dd.MM.yyyy", { locale: de })}</p>
+                        <p className="font-medium">{format(parseISO(selectedOrder.pickupDate || selectedOrder.deliveryDate || selectedOrder.createdAt), "EEEE, dd.MM.yyyy", { locale: de })}</p>
                         <p className="text-muted-foreground">Status:</p>
                         <div><Badge className={cn("capitalize font-semibold", statusMap[selectedOrder.status]?.className)}>{statusMap[selectedOrder.status]?.label}</Badge></div>
                    </div>
@@ -229,12 +256,12 @@ export default function AdminDashboardPage() {
                           <p className="text-muted-foreground">Email:</p>
                           <p className="font-medium">{customerDetails.email}</p>
                           <p className="text-muted-foreground">Kunde seit:</p>
-                          <p className="font-medium">{customerDetails.customerSince ? format(new Date(customerDetails.customerSince), 'dd.MM.yyyy') : 'N/A'}</p>
+                          <p className="font-medium">{customerDetails.customerSince ? format(parseISO(customerDetails.customerSince), 'dd.MM.yyyy') : 'N/A'}</p>
                       </div>
                   </div>
               )}
                 
-              <OrderDetailsDeleteSection orderId={selectedOrder.id} />
+              <OrderDetailsDeleteSection orderId={selectedOrder.id} onClose={() => setIsModalOpen(false)} />
 
                <DialogClose asChild>
                 <Button variant="outline" className="mt-4">Schließen</Button>
@@ -246,3 +273,5 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+
+    

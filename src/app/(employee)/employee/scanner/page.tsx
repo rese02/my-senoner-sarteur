@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Camera, Gift, Loader2, QrCode, X, ListTodo, Check } from 'lucide-react';
-import { mockUsers, mockOrders } from '@/lib/mock-data';
 import type { User as UserType, Order, ChecklistItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -14,13 +13,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { addStamp, redeemReward } from '@/app/actions/loyalty.actions';
+import { setGroceryOrderTotal } from '@/app/actions/order.actions';
+import { getScannerPageData } from '@/app/actions/scanner.actions';
 
 
 // =================================================================
 // Zustand 1: Hauptansicht (mit Tabs)
 // =================================================================
-function MainView({ onStartScan, onStartPicking }: { onStartScan: () => void, onStartPicking: (order: Order) => void }) {
-    const newGroceryLists = mockOrders.filter(o => o.type === 'grocery_list' && o.status === 'new');
+function MainView({ onStartScan, onStartPicking, groceryLists }: { onStartScan: () => void, onStartPicking: (order: Order) => void, groceryLists: Order[] }) {
     
     return (
         <Tabs defaultValue="scanner" className="w-full">
@@ -28,11 +28,10 @@ function MainView({ onStartScan, onStartPicking }: { onStartScan: () => void, on
                 <TabsTrigger value="scanner" className="h-10 text-base">QR Scanner</TabsTrigger>
                 <TabsTrigger value="lists" className="h-10 text-base relative">
                     Einkaufszettel
-                    {newGroceryLists.length > 0 && <Badge className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0">{newGroceryLists.length}</Badge>}
+                    {groceryLists.length > 0 && <Badge className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0">{groceryLists.length}</Badge>}
                 </TabsTrigger>
             </TabsList>
 
-            {/* Tab 1: QR Code Scanner */}
             <TabsContent value="scanner">
                 <Card className="text-center shadow-xl border-none mt-4">
                     <CardHeader>
@@ -51,7 +50,6 @@ function MainView({ onStartScan, onStartPicking }: { onStartScan: () => void, on
                 </Card>
             </TabsContent>
             
-            {/* Tab 2: Einkaufszettel */}
             <TabsContent value="lists">
                  <Card className="shadow-xl border-none mt-4">
                     <CardHeader>
@@ -59,13 +57,13 @@ function MainView({ onStartScan, onStartPicking }: { onStartScan: () => void, on
                          <CardDescription>Wählen Sie eine Liste zum Packen.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                        {newGroceryLists.length === 0 ? (
+                        {groceryLists.length === 0 ? (
                             <div className="text-muted-foreground text-center py-8">
                                 <ListTodo className="mx-auto h-10 w-10 text-gray-300" />
                                 <p className="mt-2 text-sm">Keine neuen Einkaufszettel.</p>
                             </div>
                         ) : (
-                            newGroceryLists.map(order => (
+                            groceryLists.map(order => (
                                 <button key={order.id} onClick={() => onStartPicking(order)} className="w-full text-left p-3 rounded-lg border bg-card hover:bg-secondary transition-colors flex justify-between items-center">
                                     <div>
                                         <p className="font-bold text-sm">{order.customerName}</p>
@@ -103,7 +101,8 @@ function ActiveScannerView({ onScanSuccess, onCancel }: { onScanSuccess: (data: 
         toast({ title: 'QR Code erkannt, verarbeite...' });
 
         setTimeout(() => {
-            onScanSuccess('user-1-customer');
+            // This simulates scanning a QR code with the content "senoner-user:user-1-customer"
+            onScanSuccess('senoner-user:user-1-customer');
         }, 1000);
     }, [onScanSuccess, toast]);
     
@@ -141,7 +140,7 @@ function ActiveScannerView({ onScanSuccess, onCancel }: { onScanSuccess: (data: 
 // =================================================================
 function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustomer: () => void }) {
   const [purchaseAmount, setPurchaseAmount] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   
   const stamps = user.loyaltyStamps || 0;
@@ -153,30 +152,30 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
       toast({ variant: 'destructive', title: "Mindesteinkauf 15€!"}); 
       return;
     }
-    setLoading(true);
-    try {
-      await addStamp(user.id, parseFloat(purchaseAmount));
-      toast({ title: "Stempel vergeben!" });
-      onNextCustomer(); 
-    } catch(e: any) {
-        toast({ variant: 'destructive', title: "Fehler", description: e.message });
-        setLoading(false);
-    }
+    startTransition(async () => {
+        try {
+          await addStamp(user.id, parseFloat(purchaseAmount));
+          toast({ title: "Stempel vergeben!" });
+          onNextCustomer(); 
+        } catch(e: any) {
+            toast({ variant: 'destructive', title: "Fehler", description: e.message });
+        }
+    });
   };
 
   const handleRedeem = async (tier: 'small' | 'big') => {
     const discount = tier === 'big' ? '7€' : '3€';
     if(!confirm(`Kunde möchte ${discount} Rabatt nutzen?`)) return;
     
-    setLoading(true);
-    try {
-      await redeemReward(user.id, tier);
-      toast({ title: "Rabatt angewendet!", description: `Bitte ${discount} vom Endpreis abziehen.`});
-      onNextCustomer(); 
-    } catch(e: any) {
-        toast({ variant: 'destructive', title: "Fehler", description: e.message });
-        setLoading(false);
-    }
+    startTransition(async () => {
+        try {
+          await redeemReward(user.id, tier);
+          toast({ title: "Rabatt angewendet!", description: `Bitte ${discount} vom Endpreis abziehen.`});
+          onNextCustomer(); 
+        } catch(e: any) {
+            toast({ variant: 'destructive', title: "Fehler", description: e.message });
+        }
+    });
   };
 
   return (
@@ -195,7 +194,7 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
           <div className="grid grid-cols-2 gap-2">
             <Button 
               onClick={() => handleRedeem('small')}
-              disabled={!canRedeemSmall || loading}
+              disabled={!canRedeemSmall || isPending}
               variant="outline"
               className="border-primary/50 text-primary bg-background hover:bg-primary/5 h-auto flex flex-col py-2"
             >
@@ -205,7 +204,7 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
 
             <Button 
               onClick={() => handleRedeem('big')}
-              disabled={!canRedeemBig || loading}
+              disabled={!canRedeemBig || isPending}
               className="h-auto flex flex-col py-2"
             >
                <span className="font-bold text-base">7€ Rabatt</span>
@@ -224,14 +223,14 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
             className="text-lg h-12" 
             value={purchaseAmount}
             onChange={e => setPurchaseAmount(e.target.value)}
-            disabled={loading}
+            disabled={isPending}
           />
           <Button 
             onClick={handleAddStamp} 
-            disabled={loading || !purchaseAmount || parseFloat(purchaseAmount) < 15}
+            disabled={isPending || !purchaseAmount || parseFloat(purchaseAmount) < 15}
             className="w-2/5 h-12"
           >
-            {loading ? <Loader2 className="animate-spin" /> : '+1 Stempel'}
+            {isPending ? <Loader2 className="animate-spin" /> : '+1 Stempel'}
           </Button>
         </div>
         <p className="text-xs text-muted-foreground text-center">
@@ -255,10 +254,9 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
     const [checklist, setChecklist] = useState<ChecklistItem[]>(initialChecklist);
     const [finalPrice, setFinalPrice] = useState('');
     const { toast } = useToast();
-    const [isSaving, setIsSaving] = useState(false);
+    const [isPending, startTransition] = useTransition();
     
     useEffect(() => {
-        console.log(`Started picking for order ${order.id}`);
         if (navigator.vibrate) navigator.vibrate(100);
     }, [order.id]);
 
@@ -276,21 +274,15 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
             toast({ variant: 'destructive', title: 'Ungültiger Preis', description: 'Bitte geben Sie eine gültige Endsumme ein.' });
             return;
         }
-        setIsSaving(true);
-        
-        setTimeout(() => {
-            const orderIndex = mockOrders.findIndex(o => o.id === order.id);
-            if (orderIndex !== -1) {
-                mockOrders[orderIndex].status = 'ready_for_delivery';
-                mockOrders[orderIndex].total = parseFloat(finalPrice);
-                mockOrders[orderIndex].checklist = checklist;
-                mockOrders[orderIndex].processedBy = 'user-2-employee'; 
+        startTransition(async () => {
+            try {
+                await setGroceryOrderTotal(order.id, parseFloat(finalPrice), checklist);
+                toast({ title: 'Einkauf abgeschlossen!', description: `Die Endsumme von €${finalPrice} wurde gespeichert.` });
+                onFinish();
+            } catch (error) {
+                 toast({ variant: 'destructive', title: 'Fehler', description: 'Konnte die Bestellung nicht abschließen.' });
             }
-            
-            toast({ title: 'Einkauf abgeschlossen!', description: `Die Endsumme von €${finalPrice} wurde gespeichert.` });
-            setIsSaving(false);
-            onFinish();
-        }, 1000);
+        });
     }
 
     return (
@@ -329,8 +321,8 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
                         value={finalPrice}
                         onChange={(e) => setFinalPrice(e.target.value)}
                     />
-                    <Button onClick={handleFinish} disabled={isSaving || !finalPrice || parseFloat(finalPrice) <= 0} className="h-12 px-5 text-base">
-                        {isSaving ? <Loader2 className="animate-spin"/> : 'Fertig'}
+                    <Button onClick={handleFinish} disabled={isPending || !finalPrice || parseFloat(finalPrice) <= 0} className="h-12 px-5 text-base">
+                        {isPending ? <Loader2 className="animate-spin"/> : 'Fertig'}
                     </Button>
                  </div>
             </footer>
@@ -347,9 +339,41 @@ export default function ScannerPage() {
     const [scannedUser, setScannedUser] = useState<UserType | null>(null);
     const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
     const { toast } = useToast();
+    
+    const [users, setUsers] = useState<UserType[]>([]);
+    const [groceryLists, setGroceryLists] = useState<Order[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleScanSuccess = (userId: string) => {
-        const user = mockUsers.find(u => u.id === userId);
+    const refreshData = useCallback(async () => {
+        setLoading(true);
+        try {
+            const { users: fetchedUsers, groceryLists: fetchedLists } = await getScannerPageData();
+            setUsers(fetchedUsers);
+            setGroceryLists(fetchedLists);
+        } catch(err) {
+            toast({ variant: 'destructive', title: 'Fehler', description: 'Daten konnten nicht geladen werden.'});
+        } finally {
+            setLoading(false);
+        }
+    }, [toast]);
+
+    useEffect(() => {
+        if (viewState === 'main') {
+            refreshData();
+        }
+    }, [viewState, refreshData]);
+
+
+    const handleScanSuccess = (scanData: string) => {
+        const prefix = "senoner-user:";
+        if (!scanData.startsWith(prefix)) {
+            toast({ variant: 'destructive', title: 'Fehler', description: 'Ungültiger QR Code.' });
+            resetToMain();
+            return;
+        }
+        const userId = scanData.substring(prefix.length);
+        const user = users.find(u => u.id === userId);
+
         if (user) {
             setScannedUser(user);
             setViewState('result');
@@ -384,6 +408,10 @@ export default function ScannerPage() {
         }
     }
 
+    if (loading && viewState === 'main') {
+         return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+    }
+
     if (viewState === 'scanning') {
         return <ActiveScannerView onScanSuccess={handleScanSuccess} onCancel={resetToMain} />;
     }
@@ -396,5 +424,7 @@ export default function ScannerPage() {
         return <PickerModeView order={currentOrder} onFinish={resetToMain} />
     }
 
-    return <MainView onStartScan={startScanFlow} onStartPicking={handleStartPicking}/>;
+    return <MainView onStartScan={startScanFlow} onStartPicking={handleStartPicking} groceryLists={groceryLists} />;
 }
+
+    

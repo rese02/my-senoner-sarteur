@@ -1,9 +1,12 @@
 'use server';
 
+import 'server-only';
 import { adminDb } from '@/lib/firebase-admin';
+import { getSession } from '@/lib/session';
 import { toPlainObject } from '@/lib/utils';
-import type { Product, Category, PackageItem } from '@/lib/types';
+import type { Product, Category } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
+import { mockAppConfig } from '@/lib/mock-data';
 
 // Helper to check for Admin role
 async function isAdmin() {
@@ -34,16 +37,14 @@ export async function getDashboardData() {
       toPlainObject({ id: doc.id, ...doc.data() } as Category)
     );
     const stories = storiesSnapshot.docs.map((doc) =>
-      toPlainObject({ id: doc.id, ...doc.data() } as Story)
+      toPlainObject({ id: doc.id, ...doc.data() } as any)
     );
 
-    // For now, we still get recipe from mock-data, but this could also come from Firestore.
     const recipe = mockAppConfig.recipeOfTheWeek;
 
     return { products, categories, stories, recipe };
   } catch (error) {
     console.error('Error fetching dashboard data:', error);
-    // Return empty arrays on error to prevent page crash
     return {
       products: [],
       categories: [],
@@ -110,11 +111,9 @@ export async function deleteCategory(categoryId: string) {
   await isAdmin();
   const batch = adminDb.batch();
 
-  // Delete category document
   const categoryRef = adminDb.collection('categories').doc(categoryId);
   batch.delete(categoryRef);
 
-  // Find and delete all products in this category
   const productsQuery = adminDb
     .collection('products')
     .where('categoryId', '==', categoryId);
@@ -133,7 +132,6 @@ export async function updateProduct(productData: Product) {
   await isAdmin();
   const { id, ...data } = productData;
   const productRef = adminDb.collection('products').doc(id);
-  // Ensure numeric price
   data.price = Number(data.price) || 0;
   await productRef.update(toPlainObject(data));
   revalidatePath('/admin/products');
@@ -150,7 +148,7 @@ export async function createProduct(
   const dataToSave = {
     ...toPlainObject(productData),
     createdAt: new Date().toISOString(),
-    price: Number(productData.price) || 0, // Ensure price is a number
+    price: Number(productData.price) || 0,
   };
 
   const docRef = await productsCollection.add(dataToSave);

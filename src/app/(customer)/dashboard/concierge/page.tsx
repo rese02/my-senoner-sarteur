@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,11 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Feather } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { createConciergeOrder } from '@/app/actions/order.actions';
 
 export default function ConciergePage() {
     const [notes, setNotes] = useState('');
     const [address, setAddress] = useState({ street: 'Musterweg 1', city: '39046 St. Ulrich' });
-    const [isLoading, setIsLoading] = useState(false);
+    const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
     
     const handleSubmit = async () => {
@@ -21,16 +22,20 @@ export default function ConciergePage() {
             toast({ variant: 'destructive', title: 'Ihr Einkaufszettel ist leer.' });
             return;
         }
-        setIsLoading(true);
-        
-        setTimeout(() => {
-            toast({
-                title: 'Bestellung abgeschickt!',
-                description: 'Wir haben Ihren Einkaufszettel erhalten und werden ihn für Sie zusammenstellen.',
-            });
-            setNotes('');
-            setIsLoading(false);
-        }, 1500);
+
+        startTransition(async () => {
+            try {
+                await createConciergeOrder(notes, address);
+                toast({
+                    title: 'Bestellung abgeschickt!',
+                    description: 'Wir haben Ihren Einkaufszettel erhalten und werden ihn für Sie zusammenstellen.',
+                });
+                setNotes('');
+            } catch (error) {
+                console.error(error);
+                toast({ variant: 'destructive', title: 'Fehler', description: 'Ihre Bestellung konnte nicht gesendet werden.' });
+            }
+        });
     };
 
     return (
@@ -57,7 +62,7 @@ export default function ConciergePage() {
                                 className="bg-transparent border-none focus-visible:ring-0 text-sm leading-relaxed text-stone-800 placeholder:text-stone-400 min-h-[200px]"
                                 value={notes}
                                 onChange={e => setNotes(e.target.value)}
-                                disabled={isLoading}
+                                disabled={isPending}
                             />
                         </div>
                     </div>
@@ -66,19 +71,19 @@ export default function ConciergePage() {
                         <div className="grid md:grid-cols-2 gap-3">
                             <div className="space-y-1.5">
                                 <Label htmlFor="street">Straße & Hausnummer</Label>
-                                <Input id="street" value={address.street} onChange={e => setAddress(a => ({...a, street: e.target.value}))} disabled={isLoading} />
+                                <Input id="street" value={address.street} onChange={e => setAddress(a => ({...a, street: e.target.value}))} disabled={isPending} />
                             </div>
                             <div className="space-y-1.5">
                                 <Label htmlFor="city">Ort</Label>
-                                <Input id="city" value={address.city} onChange={e => setAddress(a => ({...a, city: e.target.value}))} disabled={isLoading} />
+                                <Input id="city" value={address.city} onChange={e => setAddress(a => ({...a, city: e.target.value}))} disabled={isPending} />
                             </div>
                         </div>
                         <p className="text-xs text-muted-foreground">Der Betrag wird Ihrem Kundenkonto zur späteren Bezahlung hinzugefügt.</p>
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button onClick={handleSubmit} disabled={isLoading || !notes.trim()} className="w-full" size="lg">
-                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    <Button onClick={handleSubmit} disabled={isPending || !notes.trim()} className="w-full" size="lg">
+                        {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Bestellung an Senoner Team senden
                     </Button>
                 </CardFooter>

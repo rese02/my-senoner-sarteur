@@ -3,10 +3,10 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Search, FileText, ShoppingCart, Trash2 } from "lucide-react";
+import { Search, FileText, ShoppingCart, Trash2, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo, useTransition, useEffect } from "react";
 import type { Order, OrderStatus, User } from "@/lib/types";
@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { OrderCard } from "@/components/admin/OrderCard";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { deleteOrder } from "@/app/actions/admin-cleanup.actions";
-import { useRouter } from "next/navigation";
+import { updateOrderStatus, getOrdersPageData } from "@/app/actions/order.actions";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
@@ -37,7 +37,7 @@ const statusMap: Record<OrderStatus, {label: string, className: string}> = {
   cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg border-transparent' }
 };
 
-const FormattedDate = ({ date, formatString, locale }: { date: Date, formatString: string, locale?: Locale }) => {
+const FormattedDate = ({ date, formatString, locale }: { date: string, formatString: string, locale?: Locale }) => {
     const [isClient, setIsClient] = useState(false);
     useEffect(() => {
         setIsClient(true);
@@ -46,14 +46,13 @@ const FormattedDate = ({ date, formatString, locale }: { date: Date, formatStrin
     if (!isClient) return null;
 
     try {
-        return <>{format(date, formatString, { locale })}</>;
+        return <>{format(parseISO(date), formatString, { locale })}</>;
     } catch(e) {
         return null;
     }
 };
 
-function OrderDetailsDeleteSection({ orderId }: { orderId: string }) {
-    const router = useRouter();
+function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onClose: () => void }) {
     const { toast } = useToast();
     const [isDeleting, startDeleteTransition] = useTransition();
 
@@ -61,7 +60,7 @@ function OrderDetailsDeleteSection({ orderId }: { orderId: string }) {
         startDeleteTransition(async () => {
             await deleteOrder(orderId);
             toast({ title: "Gelöscht", description: "Bestellung wurde entfernt." });
-            router.refresh(); 
+            onClose(); // This will trigger a data refresh on the main page
         });
     };
 
@@ -94,12 +93,12 @@ function OrderDetailsDeleteSection({ orderId }: { orderId: string }) {
     );
 }
 
-// MOCK DATA - To be replaced by server-fetched data
-import { mockOrders, mockUsers } from "@/lib/mock-data";
-
 
 export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState<Order[]>(mockOrders);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const { toast } = useToast();
@@ -109,39 +108,50 @@ export default function AdminOrdersPage() {
   const [customerDetails, setCustomerDetails] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
-    startTransition(() => {
-        const originalOrders = [...orders];
-        setOrders(prevOrders => prevOrders.map(order => 
-            order.id === orderId ? { ...order, status: newStatus } : order
-        ));
+  useEffect(() => {
+    async function loadData() {
+        setLoading(true);
+        try {
+            const { orders: fetchedOrders, users: fetchedUsers } = await getOrdersPageData();
+            setOrders(fetchedOrders);
+            setUsers(fetchedUsers);
+        } catch(error) {
+            console.error(error);
+            toast({ variant: 'destructive', title: 'Fehler', description: 'Bestelldaten konnten nicht geladen werden.'});
+        } finally {
+            setLoading(false);
+        }
+    }
+    if (!isModalOpen) {
+      loadData();
+    }
+  }, [isModalOpen, toast]);
 
-        new Promise<boolean>((resolve) => {
-            setTimeout(() => {
-                const success = Math.random() > 0.1;
-                resolve(success);
-            }, 500);
-        }).then(success => {
-            if (success) {
-                toast({
-                    title: "Status aktualisiert",
-                    description: `Bestellung #${orderId.slice(-6)} ist jetzt "${statusMap[newStatus].label}".`
-                });
-            } else {
-                toast({
-                    variant: 'destructive',
-                    title: "Fehler",
-                    description: "Status konnte nicht aktualisiert werden."
-                });
-                setOrders(originalOrders);
-            }
-        });
+
+  const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
+    startTransition(async () => {
+        try {
+            await updateOrderStatus(orderId, newStatus);
+            setOrders(prevOrders => prevOrders.map(order => 
+                order.id === orderId ? { ...order, status: newStatus } : order
+            ));
+            toast({
+                title: "Status aktualisiert",
+                description: `Bestellung #${orderId.slice(-6)} ist jetzt "${statusMap[newStatus].label}".`
+            });
+        } catch (error) {
+            toast({
+                variant: 'destructive',
+                title: "Fehler",
+                description: "Status konnte nicht aktualisiert werden."
+            });
+        }
     });
   };
 
   const handleShowDetails = (order: Order) => {
     setSelectedOrder(order);
-    const customer = mockUsers.find(u => u.id === order.userId) || null;
+    const customer = users.find(u => u.id === order.userId) || null;
     setCustomerDetails(customer);
     setIsModalOpen(true);
   };
@@ -150,8 +160,7 @@ export default function AdminOrdersPage() {
     return orders
       .filter(order => {
         const lowerSearchTerm = searchTerm.toLowerCase();
-        const customer = mockUsers.find(u => u.id === order.userId);
-        const customerName = customer ? customer.name : '';
+        const customerName = order.customerName || '';
         const matchesSearch = 
           customerName.toLowerCase().includes(lowerSearchTerm) ||
           order.id.toLowerCase().includes(lowerSearchTerm);
@@ -162,6 +171,10 @@ export default function AdminOrdersPage() {
       })
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [orders, searchTerm, statusFilter]);
+
+   if (loading) {
+      return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  }
 
   return (
     <div className="pb-24 md:pb-0">
@@ -195,7 +208,6 @@ export default function AdminOrdersPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {/* Desktop Table */}
           <div className="hidden md:block">
             <Table>
               <TableHeader>
@@ -217,7 +229,6 @@ export default function AdminOrdersPage() {
                   </TableRow>
                 )}
                 {filteredOrders.map((order) => {
-                  const customer = mockUsers.find(u => u.id === order.userId);
                   return (
                   <TableRow key={order.id} className="transition-colors hover:bg-secondary">
                     <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
@@ -230,14 +241,14 @@ export default function AdminOrdersPage() {
                          <span className="text-xs">{order.type === 'grocery_list' ? 'Liste' : 'Vorb.'}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium">{customer?.name}</TableCell>
+                    <TableCell className="font-medium">{order.customerName}</TableCell>
                     <TableCell className="text-muted-foreground text-xs">{
                       order.type === 'grocery_list' 
                       ? `${order.rawList?.split('\n').length} Artikel`
                       : order.items?.map(i => `${i.quantity}x ${i.productName}`).join(', ')
                     }</TableCell>
                     <TableCell className="text-right font-semibold">{order.total ? `€${order.total.toFixed(2)}` : '-'}</TableCell>
-                    <TableCell><FormattedDate date={new Date(order.pickupDate || order.deliveryDate || order.createdAt)} formatString="EEE, dd.MM." locale={de} /></TableCell>
+                    <TableCell><FormattedDate date={order.pickupDate || order.deliveryDate || order.createdAt} formatString="EEE, dd.MM." locale={de} /></TableCell>
                     <TableCell>
                       <Select 
                         value={order.status} 
@@ -263,7 +274,6 @@ export default function AdminOrdersPage() {
             </Table>
           </div>
 
-          {/* Mobile Card List */}
           <div className="md:hidden space-y-3">
              {filteredOrders.length === 0 && (
                 <div className="text-center text-muted-foreground py-16">Keine Bestellungen gefunden.</div>
@@ -285,7 +295,7 @@ export default function AdminOrdersPage() {
             <DialogTitle>Bestelldetails</DialogTitle>
             <DialogDescription>
               Bestellung #{selectedOrder?.id.slice(-6)} vom{' '}
-              {selectedOrder && <FormattedDate date={new Date(selectedOrder.createdAt)} formatString="dd.MM.yyyy, HH:mm" />}
+              {selectedOrder && <FormattedDate date={selectedOrder.createdAt} formatString="dd.MM.yyyy, HH:mm" />}
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
@@ -294,7 +304,7 @@ export default function AdminOrdersPage() {
                   <h3 className="font-semibold text-base">Bestellübersicht</h3>
                    <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
                         <p className="text-muted-foreground">{selectedOrder.type === 'grocery_list' ? 'Lieferung:' : 'Abholung:'}</p>
-                        <p className="font-medium"><FormattedDate date={new Date(selectedOrder.pickupDate || selectedOrder.deliveryDate || selectedOrder.createdAt)} formatString="EEEE, dd.MM.yyyy" locale={de} /></p>
+                        <p className="font-medium"><FormattedDate date={selectedOrder.pickupDate || selectedOrder.deliveryDate || selectedOrder.createdAt} formatString="EEEE, dd.MM.yyyy" locale={de} /></p>
                         <p className="text-muted-foreground">Status:</p>
                         <div><Badge className={cn("capitalize font-semibold", statusMap[selectedOrder.status]?.className)}>{statusMap[selectedOrder.status]?.label}</Badge></div>
                    </div>
@@ -349,7 +359,7 @@ export default function AdminOrdersPage() {
                   </div>
               )}
                 
-              <OrderDetailsDeleteSection orderId={selectedOrder.id} />
+              <OrderDetailsDeleteSection orderId={selectedOrder.id} onClose={() => setIsModalOpen(false)} />
 
                <DialogClose asChild>
                 <Button variant="outline" className="mt-4">Schließen</Button>
@@ -361,3 +371,5 @@ export default function AdminOrdersPage() {
     </div>
   );
 }
+
+    

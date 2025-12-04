@@ -1,26 +1,13 @@
 
-import { adminDb } from '@/lib/firebase-admin';
-import { toPlainObject } from '@/lib/utils';
+import { getDashboardData } from '@/app/actions/product.actions';
 import type { Recipe, Product, Story, Category } from "@/lib/types";
 
 import { Cart } from "./_components/Cart";
 import { ProductsClient } from './_components/ProductsClient';
-import { mockAppConfig } from '@/lib/mock-data'; 
 
 // Data fetching is now done on the server for speed and security.
 async function getData() {
-  const productsSnapshot = await adminDb.collection('products').where('isAvailable', '==', true).get();
-  const categoriesSnapshot = await adminDb.collection('categories').orderBy('name').get();
-  // For now, stories and recipe are still mocked, but could come from a 'content' collection
-  const storiesSnapshot = await adminDb.collection('stories').limit(10).get();
-
-  const products = productsSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Product));
-  const categories = categoriesSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Category));
-  const stories = storiesSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Story));
-  
-  // For now, we still get recipe from mock-data, but this could also come from Firestore.
-  const recipe = mockAppConfig.recipeOfTheWeek;
-
+  const { products, categories, stories, recipe } = await getDashboardData();
   return { products, categories, stories, recipe };
 }
 
