@@ -18,7 +18,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { toPlainObject } from "@/lib/utils";
+import { getCustomersPageData } from "@/app/actions/customer.actions";
+
 
 // This function needs to be passed mock data as props since we can't fetch on the client easily
 const getCustomerPurchaseCategories = (userId: string, allOrders: Order[], allProducts: Product[]): Set<string> => {
@@ -76,44 +77,13 @@ function CustomerCard({ customer, isSelected, onSelect, orders, products }: { cu
     )
 }
 
-// AdminCustomersPage is now a wrapper for a client component
-// This pattern allows us to fetch data securely on the server
-import { adminDb } from '@/lib/firebase-admin';
-import { collection, getDocs, where as firestoreWhere, query } from 'firebase/firestore';
-
-export default function AdminCustomersPageWrapper() {
+export default function AdminCustomersPage() {
     const [customers, setCustomers] = useState<User[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-      const fetchData = async () => {
-          const customerSnap = await getDocs(query(collection(adminDb, 'users'), firestoreWhere('role', '==', 'customer')));
-          const orderSnap = await getDocs(collection(adminDb, 'orders'));
-          const productSnap = await getDocs(collection(adminDb, 'products'));
-          const categorySnap = await getDocs(collection(adminDb, 'categories'));
-
-          setCustomers(customerSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as User)));
-          setOrders(orderSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as Order)));
-          setProducts(productSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as Product)));
-          setCategories(categorySnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as Category)));
-          setLoading(false);
-      };
-      fetchData();
-    }, []);
-
-    if (loading) {
-        return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
-    }
-
-    return <AdminCustomersPageClient customers={customers} orders={orders} products={products} categories={categories} />;
-}
-
-
-function AdminCustomersPageClient({ customers, orders, products, categories }: { customers: User[], orders: Order[], products: Product[], categories: Category[] }) {
-    
     const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
     const [open, setOpen] = useState(false);
 
@@ -122,6 +92,24 @@ function AdminCustomersPageClient({ customers, orders, products, categories }: {
     const [message, setMessage] = useState('');
     const [isImproving, setIsImproving] = useState(false);
     const { toast } = useToast();
+
+    useEffect(() => {
+      const fetchData = async () => {
+          try {
+            const { customers, orders, products, categories } = await getCustomersPageData();
+            setCustomers(customers);
+            setOrders(orders);
+            setProducts(products);
+            setCategories(categories);
+          } catch (error) {
+              console.error("Failed to fetch customer page data:", error);
+              toast({ variant: "destructive", title: "Fehler beim Laden", description: "Kundendaten konnten nicht geladen werden."});
+          } finally {
+            setLoading(false);
+          }
+      };
+      fetchData();
+    }, [toast]);
 
     const filteredCustomers = useMemo(() => {
         if (selectedCategories.length === 0) {
@@ -176,6 +164,10 @@ function AdminCustomersPageClient({ customers, orders, products, categories }: {
         );
         setSelectedCustomers([]);
     };
+    
+  if (loading) {
+      return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  }
 
   return (
     <div className="space-y-6 pb-24 md:pb-8">
