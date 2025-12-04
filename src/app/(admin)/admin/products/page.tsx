@@ -1,42 +1,20 @@
-'use client';
+'use server';
 import { ProductsClient } from './client';
 import { getProductsPageData } from '@/app/actions/product.actions';
-import { useState, useEffect } from 'react';
-import type { Product, Category } from '@/lib/types';
-import { Loader2 } from 'lucide-react';
+import { PageHeader } from '@/components/common/PageHeader';
 
-export default function ProductsPage() {
-  const [initialProducts, setInitialProducts] = useState<Product[]>([]);
-  const [initialCategories, setInitialCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const { products, categories } = await getProductsPageData();
-        setInitialProducts(products);
-        setInitialCategories(categories);
-      } catch (error) {
-        console.error("Failed to fetch products data", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+// This is now a Server Component, fetching data directly.
+export default async function ProductsPage() {
+  // Data is fetched once on the server when the page is rendered.
+  const { products, categories } = await getProductsPageData();
 
   return (
-    <ProductsClient
-      initialProducts={initialProducts}
-      initialCategories={initialCategories}
-    />
+    <div>
+        <PageHeader title="Produkte" description="Verwalten Sie Ihre Produktkategorien und Artikel." />
+        <ProductsClient
+          initialProducts={products}
+          initialCategories={categories}
+        />
+    </div>
   );
 }

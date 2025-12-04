@@ -1,5 +1,4 @@
 'use client';
-import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -17,14 +16,13 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ImageUploader } from "@/components/custom/ImageUploader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createCategory, deleteCategory, updateProduct, createProduct, deleteProduct, toggleProductAvailability } from "@/app/actions/product.actions";
-import { useRouter } from "next/navigation";
-
 
 export function ProductsClient({ initialProducts, initialCategories }: { initialProducts: Product[], initialCategories: Category[] }) {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
-  const router = useRouter();
 
+  // This effect ensures that if the parent Server Component re-fetches data,
+  // the client state is updated accordingly.
   useEffect(() => {
     setProducts(initialProducts);
   }, [initialProducts]);
@@ -46,16 +44,10 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
   const [tempItem, setTempItem] = useState('');
   const [tempAmount, setTempAmount] = useState('');
 
-  const refreshData = () => {
-    // We don't use router.refresh() anymore because revalidatePath in Server Actions handles it.
-    // This makes the UI feel faster as we don't force a full client-side refresh.
-  };
-
   const handleAvailabilityToggle = (productId: string, currentStatus: boolean) => {
     startTransition(async () => {
         try {
             await toggleProductAvailability(productId, !currentStatus);
-            // Optimistic UI update
             setProducts(prods => prods.map(p => p.id === productId ? {...p, isAvailable: !currentStatus} : p));
             toast({ title: "Verfügbarkeit geändert!"});
         } catch (error) {
@@ -72,7 +64,6 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
       startTransition(async () => {
         try {
           const newCategory = await createCategory(newCategoryName);
-          // Optimistic UI update
           setCategories(cats => [...cats, newCategory]);
           toast({ title: 'Kategorie erstellt!' });
           setNewCategoryName('');
@@ -87,7 +78,6 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
       startTransition(async () => {
         try {
           await deleteCategory(categoryId);
-          // Optimistic UI update
           setCategories(cats => cats.filter(c => c.id !== categoryId));
           setProducts(prods => prods.filter(p => p.categoryId !== categoryId));
           toast({ title: 'Kategorie gelöscht' });
@@ -132,9 +122,8 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
       startTransition(async () => {
           try {
             if (editingProduct.id) {
-                await updateProduct(editingProduct as Product);
-                // Optimistic UI Update
-                setProducts(prods => prods.map(p => p.id === editingProduct.id ? editingProduct as Product : p));
+                const updatedProduct = await updateProduct(editingProduct as Product);
+                setProducts(prods => prods.map(p => p.id === updatedProduct.id ? updatedProduct : p));
             } else {
                 const newProductData = {
                   ...editingProduct,
@@ -143,9 +132,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                   price: Number(editingProduct.price),
                   type: editingProduct.type || 'product'
                 } as Omit<Product, 'id'>;
-                // createProduct now returns the full product with ID
                 const created = await createProduct(newProductData);
-                // Optimistic UI Update with server-returned data
                 setProducts(prods => [...prods, created]);
             }
             setIsProductModalOpen(false);
@@ -161,7 +148,6 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
       startTransition(async () => {
         try {
           await deleteProduct(productId);
-          // Optimistic UI Update
           setProducts(prods => prods.filter(p => p.id !== productId));
           toast({ title: 'Produkt gelöscht' });
         } catch(error: any) {
@@ -189,11 +175,12 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
   return (
     <>
       <div className="flex justify-between items-start mb-6">
-        <PageHeader title="Produkte" description="Verwalten Sie Ihre Produktkategorien und Artikel." className="mb-0" />
+        {/* The PageHeader is now in the parent Server Component */}
+        <div/> 
         <Button onClick={() => setIsCategoryModalOpen(true)} className="hidden md:flex" size="sm"><PlusCircle className="mr-2 h-4 w-4"/>Neue Kategorie</Button>
       </div>
       
-        <div className="space-y-6">
+        <div className="space-y-6 pb-24 md:pb-0">
           {categories.map((category) => {
             const productsInCategory = products.filter(p => p.categoryId === category.id);
             return (
@@ -301,7 +288,6 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
           </Button>
       </div>
 
-      {/* Create/Edit Category Modal */}
       <Dialog open={isCategoryModalOpen} onOpenChange={setIsCategoryModalOpen}>
         <DialogContent>
           <DialogHeader>
@@ -323,7 +309,6 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
         </DialogContent>
       </Dialog>
       
-      {/* Create/Edit Product Modal */}
       <Dialog open={isProductModalOpen} onOpenChange={setIsProductModalOpen}>
         <DialogContent className="sm:max-w-lg">
             <DialogHeader>
@@ -377,8 +362,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                   <Textarea id="description" name="description" value={editingProduct?.description || ''} onChange={handleProductFormChange} placeholder="Eine kurze Beschreibung des Produkts." />
                 </div>
                 
-                 {/* Nur sichtbar wenn type === 'package' */}
-                {editingProduct?.type === 'package' && (
+                 {editingProduct?.type === 'package' && (
                     <div className="space-y-3 border p-3 rounded-lg bg-secondary/50">
                     <h3 className="font-semibold text-primary text-sm">Paket-Inhalt definieren</h3>
                     

@@ -2,7 +2,6 @@ import { LoginForm } from './_components/login-form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Logo } from '@/components/common/Logo';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function LoginPage() {
   return (
@@ -28,7 +27,7 @@ export default function LoginPage() {
       </Card>
 
       {/* Mobile View */}
-       <div className="md:hidden w-full h-[100dvh] flex flex-col bg-gradient-to-b from-[#001a3b] via-[#003366] to-primary">
+       <div className="md:hidden w-full min-h-[100dvh] flex flex-col bg-gradient-to-b from-[#001a3b] via-[#003366] to-primary">
         <div className="flex-grow flex flex-col items-center justify-center pt-12 px-4 text-center">
             <div className="w-2/5">
                 <Logo />

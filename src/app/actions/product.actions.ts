@@ -79,7 +79,7 @@ export async function getProductsPageData() {
     return { products, categories };
   } catch (error) {
     console.error('Error fetching products page data:', error);
-    return { products: [], categories: [] };
+    throw new Error("Failed to fetch products page data.");
   }
 }
 
@@ -130,7 +130,7 @@ export async function deleteCategory(categoryId: string) {
 }
 
 // Update a product
-export async function updateProduct(productData: Product) {
+export async function updateProduct(productData: Product): Promise<Product> {
   await isAdmin();
   const { id, ...data } = productData;
   const productRef = adminDb.collection('products').doc(id);
@@ -138,6 +138,7 @@ export async function updateProduct(productData: Product) {
   await productRef.update(toPlainObject(data));
   revalidatePath('/admin/products');
   revalidatePath('/dashboard');
+  return toPlainObject(productData);
 }
 
 // Create a new product

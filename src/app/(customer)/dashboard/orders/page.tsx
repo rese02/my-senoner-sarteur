@@ -1,3 +1,5 @@
+'use server';
+
 import { getCustomerOrders } from "@/app/actions/order.actions";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -6,39 +8,40 @@ import { Separator } from "@/components/ui/separator";
 import type { Order, OrderStatus } from "@/lib/types";
 import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Package, FileText, Calendar, Info, AlertTriangle } from "lucide-react";
+import { Package, FileText, Calendar, Info, AlertTriangle, CheckCircle, Truck, ShoppingBag, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const statusMap: Record<OrderStatus, { label: string; className: string; icon: React.ElementType }> = {
-    new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg', icon: Info },
-    picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800', icon: Package },
-    ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg', icon: Package },
-    ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg', icon: Package },
-    delivered: { label: 'Geliefert', className: 'bg-slate-100 text-slate-600', icon: Package },
-    collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg', icon: Package },
-    paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700', icon: Package },
-    cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg', icon: AlertTriangle }
+    new: { label: 'In Bearbeitung', className: 'bg-status-new-bg text-status-new-fg', icon: Info },
+    picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800', icon: ShoppingBag },
+    ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg', icon: CheckCircle },
+    ready_for_delivery: { label: 'Auf dem Weg', className: 'bg-status-ready-bg text-status-ready-fg', icon: Truck },
+    delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg', icon: CheckCircle },
+    collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg', icon: CheckCircle },
+    paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700', icon: CheckCircle },
+    cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg', icon: XCircle }
 };
 
 function OrderHistoryCard({ order }: { order: Order }) {
     const isGroceryList = order.type === 'grocery_list';
     const relevantDate = order.pickupDate || order.deliveryDate || order.createdAt;
-    const StatusIcon = statusMap[order.status].icon;
+    const StatusIcon = statusMap[order.status]?.icon || Info;
 
     return (
-        <Card className="shadow-md border-l-4" style={{ borderLeftColor: `hsl(var(--${statusMap[order.status].className.split(' ')[0].replace('bg-', '')}))`}}>
-            <CardHeader className="flex flex-row items-center justify-between">
+        <Card className="shadow-md border-l-4 border-transparent" style={{ borderLeftColor: `hsl(var(--${statusMap[order.status]?.className.split(' ')[0].replace('bg-', '')}-fg))`}}>
+            <CardHeader className="flex flex-row items-center justify-between gap-4">
                 <div>
-                    <CardTitle className="text-base font-bold">
+                    <CardTitle className="text-base font-bold flex items-center gap-2">
+                        {isGroceryList ? <FileText className="w-4 h-4 text-orange-500" /> : <Package className="w-4 h-4 text-primary" />}
                         {isGroceryList ? 'Concierge Bestellung' : 'Vorbestellung'}
                     </CardTitle>
                     <CardDescription className="text-xs">
                         #{order.id.slice(-6)} - {format(parseISO(order.createdAt), "dd.MM.yyyy, HH:mm")}
                     </CardDescription>
                 </div>
-                <Badge className={cn("capitalize", statusMap[order.status].className)}>
+                <Badge className={cn("capitalize font-semibold", statusMap[order.status]?.className)}>
                     <StatusIcon className="w-3 h-3 mr-1.5"/>
-                    {statusMap[order.status].label}
+                    {statusMap[order.status]?.label}
                 </Badge>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -54,9 +57,9 @@ function OrderHistoryCard({ order }: { order: Order }) {
                     {order.items && order.items.length > 0 && (
                          <div className="space-y-2">
                              {order.items.map(item => (
-                                 <div key={item.productId} className="flex justify-between text-sm">
+                                 <div key={item.productId} className="flex justify-between text-sm items-center py-1 border-b last:border-0">
                                      <span>{item.quantity}x {item.productName}</span>
-                                     <span className="font-mono">€{(item.price * item.quantity).toFixed(2)}</span>
+                                     <span className="font-mono text-muted-foreground">€{(item.price * item.quantity).toFixed(2)}</span>
                                  </div>
                              ))}
                          </div>
