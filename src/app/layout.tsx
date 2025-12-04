@@ -8,6 +8,10 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 export const metadata: Metadata = {
   title: 'My Senoner Sarteur',
   description: 'Digital companion for customers of Senoner Sarteur supermarket.',
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
 };
 
 const ptSans = PT_Sans({
