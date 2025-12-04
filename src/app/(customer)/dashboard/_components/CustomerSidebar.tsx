@@ -12,6 +12,7 @@ import {
   Sparkles,
   NotebookPen,
   Calculator,
+  History,
 } from 'lucide-react';
 import { logout } from '@/app/actions/auth.actions';
 import { Separator } from '@/components/ui/separator';
@@ -19,6 +20,7 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', icon: ShoppingCart, label: 'Order' },
+  { href: '/dashboard/orders', icon: History, label: 'My Orders'},
   { href: '/dashboard/concierge', icon: NotebookPen, label: 'Concierge' },
   { href: '/dashboard/planner', icon: Calculator, label: 'Party Planer' },
   { href: '/dashboard/loyalty', icon: CreditCard, label: 'My Loyalty Card' },

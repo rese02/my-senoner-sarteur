@@ -3,7 +3,7 @@
 import { getSession } from '@/lib/session';
 import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
-import type { CartItem, Order, User } from '@/lib/types';
+import type { CartItem, Order, User, ChecklistItem, OrderStatus } from '@/lib/types';
 import { toPlainObject } from '@/lib/utils';
 
 export async function createPreOrder(
@@ -37,6 +37,7 @@ export async function createPreOrder(
   revalidatePath('/admin/orders');
   revalidatePath('/admin/dashboard');
   revalidatePath('/employee/scanner');
+  revalidatePath('/dashboard/orders');
 }
 
 
@@ -74,9 +75,10 @@ export async function createConciergeOrder(
     revalidatePath('/admin/orders');
     revalidatePath('/admin/dashboard');
     revalidatePath('/employee/scanner');
+    revalidatePath('/dashboard/orders');
 }
 
-export async function updateOrderStatus(orderId: string, status: any) {
+export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   const session = await getSession();
   if (!session || !['admin', 'employee'].includes(session.role)) {
     throw new Error('Unauthorized');
@@ -87,9 +89,10 @@ export async function updateOrderStatus(orderId: string, status: any) {
   revalidatePath('/admin/orders');
   revalidatePath('/admin/dashboard');
   revalidatePath('/employee/scanner');
+  revalidatePath('/dashboard/orders');
 }
 
-export async function setGroceryOrderTotal(orderId: string, total: number, checklist: any[]) {
+export async function setGroceryOrderTotal(orderId: string, total: number, checklist: ChecklistItem[]) {
     const session = await getSession();
     if (!session || !['admin', 'employee'].includes(session.role)) {
         throw new Error('Unauthorized');
@@ -97,7 +100,7 @@ export async function setGroceryOrderTotal(orderId: string, total: number, check
 
     await adminDb.collection('orders').doc(orderId).update({
         total,
-        checklist,
+        checklist: toPlainObject(checklist),
         status: 'ready_for_delivery',
         processedBy: session.userId,
     });
@@ -105,6 +108,7 @@ export async function setGroceryOrderTotal(orderId: string, total: number, check
     revalidatePath('/admin/orders');
     revalidatePath('/admin/dashboard');
     revalidatePath('/employee/scanner');
+    revalidatePath('/dashboard/orders');
 }
 
 
@@ -128,4 +132,27 @@ export async function getOrdersPageData() {
     }
 }
 
-    
+
+export async function getCustomerOrders() {
+    const session = await getSession();
+    if (!session?.userId) {
+        throw new Error("Not authenticated");
+    }
+
+    try {
+        const ordersSnapshot = await adminDb.collection('orders')
+            .where('userId', '==', session.userId)
+            .orderBy('createdAt', 'desc')
+            .get();
+
+        if (ordersSnapshot.empty) {
+            return [];
+        }
+
+        const orders = ordersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
+        return orders;
+    } catch (error) {
+        console.error("Error fetching customer orders:", error);
+        throw new Error("Could not fetch customer orders.");
+    }
+}
