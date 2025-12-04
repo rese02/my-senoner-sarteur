@@ -1,3 +1,4 @@
+
 'use server';
 
 import { getSession } from '@/lib/session';
@@ -140,9 +141,9 @@ export async function getCustomerOrders() {
     }
 
     try {
+        // Query only by userId, which doesn't require a composite index.
         const ordersSnapshot = await adminDb.collection('orders')
             .where('userId', '==', session.userId)
-            .orderBy('createdAt', 'desc')
             .get();
 
         if (ordersSnapshot.empty) {
@@ -150,6 +151,10 @@ export async function getCustomerOrders() {
         }
 
         const orders = ordersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
+
+        // Sort the results in code after fetching
+        orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        
         return orders;
     } catch (error) {
         console.error("Error fetching customer orders:", error);
