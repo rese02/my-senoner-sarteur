@@ -258,7 +258,7 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
     
     useEffect(() => {
         if (navigator.vibrate) navigator.vibrate(100);
-    }, [order.id]);
+    }, []);
 
     const toggleItem = (index: number) => {
         setChecklist(prev => {
@@ -289,10 +289,10 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
         <div className="fixed inset-0 z-50 bg-background flex flex-col">
             <header className="p-4 border-b flex justify-between items-center bg-card sticky top-0">
                  <div>
-                    <h2 className="font-bold text-base">Einkauf für {order.customerName}</h2>
-                    <p className="text-xs text-muted-foreground">Gefundene Artikel abhaken.</p>
+                    <h2 className="text-lg font-bold font-headline">Einkauf für {order.customerName}</h2>
+                    <p className="text-sm text-muted-foreground">Gefundene Artikel abhaken.</p>
                  </div>
-                <Button variant="ghost" size="icon" onClick={onFinish} className="rounded-full">
+                <Button variant="ghost" size="icon" onClick={onFinish} className="rounded-full shrink-0">
                     <X />
                 </Button>
             </header>
@@ -301,27 +301,38 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
                     <div 
                         key={index} 
                         onClick={() => toggleItem(index)}
-                        className={cn("p-4 border-b flex items-center gap-3 cursor-pointer transition-colors", entry.isFound ? 'bg-green-50 text-muted-foreground' : 'bg-card hover:bg-secondary/50')}
+                        className={cn(
+                            "p-4 border-b flex items-center gap-4 cursor-pointer transition-colors", 
+                            entry.isFound ? 'bg-green-50 text-muted-foreground' : 'bg-card hover:bg-secondary/50'
+                        )}
                     >
-                        <div className={cn("w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all", entry.isFound ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground")}>
+                        <div className={cn(
+                            "w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all flex-shrink-0", 
+                            entry.isFound ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground/50 bg-background"
+                        )}>
                            {entry.isFound && <Check className="w-4 h-4" />}
                         </div>
-                        <span className={cn("text-base flex-1", entry.isFound && 'line-through')}>{entry.item}</span>
+                        <span className={cn(
+                            "text-base flex-1 transition-opacity", 
+                            entry.isFound && 'line-through opacity-70'
+                        )}>
+                            {entry.item}
+                        </span>
                     </div>
                 ))}
             </main>
             <footer className="fixed bottom-0 left-0 right-0 p-3 bg-card border-t shadow-lg grid gap-2 animate-in slide-in-from-bottom-10">
-                 <Label htmlFor="final-price" className="text-xs">Endsumme (€)</Label>
+                 <Label htmlFor="final-price" className="text-sm font-semibold">Endsumme (€)</Label>
                  <div className="flex gap-2">
                     <Input 
                         id="final-price"
                         type="number" 
-                        className="text-xl h-12" 
+                        className="text-2xl font-bold h-14" 
                         placeholder="0.00" 
                         value={finalPrice}
                         onChange={(e) => setFinalPrice(e.target.value)}
                     />
-                    <Button onClick={handleFinish} disabled={isPending || !finalPrice || parseFloat(finalPrice) <= 0} className="h-12 px-5 text-base">
+                    <Button onClick={handleFinish} disabled={isPending || !finalPrice || parseFloat(finalPrice) <= 0} className="h-14 px-6 text-base">
                         {isPending ? <Loader2 className="animate-spin"/> : 'Fertig'}
                     </Button>
                  </div>
@@ -426,5 +437,3 @@ export default function ScannerPage() {
 
     return <MainView onStartScan={startScanFlow} onStartPicking={handleStartPicking} groceryLists={groceryLists} />;
 }
-
-    
