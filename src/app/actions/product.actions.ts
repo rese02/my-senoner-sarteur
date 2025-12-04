@@ -4,9 +4,9 @@ import 'server-only';
 import { adminDb } from '@/lib/firebase-admin';
 import { getSession } from '@/lib/session';
 import { toPlainObject } from '@/lib/utils';
-import type { Product, Category, Story } from '@/lib/types';
+import type { Product, Category, Story, Recipe } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
-import { mockAppConfig } from '@/lib/mock-data';
+
 
 // Helper to check for Admin role
 async function isAdmin() {
@@ -29,6 +29,8 @@ export async function getDashboardData() {
       .orderBy('name')
       .get();
     const storiesSnapshot = await adminDb.collection('stories').limit(10).get();
+    const recipeDoc = await adminDb.collection('content').doc('recipe_of_the_week').get();
+
 
     const products = productsSnapshot.docs.map((doc) =>
       toPlainObject({ id: doc.id, ...doc.data() } as Product)
@@ -38,9 +40,9 @@ export async function getDashboardData() {
     );
     const stories = storiesSnapshot.docs.map((doc) =>
       toPlainObject({ id: doc.id, ...doc.data() } as Story)
-    );
-
-    const recipe = mockAppConfig.recipeOfTheWeek;
+    ).filter(story => new Date(story.expiresAt || 0) > new Date());
+    
+    const recipe = recipeDoc.exists ? toPlainObject(recipeDoc.data() as Recipe) : getFallbackRecipe();
 
     return { products, categories, stories, recipe };
   } catch (error) {
@@ -50,7 +52,7 @@ export async function getDashboardData() {
       products: [],
       categories: [],
       stories: [],
-      recipe: mockAppConfig.recipeOfTheWeek,
+      recipe: getFallbackRecipe(),
     };
   }
 }
@@ -170,4 +172,17 @@ export async function deleteProduct(productId: string) {
   await productRef.delete();
   revalidatePath('/admin/products');
   revalidatePath('/dashboard');
+}
+
+
+function getFallbackRecipe(): Recipe {
+    return {
+        title: 'Kein Rezept verfügbar',
+        subtitle: 'Bitte im Admin-Bereich ein Rezept der Woche festlegen.',
+        image: 'https://picsum.photos/seed/recipefallback/1080/800',
+        imageHint: 'empty plate',
+        description: 'Derzeit ist kein Rezept der Woche hinterlegt.',
+        ingredients: [],
+        instructions: ''
+    };
 }

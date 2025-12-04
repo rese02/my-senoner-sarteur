@@ -5,7 +5,6 @@ import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/session';
 import type { Story, PlannerEvent, Product, Recipe } from '@/lib/types';
 import { toPlainObject } from '@/lib/utils';
-import { mockAppConfig } from '@/lib/mock-data';
 
 
 async function isAdmin() {
@@ -81,9 +80,8 @@ export async function deletePlannerEvent(eventId: string) {
 // --- Recipe of the Week Action ---
 export async function saveRecipeOfTheWeek(recipeData: Recipe) {
     await isAdmin();
-    // This is a mock implementation. In a real app, this would save to Firestore.
-    // For now, we update the in-memory mock data.
-    mockAppConfig.recipeOfTheWeek = toPlainObject(recipeData);
+    // Save to a specific document in the 'content' collection
+    await adminDb.collection('content').doc('recipe_of_the_week').set(toPlainObject(recipeData));
     revalidatePaths(); // Revalidate paths to show changes
     return { success: true };
 }
@@ -95,6 +93,7 @@ export async function getMarketingPageData() {
     const storiesSnap = await adminDb.collection('stories').get();
     const plannerEventsSnap = await adminDb.collection('plannerEvents').get();
     const productsSnap = await adminDb.collection('products').where('isAvailable', '==', true).get();
+    const recipeDoc = await adminDb.collection('content').doc('recipe_of_the_week').get();
 
     const stories = storiesSnap.docs
       .map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Story))
@@ -103,8 +102,7 @@ export async function getMarketingPageData() {
     const plannerEvents = plannerEventsSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as PlannerEvent));
     const products = productsSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Product));
     
-    // For the recipe, we still use mock data as per instructions
-    const recipe = mockAppConfig.recipeOfTheWeek;
+    const recipe = recipeDoc.exists ? toPlainObject(recipeDoc.data() as Recipe) : getFallbackRecipe();
 
     return { stories, plannerEvents, products, recipe };
 }
@@ -124,4 +122,17 @@ function revalidatePaths() {
     revalidatePath('/admin/marketing');
     revalidatePath('/dashboard');
     revalidatePath('/dashboard/planner');
+}
+
+
+function getFallbackRecipe(): Recipe {
+    return {
+        title: 'Kein Rezept verfügbar',
+        subtitle: 'Bitte im Admin-Bereich ein Rezept der Woche festlegen.',
+        image: 'https://picsum.photos/seed/recipefallback/1080/800',
+        imageHint: 'empty plate',
+        description: 'Derzeit ist kein Rezept der Woche hinterlegt.',
+        ingredients: [],
+        instructions: ''
+    };
 }

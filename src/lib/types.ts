@@ -108,7 +108,6 @@ export interface Recipe {
   description: string;
 }
 export interface AppConfig {
-  recipeOfTheWeek: Recipe;
   isWheelOfFortuneActive: boolean;
 }
 
