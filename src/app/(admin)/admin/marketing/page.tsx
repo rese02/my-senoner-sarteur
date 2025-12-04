@@ -230,20 +230,20 @@ export default function MarketingPage() {
     };
     
     const handleOpenStoryModal = (story: Story | null) => {
-        setEditingStory(story ? { ...story } : { label: '', author: '', imageUrl: '', imageHint: '' });
+        setEditingStory(story ? { ...story } : { id: `story-${Date.now()}`, label: '', author: '', imageUrl: '', imageHint: '' });
         setIsStoryModalOpen(true);
     };
 
     const handleSaveStory = (storyData: Partial<Story>) => {
         startStoryTransition(() => {
-            if (storyData.id) {
+            if (stories.find(s => s.id === storyData.id)) {
                 const updatedStories = stories.map(s => s.id === storyData.id ? storyData as Story : s);
                 setStories(updatedStories);
                 const mockIndex = mockStories.findIndex(s => s.id === storyData.id);
                 if (mockIndex > -1) mockStories[mockIndex] = storyData as Story;
                 toast({ title: "Story aktualisiert!" });
             } else {
-                const newStory: Story = { ...storyData, id: `story-${Date.now()}` } as Story;
+                const newStory: Story = { ...storyData, id: storyData.id || `story-${Date.now()}` } as Story;
                 setStories([...stories, newStory]);
                 mockStories.push(newStory);
                 toast({ title: "Neue Story erstellt!" });
@@ -263,20 +263,20 @@ export default function MarketingPage() {
     };
 
     const handleOpenPlannerModal = (event: PlannerEvent | null) => {
-        setEditingPlannerEvent(event ? { ...event } : { title: '', description: '', imageUrl: '', imageHint: '', ingredients: [] });
+        setEditingPlannerEvent(event ? { ...event } : { id: `plan-${Date.now()}`, title: '', description: '', imageUrl: '', imageHint: '', ingredients: [] });
         setIsPlannerModalOpen(true);
     };
 
     const handleSavePlannerEvent = (eventData: Partial<PlannerEvent>) => {
         startPlannerTransition(() => {
-            if (eventData.id) {
+            if (plannerEvents.find(e => e.id === eventData.id)) {
                 const updatedEvents = plannerEvents.map(e => e.id === eventData.id ? eventData as PlannerEvent : e);
                 setPlannerEvents(updatedEvents);
                 const mockIndex = mockPlannerEvents.findIndex(e => e.id === eventData.id);
                 if (mockIndex > -1) mockPlannerEvents[mockIndex] = eventData as PlannerEvent;
                 toast({ title: "Planer Event aktualisiert!" });
             } else {
-                const newEvent: PlannerEvent = { ...eventData, id: `plan-${Date.now()}` } as PlannerEvent;
+                const newEvent: PlannerEvent = { ...eventData, id: eventData.id || `plan-${Date.now()}` } as PlannerEvent;
                 setPlannerEvents([...plannerEvents, newEvent]);
                 mockPlannerEvents.push(newEvent);
                 toast({ title: "Neues Planer Event erstellt!" });

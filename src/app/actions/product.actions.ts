@@ -1,13 +1,13 @@
-
 'use server';
 
-import { initializeFirebase } from '@/firebase';
-import type { Product, Category } from '@/lib/types';
-import { getSession } from '@/lib/session';
-import { collection, getDocs, doc, updateDoc, addDoc, deleteDoc, writeBatch, query, where } from 'firebase/firestore';
-import { revalidatePath } from 'next/cache';
-import { toPlainObject } from '@/lib/utils';
+import 'server-only';
 import { adminDb } from '@/lib/firebase-admin';
+import { getSession } from '@/lib/session';
+import { toPlainObject } from '@/lib/utils';
+import type { Product, Category } from '@/lib/types';
+import { revalidatePath } from 'next/cache';
+import { collection, getDocs, doc, updateDoc, addDoc, deleteDoc, writeBatch, query, where, orderBy } from 'firebase/firestore';
+
 
 // Helper to check for Admin role
 async function isAdmin() {
@@ -18,36 +18,21 @@ async function isAdmin() {
     return true;
 }
 
-// Fetch all products and categories for the admin dashboard
-export async function getAdminDashboardData() {
-    await isAdmin();
-    
-    const productsQuery = collection(adminDb, "products");
-    const categoriesQuery = collection(adminDb, "categories");
-
-    const productSnapshot = await getDocs(productsQuery);
-    const categorySnapshot = await getDocs(categoriesQuery);
-    
-    const products = productSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Product));
-    const categories = categorySnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Category));
-
-    return { products, categories };
-}
-
 // Toggle product availability
 export async function toggleProductAvailability(productId: string, isAvailable: boolean): Promise<{isAvailable: boolean}> {
     await isAdmin();
-    const productRef = doc(adminDb, "products", productId);
-    await updateDoc(productRef, { isAvailable });
+    const productRef = adminDb.collection("products").doc(productId);
+    await productRef.update({ isAvailable });
     revalidatePath('/admin/products');
+    revalidatePath('/dashboard');
     return { isAvailable };
 }
 
 // Create a new category
 export async function createCategory(name: string): Promise<Category> {
     await isAdmin();
-    const categoryCollection = collection(adminDb, "categories");
-    const docRef = await addDoc(categoryCollection, { name });
+    const categoryCollection = adminDb.collection("categories");
+    const docRef = await categoryCollection.add({ name });
     revalidatePath('/admin/products');
     return { id: docRef.id, name };
 }
@@ -55,46 +40,58 @@ export async function createCategory(name: string): Promise<Category> {
 // Delete a category and all its products
 export async function deleteCategory(categoryId: string) {
     await isAdmin();
-    const batch = writeBatch(adminDb);
+    const batch = adminDb.batch();
 
     // Delete category document
-    const categoryRef = doc(adminDb, "categories", categoryId);
+    const categoryRef = adminDb.collection("categories").doc(categoryId);
     batch.delete(categoryRef);
 
     // Find and delete all products in this category
-    const productsQuery = query(collection(adminDb, "products"), where("categoryId", "==", categoryId));
-    const productsSnapshot = await getDocs(productsQuery);
+    const productsQuery = adminDb.collection("products").where("categoryId", "==", categoryId);
+    const productsSnapshot = await productsQuery.get();
     productsSnapshot.forEach(doc => {
         batch.delete(doc.ref);
     });
 
     await batch.commit();
     revalidatePath('/admin/products');
+    revalidatePath('/dashboard');
 }
 
 // Update a product
 export async function updateProduct(productData: Product) {
     await isAdmin();
     const { id, ...data } = productData;
-    const productRef = doc(adminDb, "products", id);
-    await updateDoc(productRef, toPlainObject(data));
+    const productRef = adminDb.collection("products").doc(id);
+    await productRef.update(toPlainObject(data));
     revalidatePath('/admin/products');
+    revalidatePath('/dashboard');
 }
 
 // Create a new product
 export async function createProduct(productData: Omit<Product, 'id'>): Promise<Product> {
     await isAdmin();
-    const productsCollection = collection(adminDb, "products");
-    const docRef = await addDoc(productsCollection, { ...toPlainObject(productData), createdAt: new Date() });
+    const productsCollection = adminDb.collection("products");
+    
+    const dataToSave = {
+        ...toPlainObject(productData),
+        createdAt: new Date().toISOString(),
+    };
+
+    const docRef = await productsCollection.add(dataToSave);
+    
     revalidatePath('/admin/products');
-    const newProduct = { id: docRef.id, ...productData } as Product;
+    revalidatePath('/dashboard');
+
+    const newProduct: Product = { id: docRef.id, ...productData };
     return toPlainObject(newProduct);
 }
 
 // Delete a product
 export async function deleteProduct(productId: string) {
     await isAdmin();
-    const productRef = doc(adminDb, "products", productId);
+    const productRef = adminDb.collection("products").doc(productId);
     await deleteDoc(productRef);
     revalidatePath('/admin/products');
+    revalidatePath('/dashboard');
 }

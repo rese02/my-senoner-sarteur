@@ -25,6 +25,14 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
   const [categories, setCategories] = useState<Category[]>(initialCategories);
   const router = useRouter();
 
+  useEffect(() => {
+    setProducts(initialProducts);
+  }, [initialProducts]);
+
+  useEffect(() => {
+    setCategories(initialCategories);
+  }, [initialCategories]);
+
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
@@ -45,12 +53,9 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
   const handleAvailabilityToggle = (productId: string, currentStatus: boolean) => {
     startTransition(async () => {
         try {
-            const updatedProduct = await toggleProductAvailability(productId, !currentStatus);
-            setProducts(prevProducts =>
-                prevProducts.map(p =>
-                    p.id === productId ? { ...p, isAvailable: updatedProduct.isAvailable } : p
-                )
-            );
+            await toggleProductAvailability(productId, !currentStatus);
+            // Refresh data from server to ensure consistency
+            refreshData();
         } catch (error) {
             toast({ variant: 'destructive', title: 'Update fehlgeschlagen' });
         }
@@ -64,8 +69,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
       }
       startTransition(async () => {
         try {
-          const newCategory = await createCategory(newCategoryName);
-          setCategories(prev => [...prev, newCategory]);
+          await createCategory(newCategoryName);
           toast({ title: 'Kategorie erstellt!' });
           setNewCategoryName('');
           setIsCategoryModalOpen(false);
@@ -80,8 +84,6 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
       startTransition(async () => {
         try {
           await deleteCategory(categoryId);
-          setCategories(prev => prev.filter(c => c.id !== categoryId));
-          setProducts(prev => prev.filter(p => p.categoryId !== categoryId));
           toast({ title: 'Kategorie gelöscht' });
           refreshData();
         } catch(error: any) {
@@ -139,7 +141,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
             }
             setIsProductModalOpen(false);
             setEditingProduct(null);
-            refreshData(); // Refresh data from server
+            refreshData(); 
             toast({ title: editingProduct.id ? 'Produkt aktualisiert!' : 'Produkt erstellt!' });
           } catch(error: any) {
             toast({ variant: "destructive", title: "Fehler beim Speichern", description: error.message || "Produkt konnte nicht gespeichert werden." });
@@ -151,7 +153,6 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
       startTransition(async () => {
         try {
           await deleteProduct(productId);
-          setProducts(prev => prev.filter(p => p.id !== productId));
           toast({ title: 'Produkt gelöscht' });
           refreshData();
         } catch(error: any) {
@@ -223,7 +224,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                           <CardContent className="p-3 flex flex-col flex-1">
                               <h3 className="font-semibold text-base leading-tight">{product.name}</h3>
                               <div className="flex items-baseline justify-between mt-1">
-                                  <p className="text-lg font-bold text-primary">€{product.price.toFixed(2)}</p>
+                                  <p className="text-lg font-bold text-primary">€{(product.price || 0).toFixed(2)}</p>
                                   <span className="text-xs text-muted-foreground">/ {product.unit}</span>
                               </div>
                               {product.availabilityDay && <Badge variant="secondary" className="mt-1 w-fit text-xs">{product.availabilityDay} only</Badge>}
@@ -361,6 +362,10 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                 <div className="space-y-1.5">
                     <Label htmlFor="imageHint">Bild-Hinweis für KI</Label>
                     <Input id="imageHint" name="imageHint" value={editingProduct?.imageHint || ''} onChange={handleProductFormChange} placeholder="z.B. sushi box" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="description">Beschreibung</Label>
+                  <Textarea id="description" name="description" value={editingProduct?.description || ''} onChange={handleProductFormChange} placeholder="Eine kurze Beschreibung des Produkts." />
                 </div>
                 
                  {/* Nur sichtbar wenn type === 'package' */}

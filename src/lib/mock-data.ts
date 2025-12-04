@@ -1,36 +1,13 @@
 import type { User, Category, Product, Order, AppConfig, Story, PlannerEvent } from '@/lib/types';
-import { PlaceHolderImages } from './placeholder-images';
 
-// MOCK DATA IS NOW DEPRECATED AND WILL BE REPLACED BY FIRESTORE CALLS.
-// Some data might be kept for fallback or initial structure reference.
-
-const getImage = (id: string) => {
-    let image = PlaceHolderImages.find(p => p.id === id);
-    if (!image) {
-        console.warn(`Placeholder image with id "${id}" not found. Using generic fallback.`);
-        image = PlaceHolderImages.find(p => p.id === 'placeholder-general');
-    }
-    
-    if (!image) {
-        return { 
-            imageUrl: `https://picsum.photos/seed/critical-fallback/600/400`, 
-            imageHint: 'placeholder' 
-        };
-    }
-
-    return {
-        imageUrl: image.imageUrl,
-        imageHint: image.imageHint,
-    };
-};
 
 // This is now only for fallback display if firestore fails.
 export let mockAppConfig: AppConfig = {
     recipeOfTheWeek: {
         title: 'Frische Pfifferlinge mit Rahmsauce',
         subtitle: 'Ein herbstlicher Genuss in 20 Minuten',
-        image: getImage('recipe-of-the-week').imageUrl,
-        imageHint: getImage('recipe-of-the-week').imageHint,
+        image: 'https://images.unsplash.com/photo-1731570226263-9ada7cf7928f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjb29raW5nJTIwZGlzaHxlbnwwfHx8fDE3NjMyMjU3OTZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
+        imageHint: 'cooking dish',
         description: 'Entdecken Sie eine neue köstliche Mahlzeitidee mit unseren besten saisonalen Produkten. Perfekt für einen gemütlichen Herbstabend.',
         ingredients: [
             '500g frische Pfifferlinge',
