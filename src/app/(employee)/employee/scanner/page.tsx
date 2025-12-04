@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback, useTransition } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Camera, Gift, Loader2, QrCode, X, ListTodo, Check } from 'lucide-react';
 import type { User as UserType, Order, ChecklistItem } from '@/lib/types';
@@ -286,57 +286,63 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
     }
 
     return (
-        <div className="fixed inset-0 z-50 bg-background flex flex-col">
-            <header className="p-4 border-b flex justify-between items-center bg-card sticky top-0">
-                 <div>
-                    <h2 className="text-lg font-bold font-headline">Einkauf für {order.customerName}</h2>
-                    <p className="text-sm text-muted-foreground">Gefundene Artikel abhaken.</p>
-                 </div>
-                <Button variant="ghost" size="icon" onClick={onFinish} className="rounded-full shrink-0">
-                    <X />
-                </Button>
-            </header>
-            <main className="flex-grow overflow-y-auto pb-40">
-                {checklist.map((entry, index) => (
-                    <div 
-                        key={index} 
-                        onClick={() => toggleItem(index)}
-                        className={cn(
-                            "p-4 border-b flex items-center gap-4 cursor-pointer transition-colors", 
-                            entry.isFound ? 'bg-green-50 text-muted-foreground' : 'bg-card hover:bg-secondary/50'
-                        )}
-                    >
-                        <div className={cn(
-                            "w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all flex-shrink-0", 
-                            entry.isFound ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground/50 bg-background"
-                        )}>
-                           {entry.isFound && <Check className="w-4 h-4" />}
-                        </div>
-                        <span className={cn(
-                            "text-base flex-1 transition-opacity", 
-                            entry.isFound && 'line-through opacity-70'
-                        )}>
-                            {entry.item}
-                        </span>
+        <div className="w-full space-y-4 animate-in fade-in-50">
+            <Card className="w-full shadow-xl border-none">
+                <CardHeader>
+                    <CardTitle>Einkauf für {order.customerName}</CardTitle>
+                    <CardDescription>Gefundene Artikel abhaken.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-1">
+                        {checklist.map((entry, index) => (
+                            <div 
+                                key={index} 
+                                onClick={() => toggleItem(index)}
+                                className={cn(
+                                    "p-3 border rounded-lg flex items-center gap-4 cursor-pointer transition-all duration-200", 
+                                    entry.isFound 
+                                        ? 'bg-green-50 border-green-200 text-muted-foreground' 
+                                        : 'bg-card hover:bg-secondary/50'
+                                )}
+                            >
+                                <div className={cn(
+                                    "w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all flex-shrink-0", 
+                                    entry.isFound 
+                                        ? "bg-primary border-primary text-primary-foreground" 
+                                        : "border-muted-foreground/50 bg-background"
+                                )}>
+                                   {entry.isFound && <Check className="w-4 h-4" />}
+                                </div>
+                                <span className={cn(
+                                    "text-base flex-1 transition-opacity", 
+                                    entry.isFound && 'line-through opacity-60'
+                                )}>
+                                    {entry.item}
+                                </span>
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </main>
-            <footer className="fixed bottom-0 left-0 right-0 p-3 bg-card border-t shadow-lg grid gap-2 animate-in slide-in-from-bottom-10">
-                 <Label htmlFor="final-price" className="text-sm font-semibold">Endsumme (€)</Label>
-                 <div className="flex gap-2">
-                    <Input 
-                        id="final-price"
-                        type="number" 
-                        className="text-2xl font-bold h-14" 
-                        placeholder="0.00" 
-                        value={finalPrice}
-                        onChange={(e) => setFinalPrice(e.target.value)}
-                    />
-                    <Button onClick={handleFinish} disabled={isPending || !finalPrice || parseFloat(finalPrice) <= 0} className="h-14 px-6 text-base">
-                        {isPending ? <Loader2 className="animate-spin"/> : 'Fertig'}
-                    </Button>
-                 </div>
-            </footer>
+                </CardContent>
+                <CardFooter className="flex-col items-stretch space-y-3 pt-4 border-t bg-secondary/50">
+                     <Label htmlFor="final-price" className="text-sm font-semibold">Endsumme (€)</Label>
+                     <div className="flex gap-2">
+                        <Input 
+                            id="final-price"
+                            type="number" 
+                            className="text-2xl font-bold h-14 bg-background" 
+                            placeholder="0.00" 
+                            value={finalPrice}
+                            onChange={(e) => setFinalPrice(e.target.value)}
+                        />
+                        <Button onClick={handleFinish} disabled={isPending || !finalPrice || parseFloat(finalPrice) <= 0} className="h-14 px-6 text-base">
+                            {isPending ? <Loader2 className="animate-spin"/> : 'Fertig'}
+                        </Button>
+                     </div>
+                </CardFooter>
+            </Card>
+             <Button variant="outline" onClick={onFinish} className="w-full">
+                Abbrechen und zurück
+            </Button>
         </div>
     )
 }
@@ -426,6 +432,8 @@ export default function ScannerPage() {
     if (viewState === 'scanning') {
         return <ActiveScannerView onScanSuccess={handleScanSuccess} onCancel={resetToMain} />;
     }
+
+
 
     if (viewState === 'result' && scannedUser) {
         return <ScanResultView user={scannedUser} onNextCustomer={resetToMain} />;
