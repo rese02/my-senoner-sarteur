@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import type { Order, OrderStatus } from "@/lib/types";
 import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Package, FileText, Calendar, Info, AlertTriangle, CheckCircle, Truck, ShoppingBag, XCircle } from "lucide-react";
+import { Package, FileText, Calendar, Info, CheckCircle, Truck, ShoppingBag, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const statusMap: Record<OrderStatus, { label: string; className: string; icon: React.ElementType }> = {
@@ -26,10 +26,11 @@ function OrderHistoryCard({ order }: { order: Order }) {
     const isGroceryList = order.type === 'grocery_list';
     const relevantDate = order.pickupDate || order.deliveryDate || order.createdAt;
     const StatusIcon = statusMap[order.status]?.icon || Info;
+    const statusColorClass = statusMap[order.status]?.className.split(' ')[0].replace('bg-', '') + '-fg' || 'primary';
 
     return (
-        <Card className="shadow-md border-l-4 border-transparent" style={{ borderLeftColor: `hsl(var(--${statusMap[order.status]?.className.split(' ')[0].replace('bg-', '')}-fg))`}}>
-            <CardHeader className="flex flex-row items-center justify-between gap-4">
+        <Card className={cn("shadow-md border-l-4 border-transparent overflow-hidden")} style={{ borderLeftColor: `hsl(var(--${statusColorClass}))`}}>
+            <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                     <CardTitle className="text-base font-bold flex items-center gap-2">
                         {isGroceryList ? <FileText className="w-4 h-4 text-orange-500" /> : <Package className="w-4 h-4 text-primary" />}
@@ -39,12 +40,12 @@ function OrderHistoryCard({ order }: { order: Order }) {
                         #{order.id.slice(-6)} - {format(parseISO(order.createdAt), "dd.MM.yyyy, HH:mm")}
                     </CardDescription>
                 </div>
-                <Badge className={cn("capitalize font-semibold", statusMap[order.status]?.className)}>
+                 <Badge className={cn("capitalize font-semibold text-xs whitespace-nowrap", statusMap[order.status]?.className)}>
                     <StatusIcon className="w-3 h-3 mr-1.5"/>
                     {statusMap[order.status]?.label}
                 </Badge>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-0">
                 <div className="flex items-center justify-between text-sm bg-secondary p-3 rounded-md">
                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="w-4 h-4"/>
@@ -65,7 +66,7 @@ function OrderHistoryCard({ order }: { order: Order }) {
                          </div>
                     )}
                     {order.rawList && (
-                        <div className="text-sm text-muted-foreground whitespace-pre-wrap bg-secondary/50 p-3 rounded-md border">
+                        <div className="text-sm text-muted-foreground whitespace-pre-line bg-secondary/50 p-3 rounded-md border">
                             {order.rawList}
                         </div>
                     )}
@@ -80,9 +81,11 @@ function OrderHistoryCard({ order }: { order: Order }) {
                         </div>
                     </>
                 ) : (
-                    <div className="text-center text-xs text-muted-foreground pt-2">
-                        Endbetrag wird nach dem Packen berechnet.
-                    </div>
+                    isGroceryList && (
+                        <div className="text-center text-xs text-muted-foreground pt-2">
+                            Endbetrag wird nach dem Packen berechnet.
+                        </div>
+                    )
                 )}
             </CardContent>
         </Card>
