@@ -1,4 +1,3 @@
-
 'use client';
 
 import { PageHeader } from "@/components/common/PageHeader";
@@ -36,31 +35,25 @@ export default function LoyaltyPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Since getSession is a server action, we can't call it directly in a 'use client' component.
-        // We'll fetch the session data via an API route or another server action if needed.
-        // For now, we simulate fetching the session.
+        // Fetch the session data from our new API route on the client side
         const fetchSession = async () => {
-            const res = await fetch('/api/get-session'); // A new API route to get session data
-            if(res.ok) {
-                const session = await res.json();
-                setUser(session.user);
+            try {
+                const res = await fetch('/api/get-session');
+                if (res.ok) {
+                    const sessionData = await res.json();
+                    setUser(sessionData.user);
+                } else {
+                    // Handle cases where the session might not be found or an error occurs
+                    console.error("Failed to fetch session");
+                }
+            } catch (error) {
+                console.error("Error fetching session:", error);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
-        }
-        
-        // This is a placeholder. You'd implement the API route.
-        // For now, we use a mock approach to get it working in the demo
-        const getMockSession = async () => {
-             const session = await getSession(); // This will only work on server
-             // In a real client component, you would not do this.
-             // This is a temporary workaround for the prototyping environment.
-             if (session) {
-                 setUser(session as User);
-             }
-             setLoading(false);
         }
 
-        getMockSession();
+        fetchSession();
 
     }, []);
 
