@@ -47,15 +47,17 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
   const [tempAmount, setTempAmount] = useState('');
 
   const refreshData = () => {
-    router.refresh();
+    // We don't use router.refresh() anymore because revalidatePath in Server Actions handles it.
+    // This makes the UI feel faster as we don't force a full client-side refresh.
   };
 
   const handleAvailabilityToggle = (productId: string, currentStatus: boolean) => {
     startTransition(async () => {
         try {
             await toggleProductAvailability(productId, !currentStatus);
-            // Refresh data from server to ensure consistency
-            refreshData();
+            // Optimistic UI update
+            setProducts(prods => prods.map(p => p.id === productId ? {...p, isAvailable: !currentStatus} : p));
+            toast({ title: "Verfügbarkeit geändert!"});
         } catch (error) {
             toast({ variant: 'destructive', title: 'Update fehlgeschlagen' });
         }
@@ -69,11 +71,12 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
       }
       startTransition(async () => {
         try {
-          await createCategory(newCategoryName);
+          const newCategory = await createCategory(newCategoryName);
+          // Optimistic UI update
+          setCategories(cats => [...cats, newCategory]);
           toast({ title: 'Kategorie erstellt!' });
           setNewCategoryName('');
           setIsCategoryModalOpen(false);
-          refreshData();
         } catch (error: any) {
           toast({ variant: "destructive", title: "Fehler", description: error.message || "Kategorie konnte nicht erstellt werden."});
         }
@@ -84,8 +87,10 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
       startTransition(async () => {
         try {
           await deleteCategory(categoryId);
+          // Optimistic UI update
+          setCategories(cats => cats.filter(c => c.id !== categoryId));
+          setProducts(prods => prods.filter(p => p.categoryId !== categoryId));
           toast({ title: 'Kategorie gelöscht' });
-          refreshData();
         } catch(error: any) {
           toast({ variant: "destructive", title: "Fehler", description: error.message || "Kategorie konnte nicht gelöscht werden."});
         }
@@ -128,6 +133,8 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
           try {
             if (editingProduct.id) {
                 await updateProduct(editingProduct as Product);
+                // Optimistic UI Update
+                setProducts(prods => prods.map(p => p.id === editingProduct.id ? editingProduct as Product : p));
             } else {
                 const newProductData = {
                   ...editingProduct,
@@ -136,12 +143,13 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                   price: Number(editingProduct.price),
                   type: editingProduct.type || 'product'
                 } as Omit<Product, 'id'>;
-
-                await createProduct(newProductData);
+                // createProduct now returns the full product with ID
+                const created = await createProduct(newProductData);
+                // Optimistic UI Update with server-returned data
+                setProducts(prods => [...prods, created]);
             }
             setIsProductModalOpen(false);
             setEditingProduct(null);
-            refreshData(); 
             toast({ title: editingProduct.id ? 'Produkt aktualisiert!' : 'Produkt erstellt!' });
           } catch(error: any) {
             toast({ variant: "destructive", title: "Fehler beim Speichern", description: error.message || "Produkt konnte nicht gespeichert werden." });
@@ -153,8 +161,9 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
       startTransition(async () => {
         try {
           await deleteProduct(productId);
+          // Optimistic UI Update
+          setProducts(prods => prods.filter(p => p.id !== productId));
           toast({ title: 'Produkt gelöscht' });
-          refreshData();
         } catch(error: any) {
           toast({ variant: "destructive", title: "Fehler", description: error.message || "Produkt konnte nicht gelöscht werden." });
         }
@@ -206,7 +215,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDeleteCategory(category.id)}>Löschen</AlertDialogAction>
+                            <AlertDialogAction onClick={() => handleDeleteCategory(category.id)} disabled={isPending}>Löschen</AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
@@ -218,7 +227,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                       {productsInCategory.map(product => (
                          <Card key={product.id} className="overflow-hidden flex flex-col group relative transition-all hover:shadow-lg">
                           <div className="relative aspect-[4/3] bg-muted">
-                             <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" data-ai-hint={product.imageHint} />
+                             <Image src={product.imageUrl || '/placeholder.png'} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" data-ai-hint={product.imageHint} />
                               {product.type === 'package' && <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground" variant="secondary">PAKET</Badge>}
                           </div>
                           <CardContent className="p-3 flex flex-col flex-1">
@@ -263,7 +272,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
                                           <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                          <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>Löschen</AlertDialogAction>
+                                          <AlertDialogAction onClick={() => handleDeleteProduct(product.id)} disabled={isPending}>Löschen</AlertDialogAction>
                                         </AlertDialogFooter>
                                       </AlertDialogContent>
                                     </AlertDialog>

@@ -6,7 +6,7 @@ import { getSession } from '@/lib/session';
 import { toPlainObject } from '@/lib/utils';
 import type { Product, Category } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
-import { collection, getDocs, doc, updateDoc, addDoc, deleteDoc, writeBatch, query, where, orderBy } from 'firebase/firestore';
+import { doc, deleteDoc, writeBatch, query, where } from 'firebase/firestore';
 
 
 // Helper to check for Admin role
@@ -31,6 +31,9 @@ export async function toggleProductAvailability(productId: string, isAvailable: 
 // Create a new category
 export async function createCategory(name: string): Promise<Category> {
     await isAdmin();
+     if (!name.trim()) {
+        throw new Error("Category name cannot be empty.");
+    }
     const categoryCollection = adminDb.collection("categories");
     const docRef = await categoryCollection.add({ name });
     revalidatePath('/admin/products');
@@ -63,6 +66,8 @@ export async function updateProduct(productData: Product) {
     await isAdmin();
     const { id, ...data } = productData;
     const productRef = adminDb.collection("products").doc(id);
+    // Ensure numeric price
+    data.price = Number(data.price) || 0;
     await productRef.update(toPlainObject(data));
     revalidatePath('/admin/products');
     revalidatePath('/dashboard');
@@ -76,6 +81,7 @@ export async function createProduct(productData: Omit<Product, 'id'>): Promise<P
     const dataToSave = {
         ...toPlainObject(productData),
         createdAt: new Date().toISOString(),
+        price: Number(productData.price) || 0, // Ensure price is a number
     };
 
     const docRef = await productsCollection.add(dataToSave);
@@ -91,7 +97,7 @@ export async function createProduct(productData: Omit<Product, 'id'>): Promise<P
 export async function deleteProduct(productId: string) {
     await isAdmin();
     const productRef = adminDb.collection("products").doc(productId);
-    await deleteDoc(productRef);
+    await productRef.delete();
     revalidatePath('/admin/products');
     revalidatePath('/dashboard');
 }
