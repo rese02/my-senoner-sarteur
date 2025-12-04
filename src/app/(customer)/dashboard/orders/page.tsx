@@ -11,25 +11,25 @@ import { de } from 'date-fns/locale';
 import { Package, FileText, Calendar, Info, CheckCircle, Truck, ShoppingBag, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const statusMap: Record<OrderStatus, { label: string; className: string; icon: React.ElementType }> = {
-    new: { label: 'In Bearbeitung', className: 'bg-status-new-bg text-status-new-fg', icon: Info },
-    picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800', icon: ShoppingBag },
-    ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg', icon: CheckCircle },
-    ready_for_delivery: { label: 'Auf dem Weg', className: 'bg-status-ready-bg text-status-ready-fg', icon: Truck },
-    delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg', icon: CheckCircle },
-    collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg', icon: CheckCircle },
-    paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700', icon: CheckCircle },
-    cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg', icon: XCircle }
+const statusMap: Record<OrderStatus, { label: string; className: string; icon: React.ElementType, colorClass: string }> = {
+    new: { label: 'In Bearbeitung', className: 'bg-status-new-bg text-status-new-fg', icon: Info, colorClass: 'border-status-new-fg' },
+    picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800', icon: ShoppingBag, colorClass: 'border-yellow-500' },
+    ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg', icon: CheckCircle, colorClass: 'border-status-ready-fg' },
+    ready_for_delivery: { label: 'Auf dem Weg', className: 'bg-status-ready-bg text-status-ready-fg', icon: Truck, colorClass: 'border-status-ready-fg' },
+    delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg', icon: CheckCircle, colorClass: 'border-status-collected-fg' },
+    collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg', icon: CheckCircle, colorClass: 'border-status-collected-fg' },
+    paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700', icon: CheckCircle, colorClass: 'border-green-500' },
+    cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg', icon: XCircle, colorClass: 'border-status-cancelled-fg' }
 };
 
 function OrderHistoryCard({ order }: { order: Order }) {
     const isGroceryList = order.type === 'grocery_list';
     const relevantDate = order.pickupDate || order.deliveryDate || order.createdAt;
     const StatusIcon = statusMap[order.status]?.icon || Info;
-    const statusColorClass = statusMap[order.status]?.className.split(' ')[0].replace('bg-', '') + '-fg' || 'primary';
+    const statusColor = statusMap[order.status]?.colorClass || 'border-primary';
 
     return (
-        <Card className={cn("shadow-md border-l-4 border-transparent overflow-hidden")} style={{ borderLeftColor: `hsl(var(--${statusColorClass}))`}}>
+        <Card className={cn("overflow-hidden shadow-lg border-l-4", statusColor)}>
             <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                     <CardTitle className="text-base font-bold flex items-center gap-2">
