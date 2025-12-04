@@ -5,7 +5,6 @@ import { adminDb } from '@/lib/firebase-admin';
 import { getSession } from '@/lib/session';
 import { toPlainObject } from '@/lib/utils';
 import type { User, Order, Product, Category } from '@/lib/types';
-import { collection, getDocs, query, where } from 'firebase/firestore';
 
 export async function getCustomersPageData() {
   const session = await getSession();
@@ -14,10 +13,10 @@ export async function getCustomersPageData() {
   }
 
   try {
-    const customerSnap = await getDocs(query(collection(adminDb, 'users'), where('role', '==', 'customer')));
-    const orderSnap = await getDocs(collection(adminDb, 'orders'));
-    const productSnap = await getDocs(collection(adminDb, 'products'));
-    const categorySnap = await getDocs(collection(adminDb, 'categories'));
+    const customerSnap = await adminDb.collection('users').where('role', '==', 'customer').get();
+    const orderSnap = await adminDb.collection('orders').get();
+    const productSnap = await adminDb.collection('products').get();
+    const categorySnap = await adminDb.collection('categories').get();
 
     const customers = customerSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as User));
     const orders = orderSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as Order));
