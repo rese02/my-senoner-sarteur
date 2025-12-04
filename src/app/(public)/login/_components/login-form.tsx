@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config'; // WICHTIG: Direktimport statt Hook
-import { createSession } from '@/actions/auth-actions'; // WICHTIG: Die reparierte Datei nutzen!
+import { auth } from '@/lib/firebase/config';
+import { createSession } from '@/app/actions/auth.actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -43,16 +43,10 @@ export function LoginForm() {
       const idToken = await userCredential.user.getIdToken();
 
       // 3. Server Action aufrufen (Cookie setzen & Redirect)
-      // Diese Funktion enthält unsere Fixes für die Cloud-Umgebung!
       await createSession(idToken);
       
-      // Hinweis: Der Code hier drunter wird meist gar nicht erreicht, 
-      // weil createSession einen Redirect auslöst.
-
     } catch (error: any) {
-      // WICHTIG: Next.js Redirects werfen einen Fehler ('NEXT_REDIRECT').
-      // Diesen müssen wir durchlassen, sonst funktioniert die Weiterleitung nicht!
-      if (error.message === 'NEXT_REDIRECT' || error.digest?.includes('NEXT_REDIRECT')) {
+      if (error.digest?.includes('NEXT_REDIRECT')) {
         throw error;
       }
       
@@ -104,4 +98,3 @@ export function LoginForm() {
     </Form>
   );
 }
-
