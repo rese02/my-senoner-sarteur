@@ -6,16 +6,17 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { mockAppConfig, mockStories, mockPlannerEvents, mockProducts } from "@/lib/mock-data";
+import { mockAppConfig } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useTransition, useEffect } from "react";
-import type { Recipe, Story, PlannerEvent, PlannerIngredientRule } from "@/lib/types";
+import type { Recipe, Story, PlannerEvent, PlannerIngredientRule, Product } from "@/lib/types";
 import { Loader2, PlusCircle, Trash2, Edit, Plus, Save } from "lucide-react";
 import { ImageUploader } from "@/components/custom/ImageUploader";
 import Image from "next/image";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { deletePlannerEvent, deleteStory, getMarketingPageData, savePlannerEvent, saveStory } from "@/app/actions/marketing.actions";
 
 // Helper component for story modal form
 function StoryForm({ story, onSave, isPending }: { story: Partial<Story> | null, onSave: (story: Partial<Story>) => void, isPending: boolean }) {
@@ -78,7 +79,7 @@ function StoryForm({ story, onSave, isPending }: { story: Partial<Story> | null,
     )
 }
 
-function PlannerEventForm({ event: initialEvent, onSave, isPending }: { event: Partial<PlannerEvent> | null, onSave: (event: Partial<PlannerEvent>) => void, isPending: boolean }) {
+function PlannerEventForm({ event: initialEvent, onSave, isPending, availableProducts }: { event: Partial<PlannerEvent> | null, onSave: (event: Partial<PlannerEvent>) => void, isPending: boolean, availableProducts: Product[] }) {
     const [event, setEvent] = useState(initialEvent);
     
     useEffect(() => {
@@ -100,7 +101,7 @@ function PlannerEventForm({ event: initialEvent, onSave, isPending }: { event: P
 
     const addRule = () => {
         if (!tempRule.productId || !tempRule.baseAmount) {
-            alert('Produkt und Menge sind erforderlich.');
+            toast({variant: 'destructive', title: 'Produkt und Menge sind erforderlich.'});
             return;
         }
         const newRule: PlannerIngredientRule = {
@@ -150,12 +151,12 @@ function PlannerEventForm({ event: initialEvent, onSave, isPending }: { event: P
                     <div className="flex-1 space-y-1">
                         <Label className="text-xs">Produkt</Label>
                          <Select onValueChange={(val) => {
-                            const product = mockProducts.find(p => p.id === val);
+                            const product = availableProducts.find(p => p.id === val);
                             setTempRule(r => ({...r, productId: val, productName: product?.name || ''}))
                          }} value={tempRule.productId}>
                             <SelectTrigger><SelectValue placeholder="Wählen..." /></SelectTrigger>
                             <SelectContent>
-                                {mockProducts.filter(p => p.isAvailable).map(p => (
+                                {availableProducts.map(p => (
                                     <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                                 ))}
                             </SelectContent>
@@ -198,12 +199,12 @@ function PlannerEventForm({ event: initialEvent, onSave, isPending }: { event: P
 
 export default function MarketingPage() {
     const [recipe, setRecipe] = useState<Recipe>(mockAppConfig.recipeOfTheWeek);
-    const [stories, setStories] = useState<Story[]>(mockStories);
-    const [plannerEvents, setPlannerEvents] = useState<PlannerEvent[]>(mockPlannerEvents);
+    const [stories, setStories] = useState<Story[]>([]);
+    const [plannerEvents, setPlannerEvents] = useState<PlannerEvent[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const [isRecipePending, startRecipeTransition] = useTransition();
-    const [isStoryPending, startStoryTransition] = useTransition();
-    const [isPlannerPending, startPlannerTransition] = useTransition();
+    const [isPending, startTransition] = useTransition();
 
     const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
     const [editingStory, setEditingStory] = useState<Partial<Story> | null>(null);
@@ -212,6 +213,19 @@ export default function MarketingPage() {
     const [editingPlannerEvent, setEditingPlannerEvent] = useState<Partial<PlannerEvent> | null>(null);
 
     const { toast } = useToast();
+
+    useEffect(() => {
+        setLoading(true);
+        getMarketingPageData()
+            .then(data => {
+                setStories(data.stories);
+                setPlannerEvents(data.plannerEvents);
+                setProducts(data.products);
+            })
+            .catch(err => toast({ variant: 'destructive', title: 'Fehler', description: 'Marketingdaten konnten nicht geladen werden.'}))
+            .finally(() => setLoading(false));
+    }, [toast]);
+
 
     const handleRecipeInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -227,9 +241,9 @@ export default function MarketingPage() {
     };
 
     const handlePublishRecipe = () => {
-        startRecipeTransition(() => {
+        startTransition(() => {
             console.log("Publishing new recipe:", recipe);
-            mockAppConfig.recipeOfTheWeek = recipe;
+            mockAppConfig.recipeOfTheWeek = recipe; // This would be a server action
             toast({
                 title: "Wochen-Special veröffentlicht!",
                 description: "Das neue Rezept der Woche ist jetzt für Kunden sichtbar.",
@@ -243,30 +257,32 @@ export default function MarketingPage() {
     };
 
     const handleSaveStory = (storyData: Partial<Story>) => {
-        startStoryTransition(() => {
-            if (stories.find(s => s.id === storyData.id)) {
-                const updatedStories = stories.map(s => s.id === storyData.id ? storyData as Story : s);
-                setStories(updatedStories);
-                const mockIndex = mockStories.findIndex(s => s.id === storyData.id);
-                if (mockIndex > -1) mockStories[mockIndex] = storyData as Story;
-                toast({ title: "Story aktualisiert!" });
-            } else {
-                const newStory: Story = { ...storyData, id: storyData.id || `story-${Date.now()}` } as Story;
-                setStories([...stories, newStory]);
-                mockStories.push(newStory);
-                toast({ title: "Neue Story erstellt!" });
+        startTransition(async () => {
+            try {
+                const savedStory = await saveStory(storyData);
+                if (stories.some(s => s.id === savedStory.id)) {
+                    setStories(stories.map(s => s.id === savedStory.id ? savedStory : s));
+                } else {
+                    setStories([...stories, savedStory]);
+                }
+                toast({ title: "Story gespeichert!" });
+                setIsStoryModalOpen(false);
+                setEditingStory(null);
+            } catch (error) {
+                toast({ variant: 'destructive', title: 'Fehler', description: 'Story konnte nicht gespeichert werden.'});
             }
-            setIsStoryModalOpen(false);
-            setEditingStory(null);
         });
     };
 
     const handleDeleteStory = (storyId: string) => {
-        startStoryTransition(() => {
-            setStories(stories.filter(s => s.id !== storyId));
-            const mockIndex = mockStories.findIndex(s => s.id === storyId);
-            if (mockIndex > -1) mockStories.splice(mockIndex, 1);
-            toast({ title: "Story gelöscht." });
+        startTransition(async () => {
+            try {
+                await deleteStory(storyId);
+                setStories(stories.filter(s => s.id !== storyId));
+                toast({ title: "Story gelöscht." });
+            } catch (error) {
+                toast({ variant: 'destructive', title: 'Fehler', description: 'Story konnte nicht gelöscht werden.'});
+            }
         });
     };
 
@@ -276,33 +292,42 @@ export default function MarketingPage() {
     };
 
     const handleSavePlannerEvent = (eventData: Partial<PlannerEvent>) => {
-        startPlannerTransition(() => {
-            if (plannerEvents.find(e => e.id === eventData.id)) {
-                const updatedEvents = plannerEvents.map(e => e.id === eventData.id ? eventData as PlannerEvent : e);
-                setPlannerEvents(updatedEvents);
-                const mockIndex = mockPlannerEvents.findIndex(e => e.id === eventData.id);
-                if (mockIndex > -1) mockPlannerEvents[mockIndex] = eventData as PlannerEvent;
-                toast({ title: "Planer Event aktualisiert!" });
-            } else {
-                const newEvent: PlannerEvent = { ...eventData, id: eventData.id || `plan-${Date.now()}` } as PlannerEvent;
-                setPlannerEvents([...plannerEvents, newEvent]);
-                mockPlannerEvents.push(newEvent);
-                toast({ title: "Neues Planer Event erstellt!" });
+        startTransition(async () => {
+            try {
+                const savedEvent = await savePlannerEvent(eventData);
+                 if (plannerEvents.some(e => e.id === savedEvent.id)) {
+                    setPlannerEvents(plannerEvents.map(e => e.id === savedEvent.id ? savedEvent : e));
+                } else {
+                    setPlannerEvents([...plannerEvents, savedEvent]);
+                }
+                toast({ title: "Planer Event gespeichert!" });
+                setIsPlannerModalOpen(false);
+                setEditingPlannerEvent(null);
+            } catch(error) {
+                toast({ variant: 'destructive', title: 'Fehler', description: 'Event konnte nicht gespeichert werden.'});
             }
-            setIsPlannerModalOpen(false);
-            setEditingPlannerEvent(null);
         });
     };
 
      const handleDeletePlannerEvent = (eventId: string) => {
-        startPlannerTransition(() => {
-            setPlannerEvents(plannerEvents.filter(e => e.id !== eventId));
-            const mockIndex = mockPlannerEvents.findIndex(e => e.id === eventId);
-            if (mockIndex > -1) mockPlannerEvents.splice(mockIndex, 1);
-            toast({ title: "Planer Event gelöscht." });
+        startTransition(async () => {
+             try {
+                await deletePlannerEvent(eventId);
+                setPlannerEvents(plannerEvents.filter(e => e.id !== eventId));
+                toast({ title: "Planer Event gelöscht." });
+            } catch (error) {
+                toast({ variant: 'destructive', title: 'Fehler', description: 'Event konnte nicht gelöscht werden.'});
+            }
         });
     };
 
+    if (loading) {
+        return (
+             <div className="flex justify-center items-center h-64">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+        )
+    }
 
     return (
         <div className="pb-24 md:pb-0">
@@ -442,8 +467,8 @@ export default function MarketingPage() {
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button onClick={handlePublishRecipe} disabled={isRecipePending}>
-                                {isRecipePending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            <Button onClick={handlePublishRecipe} disabled={isPending}>
+                                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Jetzt veröffentlichen
                             </Button>
                         </CardFooter>
@@ -454,24 +479,24 @@ export default function MarketingPage() {
             <Dialog open={isStoryModalOpen} onOpenChange={setIsStoryModalOpen}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>{editingStory?.id ? 'Story bearbeiten' : 'Neue Story erstellen'}</DialogTitle>
+                        <DialogTitle>{editingStory?.id?.startsWith('story-') ? 'Neue Story erstellen' : 'Story bearbeiten'}</DialogTitle>
                         <DialogDescription>
                             Fügen Sie ein Bild hinzu und geben Sie einen Titel und Autor an.
                         </DialogDescription>
                     </DialogHeader>
-                    {isStoryModalOpen && <StoryForm story={editingStory} onSave={handleSaveStory} isPending={isStoryPending} />}
+                    {isStoryModalOpen && <StoryForm story={editingStory} onSave={handleSaveStory} isPending={isPending} />}
                 </DialogContent>
             </Dialog>
 
             <Dialog open={isPlannerModalOpen} onOpenChange={setIsPlannerModalOpen}>
                 <DialogContent className="sm:max-w-lg">
                     <DialogHeader>
-                        <DialogTitle>{editingPlannerEvent?.id ? 'Planer Event bearbeiten' : 'Neues Planer Event erstellen'}</DialogTitle>
+                        <DialogTitle>{editingPlannerEvent?.id?.startsWith('plan-') ? 'Neues Planer Event erstellen' : 'Planer Event bearbeiten'}</DialogTitle>
                         <DialogDescription>
                             Definieren Sie hier die Regeln für den Mengenrechner.
                         </DialogDescription>
                     </DialogHeader>
-                    {isPlannerModalOpen && <PlannerEventForm event={editingPlannerEvent} onSave={handleSavePlannerEvent} isPending={isPlannerPending} />}
+                    {isPlannerModalOpen && <PlannerEventForm event={editingPlannerEvent} onSave={handleSavePlannerEvent} isPending={isPending} availableProducts={products} />}
                 </DialogContent>
             </Dialog>
         </div>

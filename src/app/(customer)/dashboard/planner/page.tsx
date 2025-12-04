@@ -8,10 +8,10 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { useCartStore } from '@/hooks/use-cart-store';
 import { PageHeader } from '@/components/common/PageHeader';
-import { mockPlannerEvents, mockProducts } from '@/lib/mock-data';
-import type { PlannerEvent } from '@/lib/types';
+import type { PlannerEvent, Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import { getPlannerPageData } from '@/app/actions/marketing.actions';
 
 function EventSelectionCarousel({ events, onSelect, selectedEvent }: { events: PlannerEvent[], onSelect: (event: PlannerEvent) => void, selectedEvent: PlannerEvent | null }) {
     return (
@@ -47,6 +47,7 @@ function EventSelectionCarousel({ events, onSelect, selectedEvent }: { events: P
 
 export default function PartyPlannerPage() {
   const [events, setEvents] = useState<PlannerEvent[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<PlannerEvent | null>(null);
   const [people, setPeople] = useState(4);
   const [loading, setLoading] = useState(true);
@@ -55,21 +56,27 @@ export default function PartyPlannerPage() {
 
 
   useEffect(() => {
-    setEvents(mockPlannerEvents);
-    if (mockPlannerEvents.length > 0) {
-      setSelectedEvent(mockPlannerEvents[0]);
-    }
-    setLoading(false);
-  }, []);
+    setLoading(true);
+    getPlannerPageData()
+        .then(data => {
+            setEvents(data.plannerEvents);
+            setProducts(data.products);
+            if (data.plannerEvents.length > 0) {
+                setSelectedEvent(data.plannerEvents[0]);
+            }
+        })
+        .catch(err => toast({ variant: 'destructive', title: 'Fehler', description: 'Daten konnten nicht geladen werden.'}))
+        .finally(() => setLoading(false));
+  }, [toast]);
 
   const handleAddToCart = () => {
     if (!selectedEvent) return;
 
     selectedEvent.ingredients.forEach(ingredient => {
-        const product = mockProducts.find(p => p.id === ingredient.productId);
+        const product = products.find(p => p.id === ingredient.productId);
         if (product) {
             const totalAmount = ingredient.baseAmount * people;
-            const pricePerGram = product.unit === 'kg' ? product.price / 1000 : product.price; // assuming 'g' or 'stück' otherwise
+            const pricePerGram = product.unit === 'kg' ? product.price / 1000 : product.price;
             const price = ingredient.unit === 'g' ? totalAmount * pricePerGram : totalAmount * product.price;
 
             addToCart({ 

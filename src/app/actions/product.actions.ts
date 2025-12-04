@@ -4,7 +4,7 @@ import 'server-only';
 import { adminDb } from '@/lib/firebase-admin';
 import { getSession } from '@/lib/session';
 import { toPlainObject } from '@/lib/utils';
-import type { Product, Category } from '@/lib/types';
+import type { Product, Category, Story } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
 import { mockAppConfig } from '@/lib/mock-data';
 
@@ -37,7 +37,7 @@ export async function getDashboardData() {
       toPlainObject({ id: doc.id, ...doc.data() } as Category)
     );
     const stories = storiesSnapshot.docs.map((doc) =>
-      toPlainObject({ id: doc.id, ...doc.data() } as any)
+      toPlainObject({ id: doc.id, ...doc.data() } as Story)
     );
 
     const recipe = mockAppConfig.recipeOfTheWeek;
@@ -45,6 +45,7 @@ export async function getDashboardData() {
     return { products, categories, stories, recipe };
   } catch (error) {
     console.error('Error fetching dashboard data:', error);
+    // Return empty arrays on failure to prevent crashes
     return {
       products: [],
       categories: [],
@@ -53,6 +54,7 @@ export async function getDashboardData() {
     };
   }
 }
+
 
 // Get all products and categories for the admin products page
 export async function getProductsPageData() {
@@ -156,7 +158,7 @@ export async function createProduct(
   revalidatePath('/admin/products');
   revalidatePath('/dashboard');
 
-  const newProduct: Product = { id: docRef.id, ...productData };
+  const newProduct: Product = { id: docRef.id, ...productData, price: dataToSave.price };
   return toPlainObject(newProduct);
 }
 
