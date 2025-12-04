@@ -299,7 +299,7 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
                                 key={index} 
                                 onClick={() => toggleItem(index)}
                                 className={cn(
-                                    "p-3 border rounded-lg flex items-center gap-4 cursor-pointer transition-all duration-200", 
+                                    "p-3 border rounded-lg flex items-center gap-3 cursor-pointer transition-all duration-200", 
                                     entry.isFound 
                                         ? 'bg-green-50 border-green-200 text-muted-foreground' 
                                         : 'bg-card hover:bg-secondary/50'
@@ -445,5 +445,3 @@ export default function ScannerPage() {
 
     return <MainView onStartScan={startScanFlow} onStartPicking={handleStartPicking} groceryLists={groceryLists} />;
 }
-
-    
