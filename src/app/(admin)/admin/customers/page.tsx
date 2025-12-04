@@ -8,8 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Wand2, Send, RotateCw, Trophy, Filter } from "lucide-react";
-import { useState, useMemo } from "react";
+import { Wand2, Send, RotateCw, Trophy, Filter, Loader2 } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { improveTextWithAI } from "@/ai/flows/improve-newsletter-text";
 import { Badge } from "@/components/ui/badge";
@@ -88,17 +88,20 @@ export default function AdminCustomersPageWrapper() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useMemo(async () => {
-        const customerSnap = await getDocs(query(collection(adminDb, 'users'), firestoreWhere('role', '==', 'customer')));
-        const orderSnap = await getDocs(collection(adminDb, 'orders'));
-        const productSnap = await getDocs(collection(adminDb, 'products'));
-        const categorySnap = await getDocs(collection(adminDb, 'categories'));
+    useEffect(() => {
+      const fetchData = async () => {
+          const customerSnap = await getDocs(query(collection(adminDb, 'users'), firestoreWhere('role', '==', 'customer')));
+          const orderSnap = await getDocs(collection(adminDb, 'orders'));
+          const productSnap = await getDocs(collection(adminDb, 'products'));
+          const categorySnap = await getDocs(collection(adminDb, 'categories'));
 
-        setCustomers(customerSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as User)));
-        setOrders(orderSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as Order)));
-        setProducts(productSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as Product)));
-        setCategories(categorySnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as Category)));
-        setLoading(false);
+          setCustomers(customerSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as User)));
+          setOrders(orderSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as Order)));
+          setProducts(productSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as Product)));
+          setCategories(categorySnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as Category)));
+          setLoading(false);
+      };
+      fetchData();
     }, []);
 
     if (loading) {
