@@ -445,3 +445,5 @@ export default function ScannerPage() {
 
     return <MainView onStartScan={startScanFlow} onStartPicking={handleStartPicking} groceryLists={groceryLists} />;
 }
+
+    
