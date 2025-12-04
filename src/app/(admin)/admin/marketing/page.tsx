@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { mockAppConfig, mockStories, mockPlannerEvents, mockProducts } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import type { Recipe, Story, PlannerEvent, PlannerIngredientRule } from "@/lib/types";
 import { Loader2, PlusCircle, Trash2, Edit, Plus, Save } from "lucide-react";
 import { ImageUploader } from "@/components/custom/ImageUploader";
@@ -20,6 +20,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 // Helper component for story modal form
 function StoryForm({ story, onSave, isPending }: { story: Partial<Story> | null, onSave: (story: Partial<Story>) => void, isPending: boolean }) {
     const [currentStory, setCurrentStory] = useState(story);
+    
+    useEffect(() => {
+        setCurrentStory(story);
+    }, [story]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!currentStory) return;
@@ -77,6 +81,10 @@ function StoryForm({ story, onSave, isPending }: { story: Partial<Story> | null,
 function PlannerEventForm({ event: initialEvent, onSave, isPending }: { event: Partial<PlannerEvent> | null, onSave: (event: Partial<PlannerEvent>) => void, isPending: boolean }) {
     const [event, setEvent] = useState(initialEvent);
     
+    useEffect(() => {
+        setEvent(initialEvent);
+    }, [initialEvent]);
+
     const [tempRule, setTempRule] = useState<{productId: string, productName: string, baseAmount: string, unit: string}>({ productId: '', productName: '', baseAmount: '', unit: 'g' });
 
     if (!event) return null;
@@ -451,7 +459,7 @@ export default function MarketingPage() {
                             Fügen Sie ein Bild hinzu und geben Sie einen Titel und Autor an.
                         </DialogDescription>
                     </DialogHeader>
-                    {editingStory && <StoryForm story={editingStory} onSave={handleSaveStory} isPending={isStoryPending} />}
+                    {isStoryModalOpen && <StoryForm story={editingStory} onSave={handleSaveStory} isPending={isStoryPending} />}
                 </DialogContent>
             </Dialog>
 
@@ -463,7 +471,7 @@ export default function MarketingPage() {
                             Definieren Sie hier die Regeln für den Mengenrechner.
                         </DialogDescription>
                     </DialogHeader>
-                    {editingPlannerEvent && <PlannerEventForm event={editingPlannerEvent} onSave={handleSavePlannerEvent} isPending={isPlannerPending} />}
+                    {isPlannerModalOpen && <PlannerEventForm event={editingPlannerEvent} onSave={handleSavePlannerEvent} isPending={isPlannerPending} />}
                 </DialogContent>
             </Dialog>
         </div>
