@@ -21,6 +21,13 @@ export function Stories({ stories }: { stories: Story[] }) {
     setOpen(true);
   };
 
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setSelectedStory(null);
+    }
+  }
+
   return (
     <div className="w-full">
         <h2 className="text-xl font-bold mb-4 font-headline px-4 md:px-0">Daily Stories</h2>
@@ -38,6 +45,7 @@ export function Stories({ stories }: { stories: Story[] }) {
                           alt={story.label}
                           width={72}
                           height={72}
+                          sizes="72px"
                           className="rounded-full object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                           data-ai-hint={story.imageHint}
                         />
@@ -49,7 +57,7 @@ export function Stories({ stories }: { stories: Story[] }) {
         </div>
         
         {selectedStory && (
-           <Dialog open={open} onOpenChange={setOpen}>
+           <Dialog open={open} onOpenChange={handleOpenChange}>
               <DialogContent className="p-0 m-0 bg-black border-none max-w-lg w-full h-[90vh] max-h-[90vh] rounded-xl overflow-hidden">
                   <DialogHeader className="sr-only">
                     <DialogTitle>Story: {selectedStory.label}</DialogTitle>

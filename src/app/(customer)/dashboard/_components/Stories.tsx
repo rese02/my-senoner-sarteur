@@ -8,7 +8,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -60,21 +59,8 @@ export function Stories({ stories }: { stories: Story[] }) {
         <Dialog open={open} onOpenChange={handleOpenChange}>
           {selectedStory && (
             <DialogContent className="p-0 m-0 bg-black border-none max-w-full w-full h-full max-h-screen sm:rounded-none">
-              <DialogHeader className="sr-only">
-                <DialogTitle>Story: {selectedStory.label}</DialogTitle>
-                <DialogDescription>Vollbildansicht der Story von {selectedStory.author}.</DialogDescription>
-              </DialogHeader>
-              <div className="relative h-full w-full">
-                <Image
-                  src={selectedStory.imageUrl}
-                  alt={selectedStory.label}
-                  fill
-                  className="object-contain"
-                  sizes="100vw"
-                  data-ai-hint={selectedStory.imageHint}
-                />
-                <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/60 to-transparent flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+              <DialogHeader className="p-4 absolute top-0 left-0 right-0 bg-gradient-to-b from-black/60 to-transparent flex flex-row items-center justify-between z-10">
+                <div className="flex items-center gap-3">
                     <div className="relative w-10 h-10">
                       <Image
                         src={selectedStory.imageUrl}
@@ -85,14 +71,23 @@ export function Stories({ stories }: { stories: Story[] }) {
                       />
                     </div>
                     <div>
-                      <p className="font-bold text-white text-sm">{selectedStory.label}</p>
-                      <p className="text-xs text-white/80">{selectedStory.author}</p>
+                      <DialogTitle className="font-bold text-white text-sm text-left">{selectedStory.label}</DialogTitle>
+                      <DialogDescription className="text-xs text-white/80 text-left">{selectedStory.author}</DialogDescription>
                     </div>
-                  </div>
-                   <Button variant="ghost" size="icon" className="text-white rounded-full hover:bg-white/20 hover:text-white" onClick={() => setOpen(false)}>
-                      <X className="w-5 h-5"/>
-                   </Button>
                 </div>
+                <Button variant="ghost" size="icon" className="text-white rounded-full hover:bg-white/20 hover:text-white" onClick={() => setOpen(false)}>
+                    <X className="w-5 h-5"/>
+                </Button>
+              </DialogHeader>
+              <div className="relative h-full w-full">
+                <Image
+                  src={selectedStory.imageUrl}
+                  alt={selectedStory.label}
+                  fill
+                  className="object-contain"
+                  sizes="100vw"
+                  data-ai-hint={selectedStory.imageHint}
+                />
               </div>
             </DialogContent>
           )}

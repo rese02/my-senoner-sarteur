@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ShoppingBag, ListPlus, Check } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { useCartStore } from '@/hooks/use-cart-store';
@@ -97,9 +97,10 @@ export function PackageCard({ product }: { product: Product }) {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-md rounded-xl">
           <DialogHeader>
-            <DialogTitle className="font-headline text-2xl text-primary">
-              {product.name}
-            </DialogTitle>
+            <DialogTitle>{product.name}</DialogTitle>
+            <DialogDescription>
+              Dieses Paket enthält die folgenden Artikel.
+            </DialogDescription>
           </DialogHeader>
           
           <div className="mt-4">

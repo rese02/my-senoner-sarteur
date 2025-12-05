@@ -136,7 +136,7 @@ export function SommelierClient({ initialWines }: { initialWines: Product[] }) {
               </p>
               <Button onClick={handleImport} disabled={isPending} className="w-full">
                 {isPending ? <Loader2 className="animate-spin mr-2" /> : <Save className="mr-2 w-4 h-4" />}
-                Liste importieren & Analysieren
+                Liste importieren &amp; Analysieren
               </Button>
             </CardContent>
           </Card>
@@ -231,6 +231,9 @@ export function SommelierClient({ initialWines }: { initialWines: Product[] }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Wein bearbeiten</DialogTitle>
+            <DialogDescription>
+                Korrigieren Sie den Namen oder die Tags des Weins.
+            </DialogDescription>
           </DialogHeader>
           {editingWine && (
             <div className="grid gap-4 py-4">

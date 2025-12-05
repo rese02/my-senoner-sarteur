@@ -167,7 +167,7 @@ export default function AdminOrdersPage() {
         
         const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
 
-        return matchesSearch && matchesStatus;
+        return matchesSearch &amp;&amp; matchesStatus;
       })
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [orders, searchTerm, statusFilter]);
@@ -223,7 +223,7 @@ export default function AdminOrdersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredOrders.length === 0 && (
+                {filteredOrders.length === 0 &amp;&amp; (
                   <TableRow>
                     <TableCell colSpan={8} className="h-24 text-center">Keine Bestellungen gefunden.</TableCell>
                   </TableRow>
@@ -275,7 +275,7 @@ export default function AdminOrdersPage() {
           </div>
 
           <div className="md:hidden space-y-3">
-             {filteredOrders.length === 0 && (
+             {filteredOrders.length === 0 &amp;&amp; (
                 <div className="text-center text-muted-foreground py-16">Keine Bestellungen gefunden.</div>
              )}
              {filteredOrders.map(order => (
@@ -294,11 +294,10 @@ export default function AdminOrdersPage() {
           <DialogHeader>
             <DialogTitle>Bestelldetails</DialogTitle>
             <DialogDescription>
-              Bestellung #{selectedOrder?.id.slice(-6)} vom{' '}
-              {selectedOrder && <FormattedDate date={selectedOrder.createdAt} formatString="dd.MM.yyyy, HH:mm" />}
+              Details für Bestellung #{selectedOrder?.id.slice(-6)}
             </DialogDescription>
           </DialogHeader>
-          {selectedOrder && (
+          {selectedOrder &amp;&amp; (
             <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
               <div className="space-y-3">
                   <h3 className="font-semibold text-base">Bestellübersicht</h3>
@@ -309,7 +308,7 @@ export default function AdminOrdersPage() {
                         <div><Badge className={cn("capitalize font-semibold", statusMap[selectedOrder.status]?.className)}>{statusMap[selectedOrder.status]?.label}</Badge></div>
                    </div>
                   
-                  {selectedOrder.type === 'preorder' && selectedOrder.items && (
+                  {selectedOrder.type === 'preorder' &amp;&amp; selectedOrder.items &amp;&amp; (
                       <Table>
                         <TableHeader>
                             <TableRow>
@@ -330,7 +329,7 @@ export default function AdminOrdersPage() {
                       </Table>
                   )}
 
-                  {selectedOrder.type === 'grocery_list' && selectedOrder.rawList && (
+                  {selectedOrder.type === 'grocery_list' &amp;&amp; selectedOrder.rawList &amp;&amp; (
                       <div>
                           <h4 className="font-semibold mt-3 mb-2">Einkaufszettel</h4>
                           <div className="p-3 bg-secondary rounded-md text-sm whitespace-pre-line text-muted-foreground">
@@ -338,14 +337,14 @@ export default function AdminOrdersPage() {
                           </div>
                       </div>
                   )}
-                  {selectedOrder.total && (
+                  {selectedOrder.total &amp;&amp; (
                     <div className="flex justify-end font-bold text-lg border-t pt-3 mt-2">
                         Gesamt: €{selectedOrder.total.toFixed(2)}
                     </div>
                   )}
               </div>
               
-              {customerDetails && (
+              {customerDetails &amp;&amp; (
                   <div className="space-y-3 pt-3 border-t">
                       <h3 className="font-semibold text-base">Kundendetails</h3>
                       <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
@@ -371,5 +370,3 @@ export default function AdminOrdersPage() {
     </div>
   );
 }
-
-    

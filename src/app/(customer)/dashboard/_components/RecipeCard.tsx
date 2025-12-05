@@ -29,10 +29,6 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
                              <Button variant="outline" className="mt-6 w-fit">Rezept ansehen</Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-4xl p-0 overflow-hidden rounded-2xl">
-                          <DialogHeader className="sr-only">
-                            <DialogTitle>{recipe.title}</DialogTitle>
-                            <DialogDescription>{recipe.subtitle}</DialogDescription>
-                          </DialogHeader>
                           <div className="grid md:grid-cols-2 max-h-[90vh]">
                             {/* LINKS: Bild (Vollflächig) */}
                             <div className="relative h-64 md:h-full w-full">
@@ -41,7 +37,11 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
 
                             {/* RECHTS: Scrollbarer Inhalt */}
                             <div className="p-6 md:p-8 overflow-y-auto bg-card">
-                              <h2 className="font-headline text-3xl text-primary mb-2">{recipe.title}</h2>
+                              <DialogHeader className="mb-6 text-left">
+                                <DialogTitle className="font-headline text-3xl text-primary">{recipe.title}</DialogTitle>
+                                <DialogDescription className="text-muted-foreground">{recipe.subtitle}</DialogDescription>
+                              </DialogHeader>
+                              
                               <div className="flex items-center gap-4 text-muted-foreground text-sm mb-6">
                                 <span className="flex items-center"><Clock className="w-4 h-4 mr-1.5"/> 20 Min</span>
                                 <span className="flex items-center"><ChefHat className="w-4 h-4 mr-1.5"/> Leicht</span>

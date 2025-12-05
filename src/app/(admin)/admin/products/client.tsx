@@ -292,6 +292,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Neue Kategorie erstellen</DialogTitle>
+            <DialogDescription>Geben Sie einen Namen für die neue Produktkategorie ein.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
