@@ -28,7 +28,7 @@ export interface LoyaltyData {
 
 export interface Category {
   id: string;
-  name: string;
+  name:string;
 }
 
 export interface PackageItem {

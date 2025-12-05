@@ -410,7 +410,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                 </DialogFooter>
             </form>
         </DialogContent>
-    </Dialog>
+      </Dialog>
     </>
   );
 }
