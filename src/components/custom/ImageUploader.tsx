@@ -60,7 +60,6 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
           setProgress(progress);
         },
         (error) => {
-          console.error("Upload failed:", error);
           setError('Upload fehlgeschlagen. Bitte versuchen Sie es erneut.');
           setIsUploading(false);
         },
@@ -77,7 +76,6 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
         }
       );
     } catch (uploadError) {
-      console.error("Compression or upload error:", uploadError);
       setError('Ein Fehler ist aufgetreten.');
       setIsUploading(false);
     }

@@ -8,6 +8,7 @@ import type { User, UserRole } from '@/lib/types';
 import { toPlainObject } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/session';
+import { z } from 'zod';
 
 function getRedirectPath(role: UserRole): string {
   switch (role) {
@@ -80,20 +81,50 @@ export async function logout() {
   redirect('/login');
 }
 
+const profileUpdateSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  phone: z.string().optional(),
+  street: z.string().optional(),
+  city: z.string().optional(),
+  zip: z.string().optional(),
+  province: z.string().optional(),
+});
+
 export async function updateUserProfile(formData: FormData) {
   const session = await getSession();
   if (!session?.userId) {
-    throw new Error('Not authenticated');
+    return { success: false, message: 'Not authenticated' };
   }
 
+  const rawData = {
+      name: formData.get('name'),
+      phone: formData.get('phone'),
+      street: formData.get('street'),
+      city: formData.get('city'),
+      zip: formData.get('zip'),
+      province: formData.get('province'),
+  }
+
+  const validation = profileUpdateSchema.safeParse(rawData);
+
+  if (!validation.success) {
+      return { 
+          success: false, 
+          message: 'Invalid data.', 
+          errors: validation.error.flatten().fieldErrors 
+      };
+  }
+  
+  const { name, phone, street, city, zip, province } = validation.data;
+
   const dataToUpdate = {
-    name: formData.get('name') as string,
-    phone: formData.get('phone') as string,
+    name,
+    phone,
     deliveryAddress: {
-      street: formData.get('street') as string,
-      city: formData.get('city') as string,
-      zip: formData.get('zip') as string,
-      province: formData.get('province') as string,
+      street,
+      city,
+      zip,
+      province,
     }
   };
 

@@ -6,6 +6,21 @@ import { getSession } from '@/lib/session';
 import { toPlainObject } from '@/lib/utils';
 import type { Product, Category, Story, Recipe } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
+
+const ProductSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters long."}),
+  price: z.number().positive({ message: "Price must be a positive number."}),
+  unit: z.string().min(1, { message: "Unit is required."}),
+  imageUrl: z.string().url({ message: "A valid image URL is required."}).or(z.literal('')),
+  imageHint: z.string().optional(),
+  description: z.string().optional(),
+  type: z.enum(['product', 'package']),
+  packageContent: z.array(z.object({
+    item: z.string(),
+    amount: z.string(),
+  })).optional(),
+});
 
 
 // Helper to check for Admin role
@@ -46,7 +61,6 @@ export async function getDashboardData() {
 
     return { products, categories, stories, recipe };
   } catch (error) {
-    console.error('Error fetching dashboard data:', error);
     // Return empty arrays on failure to prevent crashes
     return {
       products: [],
@@ -80,7 +94,6 @@ export async function getProductsPageData() {
     );
     return { products, categories };
   } catch (error) {
-    console.error('Error fetching products page data:', error);
     throw new Error("Failed to fetch products page data.");
   }
 }
@@ -135,12 +148,19 @@ export async function deleteCategory(categoryId: string) {
 export async function updateProduct(productData: Product): Promise<Product> {
   await isAdmin();
   const { id, ...data } = productData;
+
+  const validation = ProductSchema.safeParse(data);
+
+  if (!validation.success) {
+    console.error("Zod Validation Error:", validation.error.flatten().fieldErrors);
+    throw new Error("Invalid product data provided.");
+  }
+
   const productRef = adminDb.collection('products').doc(id);
-  data.price = Number(data.price) || 0;
-  await productRef.update(toPlainObject(data));
+  await productRef.update(toPlainObject(validation.data));
   revalidatePath('/admin/products');
   revalidatePath('/dashboard');
-  return toPlainObject(productData);
+  return toPlainObject({ id, ...validation.data } as Product);
 }
 
 // Create a new product
@@ -148,12 +168,21 @@ export async function createProduct(
   productData: Omit<Product, 'id'>
 ): Promise<Product> {
   await isAdmin();
+  
+  const validation = ProductSchema.safeParse(productData);
+
+  if (!validation.success) {
+     console.error("Zod Validation Error:", validation.error.flatten().fieldErrors);
+     throw new Error("Invalid product data provided.");
+  }
+  
   const productsCollection = adminDb.collection('products');
 
   const dataToSave = {
-    ...toPlainObject(productData),
+    ...toPlainObject(validation.data),
+    categoryId: productData.categoryId,
+    isAvailable: productData.isAvailable,
     createdAt: new Date().toISOString(),
-    price: Number(productData.price) || 0,
   };
 
   const docRef = await productsCollection.add(dataToSave);
@@ -161,7 +190,7 @@ export async function createProduct(
   revalidatePath('/admin/products');
   revalidatePath('/dashboard');
 
-  const newProduct: Product = { id: docRef.id, ...productData, price: dataToSave.price };
+  const newProduct: Product = { id: docRef.id, ...dataToSave } as Product;
   return toPlainObject(newProduct);
 }
 
