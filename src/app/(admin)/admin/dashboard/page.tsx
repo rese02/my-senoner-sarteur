@@ -168,7 +168,7 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4">
         <Card>
           <CardHeader>
-            <CardTitle>Aktuelle &amp; anstehende Bestellungen</CardTitle>
+            <CardTitle>Aktuelle & anstehende Bestellungen</CardTitle>
           </CardHeader>
           <CardContent>
             {recentAndUpcomingOrders.length === 0 ? (
@@ -199,7 +199,7 @@ export default function AdminDashboardPage() {
               Details für Bestellung #{selectedOrder?.id.slice(-6)}
             </DialogDescription>
           </DialogHeader>
-          {selectedOrder &amp;&amp; (
+          {selectedOrder && (
             <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
               <div className="space-y-3">
                   <h3 className="font-semibold text-base">Bestellübersicht</h3>
@@ -210,7 +210,7 @@ export default function AdminDashboardPage() {
                         <div><Badge className={cn("capitalize font-semibold", statusMap[selectedOrder.status]?.className)}>{statusMap[selectedOrder.status]?.label}</Badge></div>
                    </div>
                   
-                  {selectedOrder.type === 'preorder' &amp;&amp; selectedOrder.items &amp;&amp; (
+                  {selectedOrder.type === 'preorder' && selectedOrder.items && (
                       <Table>
                         <TableHeader>
                             <TableRow>
@@ -231,7 +231,7 @@ export default function AdminDashboardPage() {
                       </Table>
                   )}
 
-                  {selectedOrder.type === 'grocery_list' &amp;&amp; selectedOrder.rawList &amp;&amp; (
+                  {selectedOrder.type === 'grocery_list' && selectedOrder.rawList && (
                       <div>
                           <h4 className="font-semibold mt-3 mb-2">Einkaufszettel</h4>
                           <div className="p-3 bg-secondary rounded-md text-sm whitespace-pre-line text-muted-foreground">
@@ -239,14 +239,14 @@ export default function AdminDashboardPage() {
                           </div>
                       </div>
                   )}
-                  {selectedOrder.total &amp;&amp; (
+                  {selectedOrder.total && (
                     <div className="flex justify-end font-bold text-lg border-t pt-3 mt-2">
                         Gesamt: €{selectedOrder.total.toFixed(2)}
                     </div>
                   )}
               </div>
               
-              {customerDetails &amp;&amp; (
+              {customerDetails && (
                   <div className="space-y-3 pt-3 border-t">
                       <h3 className="font-semibold text-base">Kundendetails</h3>
                       <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
