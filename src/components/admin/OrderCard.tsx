@@ -8,14 +8,14 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg' },
+  new: { label: 'Neu', className: 'bg-blue-100 text-blue-800' },
   picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
-  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg' },
-  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg' },
-  delivered: { label: 'Geliefert', className: 'bg-slate-100 text-slate-600' },
-  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg' },
+  ready: { label: 'Abholbereit', className: 'bg-green-100 text-green-800' },
+  ready_for_delivery: { label: 'Bereit Zur Lieferung', className: 'bg-green-100 text-green-800' },
+  delivered: { label: 'Geliefert', className: 'bg-gray-100 text-gray-600' },
+  collected: { label: 'Abgeholt', className: 'bg-gray-100 text-gray-600' },
   paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' },
-  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg' }
+  cancelled: { label: 'Storniert', className: 'bg-red-100 text-red-700' }
 };
 
 const StatusBadge = ({ status }: { status: OrderStatus }) => {
@@ -42,20 +42,17 @@ export function OrderCard({ order, onShowDetails }: OrderCardProps) {
     <div 
       onClick={onShowDetails}
       className={cn(
-        "bg-card rounded-xl p-0 shadow-sm border hover:shadow-md transition-all duration-300 flex overflow-hidden group relative",
+        "bg-white rounded-xl p-0 shadow-sm border hover:shadow-md transition-all duration-300 flex overflow-hidden group relative",
         onShowDetails && "cursor-pointer"
       )}>
       
-      {/* Left color strip */}
-      <div className={cn("w-2", statusMap[order.status].className.replace('text-', 'bg-'))} />
-
       <div className="p-4 flex-1 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         
         {/* Icon & Name */}
         <div className="flex items-center gap-4 flex-1 min-w-0">
           <div className={cn(
               "p-3 rounded-full", 
-              isGroceryList ? 'bg-orange-100 text-orange-600' : 'bg-primary/5 text-primary'
+              isGroceryList ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'
             )}
           >
             {isGroceryList ? <FileText /> : <ShoppingCart />}
@@ -75,7 +72,7 @@ export function OrderCard({ order, onShowDetails }: OrderCardProps) {
         {/* Price & Status */}
         <div className="sm:text-right flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto">
           {order.total ? 
-            <p className="font-bold text-xl text-accent">€{order.total.toFixed(2)}</p>
+            <p className="font-bold text-lg text-primary">€{order.total.toFixed(2)}</p>
             : <p className="font-bold text-lg text-muted-foreground">-</p>
           }
           <StatusBadge status={order.status} />

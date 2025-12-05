@@ -15,14 +15,11 @@ export default async function AdminLayout({
 }) {
   const session = await getSession();
 
-  // 1. Nicht eingeloggt? Weiterleitung zum Login!
   if (!session) {
     redirect('/login');
   }
 
-  // 2. Falsche Rolle? Weiterleitung zum jeweiligen Dashboard!
   if (session.role !== 'admin') {
-     // Ein Kunde oder Mitarbeiter, der versucht /admin aufzurufen, wird zu seiner korrekten Startseite geleitet
     const homePage = session.role === 'employee' ? '/employee/scanner' : '/dashboard';
     redirect(homePage);
   }
@@ -32,12 +29,12 @@ export default async function AdminLayout({
     <div className="flex h-[100dvh] bg-secondary overflow-hidden">
       <AdminSidebar />
       <div className="flex-1 flex flex-col">
-         <header className="flex-none h-20 flex items-center justify-between md:justify-end border-b bg-primary text-primary-foreground md:bg-card md:text-card-foreground px-4 md:px-6 sticky top-0 z-20">
+         <header className="flex-none h-20 flex items-center justify-between md:justify-end border-b bg-card text-card-foreground px-4 md:px-6 sticky top-0 z-20">
             <div className="md:hidden h-8">
               <Logo />
             </div>
              <form action={logout}>
-              <Button variant="ghost" size="sm" className="text-primary-foreground md:text-card-foreground hover:bg-primary-foreground/10 md:hover:bg-accent">
+              <Button variant="ghost" size="sm">
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
               </Button>

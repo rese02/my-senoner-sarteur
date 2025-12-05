@@ -4,70 +4,57 @@
 
 @layer base {
   :root {
-    --background: 220 25% 97%; /* #F7F8FA - Very Light Cool Gray */
-    --foreground: 215 40% 18%; /* Dark Blueish-Gray */
+    --background: 220 20% 97%; /* Very Light Cool Gray */
+    --foreground: 215 25% 25%; /* Dark Blueish-Gray */
     
-    --card: 0 0% 100%; /* White */
-    --card-foreground: 215 40% 18%;
+    --card: 220 25% 99%; /* Almost White */
+    --card-foreground: 215 25% 25%;
     
     --popover: 0 0% 100%;
     --popover-foreground: 215 40% 18%;
     
-    --primary: 207 100% 30%; /* #004E98 - Corporate Blue */
+    --primary: 217 91% 60%; /* Bright Blue */
     --primary-foreground: 210 40% 98%;
     
-    --secondary: 210 40% 96%; /* Lighter Blueish-Gray */
-    --secondary-foreground: 207 100% 30%;
+    --secondary: 220 20% 92%; /* Lighter Gray for hover */
+    --secondary-foreground: 215 25% 25%;
     
-    --muted: 210 40% 90%;
-    --muted-foreground: 210 30% 50%;
+    --muted: 220 15% 88%;
+    --muted-foreground: 215 20% 45%;
     
-    --accent: 217 91% 60%; /* #3b82f6 - Bright Blue (replaces bronze) */
+    --accent: 217 91% 60%;
     --accent-foreground: 0 0% 100%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-
-    --status-new-bg: 207 100% 94%; 
-    --status-new-fg: 207 100% 35%; 
     
-    --status-ready-bg: 120 40% 94%;
-    --status-ready-fg: 120 40% 30%;
-
-    --status-collected-bg: 210 20% 94%;
-    --status-collected-fg: 210 20% 40%;
-
-    --status-cancelled-bg: 0 10% 94%; 
-    --status-cancelled-fg: 0 10% 45%;
-    
-    --border: 210 20% 88%;
-    --input: 210 20% 88%;
-    --ring: 207 100% 30%;
+    --border: 220 15% 90%;
+    --input: 220 15% 90%;
+    --ring: 217 91% 60%;
     
     --radius: 0.75rem;
   }
 
   .dark {
-    /* Dark theme is not the primary focus but is kept for compatibility */
     --background: 215 28% 10%;
     --foreground: 210 40% 90%;
     --card: 215 28% 12%;
     --card-foreground: 210 40% 90%;
     --popover: 215 28% 10%;
     --popover-foreground: 210 40% 90%;
-    --primary: 207 90% 55%;
+    --primary: 217 91% 60%;
     --primary-foreground: 210 40% 98%;
     --secondary: 215 28% 18%;
     --secondary-foreground: 210 40% 90%;
     --muted: 215 28% 30%;
     --muted-foreground: 210 30% 60%;
-    --accent: 217 91% 60%; /* Bright blue for dark mode too */
+    --accent: 217 91% 60%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
     --border: 215 28% 20%;
     --input: 215 28% 20%;
-    --ring: 207 90% 55%;
+    --ring: 217 90% 55%;
     --radius: 0.75rem;
   }
 }

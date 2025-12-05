@@ -1,12 +1,12 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Search, FileText, ShoppingCart, Trash2, Loader2 } from "lucide-react";
+import { Search, FileText, ShoppingCart, Trash2, Loader2, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo, useTransition, useEffect } from "react";
 import type { Order, OrderStatus, User } from "@/lib/types";
@@ -27,14 +27,14 @@ import { updateOrderStatus, getOrdersPageData } from "@/app/actions/order.action
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg border-transparent' },
-  picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800 border-transparent' },
-  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg border-transparent' },
-  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg border-transparent' },
-  delivered: { label: 'Geliefert', className: 'bg-slate-100 text-slate-600 border-transparent' },
-  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg border-transparent' },
-  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700 border-transparent' },
-  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg border-transparent' }
+  new: { label: 'Neu', className: 'bg-blue-100 text-blue-800' },
+  picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
+  ready: { label: 'Abholbereit', className: 'bg-green-100 text-green-800' },
+  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-green-100 text-green-800' },
+  delivered: { label: 'Geliefert', className: 'bg-gray-100 text-gray-600' },
+  collected: { label: 'Abgeholt', className: 'bg-gray-100 text-gray-600' },
+  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' },
+  cancelled: { label: 'Storniert', className: 'bg-red-100 text-red-700' }
 };
 
 const FormattedDate = ({ date, formatString, locale }: { date: string, formatString: string, locale?: Locale }) => {
@@ -58,9 +58,13 @@ function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onCl
 
     const handleDelete = () => {
         startDeleteTransition(async () => {
-            await deleteOrder(orderId);
-            toast({ title: "Gelöscht", description: "Bestellung wurde entfernt." });
-            onClose(); // This will trigger a data refresh on the main page
+            const result = await deleteOrder(orderId);
+            if(result.success) {
+                toast({ title: "Gelöscht", description: "Bestellung wurde entfernt." });
+                onClose();
+            } else {
+                toast({ variant: "destructive", title: "Fehler", description: result.error });
+            }
         });
     };
 
@@ -115,9 +119,8 @@ export default function AdminOrdersPage() {
             const { orders: fetchedOrders, users: fetchedUsers } = await getOrdersPageData();
             setOrders(fetchedOrders);
             setUsers(fetchedUsers);
-        } catch(error) {
-            console.error(error);
-            toast({ variant: 'destructive', title: 'Fehler', description: 'Bestelldaten konnten nicht geladen werden.'});
+        } catch(error: any) {
+            toast({ variant: 'destructive', title: 'Fehler', description: error.message || 'Bestelldaten konnten nicht geladen werden.'});
         } finally {
             setLoading(false);
         }
@@ -182,19 +185,19 @@ export default function AdminOrdersPage() {
       <Card>
         <CardHeader>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-             <CardTitle>Alle Bestellungen</CardTitle>
+             <div/>
              <div className="flex gap-2 w-full md:w-auto">
                 <div className="relative w-full md:w-auto flex-1">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input 
                         placeholder="Kunde oder ID suchen..." 
-                        className="pl-8 bg-card"
+                        className="pl-8 bg-background"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
                 <Select value={statusFilter} onValueChange={(value: OrderStatus | 'all') => setStatusFilter(value)}>
-                    <SelectTrigger className="w-full md:w-[160px] bg-card flex-1">
+                    <SelectTrigger className="w-full md:w-[160px] bg-background flex-1">
                         <SelectValue placeholder="Status filtern" />
                     </SelectTrigger>
                     <SelectContent>
@@ -255,7 +258,7 @@ export default function AdminOrdersPage() {
                         onValueChange={(value: OrderStatus) => handleStatusChange(order.id, value)}
                         disabled={isPending}
                       >
-                        <SelectTrigger className="h-8 w-[140px] capitalize text-xs bg-card focus:ring-primary/50">
+                        <SelectTrigger className="h-8 w-[140px] capitalize text-xs bg-background focus:ring-primary/50">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>

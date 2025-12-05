@@ -1,7 +1,7 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, ShoppingCart, Truck, AlertCircle, Trash2, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Users, ShoppingCart, Truck, AlertCircle, Trash2, Loader2, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { isToday, isFuture, isPast, format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
@@ -21,26 +21,29 @@ import { getDashboardPageData } from "@/app/actions/dashboard.actions";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg border-transparent' },
-  picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800 border-transparent' },
-  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg border-transparent' },
-  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg border-transparent' },
-  delivered: { label: 'Geliefert', className: 'bg-slate-100 text-slate-600 border-transparent' },
-  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg border-transparent' },
-  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700 border-transparent' },
-  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg border-transparent' }
+  new: { label: 'Neu', className: 'bg-blue-100 text-blue-800' },
+  picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
+  ready: { label: 'Abholbereit', className: 'bg-green-100 text-green-800' },
+  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-green-100 text-green-800' },
+  delivered: { label: 'Geliefert', className: 'bg-gray-100 text-gray-600' },
+  collected: { label: 'Abgeholt', className: 'bg-gray-100 text-gray-600' },
+  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' },
+  cancelled: { label: 'Storniert', className: 'bg-red-100 text-red-700' }
 };
 
 function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onClose: () => void }) {
-    const router = useRouter();
     const { toast } = useToast();
     const [isDeleting, startDeleteTransition] = useTransition();
 
     const handleDelete = () => {
         startDeleteTransition(async () => {
-            await deleteOrder(orderId);
-            toast({ title: "Gelöscht", description: "Bestellung wurde entfernt." });
-            onClose();
+            const result = await deleteOrder(orderId);
+            if (result.success) {
+                toast({ title: "Gelöscht", description: "Bestellung wurde entfernt." });
+                onClose();
+            } else {
+                 toast({ variant: 'destructive', title: 'Fehler', description: result.error || 'Konnte nicht gelöscht werden.' });
+            }
         });
     };
 
@@ -82,6 +85,7 @@ export default function AdminDashboardPage() {
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [customerDetails, setCustomerDetails] = useState<User | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { toast } = useToast();
     
     useEffect(() => {
         async function loadData() {
@@ -90,8 +94,8 @@ export default function AdminDashboardPage() {
                 const { orders: fetchedOrders, users: fetchedUsers } = await getDashboardPageData();
                 setOrders(fetchedOrders);
                 setUsers(fetchedUsers);
-            } catch(error) {
-                console.error(error);
+            } catch(error: any) {
+                toast({ variant: 'destructive', title: 'Daten-Fehler', description: error.message });
             } finally {
                 setLoading(false);
             }
@@ -99,7 +103,7 @@ export default function AdminDashboardPage() {
         if (!isModalOpen) {
            loadData();
         }
-    }, [isModalOpen]); // Reload data when modal is closed
+    }, [isModalOpen, toast]);
 
     const stats = useMemo(() => {
         const newOrdersToday = orders.filter(o => isToday(parseISO(o.createdAt)) && o.status === 'new').length;
@@ -132,35 +136,35 @@ export default function AdminDashboardPage() {
     }
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Dashboard" description="Was muss ich heute sofort wissen?" />
+    <div className="space-y-8">
+      <PageHeader title="Dashboard" />
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-        <Card>
+        <Card className="border-blue-200 bg-blue-50/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Neue Bestellungen heute</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-blue-900">Neue Bestellungen</CardTitle>
+            <ShoppingCart className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.newOrdersToday}</div>
+            <div className="text-3xl font-bold text-blue-900">{stats.newOrdersToday}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-blue-200 bg-blue-50/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Lieferung/Abholung heute</CardTitle>
-            <Truck className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-blue-900">Lieferung/Abholung</CardTitle>
+            <Truck className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.pickupsToday}</div>
+            <div className="text-3xl font-bold text-blue-900">{stats.pickupsToday}</div>
           </CardContent>
         </Card>
-        <Card className="border-destructive/50 bg-destructive/5">
+        <Card className={cn(stats.overduePickups > 0 ? "border-destructive bg-destructive/5" : "border-blue-200 bg-blue-50/50")}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-destructive">Überfällige Abholungen</CardTitle>
-            <AlertCircle className="h-4 w-4 text-destructive" />
+            <CardTitle className={cn("text-sm font-medium", stats.overduePickups > 0 ? 'text-destructive' : 'text-blue-900')}>Überfällige Abholungen</CardTitle>
+            <Info className={cn("h-5 w-5", stats.overduePickups > 0 ? 'text-destructive' : 'text-blue-600')} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">{stats.overduePickups}</div>
+            <div className={cn("text-3xl font-bold", stats.overduePickups > 0 ? 'text-destructive' : 'text-blue-900')}>{stats.overduePickups}</div>
           </CardContent>
         </Card>
       </div>
