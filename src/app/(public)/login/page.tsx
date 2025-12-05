@@ -5,48 +5,51 @@ import Link from 'next/link';
 
 export default function LoginPage() {
   return (
-    <div className="w-full min-h-[100dvh] md:flex md:items-center md:justify-center md:bg-primary md:p-4">
-      {/* Desktop View */}
-      <Card className="hidden md:flex flex-col justify-center shadow-lg border-none rounded-xl md:min-h-0 md:h-auto md:max-w-sm overflow-hidden">
-          <CardHeader className="text-center items-center bg-primary text-primary-foreground pt-12 pb-8">
-              <div className="w-1/2 mb-4">
-                <Logo />
-              </div>
-          <CardTitle className="text-2xl text-primary-foreground">Anmelden</CardTitle>
-          <CardDescription className="text-primary-foreground/80">Geben Sie Ihre Daten ein, um sich anzumelden.</CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 pt-8">
-            <LoginForm />
-            <p className="mt-4 text-center text-sm text-muted-foreground">
-                Noch kein Konto?{' '}
-                <Link href="/register" className="font-semibold text-primary hover:underline">
-                Jetzt registrieren
-                </Link>
-            </p>
-          </CardContent>
-      </Card>
+    <div className="w-full min-h-[100dvh] flex items-center justify-center bg-[#0d1a2e] p-4 relative overflow-hidden">
 
-      {/* Mobile View */}
-       <div className="md:hidden w-full min-h-[100dvh] flex flex-col bg-gradient-to-b from-[#001a3b] via-[#003366] to-primary">
-        <div className="flex-grow flex flex-col items-center justify-center pt-12 px-4 text-center">
-            <div className="w-2/5">
-                <Logo />
+        {/* Background Illustrations */}
+        <div className="absolute inset-0 z-0 opacity-10 bg-repeat" style={{ backgroundImage: "url('/background-pattern.svg')" }}></div>
+
+        <div className="relative z-10 grid md:grid-cols-2 max-w-6xl w-full items-center">
+            {/* Left Side: Login Form */}
+            <div className="flex justify-center">
+                <Card className="flex flex-col justify-center shadow-2xl border-none rounded-2xl w-full max-w-md bg-card/95 backdrop-blur-sm">
+                    <CardHeader className="text-center items-center pt-10 pb-6">
+                        <div className="w-1/2 mb-4">
+                            <Logo />
+                        </div>
+                        <CardTitle className="text-3xl font-headline">Anmelden</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-8">
+                        <LoginForm />
+                        <div className="mt-6 text-center text-sm space-y-2 text-muted-foreground">
+                            <p>
+                                <Link href="#" className="font-medium hover:text-primary hover:underline">
+                                    Passwort vergessen?
+                                </Link>
+                            </p>
+                            <p>
+                                Noch kein Konto?{' '}
+                                <Link href="/register" className="font-semibold text-primary hover:underline">
+                                    Jetzt registrieren
+                                </Link>
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+            
+            {/* Right Side: Hidden on mobile */}
+            <div className="hidden md:block">
+                {/* This div is intentionally empty, the background is handled by the parent container */}
             </div>
         </div>
-        <div className="flex-shrink-0 bg-background rounded-t-3xl p-6 pt-8 z-10">
-            <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold font-headline">Willkommen!</h1>
-                <p className="text-muted-foreground text-sm">Bitte melden Sie sich an.</p>
-            </div>
-            <LoginForm />
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              Noch kein Konto?{' '}
-              <Link href="/register" className="font-semibold text-primary hover:underline">
-              Jetzt registrieren
-              </Link>
-          </p>
+
+        {/* Footer links */}
+        <div className="absolute bottom-4 left-0 right-0 z-10 flex justify-center gap-6 text-xs text-white/50">
+             <Link href="/impressum" className="hover:text-white">Impressum</Link>
+             <Link href="/datenschutz" className="hover:text-white">Datenschutz</Link>
         </div>
-      </div>
     </div>
   );
 }

@@ -10,6 +10,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { SubmitButton } from '@/components/custom/SubmitButton';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Bitte geben Sie eine gültige E-Mail ein.' }),
@@ -19,6 +21,7 @@ const formSchema = z.object({
 export function LoginForm() {
   const { toast } = useToast();
   const auth = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,9 +66,12 @@ export function LoginForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="sr-only">Email</FormLabel>
               <FormControl>
-                <Input placeholder="admin@senoner.it" {...field} />
+                <div className="relative">
+                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                   <Input placeholder="Email" {...field} className="pl-10" />
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -76,15 +82,30 @@ export function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Passwort</FormLabel>
+              <FormLabel className="sr-only">Passwort</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
+                 <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input 
+                      type={showPassword ? 'text' : 'password'} 
+                      placeholder="Passwort" 
+                      {...field} 
+                      className="pl-10 pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5"/> : <Eye className="h-5 w-5" />}
+                    </button>
+                 </div>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <SubmitButton>Anmelden</SubmitButton>
+        <SubmitButton className="w-full">Anmelden</SubmitButton>
       </form>
     </Form>
   );
