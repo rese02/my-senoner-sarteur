@@ -1,18 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { useAuth } from '@/firebase/provider'; // Client Auth Hook!
 import { createSession } from '@/app/actions/auth.actions'; // Our Server Action
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { SubmitButton } from '@/components/custom/SubmitButton';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name muss mindestens 2 Zeichen lang sein.' }),
@@ -27,7 +24,6 @@ const formSchema = z.object({
 
 export function RegisterForm() {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const auth = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -45,7 +41,7 @@ export function RegisterForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
+    // This is handled by the SubmitButton's useFormStatus hook
     
     try {
       // 1. Create user with Firebase client SDK
@@ -85,7 +81,6 @@ export function RegisterForm() {
         throw error;
       }
       
-      console.error("Registration failed:", error.code);
       let msg = "Ein unerwarteter Fehler ist aufgetreten.";
       if (error.code === 'auth/email-already-in-use') {
         msg = "Diese E-Mail-Adresse wird bereits verwendet.";
@@ -98,7 +93,8 @@ export function RegisterForm() {
         title: "Registrierung fehlgeschlagen",
         description: msg
       });
-      setIsSubmitting(false);
+      // Re-enable form on error
+      form.reset(values);
     }
   }
 
@@ -213,10 +209,7 @@ export function RegisterForm() {
               )}
             />
         </div>
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isSubmitting ? 'Konto wird erstellt...' : 'Konto erstellen'}
-        </Button>
+        <SubmitButton>Konto erstellen</SubmitButton>
       </form>
     </Form>
   );

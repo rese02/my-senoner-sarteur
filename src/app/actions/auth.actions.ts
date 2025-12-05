@@ -27,15 +27,11 @@ export async function createSession(idToken: string, extraData?: Partial<User>) 
   let userRole: UserRole = 'customer';
   
   try {
-    console.log("Starte Session Erstellung...");
-
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     const uid = decodedToken.uid;
-    console.log("Token verifiziert für UID:", uid);
 
     const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
     const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
-    console.log("Session Cookie generiert.");
 
     const userRef = adminDb.collection('users').doc(uid);
     const userSnap = await userRef.get();
@@ -58,10 +54,8 @@ export async function createSession(idToken: string, extraData?: Partial<User>) 
             deliveryAddress: extraData?.deliveryAddress || { street: '', city: '', zip: '', province: '' },
         };
         await userRef.set(toPlainObject(newUser));
-        console.log("Neuer User in DB erstellt:", uid);
     }
     
-    console.log("Setze Cookie...");
     cookieStore.set('session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
@@ -69,7 +63,6 @@ export async function createSession(idToken: string, extraData?: Partial<User>) 
       secure: true, 
       path: '/',
     });
-    console.log("Cookie gesetzt!");
 
   } catch (error) {
     console.error('CRITICAL SESSION ERROR:', error);
@@ -109,7 +102,6 @@ export async function updateUserProfile(formData: FormData) {
     revalidatePath('/dashboard/profile');
     return { success: true, message: 'Profil erfolgreich aktualisiert.' };
   } catch(error) {
-    console.error("Profile update failed:", error);
     return { success: false, message: 'Aktualisierung fehlgeschlagen.' };
   }
 }

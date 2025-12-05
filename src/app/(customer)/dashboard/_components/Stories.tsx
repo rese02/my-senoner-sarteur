@@ -46,6 +46,7 @@ export function Stories({ stories }: { stories: Story[] }) {
                     alt={story.label}
                     width={72}
                     height={72}
+                    sizes="72px"
                     className="rounded-full object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                     data-ai-hint={story.imageHint}
                   />

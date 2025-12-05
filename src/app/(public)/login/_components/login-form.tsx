@@ -1,18 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from '@/firebase/provider';
 import { createSession } from '@/app/actions/auth.actions';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { SubmitButton } from '@/components/custom/SubmitButton';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Bitte geben Sie eine gültige E-Mail ein.' }),
@@ -21,8 +18,6 @@ const formSchema = z.object({
 
 export function LoginForm() {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
   const auth = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -34,7 +29,6 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
     
     try {
       // 1. Firebase Login (Client)
@@ -52,14 +46,12 @@ export function LoginForm() {
         throw error;
       }
       
-      console.error("Login process failed:", error);
-      
       toast({
         variant: 'destructive',
         title: 'Anmeldung fehlgeschlagen',
         description: "Ungültige E-Mail oder Passwort.",
       });
-      setIsSubmitting(false);
+      form.reset(values); // Re-enable form
     }
   }
 
@@ -73,7 +65,7 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="admin@senoner.it" {...field} disabled={isSubmitting} />
+                <Input placeholder="admin@senoner.it" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -86,16 +78,13 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Passwort</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} disabled={isSubmitting} />
+                <Input type="password" placeholder="••••••••" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isSubmitting ? 'Anmelden...' : 'Anmelden'}
-        </Button>
+        <SubmitButton>Anmelden</SubmitButton>
       </form>
     </Form>
   );

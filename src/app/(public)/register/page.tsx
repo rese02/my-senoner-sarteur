@@ -2,7 +2,6 @@ import { RegisterForm } from './_components/register-form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Logo } from '@/components/common/Logo';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function RegisterPage() {
   return (

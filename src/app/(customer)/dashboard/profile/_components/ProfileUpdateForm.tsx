@@ -2,23 +2,11 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { updateUserProfile } from "@/app/actions/auth.actions";
-import { useFormStatus } from "react-dom";
 import type { User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { SubmitButton } from "@/components/custom/SubmitButton";
 
-
-function SubmitButton() {
-    const { pending } = useFormStatus();
-    return (
-        <Button type="submit" disabled={pending}>
-            {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Änderungen speichern
-        </Button>
-    )
-}
 
 export function ProfileUpdateForm({ user }: { user: User }) {
     const { toast } = useToast();
@@ -73,7 +61,7 @@ export function ProfileUpdateForm({ user }: { user: User }) {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <SubmitButton />
+                    <SubmitButton>Änderungen speichern</SubmitButton>
                 </CardFooter>
             </Card>
         </form>

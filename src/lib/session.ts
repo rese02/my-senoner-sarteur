@@ -11,7 +11,6 @@ export async function getSession() {
   const sessionCookie = cookieStore.get('session')?.value;
 
   if (!sessionCookie) {
-    // console.log("SESSION: Kein Cookie gefunden (Logout)");
     return null;
   }
 
@@ -34,7 +33,6 @@ export async function getSession() {
       ...plainUserData
     };
   } catch (error) {
-    console.error('SESSION ERROR: Cookie ungültig:', error);
     return null;
   }
 }

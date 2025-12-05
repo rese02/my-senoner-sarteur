@@ -4,6 +4,8 @@ import type { Recipe, Product, Story, Category } from "@/lib/types";
 
 import { Cart } from "./_components/Cart";
 import { ProductsClient } from './_components/ProductsClient';
+import { Suspense } from 'react';
+import Loading from './loading';
 
 // Data fetching is now done on the server for speed and security.
 async function getData() {
@@ -18,12 +20,14 @@ export default async function CustomerDashboardPage() {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:gap-8 lg:items-start">
             
-            <ProductsClient 
-                products={products}
-                categories={categories}
-                stories={stories}
-                recipe={recipe}
-            />
+            <Suspense fallback={<Loading />}>
+                <ProductsClient 
+                    products={products}
+                    categories={categories}
+                    stories={stories}
+                    recipe={recipe}
+                />
+            </Suspense>
             
             <div className="hidden lg:block">
                  <div className="sticky top-6 h-[calc(100vh-4.5rem)]">
