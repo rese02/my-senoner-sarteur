@@ -52,7 +52,7 @@ export interface Product {
   packageContent?: PackageItem[];
   // For wine catalog
   tags: string[];
-  createdAt: string;
+  createdAt?: string;
 }
 
 export type OrderType = 'preorder' | 'grocery_list';

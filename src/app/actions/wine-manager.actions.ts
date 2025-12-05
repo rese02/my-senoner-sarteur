@@ -37,6 +37,21 @@ export async function deleteWine(wineId: string) {
     return { success: true };
 }
 
+export async function updateWine(wine: Product): Promise<Product> {
+    await isAdmin();
+    const { id, ...data } = wine;
+
+    if (!id) {
+        throw new Error("Wine ID is missing");
+    }
+
+    const wineRef = adminDb.collection('wine_catalog').doc(id);
+    await wineRef.update(toPlainObject(data));
+
+    revalidatePath('/admin/sommelier');
+    return wine;
+}
+
 export async function bulkImportWines(wineNames: string[]): Promise<Product[]> {
     await isAdmin();
 
@@ -55,14 +70,13 @@ export async function bulkImportWines(wineNames: string[]): Promise<Product[]> {
 
     enrichedWines.forEach(wine => {
         const docRef = adminDb.collection('wine_catalog').doc();
-        const newWineData = {
-            id: docRef.id,
+        const newWineData: Omit<Product, 'id' | 'price' | 'unit' | 'imageUrl' | 'imageHint' | 'categoryId' | 'isAvailable' | 'type' > = {
             name: wine.name,
             tags: wine.tags,
             createdAt: new Date().toISOString(),
         };
         batch.set(docRef, newWineData);
-        newWineDocs.push(toPlainObject(newWineData as unknown as Product));
+        newWineDocs.push(toPlainObject({ ...newWineData, id: docRef.id } as unknown as Product));
     });
     
     await batch.commit();
