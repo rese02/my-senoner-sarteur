@@ -50,6 +50,9 @@ export interface Product {
   timesOrderedLast30Days?: number;
   type: 'product' | 'package';
   packageContent?: PackageItem[];
+  // For wine catalog
+  tags: string[];
+  createdAt: string;
 }
 
 export type OrderType = 'preorder' | 'grocery_list';
