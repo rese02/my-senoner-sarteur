@@ -48,8 +48,8 @@ export async function createSession(idToken: string) {
     cookieStore.set('session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
-      sameSite: 'none', 
-      secure: true, 
+      sameSite: 'lax', 
+      secure: process.env.NODE_ENV === 'production', 
       path: '/',
     });
 
