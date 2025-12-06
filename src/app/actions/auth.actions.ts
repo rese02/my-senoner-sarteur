@@ -1,4 +1,3 @@
-
 'use server';
 
 import { cookies } from 'next/headers';
@@ -55,6 +54,10 @@ export async function createSession(idToken: string) {
 
   } catch (error) {
     console.error('CRITICAL SESSION ERROR:', error);
+    // This is the fix: Re-throw the redirect error so Next.js can handle it.
+    if ((error as any).digest?.includes('NEXT_REDIRECT')) {
+        throw error;
+    }
     throw new Error('Session creation failed');
   }
 
