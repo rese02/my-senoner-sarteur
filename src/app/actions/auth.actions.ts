@@ -137,3 +137,26 @@ export async function updateUserProfile(formData: FormData) {
     return { success: false, message: 'Aktualisierung fehlgeschlagen.' };
   }
 }
+
+export async function deleteUserAccount() {
+    const session = await getSession();
+    if (!session?.userId) {
+        // This should not happen if called from a protected page, but it's a good safeguard.
+        return redirect('/login');
+    }
+
+    try {
+        // Delete from Firestore
+        await adminDb.collection('users').doc(session.userId).delete();
+        
+        // Delete from Firebase Authentication
+        await adminAuth.deleteUser(session.userId);
+
+    } catch (error) {
+        console.error(`Failed to delete user ${session.userId}:`, error);
+        // We still attempt to log the user out, even if deletion fails.
+    }
+
+    // Finally, destroy the session cookie and redirect
+    await logout();
+}

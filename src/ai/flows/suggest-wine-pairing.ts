@@ -13,6 +13,8 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { getWineCatalog } from '@/app/actions/wine-manager.actions';
 import type { Product } from '@/lib/types';
+import { getSession } from '@/lib/session';
+import { adminDb } from '@/lib/firebase-admin';
 
 
 // Define input and output schemas with Zod
@@ -33,6 +35,10 @@ export async function suggestWinePairing(input: SuggestWinePairingInput): Promis
   return suggestWinePairingFlow(input);
 }
 
+// --- Rate Limiting Configuration ---
+const RATE_LIMIT_COUNT = 5; // Max requests
+const RATE_LIMIT_WINDOW = 10 * 60 * 1000; // 10 minutes in milliseconds
+
 
 // Define the Genkit Flow
 const suggestWinePairingFlow = ai.defineFlow(
@@ -42,6 +48,23 @@ const suggestWinePairingFlow = ai.defineFlow(
     outputSchema: SuggestWinePairingOutputSchema,
   },
   async (input) => {
+    // 0. AUTHENTICATION & RATE LIMITING
+    const session = await getSession();
+    if (!session?.userId) {
+        throw new Error('Not authenticated.');
+    }
+    
+    const now = Date.now();
+    const userRequestsRef = adminDb.collection('users').doc(session.userId).collection('aiRequests').doc('sommelier');
+    const userRequestsDoc = await userRequestsRef.get();
+    
+    const timestamps: number[] = userRequestsDoc.exists ? userRequestsDoc.data()?.timestamps || [] : [];
+    const recentTimestamps = timestamps.filter(ts => now - ts < RATE_LIMIT_WINDOW);
+
+    if (recentTimestamps.length >= RATE_LIMIT_COUNT) {
+        throw new Error('Rate limit exceeded. Please try again in a few minutes.');
+    }
+    
     // PRIVACY & DATA MINIMIZATION:
     // The image received (`input.foodPhoto`) is a base64 data URI.
     // It is passed directly to the AI model for analysis and is NOT saved
@@ -97,15 +120,20 @@ const suggestWinePairingFlow = ai.defineFlow(
     });
 
     if (!output || !output.recommendedWineIds) {
+        // Even on failure, log the request to prevent spamming failed requests
+        await userRequestsRef.set({ timestamps: [...recentTimestamps, now] });
         throw new Error('AI did not return valid recommendations.');
     }
 
-    // 4. Retrieve the full product details for the recommended wine IDs
+    // 4. Log the successful request timestamp
+    await userRequestsRef.set({ timestamps: [...recentTimestamps, now] });
+
+    // 5. Retrieve the full product details for the recommended wine IDs
     const recommendedWines = wineInventory.filter(wine =>
       output.recommendedWineIds.includes(wine.id)
     );
     
-    // 5. Return the final, structured output
+    // 6. Return the final, structured output
     return {
       foodDetected: output.foodDetected,
       recommendedWines: recommendedWines,
