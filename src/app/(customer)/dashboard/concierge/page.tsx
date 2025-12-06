@@ -55,18 +55,18 @@ export default function ConciergePage() {
                 <CardContent className="space-y-4">
                     <div className="space-y-1.5">
                         <Label htmlFor="shopping-list">Was darf es sein?</Label>
-                        <div className="bg-[#fffdf5] border border-stone-200 rounded-lg p-1 shadow-inner">
+                        <div className="bg-primary/5 border border-primary/10 rounded-lg p-1 shadow-inner">
                             <Textarea 
                                 id="shopping-list"
                                 placeholder="- 1L Frische Vollmilch&#10;- 200g Südtiroler Speck&#10;- 1 Laib Brot..." 
-                                className="bg-transparent border-none focus-visible:ring-0 text-sm leading-relaxed text-stone-800 placeholder:text-stone-400 min-h-[200px]"
+                                className="bg-transparent border-none focus-visible:ring-0 text-sm leading-relaxed text-primary/90 placeholder:text-primary/40 min-h-[200px]"
                                 value={notes}
                                 onChange={e => setNotes(e.target.value)}
                                 disabled={isPending}
                             />
                         </div>
                     </div>
-                     <div className="p-3 bg-secondary rounded-lg space-y-3 border">
+                     <div className="p-3 bg-primary/5 rounded-lg space-y-3 border border-primary/10">
                         <h4 className="font-semibold text-sm">Lieferdetails</h4>
                         <div className="grid md:grid-cols-2 gap-3">
                             <div className="space-y-1.5">
