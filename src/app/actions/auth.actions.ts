@@ -25,10 +25,11 @@ export async function createSession(idToken: string) {
   const cookieStore = await cookies(); 
   
   let userRole: UserRole = 'customer';
+  let uid: string;
   
   try {
     const decodedToken = await adminAuth.verifyIdToken(idToken);
-    const uid = decodedToken.uid;
+    uid = decodedToken.uid;
 
     const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
     const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
@@ -40,8 +41,19 @@ export async function createSession(idToken: string) {
         userRole = (userSnap.data()?.role as UserRole) || 'customer';
         await userRef.update({ lastLogin: new Date().toISOString() });
     } else {
-        // This case should ideally be handled by registerUser now
-        throw new Error('User not found in Firestore during session creation.');
+        // This case handles users created via social providers (like Google)
+        // who might not have a Firestore document yet.
+        const authUser = await adminAuth.getUser(uid);
+        const newUser: Partial<User> = {
+            name: authUser.displayName || 'New User',
+            email: authUser.email!,
+            role: 'customer',
+            customerSince: new Date().toISOString(),
+            lastLogin: new Date().toISOString(),
+            loyaltyStamps: 0,
+        };
+        await userRef.set(toPlainObject(newUser));
+        userRole = 'customer';
     }
     
     cookieStore.set('session', sessionCookie, {
@@ -52,10 +64,10 @@ export async function createSession(idToken: string) {
       path: '/',
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('CRITICAL SESSION ERROR:', error);
     // This is the fix: Re-throw the redirect error so Next.js can handle it.
-    if ((error as any).digest?.includes('NEXT_REDIRECT')) {
+    if (error.digest?.includes('NEXT_REDIRECT')) {
         throw error;
     }
     throw new Error('Session creation failed');
