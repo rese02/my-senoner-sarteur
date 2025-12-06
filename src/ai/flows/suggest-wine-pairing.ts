@@ -42,6 +42,13 @@ const suggestWinePairingFlow = ai.defineFlow(
     outputSchema: SuggestWinePairingOutputSchema,
   },
   async (input) => {
+    // PRIVACY & DATA MINIMIZATION:
+    // The image received (`input.foodPhoto`) is a base64 data URI.
+    // It is passed directly to the AI model for analysis and is NOT saved
+    // to Firebase Storage or any other database. It only exists in memory
+    // for the duration of this flow execution. This ensures user privacy.
+    // DO NOT add any code here that saves the `foodPhoto` to a persistent storage.
+
     // 1. Get all available wines from our 'wine_catalog' collection via Server Action
     const wineInventory = await getWineCatalog();
 
