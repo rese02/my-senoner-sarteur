@@ -212,9 +212,9 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                   {productsInCategory.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                       {productsInCategory.map(product => (
-                         <Card key={product.id} className="overflow-hidden flex flex-col group relative transition-all hover:shadow-lg">
+                         <Card key={product.id} className="overflow-hidden flex flex-col group relative transition-all hover:shadow-lg bg-secondary">
                           <div className="relative aspect-[4/3] bg-muted">
-                             <Image src={product.imageUrl || '/placeholder.png'} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" data-ai-hint={product.imageHint} />
+                             <Image src={product.imageUrl || 'https://placehold.co/400x300/0d1a2e/FFFFFF/png?text=Bild'} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" data-ai-hint={product.imageHint} />
                               {product.type === 'package' && <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground" variant="secondary">PAKET</Badge>}
                           </div>
                           <CardContent className="p-3 flex flex-col flex-1">
@@ -402,7 +402,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                     </div>
                 )}
                 
-                <DialogFooter className="mt-4 sticky bottom-0 bg-background py-4">
+                <DialogFooter className="mt-4 sticky bottom-0 bg-card py-4">
                     <DialogClose asChild><Button type="button" variant="outline">Abbrechen</Button></DialogClose>
                     <Button type="submit" disabled={isPending}>
                         {isPending && <Loader2 className="mr-2 animate-spin h-4 w-4" />}

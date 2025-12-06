@@ -27,14 +27,14 @@ import { updateOrderStatus, getOrdersPageData } from "@/app/actions/order.action
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-blue-100 text-blue-800' },
+  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg' },
   picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
-  ready: { label: 'Abholbereit', className: 'bg-green-100 text-green-800' },
-  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-green-100 text-green-800' },
-  delivered: { label: 'Geliefert', className: 'bg-gray-100 text-gray-600' },
-  collected: { label: 'Abgeholt', className: 'bg-gray-100 text-gray-600' },
+  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg' },
+  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg' },
+  delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg' },
+  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg' },
   paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' },
-  cancelled: { label: 'Storniert', className: 'bg-red-100 text-red-700' }
+  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg' }
 };
 
 const FormattedDate = ({ date, formatString, locale }: { date: string, formatString: string, locale?: Locale }) => {
@@ -238,7 +238,7 @@ export default function AdminOrdersPage() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                          {order.type === 'grocery_list' 
-                          ? <FileText className="h-4 w-4 text-orange-600"/>
+                          ? <FileText className="h-4 w-4 text-orange-500"/>
                           : <ShoppingCart className="h-4 w-4 text-primary"/>
                          }
                          <span className="text-xs">{order.type === 'grocery_list' ? 'Liste' : 'Vorb.'}</span>

@@ -4,58 +4,68 @@
 
 @layer base {
   :root {
-    --background: 220 20% 97%; /* Very Light Cool Gray */
-    --foreground: 215 25% 25%; /* Dark Blueish-Gray */
+    --background: 220 40% 5%; /* Very Dark Blue, almost black */
+    --foreground: 210 40% 90%; /* Light Gray for text */
     
-    --card: 220 25% 99%; /* Almost White */
-    --card-foreground: 215 25% 25%;
+    --card: 220 40% 9%; /* Slightly lighter dark blue */
+    --card-foreground: 210 40% 90%;
     
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 40% 18%;
+    --popover: 220 40% 5%;
+    --popover-foreground: 210 40% 90%;
     
     --primary: 217 91% 60%; /* Bright Blue */
     --primary-foreground: 210 40% 98%;
     
-    --secondary: 220 20% 92%; /* Lighter Gray for hover */
-    --secondary-foreground: 215 25% 25%;
+    --secondary: 220 40% 12%; /* A bit lighter for hover states */
+    --secondary-foreground: 210 40% 98%;
     
-    --muted: 220 15% 88%;
-    --muted-foreground: 215 20% 45%;
+    --muted: 220 20% 25%; /* Muted dark blue-gray */
+    --muted-foreground: 210 20% 60%; /* Muted light gray */
     
-    --accent: 217 91% 60%;
+    --accent: 320 80% 60%; /* Vibrant Pink/Purple Accent for contrast */
     --accent-foreground: 0 0% 100%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 220 15% 90%;
-    --input: 220 15% 90%;
-    --ring: 217 91% 60%;
+    --border: 220 40% 15%; /* Dark blue border */
+    --input: 220 40% 15%;
+    --ring: 217 91% 60%; /* Primary blue for focus rings */
     
     --radius: 0.75rem;
+
+     /* Custom Status Colors */
+    --status-new-bg: 217 91% 20%;
+    --status-new-fg: 217 91% 80%;
+    --status-ready-bg: 140 80% 20%;
+    --status-ready-fg: 140 80% 85%;
+    --status-collected-bg: 220 10% 25%;
+    --status-collected-fg: 220 10% 80%;
+    --status-cancelled-bg: 0 70% 25%;
+    --status-cancelled-fg: 0 70% 85%;
   }
 
   .dark {
-    --background: 215 28% 10%;
+    /* The dark theme is now the default theme. */
+    --background: 220 40% 5%;
     --foreground: 210 40% 90%;
-    --card: 215 28% 12%;
+    --card: 220 40% 9%;
     --card-foreground: 210 40% 90%;
-    --popover: 215 28% 10%;
+    --popover: 220 40% 5%;
     --popover-foreground: 210 40% 90%;
     --primary: 217 91% 60%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 215 28% 18%;
-    --secondary-foreground: 210 40% 90%;
-    --muted: 215 28% 30%;
-    --muted-foreground: 210 30% 60%;
-    --accent: 217 91% 60%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 70% 50%;
+    --secondary: 220 40% 12%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 220 20% 25%;
+    --muted-foreground: 210 20% 60%;
+    --accent: 320 80% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 215 28% 20%;
-    --input: 215 28% 20%;
-    --ring: 217 90% 55%;
-    --radius: 0.75rem;
+    --border: 220 40% 15%;
+    --input: 220 40% 15%;
+    --ring: 217 91% 60%;
   }
 }
 
