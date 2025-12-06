@@ -1,9 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { useAuth } from '@/firebase/provider'; // Client Auth Hook!
-import { createSession } from '@/app/actions/auth.actions'; // Our Server Action
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +10,7 @@ import { SubmitButton } from '@/components/custom/SubmitButton';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
+import { registerUser } from '@/app/actions/auth.actions';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name muss mindestens 2 Zeichen lang sein.' }),
@@ -30,7 +28,7 @@ const formSchema = z.object({
 
 export function RegisterForm() {
   const { toast } = useToast();
-  const auth = useAuth();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,70 +46,36 @@ export function RegisterForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    
     try {
-      // 1. Create user with Firebase client SDK
-      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      
-      // 2. Update the user's profile with their name
-      await updateProfile(userCredential.user, {
-        displayName: values.name,
-      });
+      const result = await registerUser(values);
 
-      // 3. Get the ID token from the newly created user
-      const idToken = await userCredential.user.getIdToken();
-
-      // 4. Prepare extra data for server action
-      const extraData = {
-        name: values.name,
-        phone: values.phone,
-        deliveryAddress: {
-          street: values.street,
-          city: values.city,
-          zip: values.zip,
-          province: values.province,
-        },
-        consent: {
-          privacyPolicy: {
-            accepted: values.privacyPolicy,
-            timestamp: new Date().toISOString(),
-          }
-        }
+      if (result.success) {
+        toast({
+          title: 'Registrierung erfolgreich',
+          description: 'Sie können sich jetzt anmelden.',
+        });
+        router.push('/login');
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Registrierung fehlgeschlagen",
+          description: result.error || "Ein unerwarteter Fehler ist aufgetreten."
+        });
+        form.reset(values, { keepValues: true });
       }
-
-      // 5. Call our server action to create the session cookie and the Firestore user document
-      await createSession(idToken, extraData);
-
-      toast({
-        title: 'Registrierung erfolgreich',
-        description: 'Sie werden zum Dashboard weitergeleitet...',
-      });
-
-    } catch (error: any) {
-      if (error.digest?.includes('NEXT_REDIRECT')) {
-        throw error;
-      }
-      
-      let msg = "Ein unerwarteter Fehler ist aufgetreten.";
-      if (error.code === 'auth/email-already-in-use') {
-        msg = "Diese E-Mail-Adresse wird bereits verwendet.";
-      } else if (error.code === 'auth/weak-password') {
-        msg = "Das Passwort muss mindestens 8 Zeichen lang sein.";
-      }
-      
-      toast({
+    } catch (error) {
+       toast({
         variant: "destructive",
-        title: "Registrierung fehlgeschlagen",
-        description: msg
+        title: "Fehler",
+        description: "Ein Serverfehler ist aufgetreten."
       });
-      // Re-enable form on error
-      form.reset(values);
+      form.reset(values, { keepValues: true });
     }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form action={() => form.handleSubmit(onSubmit)()} className="space-y-4">
         <FormField
           control={form.control}
           name="name"

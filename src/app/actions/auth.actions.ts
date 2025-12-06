@@ -22,7 +22,7 @@ function getRedirectPath(role: UserRole): string {
   }
 }
 
-export async function createSession(idToken: string, extraData?: Partial<User>) {
+export async function createSession(idToken: string) {
   const cookieStore = await cookies(); 
   
   let userRole: UserRole = 'customer';
@@ -39,23 +39,10 @@ export async function createSession(idToken: string, extraData?: Partial<User>) 
     
     if (userSnap.exists) {
         userRole = (userSnap.data()?.role as UserRole) || 'customer';
-        // If user exists, just update last login
         await userRef.update({ lastLogin: new Date().toISOString() });
     } else {
-        // Enforce customer role on the server for all new sign-ups
-        userRole = 'customer';
-        const newUser: Partial<User> = {
-            name: extraData?.name || decodedToken.name || decodedToken.email!,
-            email: decodedToken.email!,
-            role: userRole, 
-            customerSince: new Date().toISOString(),
-            lastLogin: new Date().toISOString(),
-            loyaltyStamps: 0,
-            phone: extraData?.phone || '',
-            deliveryAddress: extraData?.deliveryAddress || { street: '', city: '', zip: '', province: '' },
-            consent: extraData?.consent || { privacyPolicy: { accepted: false, timestamp: '' } },
-        };
-        await userRef.set(toPlainObject(newUser));
+        // This case should ideally be handled by registerUser now
+        throw new Error('User not found in Firestore during session creation.');
     }
     
     cookieStore.set('session', sessionCookie, {
@@ -71,10 +58,67 @@ export async function createSession(idToken: string, extraData?: Partial<User>) 
     throw new Error('Session creation failed');
   }
 
-  // Redirect NUR wenn alles oben geklappt hat
   const redirectPath = getRedirectPath(userRole);
   redirect(redirectPath);
 }
+
+const registerFormSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  password: z.string().min(8),
+  phone: z.string().min(5),
+  street: z.string().min(3),
+  city: z.string().min(2),
+  zip: z.string().min(4),
+  province: z.string().min(2),
+  privacyPolicy: z.boolean().refine(val => val === true),
+});
+
+
+export async function registerUser(values: z.infer<typeof registerFormSchema>) {
+    try {
+        const { name, email, password, phone, street, city, zip, province, privacyPolicy } = registerFormSchema.parse(values);
+
+        // 1. Create user in Firebase Authentication (server-side)
+        const userRecord = await adminAuth.createUser({
+            email: email,
+            password: password,
+            displayName: name,
+            emailVerified: false, // Optional: you can implement email verification later
+        });
+
+        // 2. Create user document in Firestore
+        const userRef = adminDb.collection('users').doc(userRecord.uid);
+        const newUser: Partial<User> = {
+            name: name,
+            email: email,
+            role: 'customer', 
+            customerSince: new Date().toISOString(),
+            lastLogin: new Date().toISOString(),
+            loyaltyStamps: 0,
+            phone: phone,
+            deliveryAddress: { street, city, zip, province },
+            consent: {
+                privacyPolicy: {
+                    accepted: privacyPolicy,
+                    timestamp: new Date().toISOString(),
+                }
+            },
+        };
+        await userRef.set(toPlainObject(newUser));
+
+        return { success: true };
+
+    } catch (error: any) {
+        let errorMessage = "Ein unerwarteter Fehler ist aufgetreten.";
+        if (error.code === 'auth/email-already-exists') {
+            errorMessage = "Diese E-Mail-Adresse wird bereits verwendet.";
+        }
+        console.error('Registration Error:', error);
+        return { success: false, error: errorMessage };
+    }
+}
+
 
 export async function logout() {
   const cookieStore = await cookies();
@@ -141,22 +185,16 @@ export async function updateUserProfile(formData: FormData) {
 export async function deleteUserAccount() {
     const session = await getSession();
     if (!session?.userId) {
-        // This should not happen if called from a protected page, but it's a good safeguard.
         return redirect('/login');
     }
 
     try {
-        // Delete from Firestore
         await adminDb.collection('users').doc(session.userId).delete();
-        
-        // Delete from Firebase Authentication
         await adminAuth.deleteUser(session.userId);
 
     } catch (error) {
         console.error(`Failed to delete user ${session.userId}:`, error);
-        // We still attempt to log the user out, even if deletion fails.
     }
 
-    // Finally, destroy the session cookie and redirect
     await logout();
 }
