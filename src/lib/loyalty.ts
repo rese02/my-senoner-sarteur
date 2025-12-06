@@ -1,7 +1,7 @@
 export const loyaltyTiers = {
-  bronze: { name: 'Bronze', points: 0, next: 500, color: 'text-yellow-600' },
+  bronze: { name: 'Bronze', points: 0, next: 500, color: 'text-sky-600' },
   silver: { name: 'Silber', points: 500, next: 1500, color: 'text-slate-500' },
-  gold: { name: 'Gold', points: 1500, next: Infinity, color: 'text-amber-500' }
+  gold: { name: 'Gold', points: 1500, next: Infinity, color: 'text-blue-600' }
 };
 
 export const getLoyaltyTier = (points: number) => {
