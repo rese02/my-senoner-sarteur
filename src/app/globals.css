@@ -14,9 +14,9 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* PRIMARY: Das Senoner Sarteur Grün (Markenfarbe) */
-    --primary: 122 61% 24%; /* Deep Green #1B5E20 */
-    --primary-foreground: 0 0% 100%; /* Weißer Text auf grünem Button */
+    /* PRIMARY: Das neue, dunkle Blau als Markenfarbe */
+    --primary: 217 60% 35%; /* Deep Blue, inspired by the image */
+    --primary-foreground: 0 0% 100%; /* Weißer Text auf blauem Button */
 
     /* SECONDARY: Für Hover-Effekte und leichte Hervorhebungen */
     --secondary: 48 33% 90%;
@@ -28,7 +28,7 @@
 
     /* ACCENT: Gold als Highlight-Farbe */
     --accent: 45 100% 50%; /* Gold #FFD700 */
-    --accent-foreground: 122 61% 15%; /* Dunkelgrün für Text auf Gold */
+    --accent-foreground: 217 60% 15%; /* Dunkelblau für Text auf Gold */
 
     /* DESTRUCTIVE: Für Fehler/Löschen (Rot) */
     --destructive: 0 84.2% 60.2%;
@@ -37,7 +37,7 @@
     /* RAHMEN & INPUTS */
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 122 61% 24%; /* Fokus-Ring in Primary Grün */
+    --ring: 217 60% 40%; /* Fokus-Ring in Primary Blau */
 
     --radius: 0.75rem; /* Leicht abgerundete Ecken (Modern) */
     
@@ -63,7 +63,7 @@
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 122 61% 30%;
+    --primary: 217 60% 45%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -73,14 +73,14 @@
     --muted-foreground: 215 20.2% 65.1%;
 
     --accent: 45 100% 50%;
-    --accent-foreground: 122 61% 15%;
+    --accent-foreground: 217 60% 15%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 22.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 122 61% 30%;
+    --ring: 217 60% 45%;
   }
 }
 
