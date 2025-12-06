@@ -15,12 +15,14 @@ export default async function AdminLayout({
 }) {
   const session = await getSession();
 
+  // SICHERHEITS-CHECK: Wenn keine Session existiert, sofort zum Login umleiten.
   if (!session) {
     redirect('/login');
   }
 
+  // SICHERHEITS-CHECK: Nur Admins dürfen hier rein.
   if (session.role !== 'admin') {
-    // This is a safety net. The middleware should already handle this.
+    // Falls ein Kunde/Mitarbeiter hier landet, leite ihn zu seiner Startseite.
     const homePage = session.role === 'employee' ? '/employee/scanner' : '/dashboard';
     redirect(homePage);
   }

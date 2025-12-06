@@ -87,15 +87,15 @@ export async function registerUser(values: z.infer<typeof registerFormSchema>) {
             email: email,
             password: password,
             displayName: name,
-            emailVerified: false, // Optional: you can implement email verification later
+            emailVerified: false,
         });
 
-        // 2. Create user document in Firestore
+        // 2. Create user document in Firestore with role 'customer'
         const userRef = adminDb.collection('users').doc(userRecord.uid);
         const newUser: Partial<User> = {
             name: name,
             email: email,
-            role: 'customer', 
+            role: 'customer', // WICHTIG: Rolle wird hier korrekt zugewiesen
             customerSince: new Date().toISOString(),
             lastLogin: new Date().toISOString(),
             loyaltyStamps: 0,

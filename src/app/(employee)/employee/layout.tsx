@@ -13,11 +13,12 @@ export default async function EmployeeLayout({
 }) {
   const session = await getSession();
 
+  // SICHERHEITS-CHECK: Wenn keine Session existiert, sofort zum Login umleiten.
   if (!session) {
     redirect('/login');
   }
   
-  // This is a safety net. The middleware should already handle role-based access.
+  // SICHERHEITS-CHECK: Nur Mitarbeiter und Admins dürfen hier rein.
   if (!['employee', 'admin'].includes(session.role)) {
     redirect('/dashboard');
   }

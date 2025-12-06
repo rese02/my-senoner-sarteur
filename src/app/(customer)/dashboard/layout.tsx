@@ -1,3 +1,4 @@
+'use server';
 
 import { getSession } from "@/lib/session";
 import { UserProfileDropdown } from "@/components/custom/UserProfileDropdown";
@@ -27,11 +28,12 @@ export default async function CustomerLayout({
 }) {
     const session = await getSession();
     
+    // SICHERHEITS-CHECK: Wenn keine Session existiert, sofort zum Login umleiten.
     if (!session) {
       redirect('/login');
     }
 
-    // This is a safety net. The middleware should already handle role-based access.
+    // Rollen-Sicherheitsnetz: Verhindert, dass Admins/Mitarbeiter auf das Kundendashboard kommen.
     if (session.role === 'admin') {
       redirect('/admin/dashboard');
     }
