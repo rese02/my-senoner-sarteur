@@ -8,14 +8,14 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-blue-100 text-blue-800' },
+  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg' },
   picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
-  ready: { label: 'Abholbereit', className: 'bg-green-100 text-green-800' },
-  ready_for_delivery: { label: 'Bereit Zur Lieferung', className: 'bg-green-100 text-green-800' },
-  delivered: { label: 'Geliefert', className: 'bg-gray-100 text-gray-600' },
-  collected: { label: 'Abgeholt', className: 'bg-gray-100 text-gray-600' },
+  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg' },
+  ready_for_delivery: { label: 'Bereit Zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg' },
+  delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg' },
+  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg' },
   paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' },
-  cancelled: { label: 'Storniert', className: 'bg-red-100 text-red-700' }
+  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg' }
 };
 
 const StatusBadge = ({ status }: { status: OrderStatus }) => {
@@ -42,7 +42,7 @@ export function OrderCard({ order, onShowDetails }: OrderCardProps) {
     <div 
       onClick={onShowDetails}
       className={cn(
-        "bg-white rounded-xl p-0 shadow-sm border hover:shadow-md transition-all duration-300 flex overflow-hidden group relative",
+        "bg-card rounded-xl p-0 shadow-sm border hover:shadow-md transition-all duration-300 flex overflow-hidden group relative",
         onShowDetails && "cursor-pointer"
       )}>
       

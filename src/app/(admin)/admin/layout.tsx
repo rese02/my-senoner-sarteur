@@ -26,7 +26,7 @@ export default async function AdminLayout({
 
 
   return (
-    <div className="flex h-[100dvh] bg-background overflow-hidden">
+    <div className="flex h-[100dvh] bg-secondary overflow-hidden">
       <AdminSidebar />
       <div className="flex-1 flex flex-col">
          <header className="flex-none h-20 flex items-center justify-between md:justify-end border-b bg-card text-card-foreground px-4 md:px-6 sticky top-0 z-20">
@@ -40,7 +40,7 @@ export default async function AdminLayout({
               </Button>
             </form>
         </header>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-24 bg-background">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-24 bg-secondary">
             {children}
         </main>
       </div>

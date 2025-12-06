@@ -21,12 +21,14 @@ export default async function CustomerDashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:gap-8 lg:items-start">
             
             <Suspense fallback={<Loading />}>
-                <ProductsClient 
-                    products={products}
-                    categories={categories}
-                    stories={stories}
-                    recipe={recipe}
-                />
+                <div className="bg-background rounded-xl p-4 md:p-0 md:bg-transparent">
+                  <ProductsClient 
+                      products={products}
+                      categories={categories}
+                      stories={stories}
+                      recipe={recipe}
+                  />
+                </div>
             </Suspense>
             
             <div className="hidden lg:block">

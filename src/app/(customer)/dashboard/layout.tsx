@@ -10,8 +10,8 @@ import type { User } from "@/lib/types";
 
 function DesktopSidebar() {
   return (
-    <aside className="hidden md:flex flex-col w-60 bg-primary border-r border-primary-foreground/10">
-        <div className="p-4 border-b border-primary-foreground/10 h-16 flex items-center justify-center">
+    <aside className="hidden md:flex flex-col w-60 bg-card border-r">
+        <div className="p-4 border-b h-16 flex items-center justify-center">
             <Logo />
         </div>
         <CustomerSidebar />
@@ -43,19 +43,19 @@ export default async function CustomerLayout({
     <div className="flex h-[100dvh] bg-background text-foreground overflow-hidden">
       <DesktopSidebar />
       <div className="flex-1 flex flex-col">
-        <header className="flex-none flex h-16 items-center justify-between border-b bg-primary border-b-primary-foreground/20 text-primary-foreground px-4 sticky top-0 z-30 md:hidden">
+        <header className="flex-none flex h-16 items-center justify-between border-b bg-card px-4 sticky top-0 z-30 md:hidden">
             <div className="h-8">
               <Logo />
             </div>
             <div className="flex items-center gap-2">
-              <a href="tel:+390471123456" className="p-2 text-primary-foreground hover:bg-white/20 rounded-full transition-colors">
+              <a href="tel:+390471123456" className="p-2 hover:bg-secondary rounded-full transition-colors">
                 <Phone size={20} />
                 <span className="sr-only">Anrufen</span>
               </a>
               {session && <UserProfileDropdown user={session as User} />}
             </div>
         </header>
-        <main className="flex-1 overflow-y-auto bg-background p-4 pt-0 md:pt-4 md:p-6 lg:p-8 pb-24 md:pb-8">
+        <main className="flex-1 overflow-y-auto bg-secondary p-4 pt-0 md:pt-4 md:p-6 lg:p-8 pb-24 md:pb-8">
             {children}
         </main>
          <MobileNav />

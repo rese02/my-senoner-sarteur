@@ -63,7 +63,7 @@ export function Cart() {
     };
 
     return (
-        <Card className="shadow-lg h-full flex flex-col border-none bg-card">
+        <Card className="shadow-lg h-full flex flex-col">
             <CardHeader className="flex-shrink-0 p-4 border-b">
                 <CardTitle className="flex items-center gap-2 text-base">
                     <ShoppingCart /> Ihre Vorbestellung

@@ -21,14 +21,14 @@ import { getDashboardPageData } from "@/app/actions/dashboard.actions";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-blue-100 text-blue-800' },
-  picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
-  ready: { label: 'Abholbereit', className: 'bg-green-100 text-green-800' },
-  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-green-100 text-green-800' },
-  delivered: { label: 'Geliefert', className: 'bg-gray-100 text-gray-600' },
-  collected: { label: 'Abgeholt', className: 'bg-gray-100 text-gray-600' },
-  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' },
-  cancelled: { label: 'Storniert', className: 'bg-red-100 text-red-700' }
+  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg' },
+  picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' }, // Keep one for picking
+  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg' },
+  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg' },
+  delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg' },
+  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg' },
+  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' }, // Keep one for paid
+  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg' }
 };
 
 function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onClose: () => void }) {
@@ -140,31 +140,31 @@ export default function AdminDashboardPage() {
       <PageHeader title="Dashboard" />
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-        <Card className="border-blue-200 bg-blue-50/50">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-900">Neue Bestellungen</CardTitle>
-            <ShoppingCart className="h-5 w-5 text-blue-600" />
+            <CardTitle className="text-sm font-medium">Neue Bestellungen</CardTitle>
+            <ShoppingCart className="h-5 w-5 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-900">{stats.newOrdersToday}</div>
+            <div className="text-3xl font-bold text-primary">{stats.newOrdersToday}</div>
           </CardContent>
         </Card>
-        <Card className="border-blue-200 bg-blue-50/50">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-900">Lieferung/Abholung</CardTitle>
-            <Truck className="h-5 w-5 text-blue-600" />
+            <CardTitle className="text-sm font-medium">Lieferung/Abholung</CardTitle>
+            <Truck className="h-5 w-5 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-900">{stats.pickupsToday}</div>
+            <div className="text-3xl font-bold text-primary">{stats.pickupsToday}</div>
           </CardContent>
         </Card>
-        <Card className={cn(stats.overduePickups > 0 ? "border-destructive bg-destructive/5" : "border-blue-200 bg-blue-50/50")}>
+        <Card className={cn(stats.overduePickups > 0 && "border-destructive")}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className={cn("text-sm font-medium", stats.overduePickups > 0 ? 'text-destructive' : 'text-blue-900')}>Überfällige Abholungen</CardTitle>
-            <Info className={cn("h-5 w-5", stats.overduePickups > 0 ? 'text-destructive' : 'text-blue-600')} />
+            <CardTitle className={cn("text-sm font-medium", stats.overduePickups > 0 && 'text-destructive')}>Überfällige Abholungen</CardTitle>
+            <Info className={cn("h-5 w-5", stats.overduePickups > 0 ? 'text-destructive' : 'text-primary')} />
           </CardHeader>
           <CardContent>
-            <div className={cn("text-3xl font-bold", stats.overduePickups > 0 ? 'text-destructive' : 'text-blue-900')}>{stats.overduePickups}</div>
+            <div className={cn("text-3xl font-bold", stats.overduePickups > 0 ? 'text-destructive' : 'text-primary')}>{stats.overduePickups}</div>
           </CardContent>
         </Card>
       </div>

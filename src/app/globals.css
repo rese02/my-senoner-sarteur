@@ -4,68 +4,74 @@
 
 @layer base {
   :root {
-    --background: 220 40% 5%; /* Very Dark Blue, almost black */
-    --foreground: 210 40% 90%; /* Light Gray for text */
-    
-    --card: 220 40% 9%; /* Slightly lighter dark blue */
-    --card-foreground: 210 40% 90%;
-    
-    --popover: 220 40% 5%;
-    --popover-foreground: 210 40% 90%;
-    
-    --primary: 217 91% 60%; /* Bright Blue */
-    --primary-foreground: 210 40% 98%;
-    
-    --secondary: 220 40% 12%; /* A bit lighter for hover states */
-    --secondary-foreground: 210 40% 98%;
-    
-    --muted: 220 20% 25%; /* Muted dark blue-gray */
-    --muted-foreground: 210 20% 60%; /* Muted light gray */
-    
-    --accent: 320 80% 60%; /* Vibrant Pink/Purple Accent for contrast */
-    --accent-foreground: 0 0% 100%;
-    
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    
-    --border: 220 40% 15%; /* Dark blue border */
-    --input: 220 40% 15%;
-    --ring: 217 91% 60%; /* Primary blue for focus rings */
-    
-    --radius: 0.75rem;
+    /* GRUNDLAGEN: Weiß & Dunkelblau */
+    --background: 0 0% 100%;       /* Reinweiß */
+    --foreground: 222 47% 11%;     /* Sehr dunkles Blau (fast Schwarz) für Text */
 
-     /* Custom Status Colors */
-    --status-new-bg: 217 91% 20%;
-    --status-new-fg: 217 91% 80%;
-    --status-ready-bg: 140 80% 20%;
-    --status-ready-fg: 140 80% 85%;
-    --status-collected-bg: 220 10% 25%;
-    --status-collected-fg: 220 10% 80%;
-    --status-cancelled-bg: 0 70% 25%;
-    --status-cancelled-fg: 0 70% 85%;
+    /* CARDS & POPUPS: Leicht abgesetzt */
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* PRIMARY: Das Senoner Sarteur Blau (Edel) */
+    --primary: 215 100% 35%; 
+    --primary-foreground: 210 40% 98%; /* Weißer Text auf blauem Button */
+
+    /* SECONDARY: Dezent (für Hintergrund-Buttons) */
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11.2%;
+
+    /* MUTED: Für graue Texte / unwichtige Infos */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215 16% 47%;
+
+    /* ACCENT: Für Hover-Effekte (ganz leichtes Blau) */
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11.2%;
+
+    /* DESTRUCTIVE: Für Fehler/Löschen (Rot, aber passend) */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    /* RAHMEN & INPUTS */
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 215 100% 35%; /* Fokus-Ring in Primary Blau */
+
+    --radius: 0.75rem; /* Leicht abgerundete Ecken (Modern) */
+    
+    /* Custom Status Colors */
+    --status-new-bg: 210 100% 92%; /* Light Blue */
+    --status-new-fg: 215 100% 35%; /* Primary Blue */
+    --status-ready-bg: 140 80% 94%; /* Light Green */
+    --status-ready-fg: 140 70% 30%; /* Dark Green */
+    --status-collected-bg: 220 10% 95%; /* Light Gray */
+    --status-collected-fg: 220 10% 40%; /* Dark Gray */
+    --status-cancelled-bg: 0 80% 95%; /* Light Red */
+    --status-cancelled-fg: 0 70% 45%; /* Dark Red */
   }
 
   .dark {
-    /* The dark theme is now the default theme. */
-    --background: 220 40% 5%;
-    --foreground: 210 40% 90%;
-    --card: 220 40% 9%;
-    --card-foreground: 210 40% 90%;
-    --popover: 220 40% 5%;
-    --popover-foreground: 210 40% 90%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 220 40% 12%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222 47% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 220 20% 25%;
-    --muted-foreground: 210 20% 60%;
-    --accent: 320 80% 60%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 40% 15%;
-    --input: 220 40% 15%;
-    --ring: 217 91% 60%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
 
