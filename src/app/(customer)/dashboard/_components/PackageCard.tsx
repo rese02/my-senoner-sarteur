@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { ShoppingBag, ListPlus, Check } from 'lucide-react';
+import { ShoppingBag, ListPlus } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { useCartStore } from '@/hooks/use-cart-store';
 import { useToast } from '@/hooks/use-toast';
@@ -64,7 +64,7 @@ export function PackageCard({ product }: { product: Product }) {
           <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
             {product.packageContent?.slice(0, 2).map((content, i) => (
               <li key={i} className="flex items-center">
-                <Check className="w-3 h-3 text-primary mr-2" /> 
+                <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
                 {content.amount} {content.item}
               </li>
             ))}

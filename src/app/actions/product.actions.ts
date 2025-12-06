@@ -1,3 +1,4 @@
+
 'use server';
 
 import 'server-only';
@@ -61,6 +62,7 @@ export async function getDashboardData() {
 
     return { products, categories, stories, recipe };
   } catch (error) {
+    console.error("Failed to fetch dashboard data:", error);
     // Return empty arrays on failure to prevent crashes
     return {
       products: [],
@@ -94,6 +96,7 @@ export async function getProductsPageData() {
     );
     return { products, categories };
   } catch (error) {
+    console.error("Failed to fetch products page data:", error);
     throw new Error("Failed to fetch products page data.");
   }
 }
