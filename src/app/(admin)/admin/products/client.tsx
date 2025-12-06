@@ -1,5 +1,5 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
@@ -16,10 +16,14 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ImageUploader } from "@/components/custom/ImageUploader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createCategory, deleteCategory, updateProduct, createProduct, deleteProduct, toggleProductAvailability } from "@/app/actions/product.actions";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 export function ProductsClient({ initialProducts, initialCategories }: { initialProducts: Product[], initialCategories: Category[] }) {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
+
+  const fallbackImageUrl = PlaceHolderImages.find(p => p.id === 'placeholder-general')?.imageUrl || 'https://placehold.co/400x300';
+
 
   // This effect ensures that if the parent Server Component re-fetches data,
   // the client state is updated accordingly.
@@ -174,24 +178,22 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
 
   return (
     <>
-      <div className="flex justify-between items-start mb-6">
-        {/* The PageHeader is now in the parent Server Component */}
-        <div/> 
+      <div className="flex justify-end items-start mb-6">
         <Button onClick={() => setIsCategoryModalOpen(true)} className="hidden md:flex" size="sm"><PlusCircle className="mr-2 h-4 w-4"/>Neue Kategorie</Button>
       </div>
       
-        <div className="space-y-6 pb-24 md:pb-0">
+        <div className="space-y-8 pb-24 md:pb-0">
           {categories.map((category) => {
             const productsInCategory = products.filter(p => p.categoryId === category.id);
             return (
-              <Card key={category.id}>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>{category.name}</CardTitle>
+              <div key={category.id}>
+                <div className="flex flex-row items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold">{category.name}</h2>
                   <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" className="hidden md:flex" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt hinzufügen</Button>
+                      <Button variant="outline" size="sm" className="hidden md:flex" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt</Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="text-destructive h-8 w-8 hidden md:flex"><Trash2 className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive h-8 w-8 hidden md:flex"><Trash2 className="w-4 h-4" /></Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
@@ -207,77 +209,77 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                         </AlertDialogContent>
                       </AlertDialog>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  {productsInCategory.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                      {productsInCategory.map(product => (
-                         <Card key={product.id} className="overflow-hidden flex flex-col group relative transition-all hover:shadow-lg bg-secondary">
-                          <div className="relative aspect-[4/3] bg-muted">
-                             <Image src={product.imageUrl || 'https://placehold.co/400x300/0d1a2e/FFFFFF/png?text=Bild'} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" data-ai-hint={product.imageHint} />
-                              {product.type === 'package' && <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground" variant="secondary">PAKET</Badge>}
-                          </div>
-                          <CardContent className="p-3 flex flex-col flex-1">
-                              <h3 className="font-semibold text-base leading-tight">{product.name}</h3>
-                              <div className="flex items-baseline justify-between mt-1">
-                                  <p className="text-lg font-bold text-primary">€{(product.price || 0).toFixed(2)}</p>
-                                  <span className="text-xs text-muted-foreground">/ {product.unit}</span>
-                              </div>
-                              {product.availabilityDay && <Badge variant="secondary" className="mt-1 w-fit text-xs">{product.availabilityDay} only</Badge>}
-                              <div className="mt-2 text-xs text-muted-foreground">
-                                  <span>Bestellt (30T): </span>
-                                  <span className="font-bold">{product.timesOrderedLast30Days ?? 0}</span>
-                              </div>
-                               <div className="mt-auto pt-3 flex items-center justify-between gap-4 border-t mt-3">
-                                  <div className="flex items-center space-x-2">
-                                      <Switch 
-                                          id={`availability-${product.id}`} 
-                                          checked={product.isAvailable} 
-                                          onCheckedChange={() => handleAvailabilityToggle(product.id, product.isAvailable)}
-                                          disabled={isPending}
-                                      />
-                                      <Label htmlFor={`availability-${product.id}`} className="text-xs">
-                                          {product.isAvailable ? "Verfügbar" : "Inaktiv"}
-                                      </Label>
-                                  </div>
-                                  <div className="flex items-center">
-                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenProductModal(product, category.id)}>
-                                        <Edit className="h-4 w-4" />
-                                    </Button>
-                                     <AlertDialog>
-                                      <AlertDialogTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                                          <Trash2 className="w-4 h-4"/>
-                                        </Button>
-                                      </AlertDialogTrigger>
-                                      <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                          <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
-                                          <AlertDialogDescription>
-                                            Möchten Sie das Produkt '{product.name}' wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
-                                          </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                          <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                          <AlertDialogAction onClick={() => handleDeleteProduct(product.id)} disabled={isPending}>Löschen</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                      </AlertDialogContent>
-                                    </AlertDialog>
-                                  </div>
-                              </div>
-                          </CardContent>
-                         </Card>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground bg-secondary/30 rounded-md">
-                      <p className="text-sm">Noch keine Produkte in dieser Kategorie.</p>
-                      <Button variant="link" size="sm" className="mt-1" onClick={() => handleOpenProductModal(null, category.id)}>Fügen Sie das erste Produkt hinzu</Button>
-                    </div>
-                  )}
-                   <Button variant="outline" size="sm" className="flex md:hidden w-full mt-4" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt hinzufügen</Button>
-                </CardContent>
-              </Card>
+                </div>
+                
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {productsInCategory.map(product => (
+                       <Card key={product.id} className="overflow-hidden flex flex-col group transition-all hover:shadow-lg bg-card">
+                        <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+                           <Image src={product.imageUrl || fallbackImageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={product.imageHint} />
+                            {product.type === 'package' && <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground border-none" variant="secondary">PAKET</Badge>}
+                        </div>
+                        <CardContent className="p-4 flex flex-col flex-1">
+                            <h3 className="font-semibold text-base leading-tight">{product.name}</h3>
+                            <div className="flex items-baseline justify-between mt-1">
+                                <p className="text-lg font-bold text-primary">€{(product.price || 0).toFixed(2)}</p>
+                                <span className="text-xs text-muted-foreground">/ {product.unit}</span>
+                            </div>
+                            {product.availabilityDay && <Badge variant="secondary" className="mt-1 w-fit text-xs">{product.availabilityDay} only</Badge>}
+                            <div className="mt-2 text-xs text-muted-foreground">
+                                <span>Bestellt (30T): </span>
+                                <span className="font-bold">{product.timesOrderedLast30Days ?? 0}</span>
+                            </div>
+                             <div className="mt-auto pt-4 flex items-center justify-between gap-4 border-t mt-4">
+                                <div className="flex items-center space-x-2">
+                                    <Switch 
+                                        id={`availability-${product.id}`} 
+                                        checked={product.isAvailable} 
+                                        onCheckedChange={() => handleAvailabilityToggle(product.id, product.isAvailable)}
+                                        disabled={isPending}
+                                    />
+                                    <Label htmlFor={`availability-${product.id}`} className="text-xs text-muted-foreground">
+                                        {product.isAvailable ? "Aktiv" : "Inaktiv"}
+                                    </Label>
+                                </div>
+                                <div className="flex items-center">
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenProductModal(product, category.id)}>
+                                      <Edit className="h-4 w-4" />
+                                  </Button>
+                                   <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                                        <Trash2 className="w-4 h-4"/>
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Möchten Sie das Produkt '{product.name}' wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteProduct(product.id)} disabled={isPending}>Löschen</AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
+                            </div>
+                        </CardContent>
+                       </Card>
+                    ))}
+                     <div className="col-span-full">
+                        <Button variant="outline" size="sm" className="flex md:hidden w-full mt-4" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt hinzufügen</Button>
+                     </div>
+                  </div>
+                   {productsInCategory.length === 0 && (
+                      <div className="text-center py-10 text-muted-foreground bg-card border-2 border-dashed rounded-xl">
+                        <p className="text-sm">Noch keine Produkte in dieser Kategorie.</p>
+                        <Button variant="link" size="sm" className="mt-1" onClick={() => handleOpenProductModal(null, category.id)}>Fügen Sie das erste Produkt hinzu</Button>
+                      </div>
+                    )}
+              </div>
             )
           })}
         </div>

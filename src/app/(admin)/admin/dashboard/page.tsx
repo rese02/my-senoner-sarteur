@@ -21,14 +21,14 @@ import { getDashboardPageData } from "@/app/actions/dashboard.actions";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg' },
-  picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' }, // Keep one for picking
-  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg' },
-  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg' },
-  delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg' },
-  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg' },
-  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' }, // Keep one for paid
-  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg' }
+  new: { label: 'Neu', className: 'bg-blue-100 text-blue-800' },
+  picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
+  ready: { label: 'Abholbereit', className: 'bg-green-100 text-green-700' },
+  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-green-100 text-green-700' },
+  delivered: { label: 'Geliefert', className: 'bg-gray-100 text-gray-800' },
+  collected: { label: 'Abgeholt', className: 'bg-gray-100 text-gray-800' },
+  paid: { label: 'Bezahlt', className: 'bg-teal-100 text-teal-800' },
+  cancelled: { label: 'Storniert', className: 'bg-red-100 text-red-800' }
 };
 
 function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onClose: () => void }) {
@@ -66,7 +66,7 @@ function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onCl
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-red-600 hover:bg-red-700 text-white">
+                        <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
                             {isDeleting ? 'Löschen...' : 'Ja, löschen'}
                         </AlertDialogAction>
                     </AlertDialogFooter>
@@ -137,34 +137,34 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader title="Dashboard" />
+      <PageHeader title="Dashboard" description="Willkommen zurück! Hier ist Ihre heutige Übersicht." />
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Neue Bestellungen</CardTitle>
-            <ShoppingCart className="h-5 w-5 text-primary" />
+            <CardTitle className="text-sm font-medium">Neue Bestellungen heute</CardTitle>
+            <ShoppingCart className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary">{stats.newOrdersToday}</div>
+            <div className="text-3xl font-bold">{stats.newOrdersToday}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Lieferung/Abholung</CardTitle>
-            <Truck className="h-5 w-5 text-primary" />
+            <CardTitle className="text-sm font-medium">Abholungen/Lieferungen heute</CardTitle>
+            <Truck className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary">{stats.pickupsToday}</div>
+            <div className="text-3xl font-bold">{stats.pickupsToday}</div>
           </CardContent>
         </Card>
-        <Card className={cn(stats.overduePickups > 0 && "border-destructive")}>
+        <Card className={cn(stats.overduePickups > 0 && "border-destructive/50 bg-destructive/5 text-destructive")}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className={cn("text-sm font-medium", stats.overduePickups > 0 && 'text-destructive')}>Überfällige Abholungen</CardTitle>
-            <Info className={cn("h-5 w-5", stats.overduePickups > 0 ? 'text-destructive' : 'text-primary')} />
+            <CardTitle className="text-sm font-medium">Überfällige Abholungen</CardTitle>
+            <AlertCircle className={cn("h-5 w-5", stats.overduePickups > 0 ? 'text-destructive' : 'text-muted-foreground')} />
           </CardHeader>
           <CardContent>
-            <div className={cn("text-3xl font-bold", stats.overduePickups > 0 ? 'text-destructive' : 'text-primary')}>{stats.overduePickups}</div>
+            <div className="text-3xl font-bold">{stats.overduePickups}</div>
           </CardContent>
         </Card>
       </div>
@@ -173,6 +173,7 @@ export default function AdminDashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Aktuelle & anstehende Bestellungen</CardTitle>
+            <CardDescription>Die 10 dringendsten Bestellungen, sortiert nach Fälligkeit.</CardDescription>
           </CardHeader>
           <CardContent>
             {recentAndUpcomingOrders.length === 0 ? (

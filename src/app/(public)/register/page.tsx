@@ -1,3 +1,4 @@
+
 'use server';
 
 import { RegisterForm } from './_components/register-form';
@@ -9,15 +10,15 @@ export default async function RegisterPage() {
   return (
     <div className="w-full min-h-[100dvh] md:flex md:items-center md:justify-center bg-secondary p-4 relative overflow-hidden">
       
-        <div className="absolute inset-0 z-0 opacity-10 bg-repeat" style={{ backgroundImage: "url('/background-pattern.svg')" }}></div>
+        <div className="absolute inset-0 z-0 opacity-5 bg-repeat" style={{ backgroundImage: "url('/background-pattern.svg')" }}></div>
 
-        <div className="relative z-10 grid md:grid-cols-1 max-w-sm w-full items-center">
-             <Card className="flex flex-col justify-center shadow-2xl border border-border rounded-2xl w-full bg-card">
+        <div className="relative z-10 grid md:grid-cols-1 max-w-md w-full items-center my-8 md:my-0">
+             <Card className="flex flex-col justify-center shadow-2xl border-border/50 rounded-2xl w-full bg-card">
                  <CardHeader className="text-center items-center pt-10 pb-6">
-                    <div className="w-1/2 mb-4">
+                    <div className="h-12 mb-4">
                         <Logo />
                     </div>
-                    <CardTitle className="text-3xl font-headline">Konto erstellen</CardTitle>
+                    <CardTitle className="text-3xl font-headline text-primary">Konto erstellen</CardTitle>
                     <CardDescription>Werden Sie Teil unserer Community.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-8">

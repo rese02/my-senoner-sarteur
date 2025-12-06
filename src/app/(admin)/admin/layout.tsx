@@ -29,21 +29,21 @@ export default async function AdminLayout({
 
 
   return (
-    <div className="flex h-[100dvh] bg-secondary overflow-hidden">
+    <div className="flex h-[100dvh] bg-background text-foreground overflow-hidden">
       <AdminSidebar />
       <div className="flex-1 flex flex-col">
-         <header className="flex-none h-20 flex items-center justify-between md:justify-end border-b bg-card text-card-foreground px-4 md:px-6 sticky top-0 z-20">
+         <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b bg-card text-card-foreground px-4 md:px-6 sticky top-0 z-20">
             <div className="md:hidden h-8">
               <Logo />
             </div>
              <form action={logout}>
               <Button variant="ghost" size="sm">
                 <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
+                Abmelden
               </Button>
             </form>
         </header>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-24 bg-secondary">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-24 md:pb-8">
             {children}
         </main>
       </div>

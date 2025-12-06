@@ -1,6 +1,6 @@
 'use client';
 import type { Order, OrderStatus } from "@/lib/types";
-import { format, isToday } from "date-fns";
+import { format, isToday, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { ChevronRight, FileText, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,25 +8,24 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg' },
+  new: { label: 'Neu', className: 'bg-blue-100 text-blue-800' },
   picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
-  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg' },
-  ready_for_delivery: { label: 'Bereit Zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg' },
-  delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg' },
-  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg' },
-  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' },
-  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg' }
+  ready: { label: 'Abholbereit', className: 'bg-green-100 text-green-700' },
+  ready_for_delivery: { label: 'Bereit Zur Lieferung', className: 'bg-green-100 text-green-700' },
+  delivered: { label: 'Geliefert', className: 'bg-gray-100 text-gray-800' },
+  collected: { label: 'Abgeholt', className: 'bg-gray-100 text-gray-800' },
+  paid: { label: 'Bezahlt', className: 'bg-teal-100 text-teal-800' },
+  cancelled: { label: 'Storniert', className: 'bg-red-100 text-red-800' }
 };
 
 const StatusBadge = ({ status }: { status: OrderStatus }) => {
   const statusInfo = statusMap[status];
   return (
-    <Badge className={cn("capitalize font-semibold text-xs border-transparent", statusInfo.className)}>
+    <Badge className={cn("capitalize font-semibold text-xs", statusInfo.className)}>
       {statusInfo.label}
     </Badge>
   );
 };
-
 
 type OrderCardProps = {
     order: Order;
@@ -35,56 +34,53 @@ type OrderCardProps = {
 
 export function OrderCard({ order, onShowDetails }: OrderCardProps) {
   const isGroceryList = order.type === 'grocery_list';
-  const pickupDate = order.pickupDate ? new Date(order.pickupDate) : new Date(order.createdAt);
+  const pickupDate = order.pickupDate ? parseISO(order.pickupDate) : parseISO(order.createdAt);
   const itemCount = isGroceryList ? order.rawList?.split('\n').length : order.items?.length;
 
   return (
     <div 
       onClick={onShowDetails}
       className={cn(
-        "bg-card rounded-xl p-0 shadow-sm border hover:shadow-md transition-all duration-300 flex overflow-hidden group relative",
+        "bg-card rounded-xl p-4 shadow-sm border hover:shadow-md transition-all duration-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 group relative",
         onShowDetails && "cursor-pointer"
       )}>
       
-      <div className="p-4 flex-1 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        
-        {/* Icon & Name */}
-        <div className="flex items-center gap-4 flex-1 min-w-0">
-          <div className={cn(
-              "p-3 rounded-full", 
-              isGroceryList ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'
-            )}
-          >
-            {isGroceryList ? <FileText /> : <ShoppingCart />}
-          </div>
-          <div>
-            <h4 className="font-headline text-lg font-bold text-foreground">{order.customerName}</h4>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">#{order.id.slice(-6)}</p>
-          </div>
+      {/* Icon, Name, ID */}
+      <div className="flex items-center gap-4 flex-1 min-w-0">
+        <div className={cn(
+            "p-3 rounded-lg", 
+            isGroceryList ? 'bg-orange-100 text-orange-600' : 'bg-primary/10 text-primary'
+          )}
+        >
+          {isGroceryList ? <FileText size={20} /> : <ShoppingCart size={20} />}
         </div>
-
-        {/* Details */}
-        <div className="text-sm text-muted-foreground sm:text-center">
-          <p>{itemCount} Artikel</p>
-          <p className="text-xs">{isToday(pickupDate) ? 'Heute' : format(pickupDate, 'dd.MM.yyyy')}</p>
+        <div>
+          <h4 className="font-bold text-base text-foreground">{order.customerName}</h4>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">#{order.id.slice(-6)}</p>
         </div>
-
-        {/* Price & Status */}
-        <div className="sm:text-right flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto">
-          {order.total ? 
-            <p className="font-bold text-lg text-primary">€{order.total.toFixed(2)}</p>
-            : <p className="font-bold text-lg text-muted-foreground">-</p>
-          }
-          <StatusBadge status={order.status} />
-        </div>
-
-        {/* Action Button (appears on hover) */}
-        {onShowDetails && (
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 sm:static sm:translate-y-0 sm:ml-4">
-            <Button variant="ghost" size="icon"><ChevronRight /></Button>
-          </div>
-        )}
       </div>
+
+      {/* Details (Item count & Date) */}
+      <div className="text-sm text-muted-foreground sm:text-center shrink-0">
+        <p>{itemCount} Artikel</p>
+        <p className="font-medium text-foreground">{isToday(pickupDate) ? 'Heute' : format(pickupDate, 'dd. MMM', { locale: de })}</p>
+      </div>
+
+      {/* Price & Status */}
+      <div className="sm:text-right flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto shrink-0">
+        {order.total ? 
+          <p className="font-bold text-lg text-foreground">€{order.total.toFixed(2)}</p>
+          : <p className="font-bold text-lg text-muted-foreground">-</p>
+        }
+        <StatusBadge status={order.status} />
+      </div>
+
+      {/* Action Button */}
+      {onShowDetails && (
+        <div className="sm:ml-4 flex items-center">
+            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+        </div>
+      )}
     </div>
   );
 }
