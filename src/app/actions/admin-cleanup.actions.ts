@@ -1,55 +1,67 @@
 'use server';
 
 import { getSession } from '@/lib/session';
-import { mockOrders } from '@/lib/mock-data';
+import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
+import { toPlainObject } from '@/lib/utils';
+import type { Order } from '@/lib/types';
 
-// NOTE: This file operates on mock data. In a real Firebase app, you would
-// use the Firebase Admin SDK to perform these operations on your Firestore database.
+
+async function requireAdmin() {
+  const session = await getSession();
+  if (session?.role !== 'admin') {
+    throw new Error("Unauthorized: Admin access required.");
+  }
+}
 
 // 1. Einzelne Bestellung löschen
 export async function deleteOrder(orderId: string) {
-  const session = await getSession();
-  if (session?.role !== 'admin') throw new Error("Nicht autorisiert!");
+  await requireAdmin();
 
-  const orderIndex = mockOrders.findIndex(o => o.id === orderId);
-  if (orderIndex === -1) {
-    throw new Error("Bestellung nicht gefunden.");
+  const orderRef = adminDb.collection('orders').doc(orderId);
+  const doc = await orderRef.get();
+
+  if (!doc.exists) {
+    return { success: false, error: "Bestellung nicht gefunden." };
   }
 
-  mockOrders.splice(orderIndex, 1);
+  await orderRef.delete();
+  
   revalidatePath('/admin/orders');
+  revalidatePath('/admin/dashboard');
+
   return { success: true };
 }
 
 // 2. Massen-Löschen: Bestellungen älter als X Monate
 export async function deleteOldOrders(months: number) {
-  const session = await getSession();
-  if (session?.role !== 'admin') throw new Error("Nicht autorisiert!");
+  await requireAdmin();
 
-  // Berechne das Datum: Heute minus X Monate
   const cutoffDate = new Date();
   cutoffDate.setMonth(cutoffDate.getMonth() - months);
 
-  let deletedCount = 0;
-  const ordersToKeep = mockOrders.filter(order => {
-    const orderDate = new Date(order.createdAt);
-    const isOld = orderDate < cutoffDate;
-    const isCompleted = ['collected', 'cancelled', 'delivered'].includes(order.status);
-    
-    if (isOld && isCompleted) {
-        deletedCount++;
-        return false; // Don't keep this order
-    }
-    return true; // Keep this order
+  const completedStatuses = ['collected', 'cancelled', 'delivered', 'paid'];
+  
+  const oldOrdersQuery = adminDb.collection('orders')
+      .where('createdAt', '<', cutoffDate.toISOString())
+      .where('status', 'in', completedStatuses);
+
+  const snapshot = await oldOrdersQuery.get();
+
+  if (snapshot.empty) {
+      return { count: 0 };
+  }
+
+  const batch = adminDb.batch();
+  snapshot.docs.forEach(doc => {
+      batch.delete(doc.ref);
   });
 
-  // Replace the mock data array with the filtered one
-  mockOrders.length = 0;
-  Array.prototype.push.apply(mockOrders, ordersToKeep);
+  await batch.commit();
 
   revalidatePath('/admin/orders');
   revalidatePath('/admin/settings');
+  revalidatePath('/admin/dashboard');
   
-  return { count: deletedCount };
+  return { count: snapshot.size };
 }
