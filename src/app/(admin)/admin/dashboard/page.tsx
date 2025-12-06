@@ -21,14 +21,14 @@ import { getDashboardPageData } from "@/app/actions/dashboard.actions";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-blue-100 text-blue-800' },
+  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg' },
   picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
-  ready: { label: 'Abholbereit', className: 'bg-green-100 text-green-700' },
-  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-green-100 text-green-700' },
-  delivered: { label: 'Geliefert', className: 'bg-gray-100 text-gray-800' },
-  collected: { label: 'Abgeholt', className: 'bg-gray-100 text-gray-800' },
-  paid: { label: 'Bezahlt', className: 'bg-teal-100 text-teal-800' },
-  cancelled: { label: 'Storniert', className: 'bg-red-100 text-red-800' }
+  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg' },
+  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg' },
+  delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg' },
+  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg' },
+  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' },
+  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg' }
 };
 
 function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onClose: () => void }) {
@@ -205,7 +205,7 @@ export default function AdminDashboardPage() {
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
-            <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-4 -mr-2">
               <div className="space-y-3">
                   <h3 className="font-semibold text-base">Bestellübersicht</h3>
                    <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">

@@ -180,7 +180,7 @@ export default function AdminOrdersPage() {
   }
 
   return (
-    <div className="pb-24 md:pb-0">
+    <div className="space-y-8">
       <PageHeader title="Bestellungen" description="Verwalten Sie alle Vorbestellungen und Einkaufszettel." />
       <Card>
         <CardHeader>
@@ -301,7 +301,7 @@ export default function AdminOrdersPage() {
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
-            <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-4 -mr-2">
               <div className="space-y-3">
                   <h3 className="font-semibold text-base">Bestellübersicht</h3>
                    <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">

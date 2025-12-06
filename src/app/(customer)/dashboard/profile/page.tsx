@@ -18,53 +18,51 @@ export default async function ProfilePage() {
     }
 
     return (
-        <div className="pb-24 md:pb-8">
+        <div className="space-y-8 max-w-2xl mx-auto pb-24 md:pb-8">
             <PageHeader title="Mein Profil" description="Verwalten Sie hier Ihre Kontodetails." />
 
-            <div className="grid gap-6 md:grid-cols-1 max-w-2xl mx-auto">
-                <ProfileUpdateForm user={user} />
+            <ProfileUpdateForm user={user} />
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Abmelden</CardTitle>
-                        <CardDescription>Beenden Sie Ihre aktuelle Sitzung.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <form action={logout} className="w-full">
-                            <button type="submit" className="w-full h-10 px-4 py-2 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 transition-transform active:scale-[0.98] border border-input bg-background hover:bg-accent hover:text-accent-foreground">Abmelden</button>
-                        </form>
-                    </CardContent>
-                </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Abmelden</CardTitle>
+                    <CardDescription>Beenden Sie Ihre aktuelle Sitzung.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form action={logout} className="w-full">
+                        <button type="submit" className="w-full h-10 px-4 py-2 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 transition-transform active:scale-[0.98] border border-input bg-background hover:bg-accent hover:text-accent-foreground">Abmelden</button>
+                    </form>
+                </CardContent>
+            </Card>
 
-                 <Card className="border-destructive">
-                    <CardHeader>
-                        <CardTitle className="text-destructive">Gefahrenzone</CardTitle>
-                        <CardDescription>Diese Aktionen können nicht rückgängig gemacht werden.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <form action={deleteUserAccount}>
-                             <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button variant="destructive" className="w-full">Konto endgültig löschen</Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Sind Sie absolut sicher?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            Diese Aktion kann nicht rückgängig gemacht werden. Ihr Konto, Ihre Bestellhistorie und Ihre Treuepunkte werden dauerhaft gelöscht.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                        {/* The form submission is handled by the parent form element */}
-                                        <AlertDialogAction type="submit">Ja, mein Konto löschen</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        </form>
-                    </CardContent>
-                </Card>
-            </div>
+             <Card className="border-destructive">
+                <CardHeader>
+                    <CardTitle className="text-destructive">Gefahrenzone</CardTitle>
+                    <CardDescription>Diese Aktionen können nicht rückgängig gemacht werden.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form action={deleteUserAccount}>
+                         <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" className="w-full">Konto endgültig löschen</Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Sind Sie absolut sicher?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Diese Aktion kann nicht rückgängig gemacht werden. Ihr Konto, Ihre Bestellhistorie und Ihre Treuepunkte werden dauerhaft gelöscht.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                    {/* The form submission is handled by the parent form element */}
+                                    <AlertDialogAction type="submit">Ja, mein Konto löschen</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </form>
+                </CardContent>
+            </Card>
 
             <div className="mt-12 pt-6 border-t text-center space-y-3">
                 <p className="text-xs text-muted-foreground">
