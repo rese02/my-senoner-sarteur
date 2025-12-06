@@ -1,52 +1,41 @@
+'use server';
+
 import { RegisterForm } from './_components/register-form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Logo } from '@/components/common/Logo';
 import Link from 'next/link';
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
   return (
-    <div className="w-full min-h-[100dvh] md:flex md:items-center md:justify-center md:bg-primary md:p-4">
-      {/* Desktop View */}
-      <Card className="hidden md:flex flex-col justify-center shadow-lg border-none rounded-xl md:min-h-0 md:h-auto md:max-w-sm overflow-hidden">
-          <CardHeader className="text-center items-center bg-primary text-primary-foreground pt-12 pb-8">
-              <div className="w-1/2 mb-6">
-                <Logo />
-            </div>
-            <CardTitle className="text-2xl text-primary-foreground">Konto erstellen</CardTitle>
-            <CardDescription className="text-primary-foreground/80">Werden Sie Teil unserer Community.</CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 pt-8">
-            <RegisterForm />
-            <p className="mt-4 text-center text-sm text-muted-foreground">
-              Haben Sie bereits ein Konto?{' '}
-              <Link href="/login" className="font-semibold text-primary hover:underline">
-                Hier anmelden
-              </Link>
-            </p>
-          </CardContent>
-        </Card>
+    <div className="w-full min-h-[100dvh] md:flex md:items-center md:justify-center bg-secondary p-4 relative overflow-hidden">
+      
+        <div className="absolute inset-0 z-0 opacity-10 bg-repeat" style={{ backgroundImage: "url('/background-pattern.svg')" }}></div>
 
-      {/* Mobile View */}
-       <div className="md:hidden w-full h-[100dvh] flex flex-col bg-gradient-to-b from-[#001a3b] via-[#003366] to-primary">
-         <div className="flex-grow flex flex-col items-center justify-center pt-12 px-4 text-center">
-            <div className="w-2/5">
-                <Logo />
-            </div>
+        <div className="relative z-10 grid md:grid-cols-1 max-w-sm w-full items-center">
+             <Card className="flex flex-col justify-center shadow-2xl border border-border rounded-2xl w-full bg-card">
+                 <CardHeader className="text-center items-center pt-10 pb-6">
+                    <div className="w-1/2 mb-4">
+                        <Logo />
+                    </div>
+                    <CardTitle className="text-3xl font-headline">Konto erstellen</CardTitle>
+                    <CardDescription>Werden Sie Teil unserer Community.</CardDescription>
+                </CardHeader>
+                <CardContent className="p-8">
+                  <RegisterForm />
+                   <p className="mt-6 text-center text-sm text-muted-foreground">
+                    Haben Sie bereits ein Konto?{' '}
+                    <Link href="/login" className="font-semibold text-primary hover:underline">
+                      Hier anmelden
+                    </Link>
+                  </p>
+                </CardContent>
+            </Card>
         </div>
-        <div className="flex-shrink-0 bg-background rounded-t-3xl p-6 pt-8 z-10">
-            <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold font-headline">Neues Konto</h1>
-                <p className="text-muted-foreground text-sm">Erstellen Sie jetzt Ihr Kundenkonto.</p>
-            </div>
-            <RegisterForm />
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              Haben Sie bereits ein Konto?{' '}
-              <Link href="/login" className="font-semibold text-primary hover:underline">
-                Hier anmelden
-              </Link>
-          </p>
+
+         <div className="absolute bottom-4 left-0 right-0 z-10 flex justify-center gap-6 text-xs text-muted-foreground">
+             <Link href="/impressum" className="hover:text-primary">Impressum</Link>
+             <Link href="/datenschutz" className="hover:text-primary">Datenschutz</Link>
         </div>
-      </div>
     </div>
   );
 }

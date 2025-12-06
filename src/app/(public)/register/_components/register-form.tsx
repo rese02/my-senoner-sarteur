@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 import { registerUser } from '@/app/actions/auth.actions';
+import { Mail, Lock, User, Phone, Home, Building } from 'lucide-react';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name muss mindestens 2 Zeichen lang sein.' }),
@@ -38,8 +39,8 @@ export function RegisterForm() {
       password: '',
       phone: '',
       street: '',
-      city: '',
-      zip: '',
+      city: 'St. Ulrich',
+      zip: '39046',
       province: 'BZ',
       privacyPolicy: false,
     },
@@ -81,9 +82,12 @@ export function RegisterForm() {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Vollständiger Name</FormLabel>
+              <FormLabel className="sr-only">Vollständiger Name</FormLabel>
               <FormControl>
-                <Input placeholder="Max Mustermann" {...field} />
+                 <div className="relative">
+                   <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                   <Input placeholder="Vollständiger Name" {...field} className="pl-10" />
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -94,9 +98,12 @@ export function RegisterForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+               <FormLabel className="sr-only">Email</FormLabel>
               <FormControl>
-                <Input placeholder="name@example.com" {...field} />
+                 <div className="relative">
+                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                   <Input placeholder="E-Mail" {...field} className="pl-10" />
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -107,9 +114,12 @@ export function RegisterForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Passwort</FormLabel>
+               <FormLabel className="sr-only">Passwort</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
+                 <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input type="password" placeholder="Passwort" {...field} className="pl-10"/>
+                 </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -120,64 +130,73 @@ export function RegisterForm() {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telefonnummer</FormLabel>
+              <FormLabel className="sr-only">Telefonnummer</FormLabel>
               <FormControl>
-                <Input placeholder="+39 123 4567890" {...field} />
+                 <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input placeholder="Telefonnummer" {...field} className="pl-10"/>
+                 </div>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-2 gap-4">
-            <FormField
+        <div className="grid grid-cols-1 gap-4 pt-4 border-t">
+             <FormField
               control={form.control}
               name="street"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Straße & Nr.</FormLabel>
+                  <FormLabel className="sr-only">Straße & Nr.</FormLabel>
                   <FormControl>
-                    <Input placeholder="Musterweg 1" {...field} />
+                     <div className="relative">
+                        <Home className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input placeholder="Straße & Nr." {...field} className="pl-10" />
+                     </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-             <FormField
-              control={form.control}
-              name="city"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ort</FormLabel>
-                  <FormControl>
-                    <Input placeholder="St. Ulrich" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-        </div>
-         <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="zip"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>PLZ</FormLabel>
-                  <FormControl>
-                    <Input placeholder="39046" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-3 gap-2">
+                 <FormField
+                  control={form.control}
+                  name="zip"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="sr-only">PLZ</FormLabel>
+                      <FormControl>
+                        <Input placeholder="PLZ" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel className="sr-only">Ort</FormLabel>
+                      <FormControl>
+                         <Input placeholder="Ort" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            </div>
              <FormField
               control={form.control}
               name="province"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Provinz</FormLabel>
+                  <FormLabel className="sr-only">Provinz</FormLabel>
                   <FormControl>
-                    <Input placeholder="BZ" {...field} />
+                     <div className="relative">
+                        <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input placeholder="Provinz (z.B. BZ)" {...field} className="pl-10" />
+                     </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
