@@ -5,7 +5,7 @@
 @layer base {
   :root {
     /* GRUNDLAGEN: Heller Hintergrund, dunkler Text */
-    --background: 48 33% 94%; /* Light Beige */
+    --background: 0 0% 98%; /* Near-white for the main app background */
     --foreground: 222 47% 11%;     /* Sehr dunkles Blau (fast Schwarz) für Text */
 
     /* KARTEN & POPUPS: Reinweiß, hebt sich vom Hintergrund ab */
@@ -18,8 +18,8 @@
     --primary: 217 60% 35%; /* Deep Blue, inspired by the image */
     --primary-foreground: 0 0% 100%; /* Weißer Text auf blauem Button */
 
-    /* SECONDARY: Für Hover-Effekte und leichte Hervorhebungen */
-    --secondary: 48 33% 90%;
+    /* SECONDARY: Neuer, sauberer Hintergrund für Content-Bereiche */
+    --secondary: 210 40% 96.1%; /* Clean light gray */
     --secondary-foreground: 222 47% 11.2%;
 
     /* MUTED: Für graue Texte / unwichtige Infos */

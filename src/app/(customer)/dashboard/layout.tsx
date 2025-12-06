@@ -57,7 +57,7 @@ export default async function CustomerLayout({
               {session && <UserProfileDropdown user={session as User} />}
             </div>
         </header>
-        <main className="flex-1 overflow-y-auto bg-secondary p-4 pt-0 md:pt-4 md:p-6 lg:p-8 pb-24 md:pb-8">
+        <main className="flex-1 overflow-y-auto bg-secondary p-4 md:p-6 lg:p-8 pb-24 md:pb-8">
             {children}
         </main>
          <MobileNav />
