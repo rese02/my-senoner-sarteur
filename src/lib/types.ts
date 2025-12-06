@@ -16,6 +16,12 @@ export interface User {
     province: string;
   };
   currentDebt?: number;
+  consent?: {
+    privacyPolicy: {
+      accepted: boolean;
+      timestamp: string;
+    }
+  }
 }
 
 export interface LoyaltyData {

@@ -44,7 +44,7 @@ export async function createSession(idToken: string, extraData?: Partial<User>) 
     } else {
         // Enforce customer role on the server for all new sign-ups
         userRole = 'customer';
-        const newUser: Omit<User, 'id'> = {
+        const newUser: Partial<User> = {
             name: extraData?.name || decodedToken.name || decodedToken.email!,
             email: decodedToken.email!,
             role: userRole, 
@@ -53,6 +53,7 @@ export async function createSession(idToken: string, extraData?: Partial<User>) 
             loyaltyStamps: 0,
             phone: extraData?.phone || '',
             deliveryAddress: extraData?.deliveryAddress || { street: '', city: '', zip: '', province: '' },
+            consent: extraData?.consent || { privacyPolicy: { accepted: false, timestamp: '' } },
         };
         await userRef.set(toPlainObject(newUser));
     }

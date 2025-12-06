@@ -11,6 +11,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { SubmitButton } from '@/components/custom/SubmitButton';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import Link from 'next/link';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name muss mindestens 2 Zeichen lang sein.' }),
@@ -21,6 +23,9 @@ const formSchema = z.object({
   city: z.string().min(2, { message: 'Bitte geben Sie einen Ort ein.'}),
   zip: z.string().min(4, { message: 'Bitte geben Sie eine PLZ ein.'}),
   province: z.string().min(2, { message: 'Bitte geben Sie eine Provinz ein.'}),
+  privacyPolicy: z.boolean().refine(val => val === true, {
+    message: 'Sie müssen die Datenschutzbestimmungen akzeptieren.',
+  }),
 });
 
 export function RegisterForm() {
@@ -38,11 +43,11 @@ export function RegisterForm() {
       city: '',
       zip: '',
       province: 'BZ',
+      privacyPolicy: false,
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // This is handled by the SubmitButton's useFormStatus hook
     
     try {
       // 1. Create user with Firebase client SDK
@@ -65,13 +70,18 @@ export function RegisterForm() {
           city: values.city,
           zip: values.zip,
           province: values.province,
+        },
+        consent: {
+          privacyPolicy: {
+            accepted: values.privacyPolicy,
+            timestamp: new Date().toISOString(),
+          }
         }
       }
 
       // 5. Call our server action to create the session cookie and the Firestore user document
       await createSession(idToken, extraData);
 
-      // The redirect happens inside the server action.
       toast({
         title: 'Registrierung erfolgreich',
         description: 'Sie werden zum Dashboard weitergeleitet...',
@@ -210,6 +220,28 @@ export function RegisterForm() {
               )}
             />
         </div>
+
+        <FormField
+          control={form.control}
+          name="privacyPolicy"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm bg-secondary/50">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                  Ich habe die <Link href="/datenschutz" target="_blank" className="text-primary underline hover:no-underline">Datenschutzerklärung</Link> gelesen und akzeptiere sie.
+                </FormLabel>
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
+
         <SubmitButton>Konto erstellen</SubmitButton>
       </form>
     </Form>
