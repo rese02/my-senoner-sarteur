@@ -17,7 +17,7 @@ export default async function EmployeeLayout({
     redirect('/login');
   }
   
-  // Redirect if not an employee OR an admin (admins might need access)
+  // This is a safety net. The middleware should already handle role-based access.
   if (!['employee', 'admin'].includes(session.role)) {
     redirect('/dashboard');
   }

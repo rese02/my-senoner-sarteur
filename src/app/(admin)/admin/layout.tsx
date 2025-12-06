@@ -20,6 +20,7 @@ export default async function AdminLayout({
   }
 
   if (session.role !== 'admin') {
+    // This is a safety net. The middleware should already handle this.
     const homePage = session.role === 'employee' ? '/employee/scanner' : '/dashboard';
     redirect(homePage);
   }

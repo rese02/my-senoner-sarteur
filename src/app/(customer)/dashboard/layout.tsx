@@ -31,7 +31,7 @@ export default async function CustomerLayout({
       redirect('/login');
     }
 
-    // Admins and employees should not be in the customer dashboard
+    // This is a safety net. The middleware should already handle role-based access.
     if (session.role === 'admin') {
       redirect('/admin/dashboard');
     }
