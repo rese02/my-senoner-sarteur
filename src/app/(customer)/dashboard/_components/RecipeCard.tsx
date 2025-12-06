@@ -2,7 +2,6 @@
 
 import {
   Card,
-  CardContent
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -29,6 +28,10 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
                              <Button variant="outline" className="mt-6 w-fit">Rezept ansehen</Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-4xl p-0 overflow-hidden rounded-2xl">
+                           <DialogHeader>
+                              <DialogTitle className="sr-only">{recipe.title}</DialogTitle>
+                              <DialogDescription className="sr-only">{recipe.subtitle}</DialogDescription>
+                            </DialogHeader>
                           <div className="grid md:grid-cols-2 max-h-[90vh]">
                             {/* LINKS: Bild (Vollflächig) */}
                             <div className="relative h-64 md:h-full w-full">
@@ -37,10 +40,10 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
 
                             {/* RECHTS: Scrollbarer Inhalt */}
                             <div className="p-6 md:p-8 overflow-y-auto bg-card">
-                              <DialogHeader className="mb-6 text-left">
-                                <DialogTitle className="font-headline text-3xl text-primary">{recipe.title}</DialogTitle>
-                                <DialogDescription className="text-muted-foreground">{recipe.subtitle}</DialogDescription>
-                              </DialogHeader>
+                              <div className="mb-6 text-left">
+                                <h2 className="font-headline text-3xl text-primary">{recipe.title}</h2>
+                                <p className="text-muted-foreground">{recipe.subtitle}</p>
+                              </div>
                               
                               <div className="flex items-center gap-4 text-muted-foreground text-sm mb-6">
                                 <span className="flex items-center"><Clock className="w-4 h-4 mr-1.5"/> 20 Min</span>
