@@ -44,7 +44,8 @@ export function LoginForm() {
       await createSession(idToken);
       
     } catch (error: any) {
-      // This is the fix: Re-throw the redirect error so Next.js can handle it.
+      // WICHTIG: Wenn der Fehler ein `NEXT_REDIRECT` ist, muss er erneut ausgelöst werden,
+      // damit Next.js die Weiterleitung durchführen kann.
       if (error.digest?.includes('NEXT_REDIRECT')) {
         throw error;
       }
