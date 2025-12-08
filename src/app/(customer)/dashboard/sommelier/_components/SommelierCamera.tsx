@@ -4,8 +4,8 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { Button } from '@/components/ui/button';
 import { Camera, X, Loader2, Sparkles, FileWarning } from 'lucide-react';
-import { getWineSuggestion } from '@/app/actions/sommelier.actions'; // CORRECTED IMPORT
-import { ProductCard } from '@/app/(customer)/dashboard/_components/ProductCard';
+import { getWineSuggestion } from '@/app/actions/sommelier.actions';
+import { ProductCard } from '@/components/custom/ProductCard';
 import type { Product } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
