@@ -30,10 +30,10 @@ export function FirebaseClientProvider({
   }, []);
 
   if (!services) {
-    // You can return a loader here if you want
-    // to prevent children from rendering before Firebase is ready.
-    // For this app, we'll let it render to avoid a layout shift.
-    return <>{children}</>;
+    // By returning null here, we ensure that child components that depend on the Firebase context
+    // (like LoginForm) will not be rendered until Firebase has been initialized.
+    // This prevents the race condition and the "Firebase has not been initialized correctly" error.
+    return null;
   }
 
   return (
