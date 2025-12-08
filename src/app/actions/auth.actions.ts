@@ -16,7 +16,7 @@ export async function createSession(idToken: string | null) {
   if (!idToken) {
     throw new Error('Authentication failed: No ID token provided.');
   }
-
+  
   const getRedirectPath = (role: UserRole): string => {
     switch (role) {
       case 'admin':

@@ -10,8 +10,8 @@ export default function LoginPage() {
 
         <div className="absolute inset-0 z-0 opacity-5 bg-repeat" style={{ backgroundImage: "url('/background-pattern.svg')" }}></div>
 
-        <div className="relative z-10 grid md:grid-cols-1 max-w-sm w-full items-center">
-            <Card className="flex flex-col justify-center shadow-2xl border-border/50 rounded-2xl w-full bg-card">
+        <div className="relative z-10 w-full max-w-sm">
+            <Card className="flex flex-col justify-center shadow-2xl border-border/50 rounded-2xl bg-card">
                 <CardHeader className="text-center items-center pt-10 pb-6">
                     <div className="h-12 mb-4">
                         <Logo />
@@ -22,6 +22,7 @@ export default function LoginPage() {
                     <LoginForm />
                 </CardContent>
             </Card>
+
              <div className="mt-6 text-center text-sm text-muted-foreground">
                 <p>
                     Noch kein Konto?{' '}
