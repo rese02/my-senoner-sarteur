@@ -24,8 +24,6 @@ function getRedirectPath(role: UserRole): string {
 export async function createSession(idToken: string) {
   const cookieStore = await cookies(); 
   
-  let userRole: UserRole = 'customer';
-  
   try {
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     const uid = decodedToken.uid;
@@ -36,14 +34,12 @@ export async function createSession(idToken: string) {
     const userRef = adminDb.collection('users').doc(uid);
     const userSnap = await userRef.get();
     
-    if (userSnap.exists) {
-        userRole = (userSnap.data()?.role as UserRole) || 'customer';
-        await userRef.update({ lastLogin: new Date().toISOString() });
-    } else {
-        // This case should ideally not happen if registration is correct.
-        // But as a fallback, we throw an error. The user must exist in DB.
-        throw new Error('User profile not found in database.');
+    if (!userSnap.exists) {
+        throw new Error('User profile not found in database. Please register first.');
     }
+    
+    const userRole = (userSnap.data()?.role as UserRole) || 'customer';
+    await userRef.update({ lastLogin: new Date().toISOString() });
     
     cookieStore.set('session', sessionCookie, {
       maxAge: expiresIn,
@@ -58,8 +54,9 @@ export async function createSession(idToken: string) {
 
   } catch (error: any) {
     console.error('CRITICAL SESSION ERROR:', error);
-    // This allows the frontend to catch the error and display a message.
-    // We re-throw the error so the `catch` block in the form can handle it.
+    if (error.digest?.includes('NEXT_REDIRECT')) {
+        throw error;
+    }
     throw new Error('Session creation failed. ' + error.message);
   }
 }
@@ -111,7 +108,6 @@ export async function registerUser(values: z.infer<typeof registerFormSchema>) {
         return { success: true };
 
     } catch (error: any) {
-        // Rollback: If DB write fails, delete the auth user to prevent orphans.
         if (userRecord) {
             await adminAuth.deleteUser(userRecord.uid);
         }

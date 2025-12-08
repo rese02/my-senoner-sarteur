@@ -1,3 +1,4 @@
+
 import { LoginForm } from './_components/login-form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Logo } from '@/components/common/Logo';
@@ -20,15 +21,15 @@ export default function LoginPage() {
                     </CardHeader>
                     <CardContent className="p-8 pt-0">
                         <LoginForm />
-                        <div className="mt-6 text-center text-sm text-muted-foreground">
-                            <p>
-                                Noch kein Konto?{' '}
-                                <Link href="/register" className="font-semibold text-primary hover:underline">
-                                    Jetzt registrieren
-                                </Link>
-                            </p>
-                        </div>
                     </CardContent>
+                    <div className="pb-8 px-8 text-center text-sm text-muted-foreground">
+                        <p>
+                            Noch kein Konto?{' '}
+                            <Link href="/register" className="font-semibold text-primary hover:underline">
+                                Jetzt registrieren
+                            </Link>
+                        </p>
+                    </div>
                 </Card>
             </div>
         </div>
