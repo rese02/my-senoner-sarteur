@@ -116,7 +116,8 @@ export async function setGroceryOrderTotal(orderId: string, total: number, check
 export async function getOrdersPageData() {
     const session = await getSession();
     if (session?.role !== 'admin') {
-      throw new Error('Unauthorized');
+      console.error('Unauthorized attempt to access getOrdersPageData');
+      return { orders: [], users: [] };
     }
 
     try {
@@ -129,7 +130,7 @@ export async function getOrdersPageData() {
         return { orders, users };
     } catch (error) {
         console.error("Error fetching data for orders page:", error);
-        throw new Error("Failed to load data from Firestore.");
+        return { orders: [], users: [] };
     }
 }
 

@@ -22,7 +22,8 @@ export async function getDashboardPageData() {
     return { orders, users };
   } catch (error) {
     console.error("Error fetching data for dashboard:", error);
-    throw new Error("Failed to load data from Firestore.");
+    // Return empty arrays on failure to prevent destructuring errors on the client.
+    return { orders: [], users: [] };
   }
 }
     

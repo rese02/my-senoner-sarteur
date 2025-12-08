@@ -90,9 +90,15 @@ export default function AdminDashboardPage() {
         async function loadData() {
             setLoading(true);
             try {
-                const { orders: fetchedOrders, users: fetchedUsers } = await getDashboardPageData();
-                setOrders(fetchedOrders);
-                setUsers(fetchedUsers);
+                const data = await getDashboardPageData();
+                if (data && data.orders && data.users) {
+                    setOrders(data.orders);
+                    setUsers(data.users);
+                } else {
+                    // This else block will now handle the case where the server action had an error
+                    // and returned empty arrays. The toast informs the user.
+                    throw new Error('Daten konnten nicht vom Server geladen werden.');
+                }
             } catch(error: any) {
                 toast({ variant: 'destructive', title: 'Daten-Fehler', description: error.message });
             } finally {

@@ -116,9 +116,13 @@ export default function AdminOrdersPage() {
     async function loadData() {
         setLoading(true);
         try {
-            const { orders: fetchedOrders, users: fetchedUsers } = await getOrdersPageData();
-            setOrders(fetchedOrders);
-            setUsers(fetchedUsers);
+            const data = await getOrdersPageData();
+            if (data && data.orders && data.users) {
+              setOrders(data.orders);
+              setUsers(data.users);
+            } else {
+              throw new Error("Bestelldaten konnten nicht vom Server geladen werden.");
+            }
         } catch(error: any) {
             toast({ variant: 'destructive', title: 'Fehler', description: error.message || 'Bestelldaten konnten nicht geladen werden.'});
         } finally {
