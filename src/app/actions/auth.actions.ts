@@ -25,11 +25,10 @@ export async function createSession(idToken: string) {
   const cookieStore = await cookies(); 
   
   let userRole: UserRole = 'customer';
-  let uid: string;
   
   try {
     const decodedToken = await adminAuth.verifyIdToken(idToken);
-    uid = decodedToken.uid;
+    const uid = decodedToken.uid;
 
     const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
     const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
@@ -41,17 +40,9 @@ export async function createSession(idToken: string) {
         userRole = (userSnap.data()?.role as UserRole) || 'customer';
         await userRef.update({ lastLogin: new Date().toISOString() });
     } else {
-        const authUser = await adminAuth.getUser(uid);
-        const newUser: Partial<User> = {
-            name: authUser.displayName || 'New User',
-            email: authUser.email!,
-            role: 'customer',
-            customerSince: new Date().toISOString(),
-            lastLogin: new Date().toISOString(),
-            loyaltyStamps: 0,
-        };
-        await userRef.set(toPlainObject(newUser));
-        userRole = 'customer';
+        // This case should ideally not happen if registration is correct.
+        // But as a fallback, we throw an error. The user must exist in DB.
+        throw new Error('User profile not found in database.');
     }
     
     cookieStore.set('session', sessionCookie, {
@@ -61,17 +52,16 @@ export async function createSession(idToken: string) {
       secure: process.env.NODE_ENV === 'production', 
       path: '/',
     });
+    
+    const redirectPath = getRedirectPath(userRole);
+    redirect(redirectPath);
 
   } catch (error: any) {
     console.error('CRITICAL SESSION ERROR:', error);
-    if (error.digest?.includes('NEXT_REDIRECT')) {
-        throw error;
-    }
-    throw new Error('Session creation failed');
+    // This allows the frontend to catch the error and display a message.
+    // We re-throw the error so the `catch` block in the form can handle it.
+    throw new Error('Session creation failed. ' + error.message);
   }
-
-  const redirectPath = getRedirectPath(userRole);
-  redirect(redirectPath);
 }
 
 const registerFormSchema = z.object({
@@ -88,10 +78,11 @@ const registerFormSchema = z.object({
 
 
 export async function registerUser(values: z.infer<typeof registerFormSchema>) {
+    let userRecord;
     try {
         const { name, email, password, phone, street, city, zip, province, privacyPolicy } = registerFormSchema.parse(values);
 
-        const userRecord = await adminAuth.createUser({
+        userRecord = await adminAuth.createUser({
             email: email,
             password: password,
             displayName: name,
@@ -102,7 +93,7 @@ export async function registerUser(values: z.infer<typeof registerFormSchema>) {
         const newUser: Partial<User> = {
             name: name,
             email: email,
-            role: 'customer',
+            role: 'customer', // Default role
             customerSince: new Date().toISOString(),
             lastLogin: new Date().toISOString(),
             loyaltyStamps: 0,
@@ -120,6 +111,11 @@ export async function registerUser(values: z.infer<typeof registerFormSchema>) {
         return { success: true };
 
     } catch (error: any) {
+        // Rollback: If DB write fails, delete the auth user to prevent orphans.
+        if (userRecord) {
+            await adminAuth.deleteUser(userRecord.uid);
+        }
+
         let errorMessage = "Ein unerwarteter Fehler ist aufgetreten.";
         if (error.code === 'auth/email-already-exists') {
             errorMessage = "Diese E-Mail-Adresse wird bereits verwendet.";
