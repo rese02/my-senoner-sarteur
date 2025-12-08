@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { Button } from '@/components/ui/button';
 import { Camera, X, Loader2, Sparkles, FileWarning } from 'lucide-react';
-import { suggestWinePairing } from '@/ai/flows/suggest-wine-pairing';
+import { getWineSuggestion } from '@/app/actions/sommelier.actions'; // CORRECTED IMPORT
 import { ProductCard } from '@/app/(customer)/dashboard/_components/ProductCard';
 import type { Product } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -34,14 +34,15 @@ export function SommelierCamera() {
       setImage(imageSrc);
       handleAnalysis(imageSrc);
     }
-  }, [webcamRef]);
+  }, []);
 
   const handleAnalysis = async (imgSrc: string) => {
     setLoading(true);
     setSuggestions([]);
     setFood('');
     try {
-      const results = await suggestWinePairing({ foodPhoto: imgSrc });
+      // Calling the new, safe server action instead of the flow directly
+      const results = await getWineSuggestion({ foodPhoto: imgSrc });
       if (results && results.recommendedWines.length > 0) {
         setSuggestions(results.recommendedWines);
         setFood(results.foodDetected);
@@ -52,12 +53,12 @@ export function SommelierCamera() {
             description: "Die KI konnte keine passenden Weine finden."
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("AI Error", error);
        toast({
             variant: 'destructive',
             title: "Analyse fehlgeschlagen",
-            description: "Die KI konnte das Bild nicht analysieren. Bitte versuchen Sie es erneut."
+            description: error.message || "Die KI konnte das Bild nicht analysieren. Bitte versuchen Sie es erneut."
         });
     } finally {
       setLoading(false);
