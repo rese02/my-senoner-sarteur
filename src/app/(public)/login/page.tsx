@@ -11,26 +11,24 @@ export default function LoginPage() {
         <div className="absolute inset-0 z-0 opacity-5 bg-repeat" style={{ backgroundImage: "url('/background-pattern.svg')" }}></div>
 
         <div className="relative z-10 grid md:grid-cols-1 max-w-sm w-full items-center">
-            <div className="flex justify-center">
-                <Card className="flex flex-col justify-center shadow-2xl border-border/50 rounded-2xl w-full bg-card">
-                    <CardHeader className="text-center items-center pt-10 pb-6">
-                        <div className="h-12 mb-4">
-                            <Logo />
-                        </div>
-                        <CardTitle className="text-3xl font-headline text-primary">Willkommen zurück</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-8 pt-0">
-                        <LoginForm />
-                    </CardContent>
-                    <div className="pb-8 px-8 text-center text-sm text-muted-foreground">
-                        <p>
-                            Noch kein Konto?{' '}
-                            <Link href="/register" className="font-semibold text-primary hover:underline">
-                                Jetzt registrieren
-                            </Link>
-                        </p>
+            <Card className="flex flex-col justify-center shadow-2xl border-border/50 rounded-2xl w-full bg-card">
+                <CardHeader className="text-center items-center pt-10 pb-6">
+                    <div className="h-12 mb-4">
+                        <Logo />
                     </div>
-                </Card>
+                    <CardTitle className="text-3xl font-headline text-primary">Willkommen zurück</CardTitle>
+                </CardHeader>
+                <CardContent className="p-8 pt-0">
+                    <LoginForm />
+                </CardContent>
+            </Card>
+             <div className="mt-6 text-center text-sm text-muted-foreground">
+                <p>
+                    Noch kein Konto?{' '}
+                    <Link href="/register" className="font-semibold text-primary hover:underline">
+                        Jetzt registrieren
+                    </Link>
+                </p>
             </div>
         </div>
 

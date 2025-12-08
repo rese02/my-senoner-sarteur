@@ -32,7 +32,6 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    
     try {
       // 1. Firebase Login (Client)
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
@@ -40,7 +39,7 @@ export function LoginForm() {
       // 2. Token holen
       const idToken = await userCredential.user.getIdToken();
 
-      // 3. Server Action aufrufen (Cookie setzen & Redirect)
+      // 3. Sichere Server Action aufrufen (Cookie setzen & Redirect)
       await createSession(idToken);
       
     } catch (error: any) {
@@ -50,12 +49,13 @@ export function LoginForm() {
         throw error;
       }
       
+      console.error("Login failed:", error);
       toast({
         variant: 'destructive',
         title: 'Anmeldung fehlgeschlagen',
         description: "Ungültige E-Mail oder Passwort.",
       });
-      form.reset(values); // Re-enable form
+      // Don't reset form, just re-enable it by form state
     }
   }
 

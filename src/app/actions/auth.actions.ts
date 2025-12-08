@@ -9,8 +9,13 @@ import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/session';
 import { z } from 'zod';
 
-export async function createSession(idToken: string) {
-  function getRedirectPath(role: UserRole): string {
+export async function createSession(idToken: string | null) {
+  // Sicherheits-Check: Wenn kein Token vorhanden ist, sofort abbrechen.
+  if (!idToken) {
+    throw new Error('No ID token provided. Session creation failed.');
+  }
+
+  const getRedirectPath = (role: UserRole): string => {
     switch (role) {
       case 'admin':
         return '/admin/dashboard';
@@ -35,7 +40,7 @@ export async function createSession(idToken: string) {
     const userSnap = await userRef.get();
     
     if (!userSnap.exists) {
-        throw new Error('User profile not found in database. Please register first.');
+        throw new Error('User profile not found in database. Please contact support.');
     }
     
     const userRole = (userSnap.data()?.role as UserRole) || 'customer';
@@ -57,7 +62,8 @@ export async function createSession(idToken: string) {
     if (error.digest?.includes('NEXT_REDIRECT')) {
         throw error;
     }
-    throw new Error('Session creation failed. ' + error.message);
+    // Werfen Sie einen allgemeinen Fehler, um zu verhindern, dass Details durchsickern.
+    throw new Error('Session creation failed.');
   }
 }
 
@@ -79,6 +85,7 @@ export async function registerUser(values: z.infer<typeof registerFormSchema>) {
     try {
         const { name, email, password, phone, street, city, zip, province, privacyPolicy } = registerFormSchema.parse(values);
 
+        // 1. Auth-Benutzer erstellen
         userRecord = await adminAuth.createUser({
             email: email,
             password: password,
@@ -86,11 +93,12 @@ export async function registerUser(values: z.infer<typeof registerFormSchema>) {
             emailVerified: false,
         });
 
+        // 2. Firestore-Dokument erstellen
         const userRef = adminDb.collection('users').doc(userRecord.uid);
-        const newUser: Partial<User> = {
+        const newUser: Omit<User, 'id'> = {
             name: name,
             email: email,
-            role: 'customer', // Default role
+            role: 'customer', // Standard-Rolle für neue Benutzer
             customerSince: new Date().toISOString(),
             lastLogin: new Date().toISOString(),
             loyaltyStamps: 0,
@@ -108,8 +116,11 @@ export async function registerUser(values: z.infer<typeof registerFormSchema>) {
         return { success: true };
 
     } catch (error: any) {
+        // Rollback: Wenn Firestore fehlschlägt, lösche den Auth-Benutzer wieder
         if (userRecord) {
-            await adminAuth.deleteUser(userRecord.uid);
+            await adminAuth.deleteUser(userRecord.uid).catch(deleteError => {
+                console.error("Failed to delete orphaned auth user:", deleteError);
+            });
         }
 
         let errorMessage = "Ein unerwarteter Fehler ist aufgetreten.";
@@ -191,11 +202,13 @@ export async function deleteUserAccount() {
     }
 
     try {
+        // Zuerst das DB-Dokument löschen, dann den Auth-User
         await adminDb.collection('users').doc(session.userId).delete();
         await adminAuth.deleteUser(session.userId);
 
     } catch (error) {
         console.error(`Failed to delete user ${session.userId}:`, error);
+        // Selbst wenn ein Fehler auftritt, versuchen wir auszuloggen
     }
 
     await logout();

@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 import { registerUser } from '@/app/actions/auth.actions';
 import { Mail, Lock, User, Phone, Home, Building } from 'lucide-react';
+import { useState } from 'react';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name muss mindestens 2 Zeichen lang sein.' }),
@@ -30,6 +31,7 @@ const formSchema = z.object({
 export function RegisterForm() {
   const { toast } = useToast();
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,8 +54,9 @@ export function RegisterForm() {
     if (result.success) {
       toast({
         title: 'Registrierung erfolgreich',
-        description: 'Sie können sich jetzt mit Ihren Daten anmelden.',
+        description: 'Sie werden nun zum Login weitergeleitet.',
       });
+      // Sicherer Redirect zur Login-Seite
       router.push('/login');
     } else {
       toast({
@@ -108,7 +111,19 @@ export function RegisterForm() {
               <FormControl>
                  <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input type="password" placeholder="Passwort" {...field} className="pl-10"/>
+                    <Input 
+                      type={showPassword ? 'text' : 'password'} 
+                      placeholder="Passwort (min. 8 Zeichen)" 
+                      {...field} 
+                      className="pl-10 pr-10"
+                    />
+                     <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5"/> : <Eye className="h-5 w-5" />}
+                    </button>
                  </div>
               </FormControl>
               <FormMessage />

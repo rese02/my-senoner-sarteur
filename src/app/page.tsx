@@ -1,14 +1,9 @@
-'use client';
+'use server';
 
-import { useEffect } from 'react';
 import { redirect } from 'next/navigation';
 
-export default function HomePage() {
-  useEffect(() => {
-    // Leitet jeden Besucher sofort zum Login weiter
-    redirect('/login');
-  }, []);
-
-  // Return a simple loading state or null while redirecting
-  return null;
+export default async function HomePage() {
+  // Sofortige, serverseitige Umleitung zur Login-Seite.
+  // Dies ist der sicherste Weg, um die Startseite zu schützen.
+  redirect('/login');
 }
