@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { ProductCard } from "./ProductCard";
+import { ProductCard } from "@/components/custom/ProductCard";
 import { RecipeCard } from "./RecipeCard";
 import type { Recipe, Product, Story, Category } from "@/lib/types";
-import { Stories } from './Stories';
-import { PackageCard } from './PackageCard';
+import { Stories } from '@/components/custom/Stories';
+import { PackageCard } from "@/components/custom/PackageCard";
 import { useCartStore } from '@/hooks/use-cart-store';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';

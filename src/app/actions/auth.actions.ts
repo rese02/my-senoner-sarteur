@@ -41,8 +41,6 @@ export async function createSession(idToken: string) {
         userRole = (userSnap.data()?.role as UserRole) || 'customer';
         await userRef.update({ lastLogin: new Date().toISOString() });
     } else {
-        // This case handles users created via social providers (like Google)
-        // who might not have a Firestore document yet.
         const authUser = await adminAuth.getUser(uid);
         const newUser: Partial<User> = {
             name: authUser.displayName || 'New User',
@@ -66,7 +64,6 @@ export async function createSession(idToken: string) {
 
   } catch (error: any) {
     console.error('CRITICAL SESSION ERROR:', error);
-    // This is the fix: Re-throw the redirect error so Next.js can handle it.
     if (error.digest?.includes('NEXT_REDIRECT')) {
         throw error;
     }
@@ -94,7 +91,6 @@ export async function registerUser(values: z.infer<typeof registerFormSchema>) {
     try {
         const { name, email, password, phone, street, city, zip, province, privacyPolicy } = registerFormSchema.parse(values);
 
-        // 1. Create user in Firebase Authentication (server-side)
         const userRecord = await adminAuth.createUser({
             email: email,
             password: password,
@@ -102,12 +98,11 @@ export async function registerUser(values: z.infer<typeof registerFormSchema>) {
             emailVerified: false,
         });
 
-        // 2. Create user document in Firestore with role 'customer'
         const userRef = adminDb.collection('users').doc(userRecord.uid);
         const newUser: Partial<User> = {
             name: name,
             email: email,
-            role: 'customer', // WICHTIG: Rolle wird hier korrekt zugewiesen
+            role: 'customer',
             customerSince: new Date().toISOString(),
             lastLogin: new Date().toISOString(),
             loyaltyStamps: 0,

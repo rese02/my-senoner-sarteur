@@ -9,11 +9,15 @@ import { Plus, Minus, ShoppingCart } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useCartStore } from '@/hooks/use-cart-store';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+
 
 export function ProductCard({ product }: { product: Product }) {
     const [quantity, setQuantity] = useState(1);
     const { toast } = useToast();
     const addToCart = useCartStore(state => state.addToCart);
+    const fallbackImageUrl = PlaceHolderImages.find(p => p.id === 'placeholder-general')?.imageUrl || 'https://placehold.co/400x300';
+
 
     const handleAddToCart = () => {
         addToCart({
@@ -38,7 +42,7 @@ export function ProductCard({ product }: { product: Product }) {
     return (
         <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <div className="relative aspect-[4/3] bg-muted">
-                <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={product.imageHint} />
+                <Image src={product.imageUrl || fallbackImageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={product.imageHint} />
                 {product.availabilityDay && <Badge className="absolute top-2 right-2" variant="secondary">{product.availabilityDay} only</Badge>}
             </div>
             <CardContent className="p-3 flex flex-col flex-1">

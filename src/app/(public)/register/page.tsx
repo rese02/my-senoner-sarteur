@@ -21,7 +21,7 @@ export default async function RegisterPage() {
                     <CardTitle className="text-3xl font-headline text-primary">Konto erstellen</CardTitle>
                     <CardDescription>Werden Sie Teil unserer Community.</CardDescription>
                 </CardHeader>
-                <CardContent className="p-8">
+                <CardContent className="p-8 pt-0">
                   <RegisterForm />
                    <p className="mt-6 text-center text-sm text-muted-foreground">
                     Haben Sie bereits ein Konto?{' '}
@@ -36,7 +36,7 @@ export default async function RegisterPage() {
          <div className="absolute bottom-4 left-0 right-0 z-10 flex justify-center gap-6 text-xs text-muted-foreground">
              <Link href="/impressum" className="hover:text-primary">Impressum</Link>
              <Link href="/datenschutz" className="hover:text-primary">Datenschutz</Link>
-        </div>
+         </div>
     </div>
   );
 }

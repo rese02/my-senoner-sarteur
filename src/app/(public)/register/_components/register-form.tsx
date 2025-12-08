@@ -47,36 +47,26 @@ export function RegisterForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      const result = await registerUser(values);
+    const result = await registerUser(values);
 
-      if (result.success) {
-        toast({
-          title: 'Registrierung erfolgreich',
-          description: 'Sie können sich jetzt anmelden.',
-        });
-        router.push('/login');
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Registrierung fehlgeschlagen",
-          description: result.error || "Ein unerwarteter Fehler ist aufgetreten."
-        });
-        form.reset(values, { keepValues: true });
-      }
-    } catch (error) {
-       toast({
-        variant: "destructive",
-        title: "Fehler",
-        description: "Ein Serverfehler ist aufgetreten."
+    if (result.success) {
+      toast({
+        title: 'Registrierung erfolgreich',
+        description: 'Sie können sich jetzt mit Ihren Daten anmelden.',
       });
-      form.reset(values, { keepValues: true });
+      router.push('/login');
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Registrierung fehlgeschlagen",
+        description: result.error || "Ein unerwarteter Fehler ist aufgetreten."
+      });
     }
   }
 
   return (
     <Form {...form}>
-      <form action={() => form.handleSubmit(onSubmit)()} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="name"

@@ -9,11 +9,15 @@ import { ShoppingBag, ListPlus } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { useCartStore } from '@/hooks/use-cart-store';
 import { useToast } from '@/hooks/use-toast';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+
 
 export function PackageCard({ product }: { product: Product }) {
   const [isOpen, setIsOpen] = useState(false);
   const addToCart = useCartStore(state => state.addToCart);
   const { toast } = useToast();
+  const fallbackImageUrl = PlaceHolderImages.find(p => p.id === 'placeholder-general')?.imageUrl || 'https://placehold.co/400x300';
+
 
    const handleAddToCart = () => {
         addToCart({
@@ -39,7 +43,7 @@ export function PackageCard({ product }: { product: Product }) {
         {/* Bild Bereich */}
         <div className="relative h-40 w-full overflow-hidden">
           <Image 
-            src={product.imageUrl} 
+            src={product.imageUrl || fallbackImageUrl} 
             alt={product.name} 
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -105,7 +109,7 @@ export function PackageCard({ product }: { product: Product }) {
           
           <div className="mt-4">
             <div className="relative h-40 w-full rounded-lg overflow-hidden mb-6">
-               <Image src={product.imageUrl} fill sizes="400px" className="object-cover" alt={product.name} data-ai-hint={product.imageHint} />
+               <Image src={product.imageUrl || fallbackImageUrl} fill sizes="400px" className="object-cover" alt={product.name} data-ai-hint={product.imageHint} />
             </div>
 
             <h4 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-3">

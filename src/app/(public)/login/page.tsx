@@ -18,7 +18,7 @@ export default function LoginPage() {
                         </div>
                         <CardTitle className="text-3xl font-headline text-primary">Willkommen zurück</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-8">
+                    <CardContent className="p-8 pt-0">
                         <LoginForm />
                         <div className="mt-6 text-center text-sm text-muted-foreground">
                             <p>
