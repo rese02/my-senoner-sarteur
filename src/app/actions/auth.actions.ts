@@ -9,19 +9,19 @@ import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/session';
 import { z } from 'zod';
 
-function getRedirectPath(role: UserRole): string {
-  switch (role) {
-    case 'admin':
-      return '/admin/dashboard';
-    case 'employee':
-      return '/employee/scanner';
-    case 'customer':
-    default:
-      return '/dashboard';
-  }
-}
-
 export async function createSession(idToken: string) {
+  function getRedirectPath(role: UserRole): string {
+    switch (role) {
+      case 'admin':
+        return '/admin/dashboard';
+      case 'employee':
+        return '/employee/scanner';
+      case 'customer':
+      default:
+        return '/dashboard';
+    }
+  }
+
   const cookieStore = await cookies(); 
   
   try {
