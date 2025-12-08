@@ -10,9 +10,10 @@ import { getSession } from '@/lib/session';
 import { z } from 'zod';
 
 export async function createSession(idToken: string | null) {
-  // Sicherheits-Check: Wenn kein Token vorhanden ist, sofort abbrechen.
+  // SICHERHEITS-HÄRTUNG: Wenn kein Token vorhanden ist, sofort abbrechen.
+  // Dies ist der wichtigste Fix, um den unbefugten Login zu verhindern.
   if (!idToken) {
-    throw new Error('No ID token provided. Session creation failed.');
+    throw new Error('Authentication failed: No ID token provided.');
   }
 
   const getRedirectPath = (role: UserRole): string => {
@@ -62,8 +63,7 @@ export async function createSession(idToken: string | null) {
     if (error.digest?.includes('NEXT_REDIRECT')) {
         throw error;
     }
-    // Werfen Sie einen allgemeinen Fehler, um zu verhindern, dass Details durchsickern.
-    throw new Error('Session creation failed.');
+    throw new Error('Session creation failed due to an internal error.');
   }
 }
 

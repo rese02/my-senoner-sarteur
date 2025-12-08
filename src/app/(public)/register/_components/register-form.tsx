@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 import { registerUser } from '@/app/actions/auth.actions';
-import { Mail, Lock, User, Phone, Home, Building } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Phone, Home, Building, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 
 const formSchema = z.object({
@@ -78,7 +78,7 @@ export function RegisterForm() {
               <FormLabel className="sr-only">Vollständiger Name</FormLabel>
               <FormControl>
                  <div className="relative">
-                   <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                   <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                    <Input placeholder="Vollständiger Name" {...field} className="pl-10" />
                 </div>
               </FormControl>
