@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Users, ShoppingCart, Truck, AlertCircle, Trash2, Loader2, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { isToday, isFuture, isPast, format, parseISO } from "date-fns";
+import { isToday, isPast, format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { deleteOrder } from "@/app/actions/admin-cleanup.actions";
 import { useToast } from "@/hooks/use-toast";
-import { getDashboardPageData } from "@/app/actions/dashboard.actions";
+import { getDashboardPageData } from "@/app/actions/product.actions";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
@@ -52,8 +52,8 @@ function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onCl
             <AlertDialog>
                 <AlertDialogTrigger asChild>
                     <Button variant="destructive" className="w-full md:w-auto" size="sm">
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Bestellung endgültig löschen
+                        {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                        Bestellung löschen
                     </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -91,16 +91,10 @@ export default function AdminDashboardPage() {
             setLoading(true);
             try {
                 const data = await getDashboardPageData();
-                if (data && data.orders && data.users) {
-                    setOrders(data.orders);
-                    setUsers(data.users);
-                } else {
-                    // This else block will now handle the case where the server action had an error
-                    // and returned empty arrays. The toast informs the user.
-                    throw new Error('Daten konnten nicht vom Server geladen werden.');
-                }
+                setOrders(data.orders);
+                setUsers(data.users);
             } catch(error: any) {
-                toast({ variant: 'destructive', title: 'Daten-Fehler', description: error.message });
+                toast({ variant: 'destructive', title: 'Daten-Fehler', description: "Dashboard-Daten konnten nicht geladen werden." });
             } finally {
                 setLoading(false);
             }

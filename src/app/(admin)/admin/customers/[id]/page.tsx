@@ -1,19 +1,19 @@
 'use client';
 
-import { useState, useMemo, useTransition, useEffect } from 'react';
+import { useState, useMemo, useTransition, useEffect, use } from 'react';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { mockUsers, mockOrders } from "@/lib/mock-data";
-import type { User, Order } from "@/lib/types";
 import { markOrderAsPaid } from '@/app/actions/payment.actions';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import Link from 'next/link';
-import { use } from 'react';
+import { getCustomerDetails } from '@/app/actions/customer.actions';
+import type { Order, User } from '@/lib/types';
+
 
 function UnpaidOrderRow({ order, onMarkAsPaid, isPending }: { order: Order; onMarkAsPaid: (orderId: string) => void; isPending: boolean; }) {
     const [isSubmitting, startTransition] = useTransition();
@@ -47,42 +47,47 @@ function UnpaidOrderRow({ order, onMarkAsPaid, isPending }: { order: Order; onMa
 }
 
 export default function CustomerDetailPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
-    // Use React.use to resolve the promise on the server and get params directly
-    const params = use(paramsPromise);
+    // MODERNISIERUNG: Der `use`-Hook vereinfacht das Auslesen von Promises drastisch.
+    const { id: customerId } = use(paramsPromise);
 
-    const customerId = params?.id;
+    const [customer, setCustomer] = useState<User | null>(null);
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [loading, setLoading] = useState(true);
     const [isPagePending, startPageTransition] = useTransition();
     const { toast } = useToast();
 
-    // Use a state for orders to reflect changes immediately
-    const [customerOrders, setCustomerOrders] = useState(() => mockOrders.filter(o => o.userId === customerId));
+    useEffect(() => {
+        if (!customerId) return;
+        setLoading(true);
+        getCustomerDetails(customerId)
+            .then(data => {
+                if (data.customer) {
+                    setCustomer(data.customer);
+                    setOrders(data.orders);
+                } else {
+                    toast({ variant: 'destructive', title: 'Fehler', description: 'Kunde nicht gefunden.' });
+                }
+            })
+            .catch(err => {
+                toast({ variant: 'destructive', title: 'Ladefehler', description: 'Kundendetails konnten nicht geladen werden.' });
+            })
+            .finally(() => setLoading(false));
+    }, [customerId, toast]);
 
-     useEffect(() => {
-        if (customerId) {
-            setCustomerOrders(mockOrders.filter(o => o.userId === customerId));
-        }
-    }, [customerId]);
-
-    const customer = useMemo(() => {
-        if (!customerId) return null;
-        return mockUsers.find(u => u.id === customerId);
-    }, [customerId]);
-    
     const unpaidGroceryOrders = useMemo(() => {
-        return customerOrders.filter(o => 
+        return orders.filter(o => 
             o.type === 'grocery_list' &&
             o.status !== 'paid' &&
             o.status !== 'cancelled' &&
             o.total && o.total > 0
         );
-    }, [customerOrders]);
+    }, [orders]);
 
     const handleMarkAsPaid = (orderId: string) => {
         startPageTransition(async () => {
             try {
                 await markOrderAsPaid(orderId);
-                // Update the local state to reflect the change
-                setCustomerOrders(prevOrders => 
+                setOrders(prevOrders => 
                     prevOrders.map(o => o.id === orderId ? { ...o, status: 'paid' } : o)
                 );
                 toast({ title: 'Erfolg', description: `Bestellung #${orderId.slice(-6)} als bezahlt markiert.` });
@@ -92,7 +97,7 @@ export default function CustomerDetailPage({ params: paramsPromise }: { params: 
         });
     };
 
-    if (!params) {
+    if (loading) {
         return (
              <div className="flex justify-center items-center h-64">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />

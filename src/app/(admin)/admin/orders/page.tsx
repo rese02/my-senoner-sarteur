@@ -73,9 +73,9 @@ function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onCl
             <h3 className="text-sm font-bold text-muted-foreground uppercase mb-3">Verwaltung</h3>
             <AlertDialog>
                 <AlertDialogTrigger asChild>
-                    <Button variant="destructive" className="w-full md:w-auto" size="sm">
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Bestellung endgültig löschen
+                    <Button variant="destructive" className="w-full md:w-auto" size="sm" disabled={isDeleting}>
+                        {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                        Bestellung löschen
                     </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -117,14 +117,10 @@ export default function AdminOrdersPage() {
         setLoading(true);
         try {
             const data = await getOrdersPageData();
-            if (data && data.orders && data.users) {
-              setOrders(data.orders);
-              setUsers(data.users);
-            } else {
-              throw new Error("Bestelldaten konnten nicht vom Server geladen werden.");
-            }
+            setOrders(data.orders);
+            setUsers(data.users);
         } catch(error: any) {
-            toast({ variant: 'destructive', title: 'Fehler', description: error.message || 'Bestelldaten konnten nicht geladen werden.'});
+            toast({ variant: 'destructive', title: 'Fehler', description: 'Bestelldaten konnten nicht geladen werden.'});
         } finally {
             setLoading(false);
         }

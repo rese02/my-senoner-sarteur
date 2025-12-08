@@ -1,11 +1,10 @@
-
 'use server';
 
 import 'server-only';
 import { adminDb } from '@/lib/firebase-admin';
 import { getSession } from '@/lib/session';
 import { toPlainObject } from '@/lib/utils';
-import type { Product, Category, Story, Recipe } from '@/lib/types';
+import type { Product, Category, Story, Recipe, Order, User } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
@@ -33,7 +32,7 @@ async function isAdmin() {
   return true;
 }
 
-// Get all products and categories for the dashboard page
+// Get all products and categories for the customer dashboard page
 export async function getDashboardData() {
   try {
     const productsSnapshot = await adminDb
@@ -70,6 +69,23 @@ export async function getDashboardData() {
       stories: [],
       recipe: getFallbackRecipe(),
     };
+  }
+}
+
+// Get data for the admin dashboard
+export async function getDashboardPageData() {
+  await isAdmin();
+  try {
+    const ordersSnapshot = await adminDb.collection('orders').get();
+    const usersSnapshot = await adminDb.collection('users').get();
+    
+    const orders = ordersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
+    const users = usersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as User));
+    
+    return { orders, users };
+  } catch (error) {
+    console.error("Error fetching data for dashboard:", error);
+    return { orders: [], users: [] };
   }
 }
 
