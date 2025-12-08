@@ -15,7 +15,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/utils";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { deleteOrder } from "@/app/actions/admin-cleanup.actions";
-import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { getDashboardPageData } from "@/app/actions/dashboard.actions";
 
@@ -67,7 +66,7 @@ function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onCl
                     <AlertDialogFooter>
                         <AlertDialogCancel>Abbrechen</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
-                            {isDeleting ? 'Löschen...' : 'Ja, löschen'}
+                            {isDeleting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Löschen...</>) : 'Ja, löschen'}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

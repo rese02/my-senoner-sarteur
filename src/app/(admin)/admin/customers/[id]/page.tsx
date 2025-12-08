@@ -13,8 +13,19 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import Link from 'next/link';
+import { use } from 'react';
 
 function UnpaidOrderRow({ order, onMarkAsPaid, isPending }: { order: Order; onMarkAsPaid: (orderId: string) => void; isPending: boolean; }) {
+    const [isSubmitting, startTransition] = useTransition();
+
+    const handleClick = () => {
+        startTransition(() => {
+            onMarkAsPaid(order.id);
+        });
+    };
+
+    const isRowPending = isPending || isSubmitting;
+
     return (
         <div className="flex items-center justify-between p-3 border-b last:border-0">
             <div>
@@ -25,10 +36,10 @@ function UnpaidOrderRow({ order, onMarkAsPaid, isPending }: { order: Order; onMa
             </div>
             <Button 
                 size="sm" 
-                onClick={() => onMarkAsPaid(order.id)} 
-                disabled={isPending}
+                onClick={handleClick}
+                disabled={isRowPending}
             >
-                 {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                 {isRowPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Als bezahlt markieren
             </Button>
         </div>
@@ -36,14 +47,11 @@ function UnpaidOrderRow({ order, onMarkAsPaid, isPending }: { order: Order; onMa
 }
 
 export default function CustomerDetailPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
-    const [params, setParams] = useState<{ id: string } | null>(null);
-
-    useEffect(() => {
-        paramsPromise.then(setParams);
-    }, [paramsPromise]);
+    // Use React.use to resolve the promise on the server and get params directly
+    const params = use(paramsPromise);
 
     const customerId = params?.id;
-    const [isPending, startTransition] = useTransition();
+    const [isPagePending, startPageTransition] = useTransition();
     const { toast } = useToast();
 
     // Use a state for orders to reflect changes immediately
@@ -70,7 +78,7 @@ export default function CustomerDetailPage({ params: paramsPromise }: { params: 
     }, [customerOrders]);
 
     const handleMarkAsPaid = (orderId: string) => {
-        startTransition(async () => {
+        startPageTransition(async () => {
             try {
                 await markOrderAsPaid(orderId);
                 // Update the local state to reflect the change
@@ -125,7 +133,7 @@ export default function CustomerDetailPage({ params: paramsPromise }: { params: 
                                     key={order.id} 
                                     order={order}
                                     onMarkAsPaid={handleMarkAsPaid}
-                                    isPending={isPending}
+                                    isPending={isPagePending}
                                 />
                             ))}
                         </div>

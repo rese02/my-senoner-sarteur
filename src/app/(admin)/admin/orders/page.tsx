@@ -88,7 +88,7 @@ function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onCl
                     <AlertDialogFooter>
                         <AlertDialogCancel>Abbrechen</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-red-600 hover:bg-red-700 text-white">
-                            {isDeleting ? 'Löschen...' : 'Ja, löschen'}
+                            {isDeleting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Löschen...</>) : 'Ja, löschen'}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
