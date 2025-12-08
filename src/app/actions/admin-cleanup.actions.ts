@@ -5,8 +5,10 @@ import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import { toPlainObject } from '@/lib/utils';
 import type { Order } from '@/lib/types';
+import { z } from 'zod';
 
 
+// Strikte Berechtigungsprüfung: Nur Admins dürfen diese Aktionen ausführen.
 async function requireAdmin() {
   const session = await getSession();
   if (session?.role !== 'admin') {
@@ -18,7 +20,13 @@ async function requireAdmin() {
 export async function deleteOrder(orderId: string) {
   await requireAdmin();
 
-  const orderRef = adminDb.collection('orders').doc(orderId);
+  // Strikte Eingabevalidierung mit Zod
+  const validatedOrderId = z.string().min(1).safeParse(orderId);
+  if (!validatedOrderId.success) {
+    return { success: false, error: "Ungültige Bestell-ID." };
+  }
+
+  const orderRef = adminDb.collection('orders').doc(validatedOrderId.data);
   const doc = await orderRef.get();
 
   if (!doc.exists) {
@@ -37,8 +45,14 @@ export async function deleteOrder(orderId: string) {
 export async function deleteOldOrders(months: number) {
   await requireAdmin();
 
+  // Strikte Eingabevalidierung mit Zod
+  const validatedMonths = z.number().int().positive().safeParse(months);
+  if (!validatedMonths.success) {
+      return { success: false, error: "Ungültiger Zeitraum." };
+  }
+
   const cutoffDate = new Date();
-  cutoffDate.setMonth(cutoffDate.getMonth() - months);
+  cutoffDate.setMonth(cutoffDate.getMonth() - validatedMonths.data);
 
   const completedStatuses = ['collected', 'cancelled', 'delivered', 'paid'];
   
@@ -49,7 +63,7 @@ export async function deleteOldOrders(months: number) {
   const snapshot = await oldOrdersQuery.get();
 
   if (snapshot.empty) {
-      return { count: 0 };
+      return { count: 0, success: true };
   }
 
   const batch = adminDb.batch();
@@ -63,5 +77,5 @@ export async function deleteOldOrders(months: number) {
   revalidatePath('/admin/settings');
   revalidatePath('/admin/dashboard');
   
-  return { count: snapshot.size };
+  return { count: snapshot.size, success: true };
 }

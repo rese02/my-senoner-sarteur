@@ -6,11 +6,16 @@ import { getSession } from '@/lib/session';
 import { toPlainObject } from '@/lib/utils';
 import type { Order, User } from '@/lib/types';
 
-export async function getScannerPageData() {
+// Strikte Berechtigungsprüfung für alle Funktionen in dieser Datei.
+async function requireEmployeeOrAdmin() {
   const session = await getSession();
   if (!session || !['employee', 'admin'].includes(session.role)) {
-    throw new Error('Unauthorized');
+    throw new Error('Unauthorized: Employee or Admin access required.');
   }
+}
+
+export async function getScannerPageData() {
+  await requireEmployeeOrAdmin();
 
   try {
     const usersSnapshot = await adminDb.collection('users').get();
@@ -26,8 +31,7 @@ export async function getScannerPageData() {
     return { users, groceryLists };
   } catch (error) {
     console.error("Error fetching data for scanner page:", error);
-    throw new Error("Failed to load data from Firestore.");
+    // Stabile Rückgabe im Fehlerfall
+    return { users: [], groceryLists: [] };
   }
 }
-
-    

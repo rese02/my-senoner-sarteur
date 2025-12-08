@@ -4,11 +4,13 @@ import { getSession } from '@/lib/session';
 import { adminDb } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 
+// Strikte Berechtigungsprüfung: Nur Mitarbeiter oder Admins dürfen diese Aktionen ausführen.
 async function requireEmployeeOrAdmin() {
   const session = await getSession();
   if (!session || !['employee', 'admin'].includes(session.role)) {
-    throw new Error("Unauthorized");
+    throw new Error("Unauthorized: Employee or Admin access required.");
   }
 }
 
@@ -21,16 +23,28 @@ const RULES = {
 // 1. Stempel vergeben (Nur Employee/Admin)
 export async function addStamp(userId: string, purchaseAmount: number) {
   await requireEmployeeOrAdmin();
+  
+  // Strikte Eingabevalidierung mit Zod
+  const schema = z.object({
+    userId: z.string().min(1),
+    purchaseAmount: z.number().positive(),
+  });
+  const validation = schema.safeParse({ userId, purchaseAmount });
+  if (!validation.success) {
+    throw new Error("Ungültige Eingabedaten.");
+  }
+  const data = validation.data;
 
-  if (purchaseAmount < RULES.MIN_PURCHASE) {
+
+  if (data.purchaseAmount < RULES.MIN_PURCHASE) {
     throw new Error(`Einkauf muss mindestens ${RULES.MIN_PURCHASE}€ betragen.`);
   }
 
-  const userRef = adminDb.collection('users').doc(userId);
+  const userRef = adminDb.collection('users').doc(data.userId);
   const userDoc = await userRef.get();
 
   if (!userDoc.exists) {
-    throw new Error("User not found");
+    throw new Error("Benutzer nicht gefunden.");
   }
   
   await userRef.update({
@@ -47,16 +61,27 @@ export async function addStamp(userId: string, purchaseAmount: number) {
 export async function redeemReward(userId: string, tier: 'small' | 'big') {
   await requireEmployeeOrAdmin();
 
-  const cost = tier === 'big' ? RULES.REWARD_BIG.cost : RULES.REWARD_SMALL.cost;
-  const discount = tier === 'big' ? RULES.REWARD_BIG.value : RULES.REWARD_SMALL.value;
+  // Strikte Eingabevalidierung mit Zod
+  const schema = z.object({
+    userId: z.string().min(1),
+    tier: z.enum(['small', 'big']),
+  });
+  const validation = schema.safeParse({ userId, tier });
+  if (!validation.success) {
+    throw new Error("Ungültige Eingabedaten.");
+  }
+  const data = validation.data;
 
-  const userRef = adminDb.collection('users').doc(userId);
+  const cost = data.tier === 'big' ? RULES.REWARD_BIG.cost : RULES.REWARD_SMALL.cost;
+  const discount = data.tier === 'big' ? RULES.REWARD_BIG.value : RULES.REWARD_SMALL.value;
 
-  // Firestore Transaction to ensure atomicity
+  const userRef = adminDb.collection('users').doc(data.userId);
+
+  // Atomare Transaktion, um Race Conditions zu verhindern
   await adminDb.runTransaction(async (transaction) => {
     const userDoc = await transaction.get(userRef);
     if (!userDoc.exists) {
-      throw new Error("User not found");
+      throw new Error("Benutzer nicht gefunden.");
     }
 
     const currentStamps = userDoc.data()?.loyaltyStamps || 0;

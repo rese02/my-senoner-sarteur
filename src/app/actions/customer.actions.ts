@@ -5,11 +5,13 @@ import { adminDb } from '@/lib/firebase-admin';
 import { getSession } from '@/lib/session';
 import { toPlainObject } from '@/lib/utils';
 import type { User, Order, Product, Category } from '@/lib/types';
+import { z } from 'zod';
 
+// Strikte Berechtigungsprüfung: Nur Admins dürfen diese Aktionen ausführen.
 async function requireAdmin() {
   const session = await getSession();
   if (session?.role !== 'admin') {
-    throw new Error('Unauthorized');
+    throw new Error('Unauthorized: Admin access required.');
   }
 }
 
@@ -30,7 +32,8 @@ export async function getCustomersPageData() {
     return { customers, orders, products, categories };
   } catch (error) {
     console.error("Error fetching data for customers page:", error);
-    throw new Error("Failed to load data from Firestore.");
+    // Stabile Rückgabe im Fehlerfall, um UI-Abstürze zu verhindern.
+    return { customers: [], orders: [], products: [], categories: [] };
   }
 }
 
@@ -38,13 +41,19 @@ export async function getCustomersPageData() {
 export async function getCustomerDetails(customerId: string) {
     await requireAdmin();
 
+    // Strikte Eingabevalidierung mit Zod
+    const validatedCustomerId = z.string().min(1).safeParse(customerId);
+    if (!validatedCustomerId.success) {
+      return { customer: null, orders: [] };
+    }
+
     try {
-        const customerSnap = await adminDb.collection('users').doc(customerId).get();
+        const customerSnap = await adminDb.collection('users').doc(validatedCustomerId.data).get();
         if (!customerSnap.exists) {
             return { customer: null, orders: [] };
         }
 
-        const ordersSnap = await adminDb.collection('orders').where('userId', '==', customerId).get();
+        const ordersSnap = await adminDb.collection('orders').where('userId', '==', validatedCustomerId.data).get();
         
         const customer = toPlainObject({ id: customerSnap.id, ...customerSnap.data() } as User);
         const orders = ordersSnap.docs.map(d => toPlainObject({ id: d.id, ...d.data() } as Order));
@@ -52,6 +61,6 @@ export async function getCustomerDetails(customerId: string) {
         return { customer, orders };
     } catch (error) {
         console.error(`Error fetching details for customer ${customerId}:`, error);
-        throw new Error("Failed to load customer details.");
+        return { customer: null, orders: [] };
     }
 }

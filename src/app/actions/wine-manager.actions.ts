@@ -7,19 +7,25 @@ import { revalidatePath } from 'next/cache';
 import { adminDb } from '@/lib/firebase-admin';
 import type { Product } from '@/lib/types';
 import { toPlainObject } from '@/lib/utils';
+import { z } from 'zod';
 
-// Helper to check for Admin role
-async function isAdmin() {
+// Strikte Berechtigungsprüfung: Nur Admins dürfen diese Aktionen ausführen.
+async function requireAdmin() {
   const session = await getSession();
   if (session?.role !== 'admin') {
     throw new Error('Unauthorized: Admin access required.');
   }
-  return true;
 }
+
+const WineSchema = z.object({
+    id: z.string().min(1),
+    name: z.string().min(1),
+    tags: z.array(z.string()),
+});
 
 
 export async function deleteAllWines() {
-    await isAdmin();
+    await requireAdmin();
     const batch = adminDb.batch();
     const snapshot = await adminDb.collection('wine_catalog').get();
     snapshot.docs.forEach(doc => {
@@ -31,19 +37,20 @@ export async function deleteAllWines() {
 }
 
 export async function deleteWine(wineId: string) {
-    await isAdmin();
-    await adminDb.collection('wine_catalog').doc(wineId).delete();
+    await requireAdmin();
+    const validatedId = z.string().min(1).parse(wineId);
+    await adminDb.collection('wine_catalog').doc(validatedId).delete();
     revalidatePath('/admin/sommelier');
     return { success: true };
 }
 
 export async function updateWine(wine: Product): Promise<Product> {
-    await isAdmin();
-    const { id, ...data } = wine;
-
-    if (!id) {
-        throw new Error("Wine ID is missing");
+    await requireAdmin();
+    const validation = WineSchema.safeParse(wine);
+    if (!validation.success) {
+        throw new Error("Invalid wine data.");
     }
+    const { id, ...data } = validation.data;
 
     const wineRef = adminDb.collection('wine_catalog').doc(id);
     await wineRef.update(toPlainObject(data));
@@ -53,13 +60,14 @@ export async function updateWine(wine: Product): Promise<Product> {
 }
 
 export async function bulkImportWines(wineNames: string[]): Promise<Product[]> {
-    await isAdmin();
+    await requireAdmin();
 
-    if (wineNames.length === 0) {
-        throw new Error("Wine list cannot be empty.");
+    const validatedNames = z.array(z.string().min(1)).min(1).safeParse(wineNames);
+    if (!validatedNames.success) {
+        throw new Error("Wine list cannot be empty or contain invalid names.");
     }
 
-    const { enrichedWines } = await enrichWineList({ wineNames });
+    const { enrichedWines } = await enrichWineList({ wineNames: validatedNames.data });
 
     if (!enrichedWines || enrichedWines.length === 0) {
         throw new Error("AI failed to enrich the wine list.");
@@ -85,10 +93,16 @@ export async function bulkImportWines(wineNames: string[]): Promise<Product[]> {
     return newWineDocs;
 }
 
+// Diese Funktion ist öffentlich für den Sommelier-Flow zugänglich.
 export async function getWineCatalog(): Promise<Product[]> {
-    const snapshot = await adminDb.collection('wine_catalog').get();
-    if (snapshot.empty) {
+    try {
+        const snapshot = await adminDb.collection('wine_catalog').get();
+        if (snapshot.empty) {
+            return [];
+        }
+        return snapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Product));
+    } catch(e) {
+        console.error("Failed to get wine catalog.", e);
         return [];
     }
-    return snapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Product));
 }
