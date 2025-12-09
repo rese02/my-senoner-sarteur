@@ -65,7 +65,7 @@ export function PackageCard({ product }: { product: Product }) {
                   </p>
                 </div>
 
-                <div className="mt-auto flex flex-col items-stretch gap-2">
+                <div className="mt-auto flex flex-col items-end gap-2">
                      <Button 
                         variant="outline" 
                         size="sm"
