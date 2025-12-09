@@ -4,16 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 9002",
-    "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
-    "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
+    "genkit:dev": "echo 'Genkit dev server disabled'",
+    "genkit:watch": "echo 'Genkit watch server disabled'",
     "build": "NODE_ENV=production next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@genkit-ai/google-genai": "^1.2.1",
-    "@genkit-ai/next": "^1.2.1",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-avatar": "^1.1.0",
@@ -34,6 +32,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
+    "embla-carousel-react": "^8.1.7",
     "firebase": "^10.12.3",
     "firebase-admin": "^12.2.0",
     "lucide-react": "^0.417.0",
@@ -58,7 +57,6 @@
     "@types/react-dom": "^18.3.0",
     "eslint": "8.57.0",
     "eslint-config-next": "14.2.5",
-    "genkit": "^1.2.1",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.5.3"
