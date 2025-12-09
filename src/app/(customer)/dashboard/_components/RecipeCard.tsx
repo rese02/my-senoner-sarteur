@@ -26,7 +26,7 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
                         <DialogTrigger asChild>
                              <Button variant="outline" className="mt-6 w-fit">Rezept ansehen</Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-4xl p-0 overflow-hidden rounded-2xl">
+                        <DialogContent className="sm:max-w-4xl w-[95vw] p-0 overflow-hidden rounded-2xl">
                            <DialogHeader className="sr-only">
                               <DialogTitle>{recipe.title}</DialogTitle>
                               <DialogDescription>{recipe.subtitle}</DialogDescription>
