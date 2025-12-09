@@ -1,4 +1,3 @@
-'use server';
 
 import { getCustomerOrders } from "@/app/actions/order.actions";
 import { PageHeader } from "@/components/common/PageHeader";
