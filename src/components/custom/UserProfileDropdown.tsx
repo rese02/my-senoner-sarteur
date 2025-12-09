@@ -1,11 +1,6 @@
 'use client';
 
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar';
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -17,17 +12,7 @@ import { LogOut, User as UserIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { logout } from '@/app/actions/auth.actions';
 import type { User } from '@/lib/types';
-
-
-// Funktion, um Initialen aus dem Namen zu generieren
-const getInitials = (name: string) => {
-  if (!name) return '';
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
-};
+import { Button } from '../ui/button';
 
 export function UserProfileDropdown({ user }: { user: User }) {
   const router = useRouter();
@@ -35,10 +20,10 @@ export function UserProfileDropdown({ user }: { user: User }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="cursor-pointer h-9 w-9">
-          <AvatarImage src={`https://api.dicebear.com/8.x/initials/svg?seed=${user.name}`} alt={user.name} />
-          <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-        </Avatar>
+        <Button variant="ghost" size="icon" className="rounded-full text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
+          <UserIcon className="h-5 w-5" />
+          <span className="sr-only">Benutzermenü öffnen</span>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end">
         <DropdownMenuLabel>
@@ -52,14 +37,14 @@ export function UserProfileDropdown({ user }: { user: User }) {
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
           <UserIcon className="mr-2 h-4 w-4" />
-          <span>My Profile</span>
+          <span>Mein Profil</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive" asChild>
             <form action={logout} className="w-full">
                  <button type="submit" className="w-full text-left flex items-center cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>Abmelden</span>
                 </button>
             </form>
         </DropdownMenuItem>

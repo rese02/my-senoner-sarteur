@@ -42,12 +42,12 @@ export default async function CustomerLayout({
     <div className="flex min-h-[100dvh] bg-secondary text-foreground">
       <DesktopSidebar />
       <div className="flex-1 flex flex-col">
-        <header className={cn("lg:hidden flex-none flex h-16 items-center justify-between px-4 sticky top-0 z-30 bg-secondary")}>
+        <header className={cn("lg:hidden flex-none flex h-16 items-center justify-between px-4 sticky top-0 z-30 bg-primary text-primary-foreground")}>
             <div className="h-8">
               <Logo />
             </div>
             <div className="flex items-center gap-2">
-              <a href="tel:+390471123456" className="p-2 hover:bg-card rounded-full transition-colors">
+              <a href="tel:+390471123456" className="p-2 hover:bg-primary-foreground/10 rounded-full transition-colors">
                 <Phone size={20} />
                 <span className="sr-only">Anrufen</span>
               </a>
