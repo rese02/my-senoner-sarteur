@@ -34,14 +34,14 @@ export default async function AdminLayout({
     <div className="flex h-[100dvh] bg-background text-foreground overflow-hidden">
       <AdminSidebar />
       <div className="flex-1 flex flex-col">
-         <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b bg-card text-card-foreground px-4 md:px-6 sticky top-0 z-20">
+         <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b bg-primary text-primary-foreground px-4 md:px-6 sticky top-0 z-20">
             <div className="md:hidden h-8">
               <Link href="/" className="flex items-center h-full">
-                <Image src="/logo.png" alt="Senoner Sarteur Logo" width={120} height={30} className="object-contain" />
+                <Image src="/logo.png" alt="Senoner Sarteur Logo" width={120} height={24} className="object-contain" />
               </Link>
             </div>
              <form action={logout}>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="hover:bg-primary-foreground/10 text-primary-foreground">
                 <LogOut className="mr-2 h-4 w-4" />
                 Abmelden
               </Button>
