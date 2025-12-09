@@ -33,7 +33,7 @@ function MainView({ onStartScan, onStartPicking, groceryLists }: { onStartScan: 
             </TabsList>
 
             <TabsContent value="scanner">
-                <Card className="text-center shadow-xl border-none mt-4">
+                <Card className="text-center shadow-lg border-none mt-4">
                     <CardHeader>
                         <div className="mx-auto bg-primary/10 text-primary rounded-full h-20 w-20 flex items-center justify-center mb-4">
                             <QrCode className="w-10 h-10" />
@@ -51,7 +51,7 @@ function MainView({ onStartScan, onStartPicking, groceryLists }: { onStartScan: 
             </TabsContent>
             
             <TabsContent value="lists">
-                 <Card className="shadow-xl border-none mt-4">
+                 <Card className="shadow-lg border-none mt-4">
                     <CardHeader>
                          <CardTitle>Offene Einkaufszettel</CardTitle>
                          <CardDescription>Wählen Sie eine Liste zum Packen.</CardDescription>
@@ -182,7 +182,7 @@ function ScanResultView({ user, orders, onNextCustomer }: { user: UserType, orde
 
   return (
     <div className="w-full space-y-4 animate-in fade-in-50">
-        <Card className="w-full p-4 text-center shadow-xl border-none">
+        <Card className="w-full p-4 text-center shadow-lg border-none">
             <h2 className="text-xl font-bold font-headline">{user.name}</h2>
             <div className="text-5xl font-bold text-primary my-1">
                 {stamps} <span className="text-lg text-muted-foreground font-normal">Stempel</span>
@@ -190,7 +190,7 @@ function ScanResultView({ user, orders, onNextCustomer }: { user: UserType, orde
         </Card>
 
         {openOrders.length > 0 && (
-            <Card className="w-full p-4 shadow-xl border-none">
+            <Card className="w-full p-4 shadow-lg border-none">
                 <h3 className="font-bold text-sm mb-2 flex items-center gap-2"><Package className="w-4 h-4 text-primary"/> Offene Vorbestellungen</h3>
                 <div className="space-y-1 text-sm text-muted-foreground">
                     {openOrders.map(order => (
@@ -203,7 +203,7 @@ function ScanResultView({ user, orders, onNextCustomer }: { user: UserType, orde
         )}
 
         {(canRedeemSmall || canRedeemBig) && (
-            <Card className="w-full p-4 shadow-xl border-none bg-accent/10 border-accent/30">
+            <Card className="w-full p-4 shadow-lg border-none bg-accent/10 border-accent/30">
             <h3 className="font-bold text-accent-foreground text-sm uppercase flex items-center gap-2 mb-2"><Gift className="w-4 h-4" />Belohnung verfügbar!</h3>
             
             <div className="grid grid-cols-2 gap-2">
@@ -229,7 +229,7 @@ function ScanResultView({ user, orders, onNextCustomer }: { user: UserType, orde
             </Card>
         )}
 
-        <Card className="w-full p-4 shadow-xl border-none">
+        <Card className="w-full p-4 shadow-lg border-none">
             <div className="space-y-2">
                 <Label className="text-xs font-bold text-muted-foreground">Neuer Einkaufswert (€)</Label>
                 <div className="flex gap-2">
@@ -256,7 +256,7 @@ function ScanResultView({ user, orders, onNextCustomer }: { user: UserType, orde
         </Card>
 
         <Button variant="secondary" onClick={onNextCustomer} className="w-full">
-                Schließen & Nächster Kunde
+                Schließen &amp; Nächster Kunde
         </Button>
     </div>
   );
@@ -304,7 +304,7 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
 
     return (
         <div className="w-full space-y-4 animate-in fade-in-50">
-            <Card className="w-full shadow-xl border-none">
+            <Card className="w-full shadow-lg border-none">
                 <CardHeader>
                     <CardTitle>Einkauf für {order.customerName}</CardTitle>
                     <CardDescription>Gefundene Artikel abhaken.</CardDescription>

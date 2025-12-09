@@ -151,11 +151,11 @@ export function RegisterForm() {
             name="street"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="sr-only">Straße & Nr.</FormLabel>
+                <FormLabel className="sr-only">Straße &amp; Nr.</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Home className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input placeholder="Straße & Nr." {...field} className="pl-10" />
+                    <Input placeholder="Straße &amp; Nr." {...field} className="pl-10" />
                   </div>
                 </FormControl>
                 <FormMessage />
