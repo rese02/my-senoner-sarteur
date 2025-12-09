@@ -36,10 +36,6 @@ export default function ImpressumPage() {
                   <p className="text-xs">Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links. Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.</p>
               </div>
 
-               <div className="p-4 bg-destructive/10 border border-destructive/50 rounded-lg text-destructive-foreground mt-6">
-                <p className="font-bold text-destructive">WICHTIGER HINWEIS:</p>
-                <p className="text-xs">Dies ist ein automatisch generierter Text und dient als Vorlage. Er stellt keine Rechtsberatung dar. Lassen Sie Ihr Impressum unbedingt von einem Anwalt prüfen.</p>
-              </div>
             </div>
           </section>
 
