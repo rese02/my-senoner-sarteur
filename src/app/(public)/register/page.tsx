@@ -23,9 +23,9 @@ export default async function RegisterPage() {
                 </CardHeader>
                 <CardContent className="p-8 pt-0">
                   <RegisterForm />
-                   <p className="mt-6 text-center text-sm text-muted-foreground">
+                   <p className="mt-6 text-center text-sm text-primary-foreground/80">
                     Haben Sie bereits ein Konto?{' '}
-                    <Link href="/login" className="font-semibold text-primary hover:underline">
+                    <Link href="/login" className="font-semibold text-primary-foreground hover:underline">
                       Hier anmelden
                     </Link>
                   </p>
