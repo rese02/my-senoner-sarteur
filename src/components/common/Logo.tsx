@@ -4,12 +4,12 @@ import { cn } from '@/lib/utils';
 
 export function Logo({ className }: { className?: string}) {
   return (
-    <Link href="/" className={cn("flex items-center justify-center gap-2 h-full", className)}>
+    <Link href="/" className={cn("flex items-center justify-center h-full", className)}>
       <Image 
         src="/logo.png"
         alt="Senoner Sarteur Logo" 
-        width={432}
-        height={96}
+        width={140}
+        height={30}
         className="object-contain h-full w-auto"
         priority
       />

@@ -17,6 +17,7 @@ import { Logo } from '@/components/common/Logo';
 import { logout } from '@/app/actions/auth.actions';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -37,9 +38,9 @@ export function AdminSidebar() {
   return (
     <aside className="hidden md:flex flex-col w-64 bg-card text-card-foreground border-r">
       <div className="p-4 border-b h-16 flex items-center justify-center">
-        <div className="h-8">
-          <Logo />
-        </div>
+        <Link href="/" className="flex items-center gap-2">
+          <Image src="/logo.png" alt="Senoner Sarteur Logo" width={140} height={30} className="object-contain" />
+        </Link>
       </div>
       <nav className="flex-1 p-4 space-y-1">
         {navItems.map((item) => {
