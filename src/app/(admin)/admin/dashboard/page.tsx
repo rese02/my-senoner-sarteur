@@ -1,7 +1,7 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, ShoppingCart, Truck, Trash2, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Users, ShoppingCart, Truck, Trash2, Loader2, CheckCircle } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -79,7 +79,7 @@ function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onCl
 
 
 export default function AdminDashboardPage() {
-    const [data, setData] = useState<{orders: Order[], users: User[], chartData: any[]}>({orders: [], users: [], chartData: []});
+    const [data, setData] = useState<{orders: Order[], users: User[], chartData: any[]} | null>(null);
     const [loading, setLoading] = useState(true);
 
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -105,27 +105,30 @@ export default function AdminDashboardPage() {
     }, [isModalOpen, toast]);
 
     const stats = useMemo(() => {
+        if (!data) return { totalOrders: 0, totalCustomers: 0, totalRevenue: 0 };
         const totalOrders = data.orders.length;
         const totalCustomers = data.users.length;
         const totalRevenue = data.orders.reduce((sum, order) => sum + (order.total || 0), 0);
         return { totalOrders, totalCustomers, totalRevenue };
-    }, [data.orders, data.users]);
+    }, [data]);
 
     const recentAndUpcomingOrders = useMemo(() => {
+        if (!data) return [];
         return data.orders
             .filter(o => ['new', 'picking', 'ready', 'ready_for_delivery'].includes(o.status))
             .sort((a, b) => new Date(a.pickupDate || a.createdAt).getTime() - new Date(b.pickupDate || b.createdAt).getTime())
             .slice(0, 5);
-    }, [data.orders]);
+    }, [data]);
 
     const handleShowDetails = (order: Order) => {
+        if (!data) return;
         setSelectedOrder(order);
         const customer = data.users.find(u => u.id === order.userId) || null;
         setCustomerDetails(customer);
         setIsModalOpen(true);
     };
 
-    if (loading) {
+    if (loading || !data) {
         return <AdminDashboardLoading />;
     }
 
