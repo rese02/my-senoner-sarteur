@@ -40,7 +40,7 @@ export function PackageCard({ product }: { product: Product }) {
   return (
     <>
       <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 w-full">
-        <div className="grid grid-cols-[100px_1fr] items-center gap-4">
+        <div className="grid grid-cols-[100px_1fr] items-stretch gap-4">
             {/* Left side: Image */}
             <div className="relative h-full w-full overflow-hidden">
                 <Image 

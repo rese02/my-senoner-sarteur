@@ -41,7 +41,7 @@ export function ProductCard({ product }: { product: Product }) {
 
     return (
         <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 w-full">
-           <div className="grid grid-cols-[100px_1fr] items-center gap-4">
+           <div className="grid grid-cols-[100px_1fr] items-stretch gap-4">
                 {/* Left side: Image */}
                 <div className="relative h-full w-full bg-muted">
                     <Image 
@@ -56,14 +56,16 @@ export function ProductCard({ product }: { product: Product }) {
                 </div>
 
                 {/* Right side: Content */}
-                <div className="p-3 pr-4 flex flex-col justify-center h-full">
-                    <h3 className="text-sm font-bold font-headline leading-tight line-clamp-2">{product.name}</h3>
-                    <div className="flex items-baseline justify-between mt-1">
-                        <p className="text-lg font-bold text-primary">€{product.price.toFixed(2)}</p>
-                        <span className="text-xs text-muted-foreground">/ {product.unit}</span>
+                <div className="p-3 pr-4 flex flex-col justify-between h-full">
+                    <div>
+                        <h3 className="text-sm font-bold font-headline leading-tight line-clamp-2">{product.name}</h3>
+                        <div className="flex items-baseline mt-1">
+                            <p className="text-lg font-bold text-primary">€{product.price.toFixed(2)}</p>
+                            <span className="text-xs text-muted-foreground ml-1">/ {product.unit}</span>
+                        </div>
                     </div>
                     
-                    <div className="flex items-center gap-2 mt-3 pt-3 border-t">
+                    <div className="flex items-center gap-2 mt-3">
                         <Button variant="outline" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))} className="active:scale-95 transition-transform h-8 w-8 rounded-full shrink-0" aria-label="Menge verringern">
                             <Minus className="h-4 w-4" />
                         </Button>

@@ -57,7 +57,7 @@ export function ProductsClient({ products, categories, stories, recipe }: Produc
 
     return (
       <>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 pb-28">
             <Stories stories={stories} />
             <RecipeCard recipe={recipe} />
             
