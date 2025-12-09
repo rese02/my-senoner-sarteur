@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -14,7 +15,7 @@ import { Cart } from "./Cart";
 
 function CategoryFilter({ categories, activeCategory, onSelect }: { categories: Category[], activeCategory: string, onSelect: (categoryId: string) => void }) {
   return (
-    <div className="sticky top-0 bg-background/80 backdrop-blur-sm z-10 py-4">
+    <div className="sticky top-0 bg-secondary z-10 py-4">
         <div className="flex overflow-x-auto gap-2 scrollbar-hide">
           <Button
               key="Alle"
