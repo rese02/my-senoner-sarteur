@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Cart } from "./Cart";
-import { Card, CardContent } from '@/components/ui/card';
 
 function CategoryFilter({ categories, activeCategory, onSelect }: { categories: Category[], activeCategory: string, onSelect: (categoryId: string) => void }) {
   return (
