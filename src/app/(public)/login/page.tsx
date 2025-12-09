@@ -6,12 +6,12 @@ import Link from 'next/link';
 
 export default function LoginPage() {
   return (
-    <div className="w-full min-h-[100dvh] flex items-center justify-center bg-secondary p-4 relative overflow-hidden">
+    <div className="w-full min-h-[100dvh] flex items-center justify-center bg-secondary md:p-4 relative overflow-hidden">
 
         <div className="absolute inset-0 z-0 opacity-5 bg-repeat" style={{ backgroundImage: "url('/background-pattern.svg')" }}></div>
 
-        <div className="relative z-10 w-full max-w-sm">
-            <Card className="flex flex-col justify-center shadow-2xl border-border/50 rounded-2xl bg-primary text-primary-foreground">
+        <div className="relative z-10 w-full md:max-w-sm">
+            <Card className="flex flex-col justify-center shadow-2xl border-none rounded-none md:rounded-2xl bg-primary text-primary-foreground min-h-[100dvh] md:min-h-0">
                 <CardHeader className="text-center items-center pt-10 pb-6">
                     <div className="h-12 mb-4">
                         <Logo />
