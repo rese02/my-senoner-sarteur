@@ -5,29 +5,50 @@ import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import type { CartItem, Order, User, ChecklistItem, OrderStatus } from '@/lib/types';
 import { toPlainObject } from '@/lib/utils';
+import { z } from 'zod';
+
+// Helper für Berechtigungsprüfungen
+async function requireRole(roles: Array<'customer' | 'employee' | 'admin'>) {
+    const session = await getSession();
+    if (!session || !roles.includes(session.role)) {
+        throw new Error('Unauthorized');
+    }
+    return session;
+}
+
+const CartItemSchema = z.object({
+    productId: z.string(),
+    name: z.string(),
+    price: z.number(),
+    quantity: z.number().positive(),
+});
+
+const AddressSchema = z.object({
+    street: z.string().min(1, "Street is required"),
+    city: z.string().min(1, "City is required"),
+});
 
 export async function createPreOrder(
   items: CartItem[],
   pickupDate: Date
 ) {
-  const session = await getSession();
-  if (!session?.userId) {
-    throw new Error('Not authenticated');
-  }
+  const session = await requireRole(['customer']);
 
-  if (items.length === 0) {
-    throw new Error('Cart is empty');
-  }
+  const validatedItems = z.array(CartItemSchema).min(1).safeParse(items);
+  const validatedDate = z.date().min(new Date()).safeParse(pickupDate);
 
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  if (!validatedItems.success) throw new Error('Cart is empty or invalid.');
+  if (!validatedDate.success) throw new Error('Invalid pickup date.');
+
+  const total = validatedItems.data.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const orderData = {
     userId: session.userId,
     customerName: session.name,
     createdAt: new Date().toISOString(),
     type: 'preorder' as const,
-    items: items.map(item => toPlainObject(item)),
-    pickupDate: pickupDate.toISOString(),
+    items: validatedItems.data.map(item => toPlainObject(item)),
+    pickupDate: validatedDate.data.toISOString(),
     total,
     status: 'new' as const,
   };
@@ -45,14 +66,13 @@ export async function createConciergeOrder(
   notes: string,
   address: { street: string; city: string }
 ) {
-    const session = await getSession();
-    if (!session?.userId) {
-        throw new Error('Not authenticated');
-    }
+    const session = await requireRole(['customer']);
 
-    if (!notes.trim()) {
-        throw new Error('Notes are empty');
-    }
+    const validatedNotes = z.string().trim().min(1).safeParse(notes);
+    const validatedAddress = AddressSchema.safeParse(address);
+
+    if (!validatedNotes.success) throw new Error('Notes are empty.');
+    if (!validatedAddress.success) throw new Error('Invalid address.');
 
     const deliveryDate = new Date();
     deliveryDate.setDate(deliveryDate.getDate() + 1);
@@ -63,10 +83,10 @@ export async function createConciergeOrder(
         customerName: session.name,
         createdAt: new Date().toISOString(),
         type: 'grocery_list' as const,
-        rawList: notes,
-        deliveryAddress: address,
+        rawList: validatedNotes.data,
+        deliveryAddress: validatedAddress.data,
         deliveryDate: deliveryDate.toISOString(),
-        total: 0, // Total wird vom Mitarbeiter festgelegt
+        total: 0,
         status: 'new' as const,
     };
     
@@ -79,12 +99,12 @@ export async function createConciergeOrder(
 }
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus) {
-  const session = await getSession();
-  if (!session || !['admin', 'employee'].includes(session.role)) {
-    throw new Error('Unauthorized');
-  }
+  await requireRole(['admin', 'employee']);
 
-  await adminDb.collection('orders').doc(orderId).update({ status });
+  const validatedOrderId = z.string().min(1).parse(orderId);
+  const validatedStatus = z.nativeEnum(OrderStatus).parse(status);
+
+  await adminDb.collection('orders').doc(validatedOrderId).update({ status: validatedStatus });
 
   revalidatePath('/admin/orders');
   revalidatePath('/admin/dashboard');
@@ -92,15 +112,21 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   revalidatePath('/dashboard/orders');
 }
 
-export async function setGroceryOrderTotal(orderId: string, total: number, checklist: ChecklistItem[]) {
-    const session = await getSession();
-    if (!session || !['admin', 'employee'].includes(session.role)) {
-        throw new Error('Unauthorized');
-    }
+const ChecklistItemSchema = z.object({
+    item: z.string(),
+    isFound: z.boolean(),
+});
 
-    await adminDb.collection('orders').doc(orderId).update({
-        total,
-        checklist: toPlainObject(checklist),
+export async function setGroceryOrderTotal(orderId: string, total: number, checklist: ChecklistItem[]) {
+    const session = await requireRole(['admin', 'employee']);
+
+    const validatedOrderId = z.string().min(1).parse(orderId);
+    const validatedTotal = z.number().positive().parse(total);
+    const validatedChecklist = z.array(ChecklistItemSchema).parse(checklist);
+
+    await adminDb.collection('orders').doc(validatedOrderId).update({
+        total: validatedTotal,
+        checklist: toPlainObject(validatedChecklist),
         status: 'ready_for_delivery',
         processedBy: session.userId,
     });
@@ -113,11 +139,7 @@ export async function setGroceryOrderTotal(orderId: string, total: number, check
 
 
 export async function getOrdersPageData() {
-    const session = await getSession();
-    if (session?.role !== 'admin') {
-      console.error('Unauthorized attempt to access getOrdersPageData');
-      return { orders: [], users: [] };
-    }
+    await requireRole(['admin']);
 
     try {
         const ordersSnapshot = await adminDb.collection('orders').get();
@@ -135,13 +157,9 @@ export async function getOrdersPageData() {
 
 
 export async function getCustomerOrders() {
-    const session = await getSession();
-    if (!session?.userId) {
-        throw new Error("Not authenticated");
-    }
+    const session = await requireRole(['customer']);
 
     try {
-        // Query only by userId, which doesn't require a composite index.
         const ordersSnapshot = await adminDb.collection('orders')
             .where('userId', '==', session.userId)
             .get();
@@ -152,7 +170,6 @@ export async function getCustomerOrders() {
 
         const orders = ordersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
 
-        // Sort the results in code after fetching
         orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         
         return orders;

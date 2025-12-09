@@ -78,13 +78,13 @@ export async function bulkImportWines(wineNames: string[]): Promise<Product[]> {
 
     enrichedWines.forEach(wine => {
         const docRef = adminDb.collection('wine_catalog').doc();
-        const newWineData: Omit<Product, 'id' | 'price' | 'unit' | 'imageUrl' | 'imageHint' | 'categoryId' | 'isAvailable' | 'type' > = {
+        const newWineData: Partial<Product> = {
             name: wine.name,
             tags: wine.tags,
             createdAt: new Date().toISOString(),
         };
         batch.set(docRef, newWineData);
-        newWineDocs.push(toPlainObject({ ...newWineData, id: docRef.id } as unknown as Product));
+        newWineDocs.push(toPlainObject({ ...newWineData, id: docRef.id } as Product));
     });
     
     await batch.commit();

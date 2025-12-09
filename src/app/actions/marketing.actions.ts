@@ -9,10 +9,10 @@ import { z } from 'zod';
 
 // Strikte Berechtigungsprüfung: Nur Admins dürfen diese Aktionen ausführen.
 async function requireAdmin() {
-  const session = await getSession();
-  if (session?.role !== 'admin') {
-    throw new Error('Unauthorized: Admin access required.');
-  }
+    const session = await getSession();
+    if (session?.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required.');
+    }
 }
 
 // Zod Schemata für die Validierung
@@ -55,7 +55,7 @@ export async function saveStory(storyData: Partial<Story>): Promise<Story> {
     
     const validation = StorySchema.safeParse(storyData);
     if (!validation.success) {
-        throw new Error("Invalid story data: " + validation.error.flatten().fieldErrors);
+        throw new Error("Invalid story data: " + JSON.stringify(validation.error.flatten().fieldErrors));
     }
     const { id, ...data } = validation.data;
     
@@ -88,7 +88,7 @@ export async function savePlannerEvent(eventData: Partial<PlannerEvent>): Promis
     await requireAdmin();
     const validation = PlannerEventSchema.safeParse(eventData);
     if (!validation.success) {
-        throw new Error("Invalid event data: " + validation.error.flatten().fieldErrors);
+        throw new Error("Invalid event data: " + JSON.stringify(validation.error.flatten().fieldErrors));
     }
     const { id, ...data } = validation.data;
 
@@ -115,7 +115,7 @@ export async function saveRecipeOfTheWeek(recipeData: Recipe) {
     await requireAdmin();
     const validation = RecipeSchema.safeParse(recipeData);
      if (!validation.success) {
-        throw new Error("Invalid recipe data: " + validation.error.flatten().fieldErrors);
+        throw new Error("Invalid recipe data: " + JSON.stringify(validation.error.flatten().fieldErrors));
     }
     await adminDb.collection('content').doc('recipe_of_the_week').set(toPlainObject(validation.data));
     revalidatePaths();

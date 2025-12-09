@@ -7,11 +7,11 @@ import { toPlainObject } from '@/lib/utils';
 import type { Product, Category, Story, Recipe, Order, User } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { subDays, startOfDay, format } from 'date-fns';
+import { subDays, startOfDay, format, parseISO } from 'date-fns';
 
 const ProductSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters long."}),
-  price: z.number().positive({ message: "Price must be a positive number."}),
+  price: z.preprocess((val) => Number(val), z.number().positive({ message: "Price must be a positive number."})),
   unit: z.string().min(1, { message: "Unit is required."}),
   imageUrl: z.string().url({ message: "A valid image URL is required."}).or(z.literal('')),
   imageHint: z.string().optional(),
@@ -25,7 +25,7 @@ const ProductSchema = z.object({
 
 
 // Helper to check for Admin role
-async function isAdmin() {
+async function requireAdmin() {
   const session = await getSession();
   if (session?.role !== 'admin') {
     throw new Error('Unauthorized: Admin access required.');
@@ -75,7 +75,7 @@ export async function getDashboardData() {
 
 // Get data for the admin dashboard
 export async function getDashboardPageData() {
-  await isAdmin();
+  await requireAdmin();
   try {
     const ordersSnapshot = await adminDb.collection('orders').get();
     const usersSnapshot = await adminDb.collection('users').get();
@@ -95,6 +95,7 @@ export async function getDashboardPageData() {
     }, {} as Record<string, number>);
 
     orders.forEach(order => {
+        if (!order.createdAt) return;
         const orderDate = format(parseISO(order.createdAt), 'yyyy-MM-dd');
         if (ordersByDay.hasOwnProperty(orderDate)) {
             ordersByDay[orderDate]++;
@@ -116,7 +117,7 @@ export async function getDashboardPageData() {
 
 // Get all products and categories for the admin products page
 export async function getProductsPageData() {
-  await isAdmin();
+  await requireAdmin();
   try {
     const productsSnapshot = await adminDb
       .collection('products')
@@ -146,37 +147,41 @@ export async function toggleProductAvailability(
   productId: string,
   isAvailable: boolean
 ): Promise<{ isAvailable: boolean }> {
-  await isAdmin();
-  const productRef = adminDb.collection('products').doc(productId);
-  await productRef.update({ isAvailable });
+  await requireAdmin();
+  const validatedId = z.string().min(1).parse(productId);
+  const validatedAvailability = z.boolean().parse(isAvailable);
+
+  const productRef = adminDb.collection('products').doc(validatedId);
+  await productRef.update({ isAvailable: validatedAvailability });
   revalidatePath('/admin/products');
   revalidatePath('/dashboard');
-  return { isAvailable };
+  return { isAvailable: validatedAvailability };
 }
 
 // Create a new category
 export async function createCategory(name: string): Promise<Category> {
-  await isAdmin();
-  if (!name.trim()) {
-    throw new Error('Category name cannot be empty.');
-  }
+  await requireAdmin();
+  const validatedName = z.string().trim().min(1, 'Category name cannot be empty.').parse(name);
+  
   const categoryCollection = adminDb.collection('categories');
-  const docRef = await categoryCollection.add({ name });
+  const docRef = await categoryCollection.add({ name: validatedName });
   revalidatePath('/admin/products');
-  return { id: docRef.id, name };
+  return { id: docRef.id, name: validatedName };
 }
 
 // Delete a category and all its products
 export async function deleteCategory(categoryId: string) {
-  await isAdmin();
+  await requireAdmin();
+  const validatedId = z.string().min(1).parse(categoryId);
+
   const batch = adminDb.batch();
 
-  const categoryRef = adminDb.collection('categories').doc(categoryId);
+  const categoryRef = adminDb.collection('categories').doc(validatedId);
   batch.delete(categoryRef);
 
   const productsQuery = adminDb
     .collection('products')
-    .where('categoryId', '==', categoryId);
+    .where('categoryId', '==', validatedId);
   const productsSnapshot = await productsQuery.get();
   productsSnapshot.forEach((doc) => {
     batch.delete(doc.ref);
@@ -189,8 +194,9 @@ export async function deleteCategory(categoryId: string) {
 
 // Update a product
 export async function updateProduct(productData: Product): Promise<Product> {
-  await isAdmin();
+  await requireAdmin();
   const { id, ...data } = productData;
+  const validatedId = z.string().min(1).parse(id);
 
   const validation = ProductSchema.safeParse(data);
 
@@ -199,18 +205,18 @@ export async function updateProduct(productData: Product): Promise<Product> {
     throw new Error("Invalid product data provided.");
   }
 
-  const productRef = adminDb.collection('products').doc(id);
+  const productRef = adminDb.collection('products').doc(validatedId);
   await productRef.update(toPlainObject(validation.data));
   revalidatePath('/admin/products');
   revalidatePath('/dashboard');
-  return toPlainObject({ id, ...validation.data } as Product);
+  return toPlainObject({ id: validatedId, ...validation.data } as Product);
 }
 
 // Create a new product
 export async function createProduct(
   productData: Omit<Product, 'id'>
 ): Promise<Product> {
-  await isAdmin();
+  await requireAdmin();
   
   const validation = ProductSchema.safeParse(productData);
 
@@ -233,14 +239,15 @@ export async function createProduct(
   revalidatePath('/admin/products');
   revalidatePath('/dashboard');
 
-  const newProduct: Product = { id: docRef.id, ...dataToSave } as Product;
+  const newProduct: Product = { id: docRef.id, ...dataToSave } as unknown as Product;
   return toPlainObject(newProduct);
 }
 
 // Delete a product
 export async function deleteProduct(productId: string) {
-  await isAdmin();
-  const productRef = adminDb.collection('products').doc(productId);
+  await requireAdmin();
+  const validatedId = z.string().min(1).parse(productId);
+  const productRef = adminDb.collection('products').doc(validatedId);
   await productRef.delete();
   revalidatePath('/admin/products');
   revalidatePath('/dashboard');
