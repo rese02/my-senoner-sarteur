@@ -18,7 +18,7 @@ export default async function RegisterPage() {
                     <div className="h-12 mb-4">
                         <Logo />
                     </div>
-                    <CardTitle className="text-3xl font-headline">Konto erstellen</CardTitle>
+                    <CardTitle className="text-3xl font-headline text-primary-foreground">Konto erstellen</CardTitle>
                     <CardDescription className="text-primary-foreground/80">Werden Sie Teil unserer Community.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-8 pt-0">
