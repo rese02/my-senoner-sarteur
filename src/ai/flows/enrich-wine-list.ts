@@ -9,7 +9,7 @@ import 'server-only';
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 
 const WineInfoSchema = z.object({
   name: z.string().describe('The original name of the wine.'),
