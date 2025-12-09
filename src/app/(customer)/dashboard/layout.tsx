@@ -1,3 +1,4 @@
+
 'use server';
 
 import { getSession } from "@/lib/session";
@@ -12,7 +13,7 @@ import type { User } from "@/lib/types";
 function DesktopSidebar() {
   return (
     <aside className="hidden md:flex flex-col w-60 bg-card border-r">
-        <div className="p-4 border-b h-16 flex items-center justify-center">
+        <div className="p-4 border-b h-16 flex items-center justify-center bg-primary">
             <Logo />
         </div>
         <CustomerSidebar />
