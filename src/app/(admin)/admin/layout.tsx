@@ -1,32 +1,48 @@
+'use client';
+
 import { AdminSidebar } from "./_components/AdminSidebar";
 import { AdminMobileNav } from "./_components/AdminMobileNav";
 import { Logo } from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth.actions";
 import { LogOut } from "lucide-react";
-import { getSession } from "@/lib/session";
+import type { User } from "@/lib/types";
+import { useSession } from "@/hooks/use-session";
 import { redirect } from 'next/navigation';
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 
-export default async function AdminLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
+  const { session, loading } = useSession();
+  const pathname = usePathname();
 
-  // SICHERHEITS-CHECK: Wenn keine Session existiert, sofort zum Login umleiten.
-  if (!session) {
-    redirect('/login');
-  }
+  useEffect(() => {
+    if (!loading && !session) {
+      redirect(`/login?callbackUrl=${pathname}`);
+    }
+  }, [session, loading, pathname]);
+  
 
   // SICHERHEITS-CHECK: Nur Admins dürfen hier rein.
-  if (session.role !== 'admin') {
+  if (!loading && session && session.role !== 'admin') {
     // Falls ein Kunde/Mitarbeiter hier landet, leite ihn zu seiner Startseite.
     const homePage = session.role === 'employee' ? '/employee/scanner' : '/dashboard';
     redirect(homePage);
+  }
+
+  if (loading || !session) {
+      return (
+        <div className="flex h-screen w-screen items-center justify-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+        </div>
+      );
   }
 
 
@@ -37,7 +53,7 @@ export default async function AdminLayout({
          <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b bg-primary text-primary-foreground px-4 md:px-6 sticky top-0 z-20">
             <div className="md:hidden h-8">
               <Link href="/" className="flex items-center h-full">
-                <Image src="/logo.png" alt="Senoner Sarteur Logo" width={120} height={24} className="object-contain" />
+                <Image src="/logo.png" alt="Senoner Sarteur Logo" width={120} height={24} className="object-contain h-full w-auto" />
               </Link>
             </div>
              <form action={logout}>

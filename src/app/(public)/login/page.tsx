@@ -1,12 +1,13 @@
 
+
 import { LoginForm } from './_components/login-form';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Logo } from '@/components/common/Logo';
 import Link from 'next/link';
 
 export default function LoginPage() {
   return (
-    <div className="w-full min-h-[100dvh] flex items-center justify-center bg-secondary md:p-4 relative overflow-hidden">
+    <div className="w-full min-h-[100dvh] flex items-center justify-center bg-secondary p-0 md:p-4 relative overflow-hidden">
 
         <div className="absolute inset-0 z-0 opacity-5 bg-repeat" style={{ backgroundImage: "url('/background-pattern.svg')" }}></div>
 
@@ -21,22 +22,20 @@ export default function LoginPage() {
                 <CardContent className="p-8 pt-0">
                     <LoginForm />
                 </CardContent>
+                 <CardFooter className="flex-col items-center gap-4 px-8 pb-10">
+                    <p className="text-sm text-primary-foreground/80">
+                        Noch kein Konto?{' '}
+                        <Link href="/register" className="font-semibold text-primary-foreground hover:underline">
+                            Jetzt registrieren
+                        </Link>
+                    </p>
+                    <div className="flex justify-center gap-4 text-xs text-primary-foreground/60">
+                        <Link href="/impressum" className="hover:text-primary-foreground">Impressum</Link>
+                        <Link href="/datenschutz" className="hover:text-primary-foreground">Datenschutz</Link>
+                    </div>
+                </CardFooter>
             </Card>
-
-             <div className="mt-6 text-center text-sm text-muted-foreground">
-                <p>
-                    Noch kein Konto?{' '}
-                    <Link href="/register" className="font-semibold text-primary hover:underline">
-                        Jetzt registrieren
-                    </Link>
-                </p>
-            </div>
         </div>
-
-        <div className="absolute bottom-4 left-0 right-0 z-10 flex justify-center gap-6 text-xs text-muted-foreground">
-             <Link href="/impressum" className="hover:text-primary">Impressum</Link>
-             <Link href="/datenschutz" className="hover:text-primary">Datenschutz</Link>
-         </div>
     </div>
   );
 }
