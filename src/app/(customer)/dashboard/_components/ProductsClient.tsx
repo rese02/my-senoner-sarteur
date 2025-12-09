@@ -28,7 +28,7 @@ function CategoryFilter({ categories, activeCategory, onSelect }: { categories: 
             <Button
               key={cat.id}
               onClick={() => onSelect(cat.id)}
-              variant={activeCategory === cat.id ? "default" : "outline"}
+              variant={activeCategory === 'Alle' ? "outline" : (activeCategory === cat.id ? "default" : "outline")}
               className="rounded-full px-5 text-sm h-9 whitespace-nowrap shrink-0 bg-card hover:bg-card/90"
             >
               {cat.name}
