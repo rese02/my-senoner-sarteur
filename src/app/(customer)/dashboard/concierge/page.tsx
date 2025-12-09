@@ -39,10 +39,10 @@ export default function ConciergePage() {
     };
 
     return (
-        <div className="pb-24 md:pb-8">
+        <div className="w-full max-w-2xl mx-auto space-y-6">
             <PageHeader title="Concierge Service" description="Ihr persönlicher Einkaufszettel & Lieferservice." />
             
-            <Card className="shadow-lg border-none max-w-2xl mx-auto bg-gradient-to-br from-card to-secondary/30">
+            <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Feather className="w-5 h-5 text-primary"/>
@@ -55,18 +55,16 @@ export default function ConciergePage() {
                 <CardContent className="space-y-4">
                     <div className="space-y-1.5">
                         <Label htmlFor="shopping-list">Was darf es sein?</Label>
-                        <div className="bg-primary/5 border border-primary/10 rounded-lg p-1 shadow-inner">
-                            <Textarea 
-                                id="shopping-list"
-                                placeholder="- 1L Frische Vollmilch&#10;- 200g Südtiroler Speck&#10;- 1 Laib Brot..." 
-                                className="bg-transparent border-none focus-visible:ring-0 text-sm leading-relaxed text-primary/90 placeholder:text-primary/40 min-h-[200px]"
-                                value={notes}
-                                onChange={e => setNotes(e.target.value)}
-                                disabled={isPending}
-                            />
-                        </div>
+                         <Textarea 
+                            id="shopping-list"
+                            placeholder="- 1L Frische Vollmilch&#10;- 200g Südtiroler Speck&#10;- 1 Laib Brot..." 
+                            className="bg-secondary/50 min-h-[200px]"
+                            value={notes}
+                            onChange={e => setNotes(e.target.value)}
+                            disabled={isPending}
+                        />
                     </div>
-                     <div className="p-3 bg-primary/5 rounded-lg space-y-3 border border-primary/10">
+                     <div className="p-3 bg-secondary/50 rounded-lg space-y-3 border">
                         <h4 className="font-semibold text-sm">Lieferdetails</h4>
                         <div className="grid md:grid-cols-2 gap-3">
                             <div className="space-y-1.5">

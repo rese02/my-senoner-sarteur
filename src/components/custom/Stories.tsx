@@ -27,11 +27,15 @@ export function Stories({ stories }: { stories: Story[] }) {
       setSelectedStory(null);
     }
   }
+  
+  if (stories.length === 0) {
+      return null;
+  }
 
   return (
     <div className="w-full">
-        <h2 className="text-xl font-bold mb-4 font-headline px-4 md:px-0">Daily Stories</h2>
-        <div className="flex space-x-4 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
+        <h2 className="text-xl font-bold mb-4 font-headline">Daily Stories</h2>
+        <div className="flex space-x-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
           {stories.map(story => (
             <div 
               key={story.id} 

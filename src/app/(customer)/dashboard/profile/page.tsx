@@ -18,7 +18,7 @@ export default async function ProfilePage() {
     }
 
     return (
-        <div className="space-y-8 max-w-2xl mx-auto pb-24 md:pb-8">
+        <div className="space-y-6 max-w-2xl mx-auto">
             <PageHeader title="Mein Profil" description="Verwalten Sie hier Ihre Kontodetails." />
 
             <ProfileUpdateForm user={user} />
@@ -30,7 +30,7 @@ export default async function ProfilePage() {
                 </CardHeader>
                 <CardContent>
                     <form action={logout} className="w-full">
-                        <button type="submit" className="w-full h-10 px-4 py-2 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 transition-transform active:scale-[0.98] border border-input bg-background hover:bg-accent hover:text-accent-foreground">Abmelden</button>
+                        <Button type="submit" variant="outline" className="w-full">Abmelden</Button>
                     </form>
                 </CardContent>
             </Card>
@@ -64,20 +64,6 @@ export default async function ProfilePage() {
                 </CardContent>
             </Card>
 
-            <div className="mt-12 pt-6 border-t text-center space-y-3">
-                <p className="text-xs text-muted-foreground">
-                    &copy; {new Date().getFullYear()} Senoner Sarteur. Wolkenstein in Gröden.
-                </p>
-                
-                <div className="flex justify-center gap-4 text-xs text-muted-foreground font-medium">
-                    <Link href="/impressum" className="hover:text-primary">Impressum</Link>
-                    <Link href="/datenschutz" className="hover:text-primary">Datenschutz</Link>
-                </div>
-
-                <p className="text-[10px] text-muted-foreground max-w-xs mx-auto">
-                    Hinweis zu Allergenen: Informationen zu Inhaltsstoffen erhalten Sie direkt in unseren Filialen oder telefonisch.
-                </p>
-            </div>
         </div>
     );
 }

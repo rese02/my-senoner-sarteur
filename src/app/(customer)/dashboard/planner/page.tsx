@@ -12,7 +12,7 @@ import type { PlannerEvent, Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { getPlannerPageData } from '@/app/actions/marketing.actions';
-import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
 
 function EventSelectionCarousel({ events, onSelect, selectedEvent }: { events: PlannerEvent[], onSelect: (event: PlannerEvent) => void, selectedEvent: PlannerEvent | null }) {
     return (
@@ -28,8 +28,8 @@ function EventSelectionCarousel({ events, onSelect, selectedEvent }: { events: P
                         <div 
                             onClick={() => onSelect(event)}
                             className={cn(
-                                "h-28 rounded-2xl overflow-hidden cursor-pointer group relative transition-all duration-300 ease-in-out border-4",
-                                selectedEvent?.id === event.id ? "border-primary shadow-2xl" : "border-transparent hover:shadow-lg"
+                                "h-40 rounded-2xl overflow-hidden cursor-pointer group relative transition-all duration-300 ease-in-out border-4 shadow-md",
+                                selectedEvent?.id === event.id ? "border-primary shadow-2xl scale-105" : "border-transparent hover:shadow-lg"
                             )}
                         >
                             <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors z-10"></div>
@@ -48,6 +48,8 @@ function EventSelectionCarousel({ events, onSelect, selectedEvent }: { events: P
                     </CarouselItem>
                 ))}
             </CarouselContent>
+            <CarouselPrevious className="hidden md:flex" />
+            <CarouselNext className="hidden md:flex"/>
         </Carousel>
     );
 }
@@ -110,7 +112,7 @@ export default function PartyPlannerPage() {
   }
 
   return (
-    <div className="w-full space-y-8 pb-24 md:pb-8">
+    <div className="w-full space-y-8">
       <div>
           <PageHeader title="Party Planer" description="Wählen Sie ein Event und wir berechnen die perfekte Menge für Ihre Gäste." />
       </div>
@@ -118,58 +120,56 @@ export default function PartyPlannerPage() {
        <EventSelectionCarousel events={events} onSelect={setSelectedEvent} selectedEvent={selectedEvent} />
       
       {selectedEvent && (
-        <div>
-            <Card className="border-none shadow-xl animate-in fade-in-50 overflow-hidden">
-                <CardHeader className="p-4">
-                    <CardTitle className="text-xl font-headline">Mengenrechner für "{selectedEvent.title}"</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 space-y-6">
-                    <div className="space-y-2">
-                        <Label>Wie viele Gäste erwarten Sie?</Label>
-                        <div className="flex items-center justify-between gap-4 bg-secondary p-2 rounded-xl border">
-                            <Button variant="outline" size="icon" onClick={() => setPeople(p => Math.max(1, p - 1))} className="w-12 h-12 rounded-lg bg-background">
-                                <Minus className="w-5 h-5"/>
-                            </Button>
-                            <div className="flex items-center gap-2">
-                                <Users className="w-6 h-6 text-primary" />
-                                <span className="text-3xl font-bold font-headline text-primary">{people}</span>
-                            </div>
-                            <Button variant="outline" size="icon" onClick={() => setPeople(p => p + 1)} className="w-12 h-12 rounded-lg bg-background">
-                                <Plus className="w-5 h-5"/>
-                            </Button>
+        <Card className="shadow-xl animate-in fade-in-50 overflow-hidden">
+            <CardHeader className="p-4">
+                <CardTitle className="text-xl font-headline">Mengenrechner für "{selectedEvent.title}"</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 space-y-6">
+                <div className="space-y-2">
+                    <Label>Wie viele Gäste erwarten Sie?</Label>
+                    <div className="flex items-center justify-between gap-4 bg-secondary p-2 rounded-xl border">
+                        <Button variant="outline" size="icon" onClick={() => setPeople(p => Math.max(1, p - 1))} className="w-12 h-12 rounded-lg bg-background">
+                            <Minus className="w-5 h-5"/>
+                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Users className="w-6 h-6 text-primary" />
+                            <span className="text-3xl font-bold font-headline text-primary">{people}</span>
                         </div>
+                        <Button variant="outline" size="icon" onClick={() => setPeople(p => p + 1)} className="w-12 h-12 rounded-lg bg-background">
+                            <Plus className="w-5 h-5"/>
+                        </Button>
                     </div>
-                
-                
-                    <div className="bg-background p-4 rounded-xl border w-full max-w-full overflow-hidden">
-                        <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-bold mb-3 flex items-center gap-2">
-                            <Info size={14}/> Empfehlung für {people} Personen:
-                        </h3>
-                        <ul className="space-y-3 w-full">
-                            {selectedEvent.ingredients.map((ing, idx) => {
-                            const totalAmount = ing.baseAmount * people;
-                            return (
-                                <li key={idx} className="block sm:flex sm:justify-between sm:items-center border-b last:border-0 pb-2 last:pb-0 w-full">
-                                    <span className="text-sm font-medium text-card-foreground break-words pr-0 sm:pr-4">
-                                        {ing.productName}
-                                    </span>
-                                    <span className="font-bold text-primary bg-primary/10 px-2 py-1 rounded text-xs mt-1 sm:mt-0 inline-block whitespace-nowrap">
-                                        {totalAmount.toLocaleString('de-DE')} {ing.unit}
-                                    </span>
-                                </li>
-                            );
-                            })}
-                        </ul>
-                    </div>
-                </CardContent>
-                <CardFooter className="p-4 bg-secondary/50 border-t">
-                    <Button onClick={handleAddToCart} className="w-full h-12 text-base" size="lg">
-                        <ShoppingCart className="mr-2 w-5 h-5" />
-                        Gesamtpaket in den Warenkorb
-                    </Button>
-                </CardFooter>
-            </Card>
-        </div>
+                </div>
+            
+            
+                <div className="bg-secondary/50 p-4 rounded-xl border w-full max-w-full overflow-hidden">
+                    <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-bold mb-3 flex items-center gap-2">
+                        <Info size={14}/> Empfehlung für {people} Personen:
+                    </h3>
+                    <ul className="space-y-3 w-full">
+                        {selectedEvent.ingredients.map((ing, idx) => {
+                        const totalAmount = ing.baseAmount * people;
+                        return (
+                            <li key={idx} className="block sm:flex sm:justify-between sm:items-center border-b last:border-0 pb-2 last:pb-0 w-full">
+                                <span className="text-sm font-medium text-card-foreground break-words pr-0 sm:pr-4">
+                                    {ing.productName}
+                                </span>
+                                <span className="font-bold text-primary bg-primary/10 px-2 py-1 rounded text-xs mt-1 sm:mt-0 inline-block whitespace-nowrap">
+                                    {totalAmount.toLocaleString('de-DE')} {ing.unit}
+                                </span>
+                            </li>
+                        );
+                        })}
+                    </ul>
+                </div>
+            </CardContent>
+            <CardFooter className="p-4 bg-secondary/50 border-t">
+                <Button onClick={handleAddToCart} className="w-full h-12 text-base" size="lg">
+                    <ShoppingCart className="mr-2 w-5 h-5" />
+                    Gesamtpaket in den Warenkorb
+                </Button>
+            </CardFooter>
+        </Card>
       )}
     </div>
   );

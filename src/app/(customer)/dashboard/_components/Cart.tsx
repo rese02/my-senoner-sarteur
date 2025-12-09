@@ -63,7 +63,7 @@ export function Cart() {
     };
 
     return (
-        <Card className="shadow-lg h-full flex flex-col">
+        <Card className="shadow-lg h-full flex flex-col bg-card">
             <CardHeader className="flex-shrink-0 p-4 border-b">
                 <CardTitle className="flex items-center gap-2 text-base">
                     <ShoppingCart /> Ihre Vorbestellung
@@ -98,7 +98,7 @@ export function Cart() {
                 )}
             </CardContent>
             {items.length > 0 && (
-                <CardFooter className="flex-shrink-0 flex flex-col items-stretch space-y-3 p-4 border-t bg-secondary/50">
+                <CardFooter className="flex-shrink-0 flex flex-col items-stretch space-y-3 p-4 border-t bg-secondary/30">
                      <div className="space-y-1.5">
                         <label htmlFor="pickup-date" className="text-xs font-medium">Abholdatum</label>
                         <DatePicker date={pickupDate} setDate={setPickupDate} />

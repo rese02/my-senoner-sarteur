@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -12,11 +11,12 @@ import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Cart } from "./Cart";
+import { Card, CardContent } from '@/components/ui/card';
 
 function CategoryFilter({ categories, activeCategory, onSelect }: { categories: Category[], activeCategory: string, onSelect: (categoryId: string) => void }) {
   return (
-    <div className="sticky top-0 bg-secondary z-10 py-4">
-        <div className="flex overflow-x-auto gap-2 scrollbar-hide">
+    <div className="py-2">
+        <div className="flex overflow-x-auto gap-2 scrollbar-hide -mx-4 px-4">
           <Button
               key="Alle"
               onClick={() => onSelect('Alle')}
@@ -57,13 +57,14 @@ export function ProductsClient({ products, categories, stories, recipe }: Produc
 
     return (
       <>
-        <div className="flex flex-col gap-8">
-            <Stories stories={stories} />
+        <div className="flex flex-col gap-6">
+            <Card><CardContent className="p-4"><Stories stories={stories} /></CardContent></Card>
             <RecipeCard recipe={recipe} />
             
-            <section>
+            <Card>
+              <CardContent className="p-4">
                 <CategoryFilter categories={categories} activeCategory={selectedCategory} onSelect={setSelectedCategory} />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                     {filteredProducts.map(product => {
                         if (product.type === 'package') {
                             return <PackageCard key={product.id} product={product} />
@@ -71,11 +72,12 @@ export function ProductsClient({ products, categories, stories, recipe }: Produc
                         return <ProductCard key={product.id} product={product} />;
                     })}
                 </div>
-            </section>
+              </CardContent>
+            </Card>
         </div>
 
         {/* Floating Cart Button for mobile */}
-        <div className="lg:hidden fixed bottom-[5.5rem] right-4 z-20">
+        <div className="lg:hidden fixed bottom-20 right-4 z-20">
           <Sheet>
             <SheetTrigger asChild>
               <Button size="lg" className="rounded-full h-16 w-16 shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground relative">
@@ -87,7 +89,7 @@ export function ProductsClient({ products, categories, stories, recipe }: Produc
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[80vh] flex flex-col rounded-t-2xl p-0">
+            <SheetContent side="bottom" className="h-[80vh] flex flex-col rounded-t-2xl p-0 bg-secondary">
               <Cart />
             </SheetContent>
           </Sheet>

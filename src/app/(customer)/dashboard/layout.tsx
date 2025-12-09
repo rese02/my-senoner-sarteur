@@ -1,4 +1,3 @@
-
 'use server';
 
 import { getSession } from "@/lib/session";
@@ -9,18 +8,15 @@ import { CustomerSidebar } from "./_components/CustomerSidebar";
 import { Phone } from "lucide-react";
 import { redirect } from "next/navigation";
 import type { User } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 function DesktopSidebar() {
   return (
-    <aside className="hidden md:flex flex-col w-60 bg-card border-r">
-        <div className="p-4 border-b h-16 flex items-center justify-center bg-primary">
-            <Logo />
-        </div>
+    <aside className="hidden lg:flex flex-col w-64 bg-card border-r">
         <CustomerSidebar />
     </aside>
   );
 }
-
 
 export default async function CustomerLayout({
   children,
@@ -43,22 +39,22 @@ export default async function CustomerLayout({
     }
     
   return (
-    <div className="flex h-[100dvh] bg-background text-foreground overflow-hidden">
+    <div className="flex min-h-[100dvh] bg-secondary text-foreground">
       <DesktopSidebar />
       <div className="flex-1 flex flex-col">
-        <header className="flex-none flex h-16 items-center justify-between border-b bg-card px-4 sticky top-0 z-30 md:hidden">
+        <header className={cn("lg:hidden flex-none flex h-16 items-center justify-between px-4 sticky top-0 z-30 bg-secondary")}>
             <div className="h-8">
               <Logo />
             </div>
             <div className="flex items-center gap-2">
-              <a href="tel:+390471123456" className="p-2 hover:bg-secondary rounded-full transition-colors">
+              <a href="tel:+390471123456" className="p-2 hover:bg-card rounded-full transition-colors">
                 <Phone size={20} />
                 <span className="sr-only">Anrufen</span>
               </a>
               {session && <UserProfileDropdown user={session as User} />}
             </div>
         </header>
-        <main className="flex-1 overflow-y-auto bg-secondary p-4 md:p-6 lg:p-8 pb-24 md:pb-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-28 md:pb-8">
             {children}
         </main>
          <MobileNav />

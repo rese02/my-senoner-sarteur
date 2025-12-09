@@ -1,7 +1,7 @@
+'use server';
 
 import { getCustomerOrders } from "@/app/actions/order.actions";
 import { PageHeader } from "@/components/common/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { Order, OrderStatus } from "@/lib/types";
@@ -11,6 +11,7 @@ import { Package, FileText, Calendar, Info, CheckCircle, Truck, ShoppingBag, XCi
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import Loading from './loading';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const statusMap: Record<OrderStatus, { label: string; className: string; icon: React.ElementType, colorClass: string }> = {
     new: { label: 'In Bearbeitung', className: 'bg-status-new-bg text-status-new-fg', icon: Info, colorClass: 'border-status-new-fg' },
@@ -98,11 +99,11 @@ async function OrderList() {
     
     if (orders.length === 0) {
         return (
-            <div className="text-center py-16 text-muted-foreground bg-card rounded-xl border border-dashed">
+            <Card className="text-center py-16 text-muted-foreground border-dashed shadow-none">
                 <Package className="mx-auto h-12 w-12 text-gray-300"/>
                 <h3 className="mt-4 text-lg font-medium">Noch keine Bestellungen</h3>
                 <p className="mt-1 text-sm">Ihre Bestellungen werden hier angezeigt.</p>
-            </div>
+            </Card>
         );
     }
     
@@ -113,16 +114,13 @@ async function OrderList() {
     );
 }
 
-export default function OrdersPage() {
+export default async function OrdersPage() {
     return (
-        <>
+        <div className="space-y-6">
             <PageHeader title="Meine Bestellungen" description="Hier sehen Sie den Status Ihrer aktuellen und vergangenen Bestellungen."/>
-
-            <div className="pb-24 md:pb-8">
-                <Suspense fallback={<Loading />}>
-                    <OrderList />
-                </Suspense>
-            </div>
-        </>
+            <Suspense fallback={<Loading />}>
+                <OrderList />
+            </Suspense>
+        </div>
     );
 }

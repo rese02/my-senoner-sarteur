@@ -39,18 +39,16 @@ export default async function LoyaltyPage() {
     
     const stamps = user.loyaltyStamps || 0;
     
-    // Calculations for progress bars
     const progressSmall = Math.min(stamps, 5) / 5 * 100;
     const progressBig = Math.min(stamps, 10) / 10 * 100;
 
     return (
-        <div className="pb-24 md:pb-8">
+        <div className="space-y-6">
             <PageHeader title="Meine Treuekarte" description="Zeigen Sie Ihren QR-Code an der Kasse, um Stempel zu sammeln und Belohnungen einzulösen." />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Linke Spalte: QR Code & Stempelkarte */}
-                <div className="lg:col-span-1 space-y-8">
-                    <Card>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-1 space-y-6">
+                    <Card className="shadow-lg">
                         <CardHeader>
                             <CardTitle>Ihr QR-Code</CardTitle>
                         </CardHeader>
@@ -58,7 +56,7 @@ export default async function LoyaltyPage() {
                            <QrCodeDisplay userId={user.id} />
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className="shadow-lg">
                         <CardHeader>
                             <CardTitle>Stempelkarte</CardTitle>
                         </CardHeader>
@@ -72,9 +70,8 @@ export default async function LoyaltyPage() {
                     </Card>
                 </div>
 
-                {/* Rechte Spalte: Belohnungen */}
-                <div className="lg:col-span-2 space-y-8">
-                    <Card className="bg-gradient-to-br from-primary to-[#003366] text-primary-foreground border-none">
+                <div className="lg:col-span-2 space-y-6">
+                    <Card className="shadow-lg bg-gradient-to-br from-primary to-[#003366] text-primary-foreground border-none">
                         <CardHeader>
                             <CardTitle>Ihr Status</CardTitle>
                         </CardHeader>
@@ -86,7 +83,7 @@ export default async function LoyaltyPage() {
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="shadow-lg">
                         <CardHeader>
                             <CardTitle>Ihre Belohnungen</CardTitle>
                             <CardDescription>Sparen Sie für noch größere Vorteile!</CardDescription>
@@ -138,18 +135,6 @@ export default async function LoyaltyPage() {
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader>
-                           <CardTitle>So funktioniert's</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <ul className="text-sm text-muted-foreground list-disc pl-4 space-y-1">
-                                <li>Pro <strong>15€ Einkaufswert</strong> erhalten Sie 1 Stempel.</li>
-                                <li>Bei <strong>5 Stempeln</strong> können Sie 3€ Sofort-Rabatt einlösen.</li>
-                                <li>Bei <strong>10 Stempeln</strong> können Sie 7€ Sofort-Rabatt einlösen.</li>
-                            </ul>
-                        </CardContent>
-                    </Card>
                 </div>
             </div>
         </div>

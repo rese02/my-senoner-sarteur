@@ -32,7 +32,7 @@
     --input: 220 20% 92%;
     --ring: 210 90% 55%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
     /* Custom Status Colors */
     --status-new-bg: 210 100% 92%; /* Light Blue */
@@ -81,7 +81,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-secondary text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
