@@ -15,13 +15,13 @@ import { Card, CardContent } from '@/components/ui/card';
 
 function CategoryFilter({ categories, activeCategory, onSelect }: { categories: Category[], activeCategory: string, onSelect: (categoryId: string) => void }) {
   return (
-    <div className="py-2">
-        <div className="flex overflow-x-auto gap-2 scrollbar-hide -mx-4 px-4">
+    <div className="py-2 bg-secondary rounded-xl p-2 sticky top-0 z-10">
+        <div className="flex overflow-x-auto gap-2 scrollbar-hide">
           <Button
               key="Alle"
               onClick={() => onSelect('Alle')}
               variant={activeCategory === 'Alle' ? "default" : "outline"}
-              className="rounded-full px-5 text-sm h-9 whitespace-nowrap shrink-0"
+              className="rounded-full px-5 text-sm h-9 whitespace-nowrap shrink-0 bg-card hover:bg-card/90"
             >
               Alle
             </Button>
@@ -30,7 +30,7 @@ function CategoryFilter({ categories, activeCategory, onSelect }: { categories: 
               key={cat.id}
               onClick={() => onSelect(cat.id)}
               variant={activeCategory === cat.id ? "default" : "outline"}
-              className="rounded-full px-5 text-sm h-9 whitespace-nowrap shrink-0"
+              className="rounded-full px-5 text-sm h-9 whitespace-nowrap shrink-0 bg-card hover:bg-card/90"
             >
               {cat.name}
             </Button>
@@ -58,22 +58,19 @@ export function ProductsClient({ products, categories, stories, recipe }: Produc
     return (
       <>
         <div className="flex flex-col gap-6">
-            <Card><CardContent className="p-4"><Stories stories={stories} /></CardContent></Card>
+            <Stories stories={stories} />
             <RecipeCard recipe={recipe} />
             
-            <Card>
-              <CardContent className="p-4">
-                <CategoryFilter categories={categories} activeCategory={selectedCategory} onSelect={setSelectedCategory} />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                    {filteredProducts.map(product => {
-                        if (product.type === 'package') {
-                            return <PackageCard key={product.id} product={product} />
-                        }
-                        return <ProductCard key={product.id} product={product} />;
-                    })}
-                </div>
-              </CardContent>
-            </Card>
+            <CategoryFilter categories={categories} activeCategory={selectedCategory} onSelect={setSelectedCategory} />
+            
+            <div className="grid grid-cols-1 gap-4">
+                {filteredProducts.map(product => {
+                    if (product.type === 'package') {
+                        return <PackageCard key={product.id} product={product} />
+                    }
+                    return <ProductCard key={product.id} product={product} />;
+                })}
+            </div>
         </div>
 
         {/* Floating Cart Button for mobile */}

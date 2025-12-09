@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ShoppingBag, ListPlus } from 'lucide-react';
@@ -39,63 +39,50 @@ export function PackageCard({ product }: { product: Product }) {
 
   return (
     <>
-      <Card className="h-full flex flex-col overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-        {/* Bild Bereich */}
-        <div className="relative h-40 w-full overflow-hidden">
-          <Image 
-            src={product.imageUrl || fallbackImageUrl} 
-            alt={product.name} 
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-            data-ai-hint={product.imageHint}
-          />
-          <div className="absolute top-2 right-2 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded shadow-sm">
-            PAKET
-          </div>
+      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 w-full">
+        <div className="grid grid-cols-[100px_1fr] items-center gap-4">
+            {/* Left side: Image */}
+            <div className="relative h-full w-full overflow-hidden">
+                <Image 
+                    src={product.imageUrl || fallbackImageUrl} 
+                    alt={product.name} 
+                    fill
+                    sizes="100px"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    data-ai-hint={product.imageHint}
+                />
+            </div>
+            
+            {/* Right side: Content */}
+            <div className="p-3 pr-4 flex flex-col justify-between h-full">
+                <div>
+                  <h3 className="font-headline text-base text-foreground font-bold leading-tight line-clamp-2">
+                    {product.name}
+                  </h3>
+                  <p className="text-muted-foreground text-xs mt-1 line-clamp-2">
+                    {product.description || 'Das Rundum-Sorglos-Paket für Ihren Start.'}
+                  </p>
+                </div>
+
+                <div className="mt-2 flex items-end justify-between">
+                    <p className="text-lg font-bold text-primary">€{product.price.toFixed(2)}</p>
+                    <div className="flex gap-2">
+                         <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setIsOpen(true)}
+                          >
+                            <ListPlus className="w-4 h-4 mr-2" />
+                            Inhalt
+                          </Button>
+                         <Button size="sm" onClick={handleAddToCart}>
+                            <ShoppingBag className="w-4 h-4 mr-2" />
+                            Kaufen
+                          </Button>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <CardHeader className="p-3 pb-1">
-          <h3 className="font-headline text-lg text-foreground font-bold leading-tight">
-            {product.name}
-          </h3>
-          <p className="text-muted-foreground text-xs mt-1 line-clamp-2">
-            {product.description || 'Das Rundum-Sorglos-Paket für Ihren Start.'}
-          </p>
-        </CardHeader>
-
-        <CardContent className="p-3 pt-0 flex-grow">
-          <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-            {product.packageContent?.slice(0, 2).map((content, i) => (
-              <li key={i} className="flex items-center">
-                <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
-                {content.amount} {content.item}
-              </li>
-            ))}
-            {product.packageContent && product.packageContent.length > 2 && (
-              <li className="text-xs text-muted-foreground pl-5">
-                + {product.packageContent.length - 2} weitere Produkte
-              </li>
-            )}
-          </ul>
-        </CardContent>
-
-        <CardFooter className="p-3 pt-0 flex flex-wrap gap-2 mt-auto">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => setIsOpen(true)}
-            className="flex-1"
-          >
-            <ListPlus className="w-4 h-4 mr-2" />
-            Inhalt
-          </Button>
-
-          <Button size="sm" className="flex-1" onClick={handleAddToCart}>
-            <ShoppingBag className="w-4 h-4 mr-2" />
-            {product.price.toFixed(2)} €
-          </Button>
-        </CardFooter>
       </Card>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
