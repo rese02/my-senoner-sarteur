@@ -39,7 +39,7 @@ export function AdminSidebar() {
     <aside className="hidden md:flex flex-col w-64 bg-card text-card-foreground border-r">
       <div className="p-4 border-b h-16 flex items-center justify-center">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="Senoner Sarteur Logo" width={140} height={30} className="object-contain" />
+          <Image src="/logo.png" alt="Senoner Sarteur Logo" width={120} height={25} className="object-contain" />
         </Link>
       </div>
       <nav className="flex-1 p-4 space-y-1">
