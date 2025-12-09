@@ -204,7 +204,7 @@ export function SommelierClient({ initialWines }: { initialWines: Product[] }) {
                                       <TableCell>
                                           <div className="flex flex-wrap gap-1">
                                               {wine.tags?.map((tag: string) => (
-                                                  <Badge key={tag} variant="secondary">{tag}</Badge>
+                                                  <Badge key={`${wine.id}-${tag}`} variant="secondary">{tag}</Badge>
                                               ))}
                                           </div>
                                       </TableCell>

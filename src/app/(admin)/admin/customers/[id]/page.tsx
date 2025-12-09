@@ -46,33 +46,12 @@ function UnpaidOrderRow({ order, onMarkAsPaid, isPending }: { order: Order; onMa
     );
 }
 
-export default function CustomerDetailPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
-    // MODERNISIERUNG: Der `use`-Hook vereinfacht das Auslesen von Promises drastisch.
-    const { id: customerId } = use(paramsPromise);
-
-    const [customer, setCustomer] = useState<User | null>(null);
-    const [orders, setOrders] = useState<Order[]>([]);
-    const [loading, setLoading] = useState(true);
+// Die Client Komponente, die die Daten darstellt
+function CustomerDetailClient({ customerId, initialData }: { customerId: string, initialData: { customer: User | null, orders: Order[] } }) {
+    const [customer, setCustomer] = useState<User | null>(initialData.customer);
+    const [orders, setOrders] = useState<Order[]>(initialData.orders);
     const [isPagePending, startPageTransition] = useTransition();
     const { toast } = useToast();
-
-    useEffect(() => {
-        if (!customerId) return;
-        setLoading(true);
-        getCustomerDetails(customerId)
-            .then(data => {
-                if (data.customer) {
-                    setCustomer(data.customer);
-                    setOrders(data.orders);
-                } else {
-                    toast({ variant: 'destructive', title: 'Fehler', description: 'Kunde nicht gefunden.' });
-                }
-            })
-            .catch(err => {
-                toast({ variant: 'destructive', title: 'Ladefehler', description: 'Kundendetails konnten nicht geladen werden.' });
-            })
-            .finally(() => setLoading(false));
-    }, [customerId, toast]);
 
     const unpaidGroceryOrders = useMemo(() => {
         return orders.filter(o => 
@@ -96,14 +75,6 @@ export default function CustomerDetailPage({ params: paramsPromise }: { params: 
             }
         });
     };
-
-    if (loading) {
-        return (
-             <div className="flex justify-center items-center h-64">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-        )
-    }
 
     if (!customer) {
         return (
@@ -151,4 +122,20 @@ export default function CustomerDetailPage({ params: paramsPromise }: { params: 
             </Card>
         </div>
     );
+}
+
+// Die übergeordnete Server Komponente, die Daten lädt
+export default async function CustomerDetailPage({ params }: { params: { id: string } }) {
+    const data = await getCustomerDetails(params.id);
+
+    if (!data.customer) {
+        return (
+            <div>
+                <PageHeader title="Kunde nicht gefunden" />
+                <p>Der Kunde mit der ID {params.id} konnte nicht gefunden werden.</p>
+            </div>
+        );
+    }
+
+    return <CustomerDetailClient customerId={params.id} initialData={data} />;
 }

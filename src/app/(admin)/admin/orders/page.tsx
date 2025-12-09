@@ -37,21 +37,6 @@ const statusMap: Record<OrderStatus, {label: string, className: string}> = {
   cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg' }
 };
 
-const FormattedDate = ({ date, formatString, locale }: { date: string, formatString: string, locale?: Locale }) => {
-    const [isClient, setIsClient] = useState(false);
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
-
-    if (!isClient) return null;
-
-    try {
-        return <>{format(parseISO(date), formatString, { locale })}</>;
-    } catch(e) {
-        return null;
-    }
-};
-
 function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onClose: () => void }) {
     const { toast } = useToast();
     const [isDeleting, startDeleteTransition] = useTransition();
@@ -251,7 +236,7 @@ export default function AdminOrdersPage() {
                       : order.items?.map(i => `${i.quantity}x ${i.productName}`).join(', ')
                     }</TableCell>
                     <TableCell className="text-right font-semibold">{order.total ? `€${order.total.toFixed(2)}` : '-'}</TableCell>
-                    <TableCell><FormattedDate date={order.pickupDate || order.deliveryDate || order.createdAt} formatString="EEE, dd.MM." locale={de} /></TableCell>
+                    <TableCell>{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEE, dd.MM.", { locale: de })}</TableCell>
                     <TableCell>
                       <Select 
                         value={order.status} 
@@ -306,7 +291,7 @@ export default function AdminOrdersPage() {
                   <h3 className="font-semibold text-base">Bestellübersicht</h3>
                    <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
                         <p className="text-muted-foreground">{selectedOrder.type === 'grocery_list' ? 'Lieferung:' : 'Abholung:'}</p>
-                        <p className="font-medium"><FormattedDate date={selectedOrder.pickupDate || selectedOrder.deliveryDate || selectedOrder.createdAt} formatString="EEEE, dd.MM.yyyy" locale={de} /></p>
+                        <p className="font-medium">{format(parseISO(selectedOrder.pickupDate || selectedOrder.deliveryDate || selectedOrder.createdAt), "EEEE, dd.MM.yyyy", { locale: de })}</p>
                         <p className="text-muted-foreground">Status:</p>
                         <div><Badge className={cn("capitalize font-semibold", statusMap[selectedOrder.status]?.className)}>{statusMap[selectedOrder.status]?.label}</Badge></div>
                    </div>
