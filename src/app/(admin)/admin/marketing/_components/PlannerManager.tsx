@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -87,7 +86,7 @@ function PlannerEventForm({ event: initialEvent, onSave, isPending, availablePro
 
                     <div className="space-y-3 pt-4 border-t mt-4">
                         <Label>Zutaten-Regeln (Menge pro 1 Person)</Label>
-                        <div className="flex gap-2 items-end bg-secondary p-2 rounded-lg border">
+                        <div className="flex gap-2 items-end bg-secondary p-2 rounded-xl border">
                             <div className="flex-1 space-y-1">
                                 <Label className="text-xs">Produkt</Label>
                                 <Select onValueChange={(val) => {
@@ -114,7 +113,7 @@ function PlannerEventForm({ event: initialEvent, onSave, isPending, availablePro
                         </div>
                         <div className="space-y-2">
                             {event.ingredients?.map((rule, index) => (
-                            <div key={index} className="flex justify-between items-center p-2 border rounded bg-background shadow-sm text-sm">
+                            <div key={index} className="flex justify-between items-center p-2 border rounded-xl bg-background shadow-sm text-sm">
                                 <span><strong>{rule.baseAmount}{rule.unit}</strong> {rule.productName}</span>
                                 <button onClick={() => removeRule(index)} type="button" className="text-destructive p-1 rounded hover:bg-destructive/10">
                                     <Trash2 size={16} />
@@ -195,7 +194,7 @@ export function PlannerManager({ initialPlannerEvents, availableProducts }: { in
                 </CardHeader>
                 <CardContent className="grid sm:grid-cols-2 gap-3">
                     {plannerEvents.map(event => (
-                        <div key={event.id} className="group relative border rounded-lg p-3 pr-10">
+                        <div key={event.id} className="group relative border rounded-xl p-3 pr-10">
                             <p className="font-bold text-sm">{event.title}</p>
                             <p className="text-xs text-muted-foreground">{event.ingredients.length} Zutaten-Regeln</p>
                             <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

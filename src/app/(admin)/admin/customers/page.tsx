@@ -48,7 +48,7 @@ function CustomerCard({ customer, isSelected, onSelect, orders, products }: { cu
         <div 
             onClick={() => onSelect(customer.id, !isSelected)}
             className={cn(
-                "p-3 border rounded-lg transition-colors flex items-start gap-3", 
+                "p-3 border rounded-xl transition-colors flex items-start gap-3", 
                 isSelected ? "bg-secondary border-primary ring-2 ring-primary" : "bg-card hover:bg-secondary/50"
             )}
         >

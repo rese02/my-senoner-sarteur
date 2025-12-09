@@ -12,46 +12,63 @@ import type { PlannerEvent, Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { getPlannerPageData } from '@/app/actions/marketing.actions';
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
+import { Skeleton } from '@/components/ui/skeleton';
 
-function EventSelectionCarousel({ events, onSelect, selectedEvent }: { events: PlannerEvent[], onSelect: (event: PlannerEvent) => void, selectedEvent: PlannerEvent | null }) {
+function EventSelectionGrid({ events, onSelect, selectedEvent }: { events: PlannerEvent[], onSelect: (event: PlannerEvent) => void, selectedEvent: PlannerEvent | null }) {
+    if (events.length === 0) {
+        return (
+            <Card className="text-center py-12 text-muted-foreground border-dashed">
+                <p>Keine Planer-Events verfügbar.</p>
+            </Card>
+        );
+    }
+    
     return (
-        <Carousel opts={{
-            align: "start",
-            loop: false,
-        }} 
-        className="w-full"
-        >
-            <CarouselContent className="-ml-2 md:-ml-4">
-                {events.map((event) => (
-                     <CarouselItem key={event.id} className="pl-2 md:pl-4 basis-2/3 md:basis-1/3 lg:basis-1/4">
-                        <div 
-                            onClick={() => onSelect(event)}
-                            className={cn(
-                                "h-40 rounded-2xl overflow-hidden cursor-pointer group relative transition-all duration-300 ease-in-out border-4 shadow-md",
-                                selectedEvent?.id === event.id ? "border-primary shadow-2xl scale-105" : "border-transparent hover:shadow-lg"
-                            )}
-                        >
-                            <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors z-10"></div>
-                            <Image 
-                                src={event.imageUrl} 
-                                alt={event.title} 
-                                fill 
-                                sizes="(max-width: 768px) 66vw, 33vw"
-                                className="object-cover transition-transform duration-500 ease-in-out scale-105 group-hover:scale-110"
-                                data-ai-hint={event.imageHint}
-                            />
-                            <div className="relative z-20 flex flex-col items-center justify-center h-full text-white text-center p-2">
-                                <h3 className="font-headline text-xl font-bold drop-shadow-md leading-tight">{event.title}</h3>
-                            </div>
-                        </div>
-                    </CarouselItem>
-                ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex"/>
-        </Carousel>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {events.map((event) => (
+                <div 
+                    key={event.id}
+                    onClick={() => onSelect(event)}
+                    className={cn(
+                        "rounded-2xl overflow-hidden cursor-pointer group relative transition-all duration-300 ease-in-out border-4 shadow-md",
+                        selectedEvent?.id === event.id ? "border-primary shadow-2xl scale-105" : "border-transparent hover:shadow-lg"
+                    )}
+                >
+                    <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors z-10"></div>
+                    <div className="relative aspect-video w-full">
+                        <Image 
+                            src={event.imageUrl} 
+                            alt={event.title} 
+                            fill 
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            className="object-cover transition-transform duration-500 ease-in-out scale-105 group-hover:scale-110"
+                            data-ai-hint={event.imageHint}
+                        />
+                    </div>
+                    <div className="absolute z-20 bottom-4 left-4 text-white">
+                        <h3 className="font-headline text-xl font-bold drop-shadow-md leading-tight">{event.title}</h3>
+                        <p className="text-xs opacity-80 drop-shadow">{event.description}</p>
+                    </div>
+                </div>
+            ))}
+        </div>
     );
+}
+
+function PlannerSkeleton() {
+    return (
+        <div className="w-full space-y-8">
+            <div>
+                <Skeleton className="h-8 w-64 mb-2" />
+                <Skeleton className="h-5 w-80" />
+            </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Skeleton className="h-48 w-full rounded-2xl" />
+                <Skeleton className="h-48 w-full rounded-2xl" />
+            </div>
+            <Skeleton className="h-96 w-full rounded-xl" />
+        </div>
+    )
 }
 
 export default function PartyPlannerPage() {
@@ -104,11 +121,7 @@ export default function PartyPlannerPage() {
   };
 
   if (loading) {
-    return (
-        <div className="flex justify-center items-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
-    );
+    return <PlannerSkeleton />;
   }
 
   return (
@@ -117,7 +130,7 @@ export default function PartyPlannerPage() {
           <PageHeader title="Party Planer" description="Wählen Sie ein Event und wir berechnen die perfekte Menge für Ihre Gäste." />
       </div>
       
-       <EventSelectionCarousel events={events} onSelect={setSelectedEvent} selectedEvent={selectedEvent} />
+       <EventSelectionGrid events={events} onSelect={setSelectedEvent} selectedEvent={selectedEvent} />
       
       {selectedEvent && (
         <Card className="shadow-xl animate-in fade-in-50 overflow-hidden">

@@ -64,7 +64,7 @@ function MainView({ onStartScan, onStartPicking, groceryLists }: { onStartScan: 
                             </div>
                         ) : (
                             groceryLists.map(order => (
-                                <button key={order.id} onClick={() => onStartPicking(order)} className="w-full text-left p-3 rounded-lg border bg-card hover:bg-secondary transition-colors flex justify-between items-center">
+                                <button key={order.id} onClick={() => onStartPicking(order)} className="w-full text-left p-3 rounded-xl border bg-card hover:bg-secondary transition-colors flex justify-between items-center">
                                     <div>
                                         <p className="font-bold text-sm">{order.customerName}</p>
                                         <p className="text-xs text-muted-foreground">{order.rawList?.split('\n').length} Artikel</p>
@@ -316,7 +316,7 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
                                 key={index} 
                                 onClick={() => toggleItem(index)}
                                 className={cn(
-                                    "p-3 border rounded-lg flex items-center gap-3 cursor-pointer transition-all duration-200", 
+                                    "p-3 border rounded-xl flex items-center gap-3 cursor-pointer transition-all duration-200", 
                                     entry.isFound 
                                         ? 'bg-green-50 border-green-200 text-muted-foreground' 
                                         : 'bg-card hover:bg-secondary/50'

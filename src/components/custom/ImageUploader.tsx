@@ -82,7 +82,7 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
   };
 
   return (
-    <div className="w-full p-4 border-2 border-dashed border-border rounded-lg text-center bg-secondary/30">
+    <div className="w-full p-4 border-2 border-dashed border-border rounded-xl text-center bg-secondary/30">
       {/* Hidden input field */}
       <Input
         id="image-upload"
@@ -109,7 +109,7 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
 
       {!isUploading && !error && finalImageUrl && (
         <div className="flex flex-col items-center gap-4">
-            <div className="relative w-32 h-32 rounded-md overflow-hidden">
+            <div className="relative w-32 h-32 rounded-xl overflow-hidden">
                  <Image src={finalImageUrl} alt="Hochgeladenes Bild" fill sizes="128px" className="object-cover" />
             </div>
              <p className="text-sm text-muted-foreground flex items-center gap-2">

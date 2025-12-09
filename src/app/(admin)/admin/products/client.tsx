@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Trash2, Edit, Loader2, Plus } from "lucide-react";
+import { PlusCircle, Trash2, Edit, Loader2, Plus, GripVertical } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState, useTransition, useEffect } from "react";
@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { createCategory, deleteCategory, updateProduct, createProduct, deleteProduct, toggleProductAvailability } from "@/app/actions/product.actions";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export function ProductsClient({ initialProducts, initialCategories }: { initialProducts: Product[], initialCategories: Category[] }) {
   const [products, setProducts] = useState<Product[]>(initialProducts);
@@ -285,10 +286,20 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
           })}
         </div>
 
-       <div className="md:hidden fixed bottom-20 right-4 z-20">
-          <Button size="lg" className="rounded-full h-14 w-14 shadow-lg" onClick={() => setIsCategoryModalOpen(true)}>
-              <Plus className="h-6 w-6" />
-          </Button>
+       <div className="md:hidden fixed bottom-24 right-4 z-20">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button size="lg" className="rounded-full h-14 w-14 shadow-lg">
+                        <Plus className="h-6 w-6" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 mb-2">
+                    <DropdownMenuItem onSelect={() => setIsCategoryModalOpen(true)}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        <span>Neue Kategorie</span>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
       </div>
 
       <Dialog open={isCategoryModalOpen} onOpenChange={setIsCategoryModalOpen}>
@@ -369,7 +380,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                   </div>
                   
                   {editingProduct?.type === 'package' && (
-                      <div className="space-y-3 border p-3 rounded-lg bg-secondary/50">
+                      <div className="space-y-3 border p-3 rounded-xl bg-secondary/50">
                       <h3 className="font-semibold text-primary text-sm">Paket-Inhalt definieren</h3>
                       
                       <div className="flex gap-2">
