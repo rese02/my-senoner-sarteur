@@ -55,11 +55,11 @@ export function ProductCard({ product }: { product: Product }) {
                     <span className="text-xs text-muted-foreground">/ {product.unit}</span>
                 </div>
                 <div className="flex items-center gap-2 mt-3 pt-3 border-t">
-                    <Button variant="outline" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))} className="active:scale-95 transition-transform h-9 w-9 rounded-full">
+                    <Button variant="outline" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))} className="active:scale-95 transition-transform h-9 w-9 rounded-full" aria-label="Menge verringern">
                         <Minus className="h-4 w-4" />
                     </Button>
                     <span className="w-8 text-center font-bold text-base">{quantity}</span>
-                     <Button variant="outline" size="icon" onClick={() => setQuantity(q => q + 1)} className="active:scale-95 transition-transform h-9 w-9 rounded-full">
+                     <Button variant="outline" size="icon" onClick={() => setQuantity(q => q + 1)} className="active:scale-95 transition-transform h-9 w-9 rounded-full" aria-label="Menge erhöhen">
                         <Plus className="h-4 w-4" />
                     </Button>
                     <Button size="sm" className="flex-1 ml-2 active:scale-[0.98] transition-transform rounded-full h-9" onClick={handleAddToCart}>
