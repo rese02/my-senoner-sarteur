@@ -40,7 +40,7 @@ export function PackageCard({ product }: { product: Product }) {
   return (
     <>
       <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 w-full">
-        <div className="grid grid-cols-[100px_1fr] items-stretch gap-4">
+        <div className="grid grid-cols-[100px_1fr] items-stretch">
             {/* Left side: Image */}
             <div className="relative h-full w-full overflow-hidden">
                 <Image 
@@ -54,32 +54,31 @@ export function PackageCard({ product }: { product: Product }) {
             </div>
             
             {/* Right side: Content */}
-            <div className="p-3 pr-4 flex flex-col justify-between h-full">
+            <div className="p-3 pr-4 flex flex-col justify-between h-full gap-2">
                 <div>
                   <h3 className="font-headline text-base text-foreground font-bold leading-tight line-clamp-2">
                     {product.name}
                   </h3>
+                   <p className="text-lg font-bold text-primary mt-1">€{product.price.toFixed(2)}</p>
                   <p className="text-muted-foreground text-xs mt-1 line-clamp-2">
                     {product.description || 'Das Rundum-Sorglos-Paket für Ihren Start.'}
                   </p>
                 </div>
 
-                <div className="mt-2 flex items-end justify-between">
-                    <p className="text-lg font-bold text-primary">€{product.price.toFixed(2)}</p>
-                    <div className="flex gap-2">
-                         <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => setIsOpen(true)}
-                          >
-                            <ListPlus className="w-4 h-4 mr-2" />
-                            Inhalt
-                          </Button>
-                         <Button size="sm" onClick={handleAddToCart}>
-                            <ShoppingBag className="w-4 h-4 mr-2" />
-                            Kaufen
-                          </Button>
-                    </div>
+                <div className="mt-auto flex flex-col items-stretch gap-2">
+                     <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setIsOpen(true)}
+                        className="h-8 rounded-full"
+                      >
+                        <ListPlus className="w-4 h-4 mr-2" />
+                        Inhalt ansehen
+                      </Button>
+                     <Button size="sm" onClick={handleAddToCart} className="h-8 rounded-full">
+                        <ShoppingBag className="w-4 h-4 mr-2" />
+                        Paket hinzufügen
+                      </Button>
                 </div>
             </div>
         </div>

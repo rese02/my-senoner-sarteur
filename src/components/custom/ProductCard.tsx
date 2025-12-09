@@ -41,7 +41,7 @@ export function ProductCard({ product }: { product: Product }) {
 
     return (
         <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 w-full">
-           <div className="grid grid-cols-[100px_1fr] items-stretch gap-4">
+           <div className="grid grid-cols-[100px_1fr] items-stretch">
                 {/* Left side: Image */}
                 <div className="relative h-full w-full bg-muted">
                     <Image 
@@ -56,7 +56,7 @@ export function ProductCard({ product }: { product: Product }) {
                 </div>
 
                 {/* Right side: Content */}
-                <div className="p-3 pr-4 flex flex-col justify-between h-full">
+                <div className="p-3 pr-4 flex flex-col justify-between h-full gap-2">
                     <div>
                         <h3 className="text-sm font-bold font-headline leading-tight line-clamp-2">{product.name}</h3>
                         <div className="flex items-baseline mt-1">
@@ -65,12 +65,12 @@ export function ProductCard({ product }: { product: Product }) {
                         </div>
                     </div>
                     
-                    <div className="flex items-center gap-2 mt-3">
-                        <Button variant="outline" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))} className="active:scale-95 transition-transform h-8 w-8 rounded-full shrink-0" aria-label="Menge verringern">
+                    <div className="flex items-center gap-2 mt-auto">
+                        <Button variant="outline" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))} className="active:scale-95 transition-transform h-7 w-7 rounded-full shrink-0" aria-label="Menge verringern">
                             <Minus className="h-4 w-4" />
                         </Button>
                         <span className="w-5 text-center font-bold text-sm">{quantity}</span>
-                        <Button variant="outline" size="icon" onClick={() => setQuantity(q => q + 1)} className="active:scale-95 transition-transform h-8 w-8 rounded-full shrink-0" aria-label="Menge erhöhen">
+                        <Button variant="outline" size="icon" onClick={() => setQuantity(q => q + 1)} className="active:scale-95 transition-transform h-7 w-7 rounded-full shrink-0" aria-label="Menge erhöhen">
                             <Plus className="h-4 w-4" />
                         </Button>
                         <Button size="sm" className="flex-1 ml-2 active:scale-[0.98] transition-transform rounded-full h-8" onClick={handleAddToCart}>
