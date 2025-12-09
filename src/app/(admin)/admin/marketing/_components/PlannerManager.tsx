@@ -14,6 +14,7 @@ import type { PlannerEvent, Product, PlannerIngredientRule } from "@/lib/types";
 import { savePlannerEvent, deletePlannerEvent } from "@/app/actions/marketing.actions";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, PlusCircle, Trash2, Edit, Plus } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 function PlannerEventForm({ event: initialEvent, onSave, isPending, availableProducts }: { event: Partial<PlannerEvent> | null, onSave: (event: Partial<PlannerEvent>) => void, isPending: boolean, availableProducts: Product[] }) {
     const [event, setEvent] = useState(initialEvent);
@@ -64,64 +65,67 @@ function PlannerEventForm({ event: initialEvent, onSave, isPending, availablePro
     };
 
     return (
-        <form onSubmit={handleFormSubmit} className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-4">
-            <div className="space-y-1.5">
-                <Label htmlFor="title">Event Name</Label>
-                <Input id="title" name="title" value={event.title || ''} onChange={handleFormChange} required placeholder="z.B. Raclette Abend"/>
-            </div>
-             <div className="space-y-1.5">
-                <Label htmlFor="description">Kurzbeschreibung</Label>
-                <Input id="description" name="description" value={event.description || ''} onChange={handleFormChange} placeholder="Der Klassiker für gemütliche Abende."/>
-            </div>
-            <div className="space-y-1.5">
-                <Label>Event Bild</Label>
-                <ImageUploader onUploadComplete={handleImageUpload} currentImageUrl={event.imageUrl} folder="planner" />
-            </div>
-            <div className="space-y-1.5">
-                <Label htmlFor="imageHint">Bild-Hinweis</Label>
-                <Input id="imageHint" name="imageHint" value={event.imageHint || ''} onChange={handleFormChange} placeholder="z.B. raclette cheese"/>
-            </div>
+        <form onSubmit={handleFormSubmit}>
+            <ScrollArea className="max-h-[70vh]">
+                <div className="grid gap-4 p-6">
+                    <div className="space-y-1.5">
+                        <Label htmlFor="title">Event Name</Label>
+                        <Input id="title" name="title" value={event.title || ''} onChange={handleFormChange} required placeholder="z.B. Raclette Abend"/>
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label htmlFor="description">Kurzbeschreibung</Label>
+                        <Input id="description" name="description" value={event.description || ''} onChange={handleFormChange} placeholder="Der Klassiker für gemütliche Abende."/>
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label>Event Bild</Label>
+                        <ImageUploader onUploadComplete={handleImageUpload} currentImageUrl={event.imageUrl} folder="planner" />
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label htmlFor="imageHint">Bild-Hinweis</Label>
+                        <Input id="imageHint" name="imageHint" value={event.imageHint || ''} onChange={handleFormChange} placeholder="z.B. raclette cheese"/>
+                    </div>
 
-            <div className="space-y-3 pt-4 border-t mt-4">
-                <Label>Zutaten-Regeln (Menge pro 1 Person)</Label>
-                <div className="flex gap-2 items-end bg-secondary p-2 rounded-lg border">
-                    <div className="flex-1 space-y-1">
-                        <Label className="text-xs">Produkt</Label>
-                         <Select onValueChange={(val) => {
-                            const product = availableProducts.find(p => p.id === val);
-                            setTempRule(r => ({...r, productId: val, productName: product?.name || ''}))
-                         }} value={tempRule.productId}>
-                            <SelectTrigger><SelectValue placeholder="Wählen..." /></SelectTrigger>
-                            <SelectContent>
-                                {availableProducts.map(p => (
-                                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                         </Select>
+                    <div className="space-y-3 pt-4 border-t mt-4">
+                        <Label>Zutaten-Regeln (Menge pro 1 Person)</Label>
+                        <div className="flex gap-2 items-end bg-secondary p-2 rounded-lg border">
+                            <div className="flex-1 space-y-1">
+                                <Label className="text-xs">Produkt</Label>
+                                <Select onValueChange={(val) => {
+                                    const product = availableProducts.find(p => p.id === val);
+                                    setTempRule(r => ({...r, productId: val, productName: product?.name || ''}))
+                                }} value={tempRule.productId}>
+                                    <SelectTrigger><SelectValue placeholder="Wählen..." /></SelectTrigger>
+                                    <SelectContent>
+                                        {availableProducts.map(p => (
+                                            <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="w-20 space-y-1">
+                                <Label className="text-xs">Menge</Label>
+                                <Input type="number" placeholder="150" value={tempRule.baseAmount} onChange={(e) => setTempRule(r => ({...r, baseAmount: e.target.value}))}/>
+                            </div>
+                            <div className="w-16 space-y-1">
+                                <Label className="text-xs">Einheit</Label>
+                                <Input placeholder="g" value={tempRule.unit} onChange={(e) => setTempRule(r => ({...r, unit: e.target.value}))} />
+                            </div>
+                            <Button type="button" size="icon" onClick={addRule}><Plus className="h-4 w-4" /></Button>
+                        </div>
+                        <div className="space-y-2">
+                            {event.ingredients?.map((rule, index) => (
+                            <div key={index} className="flex justify-between items-center p-2 border rounded bg-background shadow-sm text-sm">
+                                <span><strong>{rule.baseAmount}{rule.unit}</strong> {rule.productName}</span>
+                                <button onClick={() => removeRule(index)} type="button" className="text-destructive p-1 rounded hover:bg-destructive/10">
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
+                            ))}
+                        </div>
                     </div>
-                     <div className="w-20 space-y-1">
-                        <Label className="text-xs">Menge</Label>
-                        <Input type="number" placeholder="150" value={tempRule.baseAmount} onChange={(e) => setTempRule(r => ({...r, baseAmount: e.target.value}))}/>
-                    </div>
-                     <div className="w-16 space-y-1">
-                        <Label className="text-xs">Einheit</Label>
-                        <Input placeholder="g" value={tempRule.unit} onChange={(e) => setTempRule(r => ({...r, unit: e.target.value}))} />
-                    </div>
-                    <Button type="button" size="icon" onClick={addRule}><Plus className="h-4 w-4" /></Button>
                 </div>
-                 <div className="space-y-2">
-                    {event.ingredients?.map((rule, index) => (
-                    <div key={index} className="flex justify-between items-center p-2 border rounded bg-background shadow-sm text-sm">
-                        <span><strong>{rule.baseAmount}{rule.unit}</strong> {rule.productName}</span>
-                        <button onClick={() => removeRule(index)} type="button" className="text-destructive p-1 rounded hover:bg-destructive/10">
-                            <Trash2 size={16} />
-                        </button>
-                    </div>
-                    ))}
-                </div>
-            </div>
-
-            <DialogFooter className="mt-4 sticky bottom-0 bg-background py-4">
+            </ScrollArea>
+            <DialogFooter className="p-6 pt-4 sticky bottom-0 bg-card border-t">
                 <DialogClose asChild><Button type="button" variant="outline">Abbrechen</Button></DialogClose>
                 <Button type="submit" disabled={isPending}>
                     {isPending && <Loader2 className="mr-2 animate-spin h-4 w-4" />}
@@ -225,8 +229,8 @@ export function PlannerManager({ initialPlannerEvents, availableProducts }: { in
             </Card>
 
             <Dialog open={isPlannerModalOpen} onOpenChange={setIsPlannerModalOpen}>
-                <DialogContent className="sm:max-w-lg">
-                    <DialogHeader>
+                <DialogContent className="sm:max-w-lg p-0">
+                    <DialogHeader className="p-6 pb-0">
                         <DialogTitle>{editingPlannerEvent?.id?.startsWith('plan-') ? 'Neues Planer Event erstellen' : 'Planer Event bearbeiten'}</DialogTitle>
                         <DialogDescription>
                             Definieren Sie hier die Regeln für den Mengenrechner.

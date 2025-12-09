@@ -13,6 +13,7 @@ import { saveStory, deleteStory } from "@/app/actions/marketing.actions";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, PlusCircle, Trash2, Edit } from "lucide-react";
 import Image from "next/image";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 function StoryForm({ story, onSave, isPending }: { story: Partial<Story> | null, onSave: (story: Partial<Story>) => void, isPending: boolean }) {
     const [currentStory, setCurrentStory] = useState(story);
@@ -42,28 +43,32 @@ function StoryForm({ story, onSave, isPending }: { story: Partial<Story> | null,
     if (!currentStory) return null;
 
     return (
-        <form onSubmit={handleFormSubmit} className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-4">
-             <div className="space-y-1.5">
-                <Label>Story Bild</Label>
-                <ImageUploader 
-                    onUploadComplete={handleImageUpload}
-                    currentImageUrl={currentStory.imageUrl}
-                    folder="stories"
-                />
-            </div>
-            <div className="space-y-1.5">
-                <Label htmlFor="label">Titel (z.B. "Käse des Tages")</Label>
-                <Input id="label" name="label" value={currentStory.label || ''} onChange={handleChange} required />
-            </div>
-            <div className="space-y-1.5">
-                <Label htmlFor="author">Autor (z.B. "Käsetheke")</Label>
-                <Input id="author" name="author" value={currentStory.author || ''} onChange={handleChange} required />
-            </div>
-             <div className="space-y-1.5">
-                <Label htmlFor="imageHint">Bild-Hinweis für KI</Label>
-                <Input id="imageHint" name="imageHint" value={currentStory.imageHint || ''} onChange={handleChange} placeholder="z.B. cheese counter" />
-            </div>
-            <DialogFooter className="mt-4 sticky bottom-0 bg-background py-4">
+        <form onSubmit={handleFormSubmit}>
+            <ScrollArea className="max-h-[70vh]">
+                <div className="grid gap-4 p-6">
+                    <div className="space-y-1.5">
+                        <Label>Story Bild</Label>
+                        <ImageUploader 
+                            onUploadComplete={handleImageUpload}
+                            currentImageUrl={currentStory.imageUrl}
+                            folder="stories"
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label htmlFor="label">Titel (z.B. "Käse des Tages")</Label>
+                        <Input id="label" name="label" value={currentStory.label || ''} onChange={handleChange} required />
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label htmlFor="author">Autor (z.B. "Käsetheke")</Label>
+                        <Input id="author" name="author" value={currentStory.author || ''} onChange={handleChange} required />
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label htmlFor="imageHint">Bild-Hinweis für KI</Label>
+                        <Input id="imageHint" name="imageHint" value={currentStory.imageHint || ''} onChange={handleChange} placeholder="z.B. cheese counter" />
+                    </div>
+                </div>
+            </ScrollArea>
+            <DialogFooter className="p-6 pt-4 sticky bottom-0 bg-card border-t">
                 <DialogClose asChild><Button type="button" variant="outline">Abbrechen</Button></DialogClose>
                 <Button type="submit" disabled={isPending}>
                     {isPending && <Loader2 className="mr-2 animate-spin h-4 w-4" />}
@@ -173,8 +178,8 @@ export function StoriesManager({ initialStories }: { initialStories: Story[] }) 
             </Card>
 
             <Dialog open={isStoryModalOpen} onOpenChange={setIsStoryModalOpen}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
+                <DialogContent className="sm:max-w-md p-0">
+                    <DialogHeader className="p-6 pb-0">
                         <DialogTitle>{editingStory?.id?.startsWith('story-') ? 'Neue Story erstellen' : 'Story bearbeiten'}</DialogTitle>
                         <DialogDescription>
                             Fügen Sie ein Bild hinzu und geben Sie einen Titel und Autor an.

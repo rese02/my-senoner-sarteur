@@ -228,15 +228,15 @@ export function SommelierClient({ initialWines }: { initialWines: Product[] }) {
       </div>
 
        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent className="sm:max-w-md p-0">
+          <DialogHeader className="p-6 pb-0">
             <DialogTitle>Wein bearbeiten</DialogTitle>
             <DialogDescription>
                 Korrigieren Sie den Namen oder die Tags des Weins.
             </DialogDescription>
           </DialogHeader>
           {editingWine && (
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 p-6">
                 <div className="space-y-1.5">
                     <Label htmlFor="wine-name">Name</Label>
                     <Input 
@@ -256,7 +256,7 @@ export function SommelierClient({ initialWines }: { initialWines: Product[] }) {
                 </div>
             </div>
           )}
-          <DialogFooter>
+          <DialogFooter className="p-6 pt-4 border-t sticky bottom-0 bg-card">
             <DialogClose asChild><Button variant="outline">Abbrechen</Button></DialogClose>
             <Button onClick={handleUpdateWine} disabled={isPending}>
                 {isPending ? <Loader2 className="animate-spin mr-2" /> : null}
