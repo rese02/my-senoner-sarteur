@@ -106,7 +106,7 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <SubmitButton className="w-full">Anmelden</SubmitButton>
+        <SubmitButton className="w-full" variant="outline">Anmelden</SubmitButton>
       </form>
     </Form>
   );
