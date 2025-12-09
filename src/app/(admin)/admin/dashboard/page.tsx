@@ -1,9 +1,8 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, ShoppingCart, Truck, AlertCircle, Trash2, Loader2, Info } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { isToday, isPast, format, parseISO } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, ShoppingCart, Truck, Trash2, Loader2 } from "lucide-react";
+import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -17,6 +16,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { deleteOrder } from "@/app/actions/admin-cleanup.actions";
 import { useToast } from "@/hooks/use-toast";
 import { getDashboardPageData } from "@/app/actions/product.actions";
+import { Badge } from "@/components/ui/badge";
+import { OrdersByDayChart } from "./_components/OrdersByDayChart";
+import AdminDashboardLoading from "./loading";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
@@ -77,8 +79,7 @@ function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onCl
 
 
 export default function AdminDashboardPage() {
-    const [orders, setOrders] = useState<Order[]>([]);
-    const [users, setUsers] = useState<User[]>([]);
+    const [data, setData] = useState<{orders: Order[], users: User[], chartData: any[]}>({orders: [], users: [], chartData: []});
     const [loading, setLoading] = useState(true);
 
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -90,9 +91,8 @@ export default function AdminDashboardPage() {
         async function loadData() {
             setLoading(true);
             try {
-                const data = await getDashboardPageData();
-                setOrders(data.orders);
-                setUsers(data.users);
+                const fetchedData = await getDashboardPageData();
+                setData(fetchedData);
             } catch(error: any) {
                 toast({ variant: 'destructive', title: 'Daten-Fehler', description: "Dashboard-Daten konnten nicht geladen werden." });
             } finally {
@@ -105,78 +105,97 @@ export default function AdminDashboardPage() {
     }, [isModalOpen, toast]);
 
     const stats = useMemo(() => {
-        const newOrdersToday = orders.filter(o => isToday(parseISO(o.createdAt)) && o.status === 'new').length;
-        const pickupsToday = orders.filter(o => o.pickupDate && isToday(parseISO(o.pickupDate))).length;
-        const overduePickups = orders.filter(o => {
-            const pickup = o.pickupDate ? parseISO(o.pickupDate) : null;
-            if (!pickup) return false;
-            return isPast(pickup) && !isToday(pickup) && ['new', 'ready', 'picking', 'ready_for_delivery'].includes(o.status);
-        }).length;
-
-        return { newOrdersToday, pickupsToday, overduePickups };
-    }, [orders]);
+        const totalOrders = data.orders.length;
+        const totalCustomers = data.users.length;
+        const totalRevenue = data.orders.reduce((sum, order) => sum + (order.total || 0), 0);
+        return { totalOrders, totalCustomers, totalRevenue };
+    }, [data.orders, data.users]);
 
     const recentAndUpcomingOrders = useMemo(() => {
-        return orders
+        return data.orders
             .filter(o => ['new', 'picking', 'ready', 'ready_for_delivery'].includes(o.status))
             .sort((a, b) => new Date(a.pickupDate || a.createdAt).getTime() - new Date(b.pickupDate || b.createdAt).getTime())
-            .slice(0, 10);
-    }, [orders]);
+            .slice(0, 5);
+    }, [data.orders]);
 
     const handleShowDetails = (order: Order) => {
         setSelectedOrder(order);
-        const customer = users.find(u => u.id === order.userId) || null;
+        const customer = data.users.find(u => u.id === order.userId) || null;
         setCustomerDetails(customer);
         setIsModalOpen(true);
     };
 
     if (loading) {
-        return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+        return <AdminDashboardLoading />;
     }
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Dashboard" description="Willkommen zurück! Hier ist Ihre heutige Übersicht." />
+      <PageHeader title="Dashboard" description="Willkommen zurück! Hier ist Ihre aktuelle Übersicht." />
 
-      <div className="grid gap-4 grid-cols-3">
-        <Card className="flex flex-col items-center justify-center p-3 text-center">
-            <CardTitle className="text-xs font-medium text-muted-foreground">Neue Bestellungen</CardTitle>
-            <p className="text-3xl font-bold">{stats.newOrdersToday}</p>
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Gesamtumsatz</CardTitle>
+                <span className="text-muted-foreground">€</span>
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">€{stats.totalRevenue.toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground">aus {stats.totalOrders} Bestellungen</p>
+            </CardContent>
         </Card>
-        <Card className="flex flex-col items-center justify-center p-3 text-center">
-             <CardTitle className="text-xs font-medium text-muted-foreground">Abholungen</CardTitle>
-            <p className="text-3xl font-bold">{stats.pickupsToday}</p>
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Kunden</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{stats.totalCustomers}</div>
+                <p className="text-xs text-muted-foreground">Aktive Kundenkonten</p>
+            </CardContent>
         </Card>
-        <Card className={cn("flex flex-col items-center justify-center p-3 text-center", stats.overduePickups > 0 && "border-destructive/50 bg-destructive/5 text-destructive")}>
-             <CardTitle className="text-xs font-medium">Überfällig</CardTitle>
-            <p className="text-3xl font-bold">{stats.overduePickups}</p>
+         <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Offene Bestellungen</CardTitle>
+                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{recentAndUpcomingOrders.length}</div>
+                <p className="text-xs text-muted-foreground">Status "Neu" oder "In Bearbeitung"</p>
+            </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Aktuelle & anstehende Bestellungen</CardTitle>
-          <CardDescription>Die 10 dringendsten Bestellungen, sortiert nach Fälligkeit.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {recentAndUpcomingOrders.length === 0 ? (
-               <div className="text-center text-muted-foreground py-8">
-                  Keine aktiven Bestellungen. Sehr gut!
-              </div>
-          ) : (
-              <div className="space-y-3">
-                  {recentAndUpcomingOrders.map((order) => (
-                    <OrderCard key={order.id} order={order} onShowDetails={() => handleShowDetails(order)} />
-                  ))}
-              </div>
-          )}
-           <div className="mt-6 text-center">
-              <Button asChild variant="outline" size="sm">
-                  <Link href="/admin/orders">Alle Bestellungen anzeigen</Link>
-              </Button>
-          </div>
-        </CardContent>
-      </Card>
+       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+                <OrdersByDayChart data={data.chartData} loading={loading} />
+            </div>
+
+            <Card className="flex flex-col">
+                <CardHeader>
+                <CardTitle>Dringende Bestellungen</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                {recentAndUpcomingOrders.length === 0 ? (
+                    <div className="text-center text-muted-foreground py-8 h-full flex flex-col justify-center items-center">
+                        <CheckCircle className="w-12 h-12 text-green-400 mb-2"/>
+                        <p>Keine aktiven Bestellungen. Sehr gut!</p>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        {recentAndUpcomingOrders.map((order) => (
+                            <OrderCard key={order.id} order={order} onShowDetails={() => handleShowDetails(order)} />
+                        ))}
+                    </div>
+                )}
+                </CardContent>
+                <CardFooter>
+                    <Button asChild variant="outline" size="sm" className="w-full">
+                        <Link href="/admin/orders">Alle Bestellungen anzeigen</Link>
+                    </Button>
+                </CardFooter>
+            </Card>
+       </div>
 
        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-md m-4">
@@ -249,9 +268,6 @@ export default function AdminDashboardPage() {
                 
               <OrderDetailsDeleteSection orderId={selectedOrder.id} onClose={() => setIsModalOpen(false)} />
 
-               <DialogClose asChild>
-                <Button variant="outline" className="mt-4">Schließen</Button>
-              </DialogClose>
             </div>
           )}
         </DialogContent>

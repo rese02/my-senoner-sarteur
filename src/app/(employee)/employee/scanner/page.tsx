@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, Gift, Loader2, QrCode, X, ListTodo, Check } from 'lucide-react';
+import { Camera, Gift, Loader2, QrCode, X, ListTodo, Check, Package } from 'lucide-react';
 import type { User as UserType, Order, ChecklistItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -136,9 +136,9 @@ function ActiveScannerView({ onScanSuccess, onCancel }: { onScanSuccess: (data: 
 }
 
 // =================================================================
-// Zustand 3: Scan Ergebnis - NEUES Stempelsystem
+// Zustand 3: Scan Ergebnis - Stempelsystem & Kontext-Bestellungen
 // =================================================================
-function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustomer: () => void }) {
+function ScanResultView({ user, orders, onNextCustomer }: { user: UserType, orders: Order[], onNextCustomer: () => void }) {
   const [purchaseAmount, setPurchaseAmount] = useState('');
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
@@ -146,6 +146,8 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
   const stamps = user.loyaltyStamps || 0;
   const canRedeemSmall = stamps >= 5;
   const canRedeemBig = stamps >= 10;
+  const openOrders = orders.filter(o => ['new', 'ready', 'picking', 'ready_for_delivery'].includes(o.status));
+
 
   const handleAddStamp = async () => {
     if (!purchaseAmount || parseFloat(purchaseAmount) < 15) {
@@ -179,69 +181,84 @@ function ScanResultView({ user, onNextCustomer }: { user: UserType, onNextCustom
   };
 
   return (
-    <Card className="w-full p-4 space-y-4 shadow-xl border-none animate-in fade-in-50">
-      <div className="text-center">
-        <h2 className="text-xl font-bold font-headline">{user.name}</h2>
-        <div className="text-5xl font-bold text-primary my-1">
-          {stamps} <span className="text-lg text-muted-foreground font-normal">Stempel</span>
-        </div>
-      </div>
+    <div className="w-full space-y-4 animate-in fade-in-50">
+        <Card className="w-full p-4 text-center shadow-xl border-none">
+            <h2 className="text-xl font-bold font-headline">{user.name}</h2>
+            <div className="text-5xl font-bold text-primary my-1">
+                {stamps} <span className="text-lg text-muted-foreground font-normal">Stempel</span>
+            </div>
+        </Card>
 
-      {(canRedeemSmall || canRedeemBig) && (
-        <div className="bg-accent/10 p-3 rounded-xl border border-accent/30 space-y-2">
-          <h3 className="font-bold text-accent-foreground text-xs uppercase flex items-center gap-2"><Gift className="w-4 h-4" />Belohnung verfügbar!</h3>
-          
-          <div className="grid grid-cols-2 gap-2">
-            <Button 
-              onClick={() => handleRedeem('small')}
-              disabled={!canRedeemSmall || isPending}
-              variant="outline"
-              className="border-primary/50 text-primary bg-background hover:bg-primary/5 h-auto flex flex-col py-2"
-            >
-              <span className="font-bold text-base">3€ Rabatt</span>
-              <span className="text-xs font-normal">(5 Stempel)</span>
-            </Button>
+        {openOrders.length > 0 && (
+            <Card className="w-full p-4 shadow-xl border-none">
+                <h3 className="font-bold text-sm mb-2 flex items-center gap-2"><Package className="w-4 h-4 text-primary"/> Offene Vorbestellungen</h3>
+                <div className="space-y-1 text-sm text-muted-foreground">
+                    {openOrders.map(order => (
+                        <p key={order.id} className="border-b last:border-0 py-1">
+                            Bestellung #{order.id.slice(-6)} - Status: <Badge variant="secondary">{order.status}</Badge>
+                        </p>
+                    ))}
+                </div>
+            </Card>
+        )}
 
-            <Button 
-              onClick={() => handleRedeem('big')}
-              disabled={!canRedeemBig || isPending}
-              className="h-auto flex flex-col py-2"
-            >
-               <span className="font-bold text-base">7€ Rabatt</span>
-              <span className="text-xs font-normal">(10 Stempel)</span>
-            </Button>
-          </div>
-        </div>
-      )}
+        {(canRedeemSmall || canRedeemBig) && (
+            <Card className="w-full p-4 shadow-xl border-none bg-accent/10 border-accent/30">
+            <h3 className="font-bold text-accent-foreground text-sm uppercase flex items-center gap-2 mb-2"><Gift className="w-4 h-4" />Belohnung verfügbar!</h3>
+            
+            <div className="grid grid-cols-2 gap-2">
+                <Button 
+                onClick={() => handleRedeem('small')}
+                disabled={!canRedeemSmall || isPending}
+                variant="outline"
+                className="border-primary/50 text-primary bg-background hover:bg-primary/5 h-auto flex flex-col py-2"
+                >
+                <span className="font-bold text-base">3€ Rabatt</span>
+                <span className="text-xs font-normal">(5 Stempel)</span>
+                </Button>
 
-      <div className="space-y-2 pt-3 border-t">
-        <Label className="text-xs font-bold text-muted-foreground">Neuer Einkaufswert (€)</Label>
-        <div className="flex gap-2">
-          <Input 
-            type="number" 
-            placeholder="0.00" 
-            className="text-lg h-12" 
-            value={purchaseAmount}
-            onChange={e => setPurchaseAmount(e.target.value)}
-            disabled={isPending}
-          />
-          <Button 
-            onClick={handleAddStamp} 
-            disabled={isPending || !purchaseAmount || parseFloat(purchaseAmount) < 15}
-            className="w-2/5 h-12"
-          >
-            {isPending ? <Loader2 className="animate-spin" /> : '+1 Stempel'}
-          </Button>
-        </div>
-        <p className="text-xs text-muted-foreground text-center">
-          1 Stempel pro Einkauf ab 15,00€
-        </p>
-      </div>
+                <Button 
+                onClick={() => handleRedeem('big')}
+                disabled={!canRedeemBig || isPending}
+                className="h-auto flex flex-col py-2"
+                >
+                <span className="font-bold text-base">7€ Rabatt</span>
+                <span className="text-xs font-normal">(10 Stempel)</span>
+                </Button>
+            </div>
+            </Card>
+        )}
 
-       <Button variant="secondary" onClick={onNextCustomer} className="w-full">
-            Schließen & Nächster Kunde
+        <Card className="w-full p-4 shadow-xl border-none">
+            <div className="space-y-2">
+                <Label className="text-xs font-bold text-muted-foreground">Neuer Einkaufswert (€)</Label>
+                <div className="flex gap-2">
+                <Input 
+                    type="number" 
+                    placeholder="0.00" 
+                    className="text-lg h-12" 
+                    value={purchaseAmount}
+                    onChange={e => setPurchaseAmount(e.target.value)}
+                    disabled={isPending}
+                />
+                <Button 
+                    onClick={handleAddStamp} 
+                    disabled={isPending || !purchaseAmount || parseFloat(purchaseAmount) < 15}
+                    className="w-2/5 h-12"
+                >
+                    {isPending ? <Loader2 className="animate-spin" /> : '+1 Stempel'}
+                </Button>
+                </div>
+                <p className="text-xs text-muted-foreground text-center">
+                1 Stempel pro Einkauf ab 15,00€
+                </p>
+            </div>
+        </Card>
+
+        <Button variant="secondary" onClick={onNextCustomer} className="w-full">
+                Schließen & Nächster Kunde
         </Button>
-    </Card>
+    </div>
   );
 }
 
@@ -358,15 +375,17 @@ export default function ScannerPage() {
     const { toast } = useToast();
     
     const [users, setUsers] = useState<UserType[]>([]);
+    const [orders, setOrders] = useState<Order[]>([]);
     const [groceryLists, setGroceryLists] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
 
     const refreshData = useCallback(async () => {
         setLoading(true);
         try {
-            const { users: fetchedUsers, groceryLists: fetchedLists } = await getScannerPageData();
-            setUsers(fetchedUsers);
-            setGroceryLists(fetchedLists);
+            const { users, orders, groceryLists } = await getScannerPageData();
+            setUsers(users);
+            setOrders(orders);
+            setGroceryLists(groceryLists);
         } catch(err) {
             toast({ variant: 'destructive', title: 'Fehler', description: 'Daten konnten nicht geladen werden.'});
         } finally {
@@ -433,10 +452,9 @@ export default function ScannerPage() {
         return <ActiveScannerView onScanSuccess={handleScanSuccess} onCancel={resetToMain} />;
     }
 
-
-
     if (viewState === 'result' && scannedUser) {
-        return <ScanResultView user={scannedUser} onNextCustomer={resetToMain} />;
+        const userOrders = orders.filter(o => o.userId === scannedUser.id);
+        return <ScanResultView user={scannedUser} orders={userOrders} onNextCustomer={resetToMain} />;
     }
 
     if (viewState === 'picking' && currentOrder) {

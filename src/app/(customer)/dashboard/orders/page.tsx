@@ -10,6 +10,8 @@ import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Package, FileText, Calendar, Info, CheckCircle, Truck, ShoppingBag, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Suspense } from "react";
+import Loading from './loading';
 
 const statusMap: Record<OrderStatus, { label: string; className: string; icon: React.ElementType, colorClass: string }> = {
     new: { label: 'In Bearbeitung', className: 'bg-status-new-bg text-status-new-fg', icon: Info, colorClass: 'border-status-new-fg' },
@@ -30,7 +32,7 @@ function OrderHistoryCard({ order }: { order: Order }) {
 
     return (
         <Card className={cn("overflow-hidden shadow-lg border-l-4", statusColor)}>
-            <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-4">
+            <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-4 p-4">
                 <div>
                     <CardTitle className="text-base font-bold flex items-center gap-2">
                         {isGroceryList ? <FileText className="w-4 h-4 text-orange-500" /> : <Package className="w-4 h-4 text-primary" />}
@@ -45,7 +47,7 @@ function OrderHistoryCard({ order }: { order: Order }) {
                     {statusMap[order.status]?.label}
                 </Badge>
             </CardHeader>
-            <CardContent className="space-y-4 pt-0">
+            <CardContent className="space-y-4 pt-0 p-4">
                 <div className="flex items-center justify-between text-sm bg-secondary p-3 rounded-md">
                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="w-4 h-4"/>
@@ -92,23 +94,35 @@ function OrderHistoryCard({ order }: { order: Order }) {
     );
 }
 
-export default async function OrdersPage() {
+async function OrderList() {
     const orders = await getCustomerOrders();
+    
+    if (orders.length === 0) {
+        return (
+            <div className="text-center py-16 text-muted-foreground bg-card rounded-xl border border-dashed">
+                <Package className="mx-auto h-12 w-12 text-gray-300"/>
+                <h3 className="mt-4 text-lg font-medium">Noch keine Bestellungen</h3>
+                <p className="mt-1 text-sm">Ihre Bestellungen werden hier angezeigt.</p>
+            </div>
+        );
+    }
+    
+    return (
+         <div className="space-y-6">
+             {orders.map(order => <OrderHistoryCard key={order.id} order={order} />)}
+         </div>
+    );
+}
 
+export default function OrdersPage() {
     return (
         <>
             <PageHeader title="Meine Bestellungen" description="Hier sehen Sie den Status Ihrer aktuellen und vergangenen Bestellungen."/>
 
-            <div className="space-y-6 pb-24 md:pb-8">
-                {orders.length === 0 ? (
-                    <div className="text-center py-16 text-muted-foreground bg-card rounded-xl border border-dashed">
-                        <Package className="mx-auto h-12 w-12 text-gray-300"/>
-                        <h3 className="mt-4 text-lg font-medium">Noch keine Bestellungen</h3>
-                        <p className="mt-1 text-sm">Ihre Bestellungen werden hier angezeigt.</p>
-                    </div>
-                ) : (
-                    orders.map(order => <OrderHistoryCard key={order.id} order={order} />)
-                )}
+            <div className="pb-24 md:pb-8">
+                <Suspense fallback={<Loading />}>
+                    <OrderList />
+                </Suspense>
             </div>
         </>
     );

@@ -18,20 +18,21 @@ export async function getScannerPageData() {
   await requireEmployeeOrAdmin();
 
   try {
+    // Holen Sie sich alle Benutzer und alle Bestellungen auf einmal
     const usersSnapshot = await adminDb.collection('users').get();
-    const groceryListsSnapshot = await adminDb
-      .collection('orders')
-      .where('type', '==', 'grocery_list')
-      .where('status', '==', 'new')
-      .get();
+    const ordersSnapshot = await adminDb.collection('orders').get();
       
     const users = usersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as User));
-    const groceryLists = groceryListsSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
+    const orders = ordersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
+    
+    // Filtern Sie die Einkaufslisten serverseitig
+    const groceryLists = orders.filter(order => order.type === 'grocery_list' && order.status === 'new');
 
-    return { users, groceryLists };
+    // Geben Sie alle relevanten Daten zurück
+    return { users, orders, groceryLists };
   } catch (error) {
     console.error("Error fetching data for scanner page:", error);
     // Stabile Rückgabe im Fehlerfall
-    return { users: [], groceryLists: [] };
+    return { users: [], orders: [], groceryLists: [] };
   }
 }

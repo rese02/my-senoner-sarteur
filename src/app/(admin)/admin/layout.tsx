@@ -2,17 +2,52 @@
 
 import { AdminSidebar } from "./_components/AdminSidebar";
 import { AdminMobileNav } from "./_components/AdminMobileNav";
-import { Logo } from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth.actions";
-import { LogOut } from "lucide-react";
-import type { User } from "@/lib/types";
+import { LogOut, CheckCircle } from "lucide-react";
 import { useSession } from "@/hooks/use-session";
 import { redirect } from 'next/navigation';
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+
+
+function AdminLoadingSkeleton() {
+    return (
+        <div className="flex h-screen w-screen bg-background">
+            {/* Sidebar Skeleton */}
+            <div className="hidden md:flex flex-col w-64 border-r">
+                <div className="p-4 h-16 flex items-center justify-center bg-primary">
+                    <Skeleton className="h-8 w-36" />
+                </div>
+                <div className="flex-1 p-4 space-y-2">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <Skeleton key={i} className="h-10 w-full" />
+                    ))}
+                </div>
+                 <div className="p-4 mt-auto">
+                    <Skeleton className="h-10 w-full" />
+                 </div>
+            </div>
+            <div className="flex-1 flex flex-col">
+                {/* Header Skeleton */}
+                <div className="flex-none h-16 flex items-center justify-end border-b bg-primary px-4 md:px-6">
+                    <Skeleton className="h-8 w-24" />
+                </div>
+                {/* Main Content Skeleton */}
+                <main className="flex-1 p-4 sm:p-6 lg:p-8">
+                     <div className="space-y-2 mb-8">
+                        <Skeleton className="h-8 w-48" />
+                        <Skeleton className="h-5 w-72" />
+                    </div>
+                    <Skeleton className="h-[400px] w-full rounded-lg" />
+                </main>
+            </div>
+        </div>
+    );
+}
 
 
 export default function AdminLayout({
@@ -38,11 +73,7 @@ export default function AdminLayout({
   }
 
   if (loading || !session) {
-      return (
-        <div className="flex h-screen w-screen items-center justify-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
-        </div>
-      );
+      return <AdminLoadingSkeleton />;
   }
 
 

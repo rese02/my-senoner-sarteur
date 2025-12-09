@@ -7,6 +7,7 @@ import { toPlainObject } from '@/lib/utils';
 import type { Product, Category, Story, Recipe, Order, User } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { subDays, startOfDay, format } from 'date-fns';
 
 const ProductSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters long."}),
@@ -82,10 +83,33 @@ export async function getDashboardPageData() {
     const orders = ordersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
     const users = usersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as User));
     
-    return { orders, users };
+    // --- Chart Data Logic ---
+    const last7Days = Array.from({ length: 7 }).map((_, i) => {
+        const d = subDays(new Date(), i);
+        return format(startOfDay(d), 'yyyy-MM-dd');
+    }).reverse();
+
+    const ordersByDay: Record<string, number> = last7Days.reduce((acc, dateStr) => {
+        acc[dateStr] = 0;
+        return acc;
+    }, {} as Record<string, number>);
+
+    orders.forEach(order => {
+        const orderDate = format(parseISO(order.createdAt), 'yyyy-MM-dd');
+        if (ordersByDay.hasOwnProperty(orderDate)) {
+            ordersByDay[orderDate]++;
+        }
+    });
+
+    const chartData = last7Days.map(dateStr => ({
+        date: format(parseISO(dateStr), 'EEE'), // Format as "Mon", "Tue", etc.
+        totalOrders: ordersByDay[dateStr]
+    }));
+
+    return { orders, users, chartData };
   } catch (error) {
     console.error("Error fetching data for dashboard:", error);
-    return { orders: [], users: [] };
+    return { orders: [], users: [], chartData: [] };
   }
 }
 
