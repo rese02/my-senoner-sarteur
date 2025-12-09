@@ -35,9 +35,9 @@ export default async function AdminLayout({
       <AdminSidebar />
       <div className="flex-1 flex flex-col">
          <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b bg-card text-card-foreground px-4 md:px-6 sticky top-0 z-20">
-            <div className="md:hidden">
-              <Link href="/" className="flex items-center h-8">
-                <Image src="/logo.png" alt="Senoner Sarteur Logo" width={120} height={25} className="object-contain" />
+            <div className="md:hidden h-8">
+              <Link href="/" className="flex items-center h-full">
+                <Image src="/logo.png" alt="Senoner Sarteur Logo" width={120} height={30} className="object-contain" />
               </Link>
             </div>
              <form action={logout}>
@@ -47,7 +47,7 @@ export default async function AdminLayout({
               </Button>
             </form>
         </header>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-24 md:pb-8 bg-secondary">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-24 md:pb-8 bg-secondary md:bg-background">
             {children}
         </main>
       </div>

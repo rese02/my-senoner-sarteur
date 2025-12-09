@@ -17,12 +17,14 @@ function QrCodeDisplay({ userId }: { userId: string }) {
     );
 }
 
-function Stamp({ filled }: { filled: boolean }) {
+function Stamp({ filled, index }: { filled: boolean, index: number }) {
     return (
         <div className={cn(
-            "w-full aspect-square rounded-full flex items-center justify-center transition-all duration-500",
+            "w-full aspect-square rounded-full flex items-center justify-center transition-all",
             filled ? "bg-accent/20 border-2 border-dashed border-accent" : "bg-secondary"
-        )}>
+        )}
+        style={{ animationDelay: `${index * 50}ms`}}
+        >
             {filled && <Sparkles className="w-1/2 h-1/2 text-accent animate-in fade-in-50 zoom-in-75" />}
         </div>
     );
@@ -63,7 +65,7 @@ export default async function LoyaltyPage() {
                         <CardContent>
                             <div className="grid grid-cols-5 gap-2">
                                 {Array.from({ length: 10 }).map((_, i) => (
-                                    <Stamp key={i} filled={i < stamps} />
+                                    <Stamp key={i} index={i} filled={i < stamps} />
                                 ))}
                             </div>
                         </CardContent>

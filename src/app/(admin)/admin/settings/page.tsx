@@ -33,7 +33,7 @@ export default function AdminSettingsPage() {
 
   return (
     <>
-      <PageHeader title="Einstellungen & Wartung" description="Halten Sie Ihre App schnell und sauber." />
+      <PageHeader title="Einstellungen" description="Halten Sie Ihre App schnell und sauber." />
 
       <Card className="border-destructive/20 max-w-xl">
         <CardHeader className="bg-destructive/5">

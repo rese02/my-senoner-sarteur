@@ -170,10 +170,9 @@ export default function AdminCustomersPage() {
   }
 
   return (
-    <div className="space-y-6 pb-24 md:pb-8">
+    <div className="space-y-6">
       <PageHeader title="Kunden" description="Engagieren Sie sich mit Ihren Kunden und führen Sie Marketingkampagnen durch." />
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-3 space-y-6">
+      <div className="space-y-6">
             <Card>
                 <CardHeader>
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -306,7 +305,6 @@ export default function AdminCustomersPage() {
                     </div>
                 </CardContent>
             </Card>
-        </div>
       </div>
     </div>
   );

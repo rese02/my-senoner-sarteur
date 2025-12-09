@@ -182,7 +182,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
         <Button onClick={() => setIsCategoryModalOpen(true)} className="hidden md:flex" size="sm"><PlusCircle className="mr-2 h-4 w-4"/>Neue Kategorie</Button>
       </div>
       
-        <div className="space-y-8 pb-24 md:pb-0">
+        <div className="space-y-8">
           {categories.map((category) => {
             const productsInCategory = products.filter(p => p.categoryId === category.id);
             return (
@@ -211,7 +211,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                   </div>
                 </div>
                 
-                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {productsInCategory.map(product => (
                        <Card key={product.id} className="overflow-hidden flex flex-col group transition-all hover:shadow-lg bg-card">
                         <div className="relative aspect-[4/3] bg-muted overflow-hidden">

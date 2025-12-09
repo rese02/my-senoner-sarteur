@@ -18,13 +18,13 @@ function EventSelectionCarousel({ events, onSelect, selectedEvent }: { events: P
     return (
         <Carousel opts={{
             align: "start",
-            loop: true,
+            loop: false,
         }} 
         className="w-full"
         >
-            <CarouselContent className="-ml-2">
+            <CarouselContent className="-ml-2 md:-ml-4">
                 {events.map((event) => (
-                     <CarouselItem key={event.id} className="pl-2 basis-2/3 md:basis-1/3 lg:basis-1/4">
+                     <CarouselItem key={event.id} className="pl-2 md:pl-4 basis-2/3 md:basis-1/3 lg:basis-1/4">
                         <div 
                             onClick={() => onSelect(event)}
                             className={cn(

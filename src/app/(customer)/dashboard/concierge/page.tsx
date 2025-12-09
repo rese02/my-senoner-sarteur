@@ -42,7 +42,7 @@ export default function ConciergePage() {
         <div className="pb-24 md:pb-8">
             <PageHeader title="Concierge Service" description="Ihr persönlicher Einkaufszettel & Lieferservice." />
             
-            <Card className="shadow-lg border-none max-w-2xl mx-auto">
+            <Card className="shadow-lg border-none max-w-2xl mx-auto bg-gradient-to-br from-card to-secondary/30">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Feather className="w-5 h-5 text-primary"/>

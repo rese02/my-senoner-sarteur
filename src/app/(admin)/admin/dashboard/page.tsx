@@ -135,65 +135,48 @@ export default function AdminDashboardPage() {
     }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <PageHeader title="Dashboard" description="Willkommen zurück! Hier ist Ihre heutige Übersicht." />
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Neue Bestellungen heute</CardTitle>
-            <ShoppingCart className="h-5 w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.newOrdersToday}</div>
-          </CardContent>
+      <div className="grid gap-4 grid-cols-3">
+        <Card className="flex flex-col items-center justify-center p-3 text-center">
+            <CardTitle className="text-xs font-medium text-muted-foreground">Neue Bestellungen</CardTitle>
+            <p className="text-3xl font-bold">{stats.newOrdersToday}</p>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Abholungen/Lieferungen heute</CardTitle>
-            <Truck className="h-5 w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.pickupsToday}</div>
-          </CardContent>
+        <Card className="flex flex-col items-center justify-center p-3 text-center">
+             <CardTitle className="text-xs font-medium text-muted-foreground">Abholungen</CardTitle>
+            <p className="text-3xl font-bold">{stats.pickupsToday}</p>
         </Card>
-        <Card className={cn(stats.overduePickups > 0 && "border-destructive/50 bg-destructive/5 text-destructive")}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Überfällige Abholungen</CardTitle>
-            <AlertCircle className={cn("h-5 w-5", stats.overduePickups > 0 ? 'text-destructive' : 'text-muted-foreground')} />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.overduePickups}</div>
-          </CardContent>
+        <Card className={cn("flex flex-col items-center justify-center p-3 text-center", stats.overduePickups > 0 && "border-destructive/50 bg-destructive/5 text-destructive")}>
+             <CardTitle className="text-xs font-medium">Überfällig</CardTitle>
+            <p className="text-3xl font-bold">{stats.overduePickups}</p>
         </Card>
       </div>
 
-      <div className="grid gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Aktuelle & anstehende Bestellungen</CardTitle>
-            <CardDescription>Die 10 dringendsten Bestellungen, sortiert nach Fälligkeit.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {recentAndUpcomingOrders.length === 0 ? (
-                 <div className="text-center text-muted-foreground py-8">
-                    Keine aktiven Bestellungen. Sehr gut!
-                </div>
-            ) : (
-                <div className="space-y-3">
-                    {recentAndUpcomingOrders.map((order) => (
-                      <OrderCard key={order.id} order={order} onShowDetails={() => handleShowDetails(order)} />
-                    ))}
-                </div>
-            )}
-             <div className="mt-6 text-center">
-                <Button asChild variant="outline" size="sm">
-                    <Link href="/admin/orders">Alle Bestellungen anzeigen</Link>
-                </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Aktuelle & anstehende Bestellungen</CardTitle>
+          <CardDescription>Die 10 dringendsten Bestellungen, sortiert nach Fälligkeit.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {recentAndUpcomingOrders.length === 0 ? (
+               <div className="text-center text-muted-foreground py-8">
+                  Keine aktiven Bestellungen. Sehr gut!
+              </div>
+          ) : (
+              <div className="space-y-3">
+                  {recentAndUpcomingOrders.map((order) => (
+                    <OrderCard key={order.id} order={order} onShowDetails={() => handleShowDetails(order)} />
+                  ))}
+              </div>
+          )}
+           <div className="mt-6 text-center">
+              <Button asChild variant="outline" size="sm">
+                  <Link href="/admin/orders">Alle Bestellungen anzeigen</Link>
+              </Button>
+          </div>
+        </CardContent>
+      </Card>
 
        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-md m-4">

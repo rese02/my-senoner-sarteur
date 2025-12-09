@@ -31,8 +31,8 @@ export function AdminMobileNav() {
             )}
           >
             {isActive && <div className="absolute top-0 h-0.5 w-8 bg-primary rounded-full animate-in fade-in-0 slide-in-from-top-2 duration-300" />}
-            <item.icon className="w-6 h-6" />
-            <span className="text-xs font-medium">{item.label}</span>
+            <item.icon className="w-5 h-5" />
+            <span className="text-[10px] font-medium">{item.label}</span>
           </Link>
         );
       })}
