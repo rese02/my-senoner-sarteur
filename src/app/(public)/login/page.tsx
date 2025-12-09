@@ -36,7 +36,7 @@ export default function LoginPage() {
         <div className="absolute bottom-4 left-0 right-0 z-10 flex justify-center gap-6 text-xs text-muted-foreground">
              <Link href="/impressum" className="hover:text-primary">Impressum</Link>
              <Link href="/datenschutz" className="hover:text-primary">Datenschutz</Link>
-        </div>
+         </div>
     </div>
   );
 }
