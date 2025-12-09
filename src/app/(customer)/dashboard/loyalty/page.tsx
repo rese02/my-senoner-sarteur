@@ -3,7 +3,7 @@
 import { PageHeader } from "@/components/common/PageHeader";
 import { getSession } from "@/lib/session";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Gift, Sparkles, Loader2 } from "lucide-react";
+import { Gift, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -42,7 +42,7 @@ export default async function LoyaltyPage() {
     const progressBig = Math.min(stamps, 10) / 10 * 100;
 
     return (
-        <>
+        <div className="pb-24 md:pb-8">
             <PageHeader title="Meine Treuekarte" description="Zeigen Sie Ihren QR-Code an der Kasse, um Stempel zu sammeln und Belohnungen einzulösen." />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -150,6 +150,6 @@ export default async function LoyaltyPage() {
                     </Card>
                 </div>
             </div>
-        </>
+        </div>
     );
 }

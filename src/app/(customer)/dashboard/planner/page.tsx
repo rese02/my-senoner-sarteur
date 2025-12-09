@@ -12,36 +12,43 @@ import type { PlannerEvent, Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { getPlannerPageData } from '@/app/actions/marketing.actions';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 
 function EventSelectionCarousel({ events, onSelect, selectedEvent }: { events: PlannerEvent[], onSelect: (event: PlannerEvent) => void, selectedEvent: PlannerEvent | null }) {
     return (
-        <div className="w-full">
-            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide px-4 md:px-0">
+        <Carousel opts={{
+            align: "start",
+            loop: true,
+        }} 
+        className="w-full"
+        >
+            <CarouselContent className="-ml-2">
                 {events.map((event) => (
-                    <div 
-                        key={event.id}
-                        onClick={() => onSelect(event)}
-                        className={cn(
-                            "flex-shrink-0 w-48 h-28 rounded-2xl overflow-hidden cursor-pointer group relative transition-all duration-300 ease-in-out border-4",
-                             selectedEvent?.id === event.id ? "border-primary shadow-2xl" : "border-transparent hover:shadow-lg"
-                        )}
-                    >
-                        <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors z-10"></div>
-                        <Image 
-                            src={event.imageUrl} 
-                            alt={event.title} 
-                            fill 
-                            sizes="200px" 
-                            className="object-cover transition-transform duration-500 ease-in-out scale-105 group-hover:scale-110"
-                            data-ai-hint={event.imageHint}
-                        />
-                        <div className="relative z-20 flex flex-col items-center justify-center h-full text-white text-center p-2">
-                            <h3 className="font-headline text-xl font-bold drop-shadow-md leading-tight">{event.title}</h3>
+                     <CarouselItem key={event.id} className="pl-2 basis-2/3 md:basis-1/3 lg:basis-1/4">
+                        <div 
+                            onClick={() => onSelect(event)}
+                            className={cn(
+                                "h-28 rounded-2xl overflow-hidden cursor-pointer group relative transition-all duration-300 ease-in-out border-4",
+                                selectedEvent?.id === event.id ? "border-primary shadow-2xl" : "border-transparent hover:shadow-lg"
+                            )}
+                        >
+                            <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors z-10"></div>
+                            <Image 
+                                src={event.imageUrl} 
+                                alt={event.title} 
+                                fill 
+                                sizes="(max-width: 768px) 66vw, 33vw"
+                                className="object-cover transition-transform duration-500 ease-in-out scale-105 group-hover:scale-110"
+                                data-ai-hint={event.imageHint}
+                            />
+                            <div className="relative z-20 flex flex-col items-center justify-center h-full text-white text-center p-2">
+                                <h3 className="font-headline text-xl font-bold drop-shadow-md leading-tight">{event.title}</h3>
+                            </div>
                         </div>
-                    </div>
+                    </CarouselItem>
                 ))}
-            </div>
-        </div>
+            </CarouselContent>
+        </Carousel>
     );
 }
 
@@ -103,15 +110,15 @@ export default function PartyPlannerPage() {
   }
 
   return (
-    <div className="w-full overflow-x-hidden space-y-8 pb-24 md:pb-8">
-      <div className="px-4 md:px-0">
+    <div className="w-full space-y-8 pb-24 md:pb-8">
+      <div>
           <PageHeader title="Party Planer" description="Wählen Sie ein Event und wir berechnen die perfekte Menge für Ihre Gäste." />
       </div>
       
        <EventSelectionCarousel events={events} onSelect={setSelectedEvent} selectedEvent={selectedEvent} />
       
       {selectedEvent && (
-        <div className="px-4 md:px-0">
+        <div>
             <Card className="border-none shadow-xl animate-in fade-in-50 overflow-hidden">
                 <CardHeader className="p-4">
                     <CardTitle className="text-xl font-headline">Mengenrechner für "{selectedEvent.title}"</CardTitle>

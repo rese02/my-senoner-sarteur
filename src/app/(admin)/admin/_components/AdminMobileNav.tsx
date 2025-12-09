@@ -26,10 +26,11 @@ export function AdminMobileNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              'flex flex-col items-center gap-1 p-2 rounded-md transition-colors w-1/5',
-              isActive ? 'text-primary font-bold' : 'text-muted-foreground hover:text-primary'
+              'flex flex-col items-center gap-1 p-2 rounded-md transition-colors w-1/5 relative',
+              isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'
             )}
           >
+            {isActive && <div className="absolute top-0 h-0.5 w-8 bg-primary rounded-full animate-in fade-in-0 slide-in-from-top-2 duration-300" />}
             <item.icon className="w-6 h-6" />
             <span className="text-xs font-medium">{item.label}</span>
           </Link>

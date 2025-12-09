@@ -19,24 +19,26 @@ interface MarketingClientProps {
 export function MarketingClient({ initialStories, initialPlannerEvents, availableProducts, initialRecipe }: MarketingClientProps) {
 
     return (
-        <Tabs defaultValue="recipe" className="w-full">
-            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-8 h-auto sm:h-10">
-                <TabsTrigger value="recipe" className="h-10">🍳 Rezept der Woche</TabsTrigger>
-                <TabsTrigger value="stories" className="h-10">📸 Stories</TabsTrigger>
-                <TabsTrigger value="planner" className="h-10">🎉 Party Planer</TabsTrigger>
-            </TabsList>
+        <div className="pb-24 md:pb-0">
+            <Tabs defaultValue="recipe" className="w-full">
+                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-8 h-auto sm:h-10">
+                    <TabsTrigger value="recipe" className="h-10">🍳 Rezept der Woche</TabsTrigger>
+                    <TabsTrigger value="stories" className="h-10">📸 Stories</TabsTrigger>
+                    <TabsTrigger value="planner" className="h-10">🎉 Party Planer</TabsTrigger>
+                </TabsList>
 
-            <TabsContent value="recipe">
-                <RecipeManager initialRecipe={initialRecipe} />
-            </TabsContent>
+                <TabsContent value="recipe">
+                    <RecipeManager initialRecipe={initialRecipe} />
+                </TabsContent>
 
-            <TabsContent value="stories">
-                 <StoriesManager initialStories={initialStories} />
-            </TabsContent>
+                <TabsContent value="stories">
+                    <StoriesManager initialStories={initialStories} />
+                </TabsContent>
 
-            <TabsContent value="planner">
-                <PlannerManager initialPlannerEvents={initialPlannerEvents} availableProducts={availableProducts} />
-            </TabsContent>
-      </Tabs>
+                <TabsContent value="planner">
+                    <PlannerManager initialPlannerEvents={initialPlannerEvents} availableProducts={availableProducts} />
+                </TabsContent>
+            </Tabs>
+        </div>
     );
 }
