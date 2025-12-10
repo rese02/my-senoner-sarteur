@@ -55,7 +55,6 @@ export function LoginForm() {
         title: 'Anmeldung fehlgeschlagen',
         description: "Ungültige E-Mail oder Passwort.",
       });
-      // Don't reset form, just re-enable it by form state
     }
   }
 
@@ -106,7 +105,7 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <SubmitButton className="w-full" variant="outline">Anmelden</SubmitButton>
+        <SubmitButton className="w-full">Anmelden</SubmitButton>
       </form>
     </Form>
   );

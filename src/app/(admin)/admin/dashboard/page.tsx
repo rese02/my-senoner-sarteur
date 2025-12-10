@@ -6,7 +6,7 @@ import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useState, useMemo, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect } from "react";
 import type { Order, User, OrderStatus } from "@/lib/types";
 import { OrderCard } from "@/components/admin/OrderCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -19,6 +19,7 @@ import { getDashboardPageData } from "@/app/actions/product.actions";
 import { Badge } from "@/components/ui/badge";
 import { OrdersByDayChart } from "./_components/OrdersByDayChart";
 import AdminDashboardLoading from "./loading";
+import { useRouter } from "next/navigation";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
@@ -35,13 +36,15 @@ const statusMap: Record<OrderStatus, {label: string, className: string}> = {
 function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onClose: () => void }) {
     const { toast } = useToast();
     const [isDeleting, startDeleteTransition] = useTransition();
+    const router = useRouter();
 
     const handleDelete = () => {
         startDeleteTransition(async () => {
             const result = await deleteOrder(orderId);
             if (result.success) {
                 toast({ title: "Gelöscht", description: "Bestellung wurde entfernt." });
-                onClose();
+                onClose(); // This closes the modal
+                router.refresh(); // This re-fetches the server data
             } else {
                  toast({ variant: 'destructive', title: 'Fehler', description: result.error || 'Konnte nicht gelöscht werden.' });
             }
@@ -99,26 +102,9 @@ export default function AdminDashboardPage() {
                 setLoading(false);
             }
         }
-        if (!isModalOpen) {
-           loadData();
-        }
-    }, [isModalOpen, toast]);
+       loadData();
+    }, [toast]);
 
-    const stats = useMemo(() => {
-        if (!data) return { totalOrders: 0, totalCustomers: 0, totalRevenue: 0 };
-        const totalOrders = data.orders.length;
-        const totalCustomers = data.users.length;
-        const totalRevenue = data.orders.reduce((sum, order) => sum + (order.total || 0), 0);
-        return { totalOrders, totalCustomers, totalRevenue };
-    }, [data]);
-
-    const recentAndUpcomingOrders = useMemo(() => {
-        if (!data) return [];
-        return data.orders
-            .filter(o => ['new', 'picking', 'ready', 'ready_for_delivery'].includes(o.status))
-            .sort((a, b) => new Date(a.pickupDate || a.createdAt).getTime() - new Date(b.pickupDate || b.createdAt).getTime())
-            .slice(0, 5);
-    }, [data]);
 
     const handleShowDetails = (order: Order) => {
         if (!data) return;
@@ -127,17 +113,30 @@ export default function AdminDashboardPage() {
         setCustomerDetails(customer);
         setIsModalOpen(true);
     };
+
+    if (loading || !data) {
+        return <AdminDashboardLoading />;
+    }
     
+    const recentAndUpcomingOrders = data.orders
+            .filter(o => ['new', 'picking', 'ready', 'ready_for_delivery'].includes(o.status))
+            .sort((a, b) => new Date(a.pickupDate || a.createdAt).getTime() - new Date(b.pickupDate || b.createdAt).getTime())
+            .slice(0, 5);
+
+    const totalRevenue = data.orders.reduce((sum, order) => sum + (order.total || 0), 0);
+    const totalOrders = data.orders.length;
+    const totalCustomers = data.users.length;
+        
     const statItems = [
         {
             title: "Gesamtumsatz",
-            value: `€${stats.totalRevenue.toFixed(2)}`,
-            description: `aus ${stats.totalOrders} Bestellungen`,
+            value: `€${totalRevenue.toFixed(2)}`,
+            description: `aus ${totalOrders} Bestellungen`,
             icon: Euro,
         },
         {
             title: "Kunden",
-            value: stats.totalCustomers,
+            value: totalCustomers,
             description: "Aktive Kundenkonten",
             icon: Users,
         },
@@ -147,20 +146,15 @@ export default function AdminDashboardPage() {
             description: `Status "Neu" oder "In Bearbeitung"`,
             icon: ShoppingCart,
         },
-    ]
-
-
-    if (loading || !data) {
-        return <AdminDashboardLoading />;
-    }
+    ];
 
   return (
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Willkommen zurück! Hier ist Ihre aktuelle Übersicht." />
 
-      {/* --- Mobile Stats View --- */}
+      {/* --- Mobile Stats View (Optimized) --- */}
       <div className="grid grid-cols-2 gap-4 md:hidden">
-          {statItems.slice(1).map((item) => (
+          {statItems.map((item) => (
              <Card key={item.title}>
                  <CardHeader className="p-3">
                      <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
@@ -170,21 +164,10 @@ export default function AdminDashboardPage() {
                  </CardHeader>
                  <CardContent className="p-3 pt-0">
                      <div className="text-2xl font-bold">{item.value}</div>
+                     <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
                  </CardContent>
              </Card>
           ))}
-           <Card className="col-span-2">
-                 <CardHeader className="p-3">
-                     <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
-                         {statItems[0].title}
-                         <statItems[0].icon className="h-4 w-4 text-muted-foreground" />
-                     </CardTitle>
-                 </CardHeader>
-                 <CardContent className="p-3 pt-0">
-                     <div className="text-2xl font-bold">{statItems[0].value}</div>
-                     <p className="text-xs text-muted-foreground">{statItems[0].description}</p>
-                 </CardContent>
-             </Card>
       </div>
       
       {/* --- Desktop Stats View --- */}
