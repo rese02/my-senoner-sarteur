@@ -14,13 +14,13 @@ import { Cart } from "./Cart";
 
 function CategoryFilter({ categories, activeCategory, onSelect }: { categories: Category[], activeCategory: string, onSelect: (categoryId: string) => void }) {
   return (
-    <div className="py-2 bg-secondary rounded-xl p-2 sticky top-0 z-10">
+    <div className="py-2 bg-secondary/80 backdrop-blur-sm rounded-xl p-2 sticky top-2 z-10">
         <div className="flex overflow-x-auto gap-2 scrollbar-hide">
           <Button
               key="Alle"
               onClick={() => onSelect('Alle')}
-              variant={activeCategory === 'Alle' ? "default" : "outline"}
-              className="rounded-full px-5 text-sm h-9 whitespace-nowrap shrink-0 bg-card hover:bg-card/90"
+              variant={activeCategory === 'Alle' ? "default" : "secondary"}
+              className="rounded-full px-5 text-sm h-9 whitespace-nowrap shrink-0 shadow-sm"
             >
               Alle
             </Button>
@@ -28,8 +28,8 @@ function CategoryFilter({ categories, activeCategory, onSelect }: { categories: 
             <Button
               key={cat.id}
               onClick={() => onSelect(cat.id)}
-              variant={activeCategory === 'Alle' ? "outline" : (activeCategory === cat.id ? "default" : "outline")}
-              className="rounded-full px-5 text-sm h-9 whitespace-nowrap shrink-0 bg-card hover:bg-card/90"
+              variant={activeCategory === cat.id ? "default" : "secondary"}
+              className="rounded-full px-5 text-sm h-9 whitespace-nowrap shrink-0 shadow-sm"
             >
               {cat.name}
             </Button>

@@ -14,13 +14,13 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
     return (
         <Card className="overflow-hidden w-full">
             <div className="grid md:grid-cols-2">
-                <div className="relative aspect-[4/3] md:aspect-auto">
+                <div className="relative aspect-[4/3] md:aspect-auto min-h-[200px]">
                     <Image src={recipe.image} alt={recipe.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" data-ai-hint={recipe.imageHint} priority />
                 </div>
                 <div className="p-6 flex flex-col justify-center">
                     <h2 className="text-sm uppercase text-primary font-bold tracking-wider flex items-center gap-2"><ChefHat className="w-4 h-4"/>Rezept der Woche</h2>
                     <p className="mt-2 text-2xl font-bold font-headline">{recipe.title}</p>
-                    <p className="mt-4 text-muted-foreground">{recipe.description}</p>
+                    <p className="mt-4 text-muted-foreground line-clamp-3">{recipe.description}</p>
                     
                      <Dialog>
                         <DialogTrigger asChild>

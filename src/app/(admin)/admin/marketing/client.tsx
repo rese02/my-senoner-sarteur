@@ -22,9 +22,9 @@ export function MarketingClient({ initialStories, initialPlannerEvents, availabl
         <div>
             <Tabs defaultValue="recipe" className="w-full">
                 <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-6 h-auto sm:h-10">
-                    <TabsTrigger value="recipe" className="h-10 text-sm sm:text-xs md:text-sm">🍳 Rezept</TabsTrigger>
-                    <TabsTrigger value="stories" className="h-10 text-sm sm:text-xs md:text-sm">📸 Stories</TabsTrigger>
-                    <TabsTrigger value="planner" className="h-10 text-sm sm:text-xs md:text-sm">🎉 Planer</TabsTrigger>
+                    <TabsTrigger value="recipe" className="h-10 text-sm sm:text-xs md:text-sm">🍳 Rezept der Woche</TabsTrigger>
+                    <TabsTrigger value="stories" className="h-10 text-sm sm:text-xs md:text-sm">📸 Daily Stories</TabsTrigger>
+                    <TabsTrigger value="planner" className="h-10 text-sm sm:text-xs md:text-sm">🎉 Party Planer</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="recipe">
