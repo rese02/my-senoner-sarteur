@@ -1,8 +1,9 @@
+
 'use client';
 
 import { AdminSidebar } from "./_components/AdminSidebar";
 import { useSession } from "@/hooks/use-session";
-import { redirect } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
