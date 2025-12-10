@@ -220,14 +220,14 @@ export default function AdminDashboardPage() {
 
        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-md m-4">
-          <DialogHeader>
+          <DialogHeader className="p-6 pb-4">
             <DialogTitle>Bestelldetails</DialogTitle>
             <DialogDescription>
               Details für Bestellung #{selectedOrder?.id.slice(-6)}
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
-            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-4 -mr-2">
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto px-6 pb-6">
               <div className="space-y-3">
                   <h3 className="font-semibold text-base">Bestellübersicht</h3>
                    <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
