@@ -24,6 +24,7 @@ import { OrderCard } from "@/components/admin/OrderCard";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { deleteOrder } from "@/app/actions/admin-cleanup.actions";
 import { updateOrderStatus, getOrdersPageData } from "@/app/actions/order.actions";
+import { useRouter } from "next/navigation";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
@@ -40,6 +41,7 @@ const statusMap: Record<OrderStatus, {label: string, className: string}> = {
 function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onClose: () => void }) {
     const { toast } = useToast();
     const [isDeleting, startDeleteTransition] = useTransition();
+    const router = useRouter();
 
     const handleDelete = () => {
         startDeleteTransition(async () => {
@@ -47,6 +49,7 @@ function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onCl
             if(result.success) {
                 toast({ title: "Gelöscht", description: "Bestellung wurde entfernt." });
                 onClose();
+                router.refresh();
             } else {
                 toast({ variant: "destructive", title: "Fehler", description: result.error });
             }
@@ -96,6 +99,7 @@ export default function AdminOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [customerDetails, setCustomerDetails] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     async function loadData() {
@@ -110,10 +114,8 @@ export default function AdminOrdersPage() {
             setLoading(false);
         }
     }
-    if (!isModalOpen) {
-      loadData();
-    }
-  }, [isModalOpen, toast]);
+    loadData();
+  }, [toast]);
 
 
   const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {

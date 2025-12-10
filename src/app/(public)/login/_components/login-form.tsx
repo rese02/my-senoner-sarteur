@@ -70,7 +70,7 @@ export function LoginForm() {
               <FormControl>
                 <div className="relative">
                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                   <Input placeholder="Email" {...field} className="pl-10" />
+                   <Input placeholder="Email" {...field} className="pl-10 bg-card/80 text-card-foreground placeholder:text-muted-foreground" />
                 </div>
               </FormControl>
               <FormMessage />
@@ -90,7 +90,7 @@ export function LoginForm() {
                       type={showPassword ? 'text' : 'password'} 
                       placeholder="Passwort" 
                       {...field} 
-                      className="pl-10 pr-10"
+                      className="pl-10 pr-10 bg-card/80 text-card-foreground placeholder:text-muted-foreground"
                     />
                     <button
                       type="button"

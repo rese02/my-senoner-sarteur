@@ -14,12 +14,12 @@ import { Cart } from "./Cart";
 
 function CategoryFilter({ categories, activeCategory, onSelect }: { categories: Category[], activeCategory: string, onSelect: (categoryId: string) => void }) {
   return (
-    <div className="py-2 bg-secondary/80 backdrop-blur-sm rounded-xl p-2 sticky top-2 z-10">
+    <div className="py-2 bg-secondary/80 backdrop-blur-sm rounded-xl p-1 sticky top-[72px] lg:top-2 z-10 -mx-2 px-2">
         <div className="flex overflow-x-auto gap-2 scrollbar-hide">
           <Button
               key="Alle"
               onClick={() => onSelect('Alle')}
-              variant={activeCategory === 'Alle' ? "default" : "secondary"}
+              variant={activeCategory === 'Alle' ? "default" : "ghost"}
               className="rounded-full px-5 text-sm h-9 whitespace-nowrap shrink-0 shadow-sm"
             >
               Alle
@@ -28,7 +28,7 @@ function CategoryFilter({ categories, activeCategory, onSelect }: { categories: 
             <Button
               key={cat.id}
               onClick={() => onSelect(cat.id)}
-              variant={activeCategory === cat.id ? "default" : "secondary"}
+              variant={activeCategory === cat.id ? "default" : "ghost"}
               className="rounded-full px-5 text-sm h-9 whitespace-nowrap shrink-0 shadow-sm"
             >
               {cat.name}
@@ -85,7 +85,7 @@ export function ProductsClient({ products, categories, stories, recipe }: Produc
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[80vh] flex flex-col rounded-t-2xl p-0 bg-secondary">
+            <SheetContent side="bottom" className="h-[80vh] flex flex-col rounded-t-2xl p-0 bg-background">
               <Cart />
             </SheetContent>
           </Sheet>

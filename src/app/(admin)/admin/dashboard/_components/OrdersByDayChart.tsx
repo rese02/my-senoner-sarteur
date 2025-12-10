@@ -49,7 +49,7 @@ export function OrdersByDayChart({ data, loading }: OrdersByDayChartProps) {
       <CardHeader>
         <CardTitle>Bestellungen der letzten 7 Tage</CardTitle>
         <CardDescription>
-          Übersicht der eingehenden Bestellungen (Vorbestellungen & Einkaufszettel).
+          Übersicht der eingehenden Bestellungen.
         </CardDescription>
       </CardHeader>
       <CardContent>

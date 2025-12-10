@@ -154,7 +154,7 @@ export default function AdminDashboardPage() {
 
       {/* --- Mobile Stats View (Optimized) --- */}
       <div className="grid grid-cols-2 gap-4 md:hidden">
-          {statItems.map((item) => (
+          {statItems.slice(1,3).map((item) => (
              <Card key={item.title}>
                  <CardHeader className="p-3">
                      <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
@@ -188,11 +188,11 @@ export default function AdminDashboardPage() {
 
 
        <div className="grid gap-8 lg:grid-cols-5">
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-3">
                 <OrdersByDayChart data={data.chartData} loading={loading} />
             </div>
 
-            <Card className="flex flex-col lg:col-span-3">
+            <Card className="flex flex-col lg:col-span-2">
                 <CardHeader>
                 <CardTitle>Dringende Bestellungen</CardTitle>
                 </CardHeader>

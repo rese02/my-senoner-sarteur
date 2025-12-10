@@ -13,7 +13,6 @@ import {
   Sparkles,
   Settings,
 } from 'lucide-react';
-import { Logo } from '@/components/common/Logo';
 import { logout } from '@/app/actions/auth.actions';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
@@ -37,7 +36,7 @@ export function AdminSidebar() {
 
   return (
     <aside className="hidden md:flex flex-col w-64 bg-card text-card-foreground border-r">
-      <div className="p-4 h-16 flex items-center justify-center bg-primary">
+      <div className="p-4 h-16 flex items-center justify-center border-b">
         <Link href="/" className="flex items-center justify-center h-full">
           <Image src="/logo.png" alt="Senoner Sarteur Logo" width={140} height={30} className="object-contain h-full w-auto" />
         </Link>

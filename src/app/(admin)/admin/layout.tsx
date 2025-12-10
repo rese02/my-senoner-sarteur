@@ -1,16 +1,9 @@
 'use client';
 
 import { AdminSidebar } from "./_components/AdminSidebar";
-import { AdminMobileNav } from "./_components/AdminMobileNav";
-import { Button } from "@/components/ui/button";
-import { logout } from "@/app/actions/auth.actions";
-import { LogOut, CheckCircle } from "lucide-react";
 import { useSession } from "@/hooks/use-session";
 import { redirect } from 'next/navigation';
-import Image from "next/image";
-import Link from "next/link";
 import { useEffect } from "react";
-import { usePathname } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 
 
@@ -33,9 +26,12 @@ function AdminLoadingSkeleton() {
             </div>
             <div className="flex-1 flex flex-col">
                 {/* Header Skeleton */}
-                <div className="flex-none h-16 flex items-center justify-end border-b bg-primary px-4 md:px-6">
+                <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b bg-card px-4 md:px-6 sticky top-0 z-20">
+                    <div className="md:hidden">
+                        <Skeleton className="h-8 w-8 rounded-full" />
+                    </div>
                     <Skeleton className="h-8 w-24" />
-                </div>
+                </header>
                 {/* Main Content Skeleton */}
                 <main className="flex-1 p-4 sm:p-6 lg:p-8">
                      <div className="space-y-2 mb-8">
@@ -78,27 +74,13 @@ export default function AdminLayout({
 
 
   return (
-    <div className="flex h-[100dvh] bg-background text-foreground overflow-hidden">
+    <div className="flex h-[100dvh] bg-secondary text-foreground overflow-hidden">
       <AdminSidebar />
       <div className="flex-1 flex flex-col">
-         <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b bg-primary text-primary-foreground px-4 md:px-6 sticky top-0 z-20">
-            <div className="md:hidden h-8">
-              <Link href="/" className="flex items-center h-full">
-                <Image src="/logo.png" alt="Senoner Sarteur Logo" width={120} height={24} className="object-contain h-full w-auto" />
-              </Link>
-            </div>
-             <form action={logout}>
-              <Button variant="ghost" size="sm" className="hover:bg-primary-foreground/10 text-primary-foreground">
-                <LogOut className="mr-2 h-4 w-4" />
-                Abmelden
-              </Button>
-            </form>
-        </header>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-24 md:pb-8 bg-background">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-8 bg-background">
             {children}
         </main>
       </div>
-       <AdminMobileNav />
     </div>
   );
 }

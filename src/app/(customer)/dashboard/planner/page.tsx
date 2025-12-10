@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { ShoppingCart, Users, Info, Loader2, Minus, Plus } from 'lucide-react';
+import { ShoppingCart, Users, Info, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { useCartStore } from '@/hooks/use-cart-store';
@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { getPlannerPageData } from '@/app/actions/marketing.actions';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Slider } from '@/components/ui/slider';
 
 function EventSelectionGrid({ events, onSelect, selectedEvent }: { events: PlannerEvent[], onSelect: (event: PlannerEvent) => void, selectedEvent: PlannerEvent | null }) {
     if (events.length === 0) {
@@ -141,16 +142,18 @@ export default function PartyPlannerPage() {
                 <div className="space-y-2">
                     <Label>Wie viele Gäste erwarten Sie?</Label>
                     <div className="flex items-center justify-between gap-4 bg-secondary p-2 rounded-xl border">
-                        <Button variant="outline" size="icon" onClick={() => setPeople(p => Math.max(1, p - 1))} className="w-12 h-12 rounded-lg bg-background">
-                            <Minus className="w-5 h-5"/>
-                        </Button>
                         <div className="flex items-center gap-2">
                             <Users className="w-6 h-6 text-primary" />
                             <span className="text-3xl font-bold font-headline text-primary">{people}</span>
                         </div>
-                        <Button variant="outline" size="icon" onClick={() => setPeople(p => p + 1)} className="w-12 h-12 rounded-lg bg-background">
-                            <Plus className="w-5 h-5"/>
-                        </Button>
+                         <Slider
+                            defaultValue={[people]}
+                            max={30}
+                            min={1}
+                            step={1}
+                            onValueChange={(value) => setPeople(value[0])}
+                            className="w-full max-w-xs"
+                        />
                     </div>
                 </div>
             

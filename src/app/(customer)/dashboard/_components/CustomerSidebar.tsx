@@ -33,7 +33,7 @@ export function CustomerSidebar() {
 
   return (
     <div className="h-full flex flex-col">
-        <div className="p-4 border-b h-16 flex items-center justify-center bg-primary">
+        <div className="p-4 border-b h-16 flex items-center justify-center">
             <Logo />
         </div>
       <nav className="flex-1 p-4 space-y-1">
