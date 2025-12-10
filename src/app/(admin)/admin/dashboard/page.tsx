@@ -137,13 +137,13 @@ export default function AdminDashboardPage() {
         {
             title: "Kunden",
             value: totalCustomers,
-            description: "Aktive Kundenkonten",
+            description: "Aktive Konten",
             icon: Users,
         },
         {
             title: "Offene Bestellungen",
             value: recentAndUpcomingOrders.length,
-            description: `Status "Neu" oder "In Bearbeitung"`,
+            description: "Aktiv",
             icon: ShoppingCart,
         },
     ];
@@ -152,7 +152,7 @@ export default function AdminDashboardPage() {
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Willkommen zurück! Hier ist Ihre aktuelle Übersicht." />
 
-      {/* --- Mobile Stats View (Optimized) --- */}
+      {/* --- Mobile Stats View (NEW COMPACT DESIGN) --- */}
       <div className="grid grid-cols-2 gap-4 md:hidden">
           {statItems.slice(1,3).map((item) => (
              <Card key={item.title}>
