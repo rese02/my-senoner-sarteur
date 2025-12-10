@@ -334,7 +334,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
             </DialogHeader>
             <form onSubmit={handleSaveProduct}>
               <ScrollArea className="max-h-[70vh]">
-                <div className="grid gap-4 p-6">
+                <div className="grid gap-6 p-6">
                   <div className="space-y-1.5">
                       <Label htmlFor="type">Produkttyp</Label>
                       <Select value={editingProduct?.type} onValueChange={handleProductTypeChange}>
