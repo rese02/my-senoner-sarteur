@@ -1,12 +1,12 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Search, FileText, ShoppingCart, Trash2, Loader2, Info } from "lucide-react";
+import { Search, FileText, ShoppingCart, Trash2, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo, useTransition, useEffect } from "react";
 import type { Order, OrderStatus, User } from "@/lib/types";
@@ -75,7 +75,7 @@ function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onCl
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-red-600 hover:bg-red-700 text-white">
+                        <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
                             {isDeleting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Löschen...</>) : 'Ja, löschen'}
                         </AlertDialogAction>
                     </AlertDialogFooter>
@@ -170,8 +170,7 @@ export default function AdminOrdersPage() {
     <div className="space-y-8">
       <PageHeader title="Bestellungen" description="Verwalten Sie alle Vorbestellungen und Einkaufszettel." />
       <Card>
-        <CardHeader>
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <CardHeader className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
              <div/>
              <div className="flex gap-2 w-full md:w-auto">
                 <div className="relative w-full md:w-auto flex-1">
@@ -195,7 +194,6 @@ export default function AdminOrdersPage() {
                     </SelectContent>
                 </Select>
              </div>
-          </div>
         </CardHeader>
         <CardContent>
           <div className="hidden md:block">
@@ -206,7 +204,6 @@ export default function AdminOrdersPage() {
                   <TableHead>Typ</TableHead>
                   <TableHead>Kunde</TableHead>
                   <TableHead>Details</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
                   <TableHead>Fälligkeit</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Aktion</TableHead>
@@ -215,29 +212,30 @@ export default function AdminOrdersPage() {
               <TableBody>
                 {filteredOrders.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} className="h-24 text-center">Keine Bestellungen gefunden.</TableCell>
+                    <TableCell colSpan={7} className="h-24 text-center">Keine Bestellungen gefunden.</TableCell>
                   </TableRow>
                 )}
                 {filteredOrders.map((order) => {
+                  const isGroceryList = order.type === 'grocery_list';
+                  const itemCount = isGroceryList ? order.rawList?.split('\n').length : order.items?.length;
+
                   return (
                   <TableRow key={order.id} className="transition-colors hover:bg-secondary">
                     <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                         {order.type === 'grocery_list' 
+                         {isGroceryList
                           ? <FileText className="h-4 w-4 text-orange-500"/>
                           : <ShoppingCart className="h-4 w-4 text-primary"/>
                          }
-                         <span className="text-xs">{order.type === 'grocery_list' ? 'Liste' : 'Vorb.'}</span>
+                         <span className="text-xs">{isGroceryList ? 'Liste' : 'Vorb.'}</span>
                       </div>
                     </TableCell>
                     <TableCell className="font-medium">{order.customerName}</TableCell>
-                    <TableCell className="text-muted-foreground text-xs">{
-                      order.type === 'grocery_list' 
-                      ? `${order.rawList?.split('\n').length} Artikel`
-                      : order.items?.map(i => `${i.quantity}x ${i.productName}`).join(', ')
-                    }</TableCell>
-                    <TableCell className="text-right font-semibold">{order.total ? `€${order.total.toFixed(2)}` : '-'}</TableCell>
+                    <TableCell className="text-muted-foreground text-xs">
+                        {itemCount} Artikel
+                        {order.total ? <span className="font-semibold text-foreground"> • €{order.total.toFixed(2)}</span> : ''}
+                    </TableCell>
                     <TableCell>{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEE, dd.MM.", { locale: de })}</TableCell>
                     <TableCell>
                       <Select 
@@ -289,6 +287,19 @@ export default function AdminOrdersPage() {
           </DialogHeader>
           {selectedOrder && (
             <div className="space-y-4 max-h-[70vh] overflow-y-auto px-6 pb-6">
+
+              {customerDetails && (
+                  <div className="space-y-3 pb-3 border-b">
+                      <h3 className="font-semibold text-base">Kundendetails</h3>
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
+                          <p className="text-muted-foreground">Name:</p>
+                          <p className="font-medium">{customerDetails.name}</p>
+                          <p className="text-muted-foreground">Email:</p>
+                          <p className="font-medium">{customerDetails.email}</p>
+                      </div>
+                  </div>
+              )}
+              
               <div className="space-y-3">
                   <h3 className="font-semibold text-base">Bestellübersicht</h3>
                    <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
@@ -333,21 +344,7 @@ export default function AdminOrdersPage() {
                     </div>
                   )}
               </div>
-              
-              {customerDetails && (
-                  <div className="space-y-3 pt-3 border-t">
-                      <h3 className="font-semibold text-base">Kundendetails</h3>
-                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
-                          <p className="text-muted-foreground">Name:</p>
-                          <p className="font-medium">{customerDetails.name}</p>
-                          <p className="text-muted-foreground">Email:</p>
-                          <p className="font-medium">{customerDetails.email}</p>
-                          <p className="text-muted-foreground">Kunde seit:</p>
-                          <p className="font-medium">{customerDetails.customerSince ? format(new Date(customerDetails.customerSince), 'dd.MM.yyyy') : 'N/A'}</p>
-                      </div>
-                  </div>
-              )}
-                
+                            
               <OrderDetailsDeleteSection orderId={selectedOrder.id} onClose={() => setIsModalOpen(false)} />
 
                <DialogClose asChild>

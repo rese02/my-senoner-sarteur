@@ -228,6 +228,19 @@ export default function AdminDashboardPage() {
           </DialogHeader>
           {selectedOrder && (
             <div className="space-y-4 max-h-[70vh] overflow-y-auto px-6 pb-6">
+              
+              {customerDetails && (
+                  <div className="space-y-3 pb-3 border-b">
+                      <h3 className="font-semibold text-base">Kundendetails</h3>
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
+                          <p className="text-muted-foreground">Name:</p>
+                          <p className="font-medium">{customerDetails.name}</p>
+                          <p className="text-muted-foreground">Email:</p>
+                          <p className="font-medium">{customerDetails.email}</p>
+                      </div>
+                  </div>
+              )}
+              
               <div className="space-y-3">
                   <h3 className="font-semibold text-base">Bestellübersicht</h3>
                    <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
@@ -272,21 +285,7 @@ export default function AdminDashboardPage() {
                     </div>
                   )}
               </div>
-              
-              {customerDetails && (
-                  <div className="space-y-3 pt-3 border-t">
-                      <h3 className="font-semibold text-base">Kundendetails</h3>
-                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
-                          <p className="text-muted-foreground">Name:</p>
-                          <p className="font-medium">{customerDetails.name}</p>
-                          <p className="text-muted-foreground">Email:</p>
-                          <p className="font-medium">{customerDetails.email}</p>
-                          <p className="text-muted-foreground">Kunde seit:</p>
-                          <p className="font-medium">{customerDetails.customerSince ? format(parseISO(customerDetails.customerSince), 'dd.MM.yyyy') : 'N/A'}</p>
-                      </div>
-                  </div>
-              )}
-                
+                            
               <OrderDetailsDeleteSection orderId={selectedOrder.id} onClose={() => setIsModalOpen(false)} />
 
             </div>
