@@ -1,7 +1,7 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Users, ShoppingCart, Truck, Trash2, Loader2, CheckCircle } from "lucide-react";
+import { Users, ShoppingCart, Trash2, Loader2, CheckCircle, Euro } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useState, useMemo, useTransition, useEffect } from "react";
 import type { Order, User, OrderStatus } from "@/lib/types";
 import { OrderCard } from "@/components/admin/OrderCard";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -127,6 +127,28 @@ export default function AdminDashboardPage() {
         setCustomerDetails(customer);
         setIsModalOpen(true);
     };
+    
+    const statItems = [
+        {
+            title: "Gesamtumsatz",
+            value: `€${stats.totalRevenue.toFixed(2)}`,
+            description: `aus ${stats.totalOrders} Bestellungen`,
+            icon: Euro,
+        },
+        {
+            title: "Kunden",
+            value: stats.totalCustomers,
+            description: "Aktive Kundenkonten",
+            icon: Users,
+        },
+        {
+            title: "Offene Bestellungen",
+            value: recentAndUpcomingOrders.length,
+            description: `Status "Neu" oder "In Bearbeitung"`,
+            icon: ShoppingCart,
+        },
+    ]
+
 
     if (loading || !data) {
         return <AdminDashboardLoading />;
@@ -136,45 +158,58 @@ export default function AdminDashboardPage() {
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Willkommen zurück! Hier ist Ihre aktuelle Übersicht." />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Gesamtumsatz</CardTitle>
-                <span className="text-muted-foreground">€</span>
-            </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold">€{stats.totalRevenue.toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground">aus {stats.totalOrders} Bestellungen</p>
-            </CardContent>
-        </Card>
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Kunden</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold">{stats.totalCustomers}</div>
-                <p className="text-xs text-muted-foreground">Aktive Kundenkonten</p>
-            </CardContent>
-        </Card>
-         <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Offene Bestellungen</CardTitle>
-                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold">{recentAndUpcomingOrders.length}</div>
-                <p className="text-xs text-muted-foreground">Status "Neu" oder "In Bearbeitung"</p>
-            </CardContent>
-        </Card>
+      {/* --- Mobile Stats View --- */}
+      <div className="grid grid-cols-2 gap-4 md:hidden">
+          {statItems.slice(1).map((item) => (
+             <Card key={item.title}>
+                 <CardHeader className="p-3">
+                     <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
+                         {item.title}
+                         <item.icon className="h-4 w-4 text-muted-foreground" />
+                     </CardTitle>
+                 </CardHeader>
+                 <CardContent className="p-3 pt-0">
+                     <div className="text-2xl font-bold">{item.value}</div>
+                 </CardContent>
+             </Card>
+          ))}
+           <Card className="col-span-2">
+                 <CardHeader className="p-3">
+                     <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
+                         {statItems[0].title}
+                         <statItems[0].icon className="h-4 w-4 text-muted-foreground" />
+                     </CardTitle>
+                 </CardHeader>
+                 <CardContent className="p-3 pt-0">
+                     <div className="text-2xl font-bold">{statItems[0].value}</div>
+                     <p className="text-xs text-muted-foreground">{statItems[0].description}</p>
+                 </CardContent>
+             </Card>
+      </div>
+      
+      {/* --- Desktop Stats View --- */}
+      <div className="hidden md:grid md:grid-cols-3 gap-4">
+          {statItems.map((item) => (
+            <Card key={item.title}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
+                    <item.icon className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{item.value}</div>
+                    <p className="text-xs text-muted-foreground">{item.description}</p>
+                </CardContent>
+            </Card>
+          ))}
       </div>
 
-       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+
+       <div className="grid gap-8 lg:grid-cols-5">
             <div className="lg:col-span-2">
                 <OrdersByDayChart data={data.chartData} loading={loading} />
             </div>
 
-            <Card className="flex flex-col">
+            <Card className="flex flex-col lg:col-span-3">
                 <CardHeader>
                 <CardTitle>Dringende Bestellungen</CardTitle>
                 </CardHeader>
