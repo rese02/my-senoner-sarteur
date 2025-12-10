@@ -334,7 +334,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
             </DialogHeader>
             <form onSubmit={handleSaveProduct}>
               <ScrollArea className="max-h-[70vh]">
-                <div className="grid gap-6 p-6">
+                <div className="grid gap-4 p-6">
                   <div className="space-y-1.5">
                       <Label htmlFor="type">Produkttyp</Label>
                       <Select value={editingProduct?.type} onValueChange={handleProductTypeChange}>
@@ -380,41 +380,49 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                   </div>
                   
                   {editingProduct?.type === 'package' && (
-                      <div className="space-y-3 border p-3 rounded-xl bg-secondary/50">
-                      <h3 className="font-semibold text-primary text-sm">Paket-Inhalt definieren</h3>
-                      
-                      <div className="flex gap-2">
-                          <Input 
-                          placeholder="Menge (z.B. 200g)" 
-                          className="w-1/3 bg-background"
-                          value={tempAmount}
-                          onChange={e => setTempAmount(e.target.value)} 
-                          />
-                          <Input 
-                          placeholder="Produktname" 
-                          className="w-2/3 bg-background" 
-                          value={tempItem}
-                          onChange={e => setTempItem(e.target.value)}
-                          />
-                          <Button onClick={addPackageItem} type="button" variant="secondary" size="icon" className="h-10 w-10 shrink-0"><Plus className="h-4 w-4"/></Button>
-                      </div>
+                      <div className="space-y-4 border p-4 rounded-xl bg-secondary/50">
+                        <h3 className="font-semibold text-primary text-sm">Paket-Inhalt definieren</h3>
+                        
+                        <div className="flex gap-2 items-end">
+                            <div className="flex-1 space-y-1.5">
+                                <Label htmlFor="package-amount">Menge (z.B. 200g)</Label>
+                                <Input 
+                                id="package-amount"
+                                placeholder="Menge" 
+                                className="bg-background"
+                                value={tempAmount}
+                                onChange={e => setTempAmount(e.target.value)} 
+                                />
+                            </div>
+                            <div className="flex-1 space-y-1.5">
+                                 <Label htmlFor="package-item">Produktname</Label>
+                                <Input 
+                                id="package-item"
+                                placeholder="Produktname" 
+                                className="bg-background" 
+                                value={tempItem}
+                                onChange={e => setTempItem(e.target.value)}
+                                />
+                            </div>
+                            <Button onClick={addPackageItem} type="button" variant="secondary" size="icon" className="h-10 w-10 shrink-0"><Plus className="h-4 w-4"/></Button>
+                        </div>
 
-                      <ul className="space-y-2 mt-2">
-                          {editingProduct.packageContent?.map((content, idx) => (
-                          <li key={idx} className="flex justify-between items-center bg-background p-2 rounded border shadow-sm text-sm">
-                              <div>
-                                  <span className="font-semibold">{content.item}</span>
-                                  <span className="text-muted-foreground text-xs ml-2">({content.amount})</span>
-                              </div>
-                              <button onClick={() => removePackageItem(idx)} type="button" className="text-destructive hover:text-destructive/80 p-1">
-                              <Trash2 size={14} />
-                              </button>
-                          </li>
-                          ))}
-                          {(!editingProduct.packageContent || editingProduct.packageContent.length === 0) && (
-                              <p className="text-xs text-center text-muted-foreground py-2">Noch keine Artikel im Paket.</p>
-                          )}
-                      </ul>
+                        <ul className="space-y-2 pt-2">
+                            {editingProduct.packageContent?.map((content, idx) => (
+                            <li key={idx} className="flex justify-between items-center bg-background p-2 rounded border shadow-sm text-sm">
+                                <div>
+                                    <span className="font-semibold">{content.item}</span>
+                                    <span className="text-muted-foreground text-xs ml-2">({content.amount})</span>
+                                </div>
+                                <button onClick={() => removePackageItem(idx)} type="button" className="text-destructive hover:text-destructive/80 p-1">
+                                <Trash2 size={14} />
+                                </button>
+                            </li>
+                            ))}
+                            {(!editingProduct.packageContent || editingProduct.packageContent.length === 0) && (
+                                <p className="text-xs text-center text-muted-foreground py-2">Noch keine Artikel im Paket.</p>
+                            )}
+                        </ul>
                       </div>
                   )}
                 </div>
