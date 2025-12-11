@@ -99,3 +99,26 @@ export async function redeemReward(userId: string, tier: 'small' | 'big') {
   
   return { success: true, discountAmount: discount };
 }
+
+
+// 3. Gewinn vom Glücksrad einlösen (Nur Employee/Admin)
+export async function redeemPrize(userId: string) {
+    await requireEmployeeOrAdmin();
+
+    const validatedUserId = z.string().min(1).parse(userId);
+    const userRef = adminDb.collection('users').doc(validatedUserId);
+    
+    const userDoc = await userRef.get();
+    if (!userDoc.exists || !userDoc.data()?.activePrize) {
+        throw new Error("Kein aktiver Gewinn für diesen Benutzer gefunden.");
+    }
+
+    await userRef.update({
+        activePrize: FieldValue.delete() // Löscht das Feld aus dem Dokument
+    });
+
+    revalidatePath('/employee/scanner');
+    revalidatePath('/dashboard/loyalty');
+
+    return { success: true, message: "Gewinn eingelöst." };
+}

@@ -27,6 +27,10 @@
           "type": "string",
           "format": "date-time",
           "description": "The timestamp of the user's last wheel spin."
+        },
+        "activePrize": {
+            "type": "string",
+            "description": "An active prize won from the wheel of fortune, waiting to be redeemed."
         }
       },
       "required": ["name", "email", "role"]

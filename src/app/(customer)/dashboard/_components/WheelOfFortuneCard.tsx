@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Loader2, Sparkles, Gift } from 'lucide-react';
 import type { WheelOfFortuneSettings } from '@/lib/types';
 import { spinWheel } from '@/app/actions/marketing.actions';
@@ -79,10 +79,19 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
 
                 setTimeout(() => {
                     setResult(prize);
-                     toast({
-                        title: "Glückwunsch!",
-                        description: `Sie haben gewonnen: ${prize}`,
-                    });
+                    if (prize !== 'Niete') {
+                        toast({
+                            title: "Glückwunsch!",
+                            description: `Sie haben gewonnen: ${prize}`,
+                        });
+                    } else {
+                        toast({
+                            title: "Leider nichts...",
+                            description: "Versuchen Sie es morgen wieder!",
+                        });
+                    }
+                     // Manually re-fetch server data to update prize display
+                    router.refresh(); 
                 }, 6500); // Wait for animation to finish
 
             } catch (error: any) {
@@ -118,8 +127,8 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
                 </CardContent>
             </Card>
 
-            <Dialog open={isOpen} onOpenChange={handleClose}>
-                <DialogContent>
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <DialogContent onInteractOutside={(e) => e.preventDefault()} className="max-w-sm">
                     <DialogHeader>
                         <DialogTitle>Viel Glück!</DialogTitle>
                         <DialogDescription>
@@ -128,20 +137,29 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
                     </DialogHeader>
                     
                     <div className="relative py-8 flex flex-col items-center justify-center">
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-primary z-20"></div>
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[16px] border-l-transparent border-r-transparent border-t-primary z-20 drop-shadow-lg"></div>
+
                         <Wheel segments={settings.segments} rotation={rotation} isSpinning={isSpinning} />
                     </div>
 
                     <div className="mt-4 text-center">
                         {result && (
-                             <div className="p-4 bg-accent/10 text-accent-foreground rounded-lg animate-in fade-in-50 zoom-in-95">
+                             <div className="p-4 bg-accent/10 text-accent-foreground rounded-lg animate-in fade-in-50 zoom-in-95 mb-4">
+                                <p className="text-sm text-muted-foreground">Ihr Ergebnis:</p>
                                 <p className="font-bold text-lg">{result}</p>
                             </div>
                         )}
-                        <Button onClick={handleSpin} disabled={isSpinning || !!result} className="w-full mt-2" size="lg">
-                            {isSpinning && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {isSpinning ? 'Wird gedreht...' : 'Drehen!'}
-                        </Button>
+                        {!result && (
+                            <Button onClick={handleSpin} disabled={isSpinning} className="w-full mt-2" size="lg">
+                                {isSpinning ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                {isSpinning ? 'Wird gedreht...' : 'Drehen!'}
+                            </Button>
+                        )}
+                         {result && (
+                            <Button onClick={handleClose} variant="secondary" className="w-full">
+                                Schließen
+                            </Button>
+                        )}
                     </div>
 
                 </DialogContent>

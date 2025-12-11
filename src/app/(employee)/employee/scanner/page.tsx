@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, Gift, Loader2, QrCode, X, ListTodo, Check, Package } from 'lucide-react';
+import { Camera, Gift, Loader2, QrCode, X, ListTodo, Check, Package, Star } from 'lucide-react';
 import type { User as UserType, Order, ChecklistItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -12,7 +12,7 @@ import Webcam from 'react-webcam';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { addStamp, redeemReward } from '@/app/actions/loyalty.actions';
+import { addStamp, redeemReward, redeemPrize } from '@/app/actions/loyalty.actions';
 import { setGroceryOrderTotal } from '@/app/actions/order.actions';
 import { getScannerPageData } from '@/app/actions/scanner.actions';
 
@@ -147,6 +147,7 @@ function ScanResultView({ user, orders, onNextCustomer }: { user: UserType, orde
   const canRedeemSmall = stamps >= 5;
   const canRedeemBig = stamps >= 10;
   const openOrders = orders.filter(o => ['new', 'ready', 'picking', 'ready_for_delivery'].includes(o.status));
+  const activePrize = user.activePrize;
 
 
   const handleAddStamp = async () => {
@@ -180,6 +181,21 @@ function ScanResultView({ user, orders, onNextCustomer }: { user: UserType, orde
     });
   };
 
+  const handleRedeemPrize = async () => {
+      if (!activePrize) return;
+      if(!confirm(`Kunde möchte "${activePrize}" einlösen?`)) return;
+      
+      startTransition(async () => {
+          try {
+              await redeemPrize(user.id);
+              toast({ title: "Gewinn eingelöst!", description: `"${activePrize}" wurde angewendet.` });
+              onNextCustomer();
+          } catch(e: any) {
+              toast({ variant: 'destructive', title: "Fehler", description: e.message });
+          }
+      });
+  };
+
   return (
     <div className="w-full space-y-4 animate-in fade-in-50">
         <Card className="w-full p-4 text-center shadow-lg border-none">
@@ -188,6 +204,16 @@ function ScanResultView({ user, orders, onNextCustomer }: { user: UserType, orde
                 {stamps} <span className="text-lg text-muted-foreground font-normal">Stempel</span>
             </div>
         </Card>
+
+        {activePrize && (
+             <Card className="w-full p-4 shadow-lg border-2 border-dashed border-accent bg-accent/10">
+                <h3 className="font-bold text-accent-foreground text-sm uppercase flex items-center gap-2 mb-2"><Star className="w-4 h-4" />Aktiver Gewinn</h3>
+                <div className="flex justify-between items-center">
+                    <p className="text-lg font-bold text-foreground">{activePrize}</p>
+                    <Button onClick={handleRedeemPrize} disabled={isPending} size="sm">Einlösen</Button>
+                </div>
+            </Card>
+        )}
 
         {openOrders.length > 0 && (
             <Card className="w-full p-4 shadow-lg border-none">
@@ -456,6 +482,8 @@ export default function ScannerPage() {
         const userOrders = orders.filter(o => o.userId === scannedUser.id);
         return <ScanResultView user={scannedUser} orders={userOrders} onNextCustomer={resetToMain} />;
     }
+
+
 
     if (viewState === 'picking' && currentOrder) {
         return <PickerModeView order={currentOrder} onFinish={resetToMain} />

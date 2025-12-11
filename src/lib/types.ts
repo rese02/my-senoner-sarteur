@@ -23,6 +23,7 @@ export interface User {
     }
   };
   lastWheelSpin?: string;
+  activePrize?: string;
 }
 
 export interface LoyaltyData {

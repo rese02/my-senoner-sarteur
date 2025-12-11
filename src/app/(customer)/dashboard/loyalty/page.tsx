@@ -3,7 +3,7 @@
 import { PageHeader } from "@/components/common/PageHeader";
 import { getSession } from "@/lib/session";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Gift, Sparkles } from "lucide-react";
+import { Gift, Sparkles, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -38,6 +38,7 @@ export default async function LoyaltyPage() {
     }
     
     const stamps = user.loyaltyStamps || 0;
+    const activePrize = user.activePrize;
     
     const progressSmall = Math.min(stamps, 5) / 5 * 100;
     const progressBig = Math.min(stamps, 10) / 10 * 100;
@@ -56,6 +57,21 @@ export default async function LoyaltyPage() {
                            <QrCodeDisplay userId={user.id} />
                         </CardContent>
                     </Card>
+
+                    {activePrize && (
+                        <Card className="shadow-lg bg-gradient-to-br from-accent/80 to-amber-400 border-accent animate-in fade-in-50">
+                             <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-accent-foreground">
+                                    <Star className="w-5 h-5"/> Aktiver Gewinn
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="text-center">
+                                <p className="text-2xl font-bold text-accent-foreground">{activePrize}</p>
+                                <p className="text-sm text-accent-foreground/80 mt-1">An der Kasse einlösbar!</p>
+                            </CardContent>
+                        </Card>
+                    )}
+
                     <Card className="shadow-lg">
                         <CardHeader>
                             <CardTitle>Stempelkarte</CardTitle>
@@ -85,7 +101,7 @@ export default async function LoyaltyPage() {
 
                     <Card className="shadow-lg">
                         <CardHeader>
-                            <CardTitle>Ihre Belohnungen</CardTitle>
+                            <CardTitle>Stempel-Belohnungen</CardTitle>
                             <CardDescription>Sparen Sie für noch größere Vorteile!</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">

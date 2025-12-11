@@ -149,6 +149,14 @@ export async function spinWheel(): Promise<{ winningSegment: number; prize: stri
     if (!session?.userId) {
         throw new Error("Not authenticated.");
     }
+    const userRef = adminDb.collection('users').doc(session.userId);
+    const userSnap = await userRef.get();
+    const user = userSnap.data() as User;
+
+    if (user.activePrize) {
+        throw new Error("Sie haben bereits einen aktiven Gewinn. Lösen Sie ihn zuerst ein!");
+    }
+
     const wheelSettings = await getWheelSettings();
     const canPlay = await canUserPlay(session.userId, wheelSettings.schedule);
 
@@ -156,24 +164,26 @@ export async function spinWheel(): Promise<{ winningSegment: number; prize: stri
         throw new Error("Not eligible to play right now.");
     }
 
-    // This is a simple pseudo-random logic. For real prizes, a more secure,
-    // weighted random algorithm on the server would be necessary.
     const winningSegmentIndex = Math.floor(Math.random() * wheelSettings.segments.length);
     const winningSegment = wheelSettings.segments[winningSegmentIndex];
+    const prize = winningSegment.text;
 
-    // Update user's last spin time
-    await adminDb.collection('users').doc(session.userId).update({
+    const updates: { lastWheelSpin: string, activePrize?: string } = {
         lastWheelSpin: new Date().toISOString(),
-    });
+    };
+    
+    if (winningSegment.type === 'win') {
+        updates.activePrize = prize;
+    }
 
-    // In a real app, you would also save the prize to the user's profile
-    // if (winningSegment.type === 'win') { ... }
+    await userRef.update(updates);
 
     revalidatePath('/dashboard');
+    revalidatePath('/dashboard/loyalty');
 
     return {
         winningSegment: winningSegmentIndex,
-        prize: winningSegment.text,
+        prize: prize,
     };
 }
 
