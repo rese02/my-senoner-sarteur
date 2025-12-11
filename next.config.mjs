@@ -5,8 +5,13 @@ const nextConfig = {
 
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "**" }, // Erlaubt alle Bilder (einfacher für Dev)
+      { protocol: "https", hostname: "**" }, // Erlaubt alle Bilder (einfach für Dev)
     ],
+  },
+  
+  experimental: {
+    // Behebt die "Cross origin request detected" Warnung in der Cloud-Umgebung.
+    allowedDevOrigins: ["*.cloudworkstations.dev"],
   },
 
   webpack: (config, { webpack, isServer }) => {
@@ -27,4 +32,5 @@ const nextConfig = {
     return config;
   },
 };
+
 export default nextConfig;

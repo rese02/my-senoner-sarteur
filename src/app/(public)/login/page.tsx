@@ -9,7 +9,7 @@ export default function LoginPage() {
   return (
     <div className="w-full min-h-[100dvh] flex items-center justify-center bg-secondary p-0 md:p-4 relative overflow-hidden">
 
-        <div className="absolute inset-0 z-0 opacity-5 bg-repeat" style={{ backgroundImage: "url('/background-pattern.svg')" }}></div>
+        <div className="absolute inset-0 z-0 opacity-5 bg-repeat"></div>
 
         <div className="relative z-10 w-full md:max-w-sm">
             <Card className="flex flex-col justify-center shadow-2xl border-none rounded-none md:rounded-2xl bg-card text-card-foreground min-h-[100dvh] md:min-h-0">
