@@ -5,7 +5,7 @@ import { getMarketingPageData } from "@/app/actions/marketing.actions";
 import { MarketingClient } from './client';
 
 export default async function MarketingPage() {
-    const { stories, plannerEvents, products, recipe } = await getMarketingPageData();
+    const { stories, plannerEvents, products, recipe, wheelSettings } = await getMarketingPageData();
 
     return (
         <div>
@@ -15,6 +15,7 @@ export default async function MarketingPage() {
                 initialPlannerEvents={plannerEvents}
                 availableProducts={products}
                 initialRecipe={recipe}
+                initialWheelSettings={wheelSettings}
             />
         </div>
     );

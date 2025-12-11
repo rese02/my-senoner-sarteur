@@ -3,7 +3,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/session';
-import type { Story, PlannerEvent, Product, Recipe } from '@/lib/types';
+import type { Story, PlannerEvent, Product, Recipe, WheelOfFortuneSettings, User } from '@/lib/types';
 import { toPlainObject } from '@/lib/utils';
 import { z } from 'zod';
 
@@ -46,6 +46,15 @@ const RecipeSchema = z.object({
     ingredients: z.array(z.string()),
     instructions: z.string(),
     description: z.string(),
+});
+
+const WheelOfFortuneSettingsSchema = z.object({
+    isActive: z.boolean(),
+    schedule: z.enum(['daily', 'weekly', 'monthly']),
+    segments: z.array(z.object({
+        text: z.string().min(1, "Segment text cannot be empty"),
+        type: z.enum(['win', 'lose']),
+    })).min(2, "At least two segments are required."),
 });
 
 
@@ -122,6 +131,51 @@ export async function saveRecipeOfTheWeek(recipeData: Recipe) {
     return { success: true };
 }
 
+// --- Wheel of Fortune Actions ---
+export async function saveWheelSettings(settings: WheelOfFortuneSettings) {
+    await requireAdmin();
+    const validation = WheelOfFortuneSettingsSchema.safeParse(settings);
+    if (!validation.success) {
+        throw new Error("Invalid wheel settings: " + JSON.stringify(validation.error.flatten().fieldErrors));
+    }
+    await adminDb.collection('content').doc('wheel_of_fortune').set(toPlainObject(validation.data));
+    revalidatePath('/admin/marketing');
+    revalidatePath('/dashboard');
+    return { success: true };
+}
+
+export async function spinWheel(): Promise<{ winningSegment: number; prize: string; }> {
+    const session = await getSession();
+    if (!session?.userId) {
+        throw new Error("Not authenticated.");
+    }
+    const wheelSettings = await getWheelSettings();
+    const canPlay = await canUserPlay(session.userId, wheelSettings.schedule);
+
+    if (!wheelSettings.isActive || !canPlay) {
+        throw new Error("Not eligible to play right now.");
+    }
+
+    // This is a simple pseudo-random logic. For real prizes, a more secure,
+    // weighted random algorithm on the server would be necessary.
+    const winningSegmentIndex = Math.floor(Math.random() * wheelSettings.segments.length);
+    const winningSegment = wheelSettings.segments[winningSegmentIndex];
+
+    // Update user's last spin time
+    await adminDb.collection('users').doc(session.userId).update({
+        lastWheelSpin: new Date().toISOString(),
+    });
+
+    // In a real app, you would also save the prize to the user's profile
+    // if (winningSegment.type === 'win') { ... }
+
+    revalidatePath('/dashboard');
+
+    return {
+        winningSegment: winningSegmentIndex,
+        prize: winningSegment.text,
+    };
+}
 
 // --- Data Fetching Actions ---
 export async function getMarketingPageData() {
@@ -131,6 +185,8 @@ export async function getMarketingPageData() {
         const plannerEventsSnap = await adminDb.collection('plannerEvents').get();
         const productsSnap = await adminDb.collection('products').where('isAvailable', '==', true).get();
         const recipeDoc = await adminDb.collection('content').doc('recipe_of_the_week').get();
+        const wheelDoc = await adminDb.collection('content').doc('wheel_of_fortune').get();
+
 
         const stories = storiesSnap.docs
         .map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Story))
@@ -139,13 +195,62 @@ export async function getMarketingPageData() {
         const plannerEvents = plannerEventsSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as PlannerEvent));
         const products = productsSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Product));
         const recipe = recipeDoc.exists ? toPlainObject(recipeDoc.data() as Recipe) : getFallbackRecipe();
+        const wheelSettings = wheelDoc.exists ? toPlainObject(wheelDoc.data() as WheelOfFortuneSettings) : getFallbackWheelSettings();
         
-        return { stories, plannerEvents, products, recipe };
+        return { stories, plannerEvents, products, recipe, wheelSettings };
     } catch(e) {
         console.error("Failed to get marketing page data", e);
-        return { stories: [], plannerEvents: [], products: [], recipe: getFallbackRecipe() };
+        return { stories: [], plannerEvents: [], products: [], recipe: getFallbackRecipe(), wheelSettings: getFallbackWheelSettings() };
     }
 }
+
+async function getWheelSettings(): Promise<WheelOfFortuneSettings> {
+    const wheelDoc = await adminDb.collection('content').doc('wheel_of_fortune').get();
+    return wheelDoc.exists 
+        ? toPlainObject(wheelDoc.data() as WheelOfFortuneSettings) 
+        : getFallbackWheelSettings();
+}
+
+export async function getWheelOfFortuneDataForCustomer() {
+    const session = await getSession();
+    if (!session?.userId) return null;
+
+    const settings = await getWheelSettings();
+    if (!settings.isActive) return null;
+
+    const canPlay = await canUserPlay(session.userId, settings.schedule);
+
+    if (canPlay) {
+        return settings;
+    }
+    
+    return null;
+}
+
+async function canUserPlay(userId: string, schedule: 'daily' | 'weekly' | 'monthly'): Promise<boolean> {
+    const userDoc = await adminDb.collection('users').doc(userId).get();
+    const user = userDoc.data() as User;
+
+    if (!user.lastWheelSpin) return true; // Never played before
+
+    const lastSpin = new Date(user.lastWheelSpin);
+    const now = new Date();
+    
+    const diffTime = Math.abs(now.getTime() - lastSpin.getTime());
+    const diffHours = diffTime / (1000 * 60 * 60);
+
+    switch (schedule) {
+        case 'daily':
+            return diffHours >= 24;
+        case 'weekly':
+            return diffHours >= 24 * 7;
+        case 'monthly':
+            return diffHours >= 24 * 30; // Simplified
+        default:
+            return false;
+    }
+}
+
 
 export async function getPlannerPageData() {
     // Diese Funktion ist öffentlich zugänglich
@@ -180,5 +285,20 @@ function getFallbackRecipe(): Recipe {
         description: 'Derzeit ist kein Rezept der Woche hinterlegt.',
         ingredients: [],
         instructions: ''
+    };
+}
+
+function getFallbackWheelSettings(): WheelOfFortuneSettings {
+    return {
+        isActive: false,
+        schedule: 'daily',
+        segments: [
+            { text: '5% Rabatt', type: 'win' },
+            { text: 'Niete', type: 'lose' },
+            { text: 'Gratis Espresso', type: 'win' },
+            { text: 'Niete', type: 'lose' },
+            { text: '10% Rabatt', type: 'win' },
+            { text: 'Niete', type: 'lose' },
+        ]
     };
 }

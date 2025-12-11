@@ -8,17 +8,19 @@ import { Suspense } from 'react';
 import Loading from './loading';
 import { PageHeader } from '@/components/common/PageHeader';
 import { getSession } from '@/lib/session';
+import { getWheelOfFortuneDataForCustomer } from '@/app/actions/marketing.actions';
 
 // Data fetching is now done on the server for speed and security.
 async function getData() {
   const { products, categories, stories, recipe } = await getDashboardData();
   const session = await getSession();
-  return { products, categories, stories, recipe, session };
+  const wheelData = await getWheelOfFortuneDataForCustomer();
+  return { products, categories, stories, recipe, session, wheelData };
 }
 
 
 export default async function CustomerDashboardPage() {
-    const { products, categories, stories, recipe, session } = await getData();
+    const { products, categories, stories, recipe, session, wheelData } = await getData();
 
     const userName = session?.name?.split(' ')[0] || '';
 
@@ -34,6 +36,7 @@ export default async function CustomerDashboardPage() {
                         categories={categories}
                         stories={stories}
                         recipe={recipe}
+                        wheelData={wheelData}
                     />
                 </Suspense>
             </div>

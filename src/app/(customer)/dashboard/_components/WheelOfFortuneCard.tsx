@@ -1,0 +1,151 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Loader2, Sparkles, Gift } from 'lucide-react';
+import type { WheelOfFortuneSettings } from '@/lib/types';
+import { spinWheel } from '@/app/actions/marketing.actions';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+
+const WHEEL_COLORS = [
+    '#FBBF24', // accent
+    '#1E40AF', // primary-dark
+    '#93C5FD', // blue-300
+    '#F87171', // red-400
+    '#34D399', // green-400
+    '#A78BFA', // violet-400
+    '#FB923C', // orange-400
+    '#60A5FA', // blue-400
+];
+
+function Wheel({ segments, rotation, isSpinning }: { segments: {text: string}[], rotation: number, isSpinning: boolean }) {
+    const segmentAngle = 360 / segments.length;
+    return (
+        <div className="relative w-72 h-72 md:w-80 md:h-80 mx-auto transition-transform duration-[6000ms] ease-out" style={{ transform: `rotate(${rotation}deg)`}}>
+            <div className={cn("absolute inset-0 rounded-full border-8 border-primary shadow-2xl transition-all", isSpinning && "animate-pulse")}>
+                {segments.map((segment, index) => (
+                    <div
+                        key={index}
+                        className="absolute w-1/2 h-1/2 origin-bottom-right"
+                        style={{
+                            transform: `rotate(${index * segmentAngle}deg)`,
+                            clipPath: `polygon(0 0, 100% 0, 100% 1px, ${Math.tan((segmentAngle/2) * (Math.PI / 180)) * 100}% 100%, 1px 100%)`
+                        }}
+                    >
+                        <div
+                            className="absolute inset-0 flex items-center justify-center"
+                            style={{ backgroundColor: WHEEL_COLORS[index % WHEEL_COLORS.length] }}
+                        >
+                            <span
+                                className="text-white font-bold text-xs transform -rotate-90 -translate-x-8"
+                                style={{ transform: `rotate(${(segmentAngle/2)-90}deg) translateX(-3.5rem)`}}
+                            >{segment.text}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+             <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2 border-4 border-primary z-10 flex items-center justify-center">
+                <Sparkles className="text-primary w-8 h-8"/>
+            </div>
+        </div>
+    );
+}
+
+
+export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSettings }) {
+    const [isSpinning, startTransition] = useTransition();
+    const [isOpen, setIsOpen] = useState(false);
+    const [rotation, setRotation] = useState(0);
+    const [result, setResult] = useState<string | null>(null);
+    const { toast } = useToast();
+    const router = useRouter();
+
+    const handleSpin = () => {
+        setResult(null);
+        startTransition(async () => {
+            try {
+                const { winningSegment, prize } = await spinWheel();
+                
+                // Calculate rotation
+                const segmentAngle = 360 / settings.segments.length;
+                const randomOffset = (Math.random() - 0.5) * segmentAngle * 0.8;
+                const targetRotation = 360 * 10 - (winningSegment * segmentAngle) - (segmentAngle/2) + randomOffset;
+                
+                setRotation(targetRotation);
+
+                setTimeout(() => {
+                    setResult(prize);
+                     toast({
+                        title: "Glückwunsch!",
+                        description: `Sie haben gewonnen: ${prize}`,
+                    });
+                }, 6500); // Wait for animation to finish
+
+            } catch (error: any) {
+                toast({ variant: 'destructive', title: 'Fehler', description: error.message });
+            }
+        });
+    };
+
+    const handleClose = () => {
+        setIsOpen(false);
+        // Refresh data on close to hide the card if user can't play again
+        router.refresh();
+    }
+
+    return (
+        <>
+            <Card className="shadow-lg bg-gradient-to-tr from-accent/90 to-primary/80 text-primary-foreground border-none overflow-hidden relative">
+                <div className="absolute -right-10 -top-10 w-32 h-32 opacity-20">
+                    <Sparkles className="w-full h-full" />
+                </div>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Gift /> Ihr tägliches Glücksrad
+                    </CardTitle>
+                    <CardDescription className="text-primary-foreground/80">
+                        Drehen Sie einmal pro Tag und gewinnen Sie tolle Preise!
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button onClick={() => setIsOpen(true)} className="w-full bg-white text-primary hover:bg-white/90">
+                        Jetzt drehen & gewinnen!
+                    </Button>
+                </CardContent>
+            </Card>
+
+            <Dialog open={isOpen} onOpenChange={handleClose}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Viel Glück!</DialogTitle>
+                        <DialogDescription>
+                            Klicken Sie auf "Drehen", um Ihr Glück zu versuchen.
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="relative py-8 flex flex-col items-center justify-center">
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-primary z-20"></div>
+                        <Wheel segments={settings.segments} rotation={rotation} isSpinning={isSpinning} />
+                    </div>
+
+                    <div className="mt-4 text-center">
+                        {result && (
+                             <div className="p-4 bg-accent/10 text-accent-foreground rounded-lg animate-in fade-in-50 zoom-in-95">
+                                <p className="font-bold text-lg">{result}</p>
+                            </div>
+                        )}
+                        <Button onClick={handleSpin} disabled={isSpinning || !!result} className="w-full mt-2" size="lg">
+                            {isSpinning && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {isSpinning ? 'Wird gedreht...' : 'Drehen!'}
+                        </Button>
+                    </div>
+
+                </DialogContent>
+            </Dialog>
+        </>
+    );
+}

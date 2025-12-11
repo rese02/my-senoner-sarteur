@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { ProductCard } from "@/components/custom/ProductCard";
 import { RecipeCard } from "./RecipeCard";
-import type { Recipe, Product, Story, Category } from "@/lib/types";
+import type { Recipe, Product, Story, Category, WheelOfFortuneSettings } from "@/lib/types";
 import { Stories } from '@/components/custom/Stories';
 import { PackageCard } from "@/components/custom/PackageCard";
 import { useCartStore } from '@/hooks/use-cart-store';
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Cart } from "./Cart";
+import { WheelOfFortuneCard } from './WheelOfFortuneCard';
 
 function CategoryFilter({ categories, activeCategory, onSelect }: { categories: Category[], activeCategory: string, onSelect: (categoryId: string) => void }) {
   return (
@@ -44,9 +45,10 @@ interface ProductsClientProps {
     categories: Category[];
     stories: Story[];
     recipe: Recipe;
+    wheelData: WheelOfFortuneSettings | null;
 }
 
-export function ProductsClient({ products, categories, stories, recipe }: ProductsClientProps) {
+export function ProductsClient({ products, categories, stories, recipe, wheelData }: ProductsClientProps) {
     const [selectedCategory, setSelectedCategory] = useState<string>('Alle');
     const cartItems = useCartStore(state => state.items);
 
@@ -58,6 +60,7 @@ export function ProductsClient({ products, categories, stories, recipe }: Produc
       <>
         <div className="flex flex-col gap-6 pb-28">
             <Stories stories={stories} />
+            {wheelData && <WheelOfFortuneCard settings={wheelData} />}
             <RecipeCard recipe={recipe} />
             
             <CategoryFilter categories={categories} activeCategory={selectedCategory} onSelect={setSelectedCategory} />

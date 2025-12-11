@@ -21,7 +21,8 @@ export interface User {
       accepted: boolean;
       timestamp: string;
     }
-  }
+  };
+  lastWheelSpin?: string;
 }
 
 export interface LoyaltyData {
@@ -152,4 +153,16 @@ export interface PlannerEvent {
   imageUrl: string;
   imageHint: string;
   ingredients: PlannerIngredientRule[];
+}
+
+// --- Wheel of Fortune ---
+export interface WheelSegment {
+    text: string;
+    type: 'win' | 'lose';
+}
+
+export interface WheelOfFortuneSettings {
+    isActive: boolean;
+    schedule: 'daily' | 'weekly' | 'monthly';
+    segments: WheelSegment[];
 }
