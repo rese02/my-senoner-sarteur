@@ -49,8 +49,8 @@ export async function createSession(idToken: string | null) {
     cookieStore.set('session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none', // WICHTIG für Cloud Workstations
+      secure: true,     // WICHTIG für Cloud Workstations
       path: '/',
     });
 
