@@ -13,9 +13,8 @@ export function useSession() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // We only run this effect if auth and app are initialized.
+    // We only run this effect if auth and app are initialized from the provider.
     if (!auth || !app) {
-      // If they are not ready, we are still in a loading state.
       setLoading(true);
       return;
     }
@@ -30,7 +29,6 @@ export function useSession() {
             const userData = { id: doc.id, ...doc.data() } as User;
             setSession(userData);
           } else {
-            // This case can happen if the user doc is deleted but auth record remains.
             console.warn(`User document for UID ${authUser.uid} not found in Firestore.`);
             setSession(null);
           }
@@ -41,18 +39,15 @@ export function useSession() {
            setLoading(false);
         });
 
-        // Cleanup the document listener when auth state changes or on unmount
         return () => unsubDoc();
       } else {
-        // No authenticated user
         setSession(null);
         setLoading(false);
       }
     });
 
-    // Cleanup the auth state listener on component unmount
     return () => unsubscribe();
-  }, [auth, app]); // This effect re-runs if auth or app instance changes
+  }, [auth, app]); 
 
   return { session, loading };
 }

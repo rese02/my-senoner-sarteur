@@ -12,5 +12,6 @@ import type { SuggestWinePairingInput, SuggestWinePairingOutput } from '@/ai/flo
  */
 export async function getWineSuggestion(input: SuggestWinePairingInput): Promise<SuggestWinePairingOutput> {
   // This function is now the only one that calls the flow from the server-side.
+  // It provides a layer of abstraction and security.
   return suggestWinePairing(input);
 }
