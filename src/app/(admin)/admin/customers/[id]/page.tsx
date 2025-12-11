@@ -125,17 +125,18 @@ function CustomerDetailClient({ customerId, initialData }: { customerId: string,
 }
 
 // Die übergeordnete Server Komponente, die Daten lädt
-export default async function CustomerDetailPage({ params }: { params: { id: string } }) {
-    const data = await getCustomerDetails(params.id);
+export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const data = await getCustomerDetails(id);
 
     if (!data.customer) {
         return (
             <div>
                 <PageHeader title="Kunde nicht gefunden" />
-                <p>Der Kunde mit der ID {params.id} konnte nicht gefunden werden.</p>
+                <p>Der Kunde mit der ID {id} konnte nicht gefunden werden.</p>
             </div>
         );
     }
 
-    return <CustomerDetailClient customerId={params.id} initialData={data} />;
+    return <CustomerDetailClient customerId={id} initialData={data} />;
 }

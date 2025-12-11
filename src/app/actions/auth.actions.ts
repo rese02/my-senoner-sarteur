@@ -49,8 +49,8 @@ export async function createSession(idToken: string | null) {
     cookieStore.set('session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
-      sameSite: 'none', // WICHTIG für Cloud Workstations
-      secure: true,     // WICHTIG für Cloud Workstations
+      secure: true,      // ZWINGEND TRUE für HTTPS/Cloud
+      sameSite: 'none',  // ZWINGEND NONE für Cloud/iFrames
       path: '/',
     });
 

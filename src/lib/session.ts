@@ -2,7 +2,7 @@
 import 'server-only';
 import { cookies } from 'next/headers';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
-import type { UserRole } from './types';
+import type { User, UserRole } from './types';
 import { toPlainObject } from './utils';
 
 
@@ -19,6 +19,9 @@ export async function getSession() {
     
     // User Daten holen
     const userDoc = await adminDb.collection('users').doc(decodedClaims.uid).get();
+    if (!userDoc.exists) {
+        return null;
+    }
     const userData = userDoc.data();
     
     const role = (userData?.role as UserRole) || 'customer';
@@ -31,7 +34,7 @@ export async function getSession() {
       name: (plainUserData as any)?.name || 'No Name',
       role: role,
       ...plainUserData
-    };
+    } as User & { userId: string };
   } catch (error) {
     return null;
   }
