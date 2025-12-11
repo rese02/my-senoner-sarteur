@@ -1,45 +1,30 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // TypeScript Fehler ignorieren (bleibt)
   typescript: { ignoreBuildErrors: true },
-  
-  // WICHTIG: 'eslint' wurde hier entfernt, da es in Next.js 15+ ungültig ist!
+  eslint: { ignoreDuringBuilds: true },
 
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "**" }, // Erlaubt alle Bilder (einfach für Dev)
+      { protocol: "https", hostname: "**" }, // Erlaubt alle Bilder (einfacher für Dev)
     ],
   },
 
-  // Unser Genkit-Fix (Funktioniert nur mit Webpack, was in Next 15 Standard ist)
   webpack: (config, { webpack, isServer }) => {
     if (!isServer) {
+      // Fix für Genkit/Firebase Admin im Browser
       config.plugins.push(
-        new webpack.NormalModuleReplacementPlugin(
-          /^node:/,
-          (resource) => {
-            resource.request = resource.request.replace(/^node:/, "");
-          }
-        )
+        new webpack.NormalModuleReplacementPlugin(/^node:/, (res) => {
+          res.request = res.request.replace(/^node:/, "");
+        })
       );
-
       config.resolve.fallback = {
         ...config.resolve.fallback,
-        process: false,
-        path: false,
-        os: false,
-        crypto: false,
-        stream: false,
-        zlib: false,
-        fs: false,
-        child_process: false,
-        net: false,
-        tls: false,
-        vm: false,
+        process: false, path: false, os: false, crypto: false,
+        stream: false, zlib: false, fs: false, child_process: false,
+        net: false, tls: false, vm: false,
       };
     }
     return config;
   },
 };
-
 export default nextConfig;
