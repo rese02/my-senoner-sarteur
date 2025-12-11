@@ -151,6 +151,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
 
 
   return (
+    <>
       <Card>
         <CardHeader className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
              <div/>
