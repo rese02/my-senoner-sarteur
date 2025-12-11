@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -7,7 +6,6 @@ import { doc, onSnapshot, getFirestore } from 'firebase/firestore';
 import { useAuth, useFirebaseApp } from '@/firebase/provider';
 import type { User } from '@/lib/types';
 
-
 export function useSession() {
   const auth = useAuth();
   const app = useFirebaseApp();
@@ -15,6 +13,13 @@ export function useSession() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // We only run this effect if auth and app are initialized.
+    if (!auth || !app) {
+      // If they are not ready, we are still in a loading state.
+      setLoading(true);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (authUser: AuthUser | null) => {
       if (authUser) {
         const db = getFirestore(app);
@@ -25,6 +30,8 @@ export function useSession() {
             const userData = { id: doc.id, ...doc.data() } as User;
             setSession(userData);
           } else {
+            // This case can happen if the user doc is deleted but auth record remains.
+            console.warn(`User document for UID ${authUser.uid} not found in Firestore.`);
             setSession(null);
           }
           setLoading(false);
@@ -34,17 +41,18 @@ export function useSession() {
            setLoading(false);
         });
 
-        // Cleanup doc listener when auth state changes
+        // Cleanup the document listener when auth state changes or on unmount
         return () => unsubDoc();
       } else {
+        // No authenticated user
         setSession(null);
         setLoading(false);
       }
     });
 
-    // Cleanup auth listener on unmount
+    // Cleanup the auth state listener on component unmount
     return () => unsubscribe();
-  }, [auth, app]);
+  }, [auth, app]); // This effect re-runs if auth or app instance changes
 
   return { session, loading };
 }

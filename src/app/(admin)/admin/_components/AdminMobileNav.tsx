@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, ShoppingCart, Package, Users, Megaphone, Sparkles, Settings } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Users, Megaphone, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Unified nav items with AdminSidebar
 const navItems = [
   { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/admin/orders', icon: ShoppingCart, label: 'Bestell.' },
+  { href: '/admin/orders', icon: ShoppingCart, label: 'Bestellungen' },
   { href: '/admin/products', icon: Package, label: 'Produkte' },
   { href: '/admin/customers', icon: Users, label: 'Kunden' },
   { href: '/admin/marketing', icon: Megaphone, label: 'Marketing' },
@@ -30,7 +31,7 @@ export function AdminMobileNav() {
               isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'
             )}
           >
-            {isActive && <div className="absolute top-0 h-0.5 w-8 bg-primary rounded-full animate-in fade-in-0 slide-in-from-top-2 duration-300" />}
+            {isActive && <div className="absolute top-0 h-0.5 w-full max-w-8 bg-primary rounded-full animate-in fade-in-0 slide-in-from-top-2 duration-300" />}
             <item.icon className="w-5 h-5" />
             <span className="text-[10px] font-medium">{item.label}</span>
           </Link>

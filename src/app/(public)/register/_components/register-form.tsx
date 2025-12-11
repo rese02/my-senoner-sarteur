@@ -60,7 +60,7 @@ export function RegisterForm() {
     } else if (result?.success) {
         toast({
             title: 'Registrierung erfolgreich!',
-            description: 'Ihr Konto wurde erstellt. Sie können sich jetzt anmelden.',
+            description: 'Ihr Konto wurde erstellt. Sie werden zum Login weitergeleitet.',
         });
         router.push('/login');
     }

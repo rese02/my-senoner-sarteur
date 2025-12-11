@@ -50,6 +50,7 @@ function PlannerEventForm({ event: initialEvent, onSave, isPending, availablePro
         const newIngredients = [...(event.ingredients || []), newRule];
         setEvent({ ...event, ingredients: newIngredients });
         setTempRule({ productId: '', productName: '', baseAmount: '', unit: 'g' });
+        toast({ title: "Zutat hinzugefügt", description: `${newRule.baseAmount}${newRule.unit} ${newRule.productName}` });
     };
 
     const removeRule = (index: number) => {
