@@ -142,12 +142,13 @@ export function SommelierClient({ initialWines }: { initialWines: Product[] }) {
             </CardContent>
           </Card>
 
-          <Card className="border-destructive/50 bg-destructive/5">
+          <Card>
               <CardHeader>
                   <CardTitle className="text-destructive">Gefahrenzone</CardTitle>
+                  <CardDescription>Diese Aktion kann nicht rückgängig gemacht werden.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                  <p className="text-sm text-destructive/90">
+                  <p className="text-sm text-muted-foreground">
                   Möchten Sie die Liste komplett neu aufbauen? Hiermit werden alle Weine unwiderruflich aus dem Sommelier-System gelöscht.
                   </p>
                   <AlertDialog>
