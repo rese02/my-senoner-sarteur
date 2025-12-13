@@ -1,3 +1,4 @@
+
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -153,10 +154,9 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-             <div/>
-             <div className="flex gap-2 w-full md:w-auto">
-                <div className="relative w-full md:w-auto flex-1">
+        <CardHeader>
+             <div className="flex flex-col sm:flex-row gap-2 w-full">
+                <div className="relative w-full flex-1">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input 
                         placeholder="Kunde oder ID suchen..." 
@@ -166,7 +166,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                     />
                 </div>
                 <Select value={statusFilter} onValueChange={(value: OrderStatus | 'all') => setStatusFilter(value)}>
-                    <SelectTrigger className="w-full md:w-[160px] bg-background flex-1">
+                    <SelectTrigger className="w-full sm:w-[180px] bg-background">
                         <SelectValue placeholder="Status filtern" />
                     </SelectTrigger>
                     <SelectContent>

@@ -1,9 +1,10 @@
+
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Trash2, Edit, Loader2, Plus, GripVertical } from "lucide-react";
+import { PlusCircle, Trash2, Edit, Loader2, Plus, GripVertical, MoreVertical } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState, useTransition, useEffect } from "react";
@@ -18,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { createCategory, deleteCategory, updateProduct, createProduct, deleteProduct, toggleProductAvailability } from "@/app/actions/product.actions";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
 export function ProductsClient({ initialProducts, initialCategories }: { initialProducts: Product[], initialCategories: Category[] }) {
   const [products, setProducts] = useState<Product[]>(initialProducts);
@@ -188,100 +189,99 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
           {categories.map((category) => {
             const productsInCategory = products.filter(p => p.categoryId === category.id);
             return (
-              <div key={category.id}>
-                <div className="flex flex-row items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold">{category.name}</h2>
-                  <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" className="hidden md:flex" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt</Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive h-8 w-8 hidden md:flex"><Trash2 className="w-4 h-4" /></Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Möchten Sie die Kategorie '{category.name}' wirklich löschen? Alle darin enthaltenen Produkte werden ebenfalls entfernt. Diese Aktion kann nicht rückgängig gemacht werden.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDeleteCategory(category.id)} disabled={isPending}>Löschen</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                  </div>
-                </div>
-                
-                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {productsInCategory.map(product => (
-                       <Card key={product.id} className="overflow-hidden flex flex-col group transition-all hover:shadow-lg bg-card">
-                        <div className="relative aspect-[4/3] bg-muted overflow-hidden">
-                           <Image src={product.imageUrl || fallbackImageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={product.imageHint} />
-                            {product.type === 'package' && <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground border-none" variant="secondary">PAKET</Badge>}
+              <Card key={category.id}>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle>{category.name}</CardTitle>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" className="hidden md:flex" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt</Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive h-8 w-8 hidden md:flex"><Trash2 className="w-4 h-4" /></Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Möchten Sie die Kategorie '{category.name}' wirklich löschen? Alle darin enthaltenen Produkte werden ebenfalls entfernt. Diese Aktion kann nicht rückgängig gemacht werden.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteCategory(category.id)} disabled={isPending}>Löschen</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {productsInCategory.map(product => (
+                        <Card key={product.id} className="overflow-hidden flex flex-col group transition-all hover:shadow-lg bg-background">
+                          <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+                            <Image src={product.imageUrl || fallbackImageUrl} alt={product.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={product.imageHint} />
+                              {product.type === 'package' && <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground border-none" variant="secondary">PAKET</Badge>}
+                          </div>
+                          <CardContent className="p-4 flex flex-col flex-1">
+                              <h3 className="font-semibold text-base leading-tight flex-grow">{product.name}</h3>
+                              <div className="flex items-baseline justify-between mt-1">
+                                  <p className="text-lg font-bold text-primary">€{(product.price || 0).toFixed(2)}</p>
+                                  <span className="text-xs text-muted-foreground">/ {product.unit}</span>
+                              </div>
+                              <div className="mt-auto pt-4 flex items-center justify-between gap-4 border-t mt-4">
+                                  <div className="flex items-center space-x-2">
+                                      <Switch 
+                                          id={`availability-${product.id}`} 
+                                          checked={product.isAvailable} 
+                                          onCheckedChange={() => handleAvailabilityToggle(product.id, product.isAvailable)}
+                                          disabled={isPending}
+                                      />
+                                      <Label htmlFor={`availability-${product.id}`} className="text-xs text-muted-foreground">
+                                          {product.isAvailable ? "Aktiv" : "Inaktiv"}
+                                      </Label>
+                                  </div>
+                                   <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                                              <MoreVertical className="h-4 w-4" />
+                                          </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end">
+                                          <DropdownMenuItem onClick={() => handleOpenProductModal(product, category.id)}>
+                                              <Edit className="mr-2 h-4 w-4" /> Bearbeiten
+                                          </DropdownMenuItem>
+                                          <DropdownMenuSeparator />
+                                          <AlertDialog>
+                                              <AlertDialogTrigger asChild>
+                                                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10">
+                                                      <Trash2 className="mr-2 h-4 w-4" /> Löschen
+                                                  </DropdownMenuItem>
+                                              </AlertDialogTrigger>
+                                              <AlertDialogContent>
+                                                  <AlertDialogHeader>
+                                                      <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
+                                                      <AlertDialogDescription>Möchten Sie '{product.name}' wirklich löschen?</AlertDialogDescription>
+                                                  </AlertDialogHeader>
+                                                  <AlertDialogFooter>
+                                                      <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                                      <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>Löschen</AlertDialogAction>
+                                                  </AlertDialogFooter>
+                                              </AlertDialogContent>
+                                          </AlertDialog>
+                                      </DropdownMenuContent>
+                                  </DropdownMenu>
+                              </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                    {productsInCategory.length === 0 && (
+                        <div className="text-center py-10 text-muted-foreground border-2 border-dashed rounded-xl">
+                          <p className="text-sm">Noch keine Produkte in dieser Kategorie.</p>
+                          <Button variant="link" size="sm" className="mt-1" onClick={() => handleOpenProductModal(null, category.id)}>Fügen Sie das erste Produkt hinzu</Button>
                         </div>
-                        <CardContent className="p-4 flex flex-col flex-1">
-                            <h3 className="font-semibold text-base leading-tight">{product.name}</h3>
-                            <div className="flex items-baseline justify-between mt-1">
-                                <p className="text-lg font-bold text-primary">€{(product.price || 0).toFixed(2)}</p>
-                                <span className="text-xs text-muted-foreground">/ {product.unit}</span>
-                            </div>
-                            {product.availabilityDay && <Badge variant="secondary" className="mt-1 w-fit text-xs">{product.availabilityDay} only</Badge>}
-                            <div className="mt-2 text-xs text-muted-foreground">
-                                <span>Bestellt (30T): </span>
-                                <span className="font-bold">{product.timesOrderedLast30Days ?? 0}</span>
-                            </div>
-                             <div className="mt-auto pt-4 flex items-center justify-between gap-4 border-t mt-4">
-                                <div className="flex items-center space-x-2">
-                                    <Switch 
-                                        id={`availability-${product.id}`} 
-                                        checked={product.isAvailable} 
-                                        onCheckedChange={() => handleAvailabilityToggle(product.id, product.isAvailable)}
-                                        disabled={isPending}
-                                    />
-                                    <Label htmlFor={`availability-${product.id}`} className="text-xs text-muted-foreground">
-                                        {product.isAvailable ? "Aktiv" : "Inaktiv"}
-                                    </Label>
-                                </div>
-                                <div className="flex items-center">
-                                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenProductModal(product, category.id)}>
-                                      <Edit className="h-4 w-4" />
-                                  </Button>
-                                   <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                                        <Trash2 className="w-4 h-4"/>
-                                      </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          Möchten Sie das Produkt '{product.name}' wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleDeleteProduct(product.id)} disabled={isPending}>Löschen</AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                </div>
-                            </div>
-                        </CardContent>
-                       </Card>
-                    ))}
-                     <div className="col-span-full">
-                        <Button variant="outline" size="sm" className="flex md:hidden w-full mt-4" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt hinzufügen</Button>
-                     </div>
-                  </div>
-                   {productsInCategory.length === 0 && (
-                      <div className="text-center py-10 text-muted-foreground bg-card border-2 border-dashed rounded-xl">
-                        <p className="text-sm">Noch keine Produkte in dieser Kategorie.</p>
-                        <Button variant="link" size="sm" className="mt-1" onClick={() => handleOpenProductModal(null, category.id)}>Fügen Sie das erste Produkt hinzu</Button>
-                      </div>
                     )}
-              </div>
+                </CardContent>
+              </Card>
             )
           })}
         </div>
@@ -298,6 +298,12 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                         <PlusCircle className="mr-2 h-4 w-4" />
                         <span>Neue Kategorie</span>
                     </DropdownMenuItem>
+                     {categories.map((cat) => (
+                         <DropdownMenuItem key={cat.id} onSelect={() => handleOpenProductModal(null, cat.id)}>
+                            <Plus className="mr-2 h-4 w-4" />
+                            <span>Produkt zu '{cat.name}'</span>
+                        </DropdownMenuItem>
+                    ))}
                 </DropdownMenuContent>
             </DropdownMenu>
       </div>

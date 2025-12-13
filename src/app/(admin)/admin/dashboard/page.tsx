@@ -1,3 +1,4 @@
+
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -151,27 +152,8 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Willkommen zurück! Hier ist Ihre aktuelle Übersicht." />
-
-      {/* --- Mobile Stats View (NEW COMPACT DESIGN) --- */}
-      <div className="grid grid-cols-2 gap-4 md:hidden">
-          {statItems.slice(1,3).map((item) => (
-             <Card key={item.title}>
-                 <CardHeader className="p-3">
-                     <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
-                         {item.title}
-                         <item.icon className="h-4 w-4 text-muted-foreground" />
-                     </CardTitle>
-                 </CardHeader>
-                 <CardContent className="p-3 pt-0">
-                     <div className="text-2xl font-bold">{item.value}</div>
-                     <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
-                 </CardContent>
-             </Card>
-          ))}
-      </div>
       
-      {/* --- Desktop Stats View --- */}
-      <div className="hidden md:grid md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {statItems.map((item) => (
             <Card key={item.title}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -187,7 +169,7 @@ export default function AdminDashboardPage() {
       </div>
 
 
-       <div className="grid gap-8 lg:grid-cols-5">
+       <div className="grid gap-8 lg:grid-cols-5 items-start">
             <div className="lg:col-span-3">
                 <OrdersByDayChart data={data.chartData} loading={loading} />
             </div>
