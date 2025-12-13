@@ -9,12 +9,8 @@ Willkommen im offiziellen Repository der "My Senoner Sarteur" App, einem digital
 3.  [Projektstruktur](#3-projektstruktur)
 4.  [Einrichtung & Lokaler Start](#4-einrichtung--lokaler-start)
 5.  [Architektur & Schlüsselkonzepte](#5-architektur--schlüsselkonzepte)
-    -   [Server- & Client-Komponenten](#server--client-komponenten)
-    -   [Server Actions als Backend-Schnittstelle](#server-actions-als-backend-schnittstelle)
-    -   [Authentifizierung & Sessions](#authentifizierung--sessions)
-    -   [AI Integration mit Genkit](#ai-integration-mit-genkit)
-    -   [Datenbank (Firebase)](#datenbank-firebase)
 6.  [Styling & UI](#6-styling--ui)
+7.  [Version Control mit Git](#7-version-control-mit-git)
 
 ---
 
@@ -156,3 +152,36 @@ Anstelle einer klassischen REST-API wird die gesamte serverseitige Logik über *
 -   **UI-Bibliothek:** Die App basiert vollständig auf **ShadCN UI**. Alle UI-Elemente (`Button`, `Card`, `Dialog`, etc.) stammen aus diesem System. Eigene Komponenten sollten sich stilistisch daran orientieren.
 -   **Styling:** **Tailwind CSS** wird für das gesamte Styling verwendet. Die Markenfarben und das Design-System sind in `src/app/globals.css` und `tailwind.config.ts` definiert.
 -   **Responsiveness:** Das Layout ist **Mobile-First**. Alle Seiten und Komponenten müssen auf kleinen Bildschirmen einwandfrei funktionieren und dürfen keinen horizontalen Scrollbalken erzeugen. `flex` und `grid` sind die primären Werkzeuge für responsive Layouts.
+
+---
+
+## 7. Version Control mit Git
+
+Um Ihre Code-Änderungen zu speichern und in Ihr Git-Repository (z.B. auf GitHub) hochzuladen, führen Sie die folgenden drei Befehle in Ihrem Terminal aus.
+
+### Schritt 1: Alle Änderungen zur "Staging Area" hinzufügen
+
+Dieser Befehl bereitet alle neuen und geänderten Dateien für den Upload vor.
+
+```bash
+git add .
+```
+
+### Schritt 2: Die Änderungen "committen"
+
+Hiermit erstellen Sie einen Schnappschuss Ihrer Änderungen mit einer beschreibenden Nachricht. Ersetzen Sie `"Ihre Nachricht hier"` durch eine kurze Beschreibung dessen, was Sie getan haben.
+
+```bash
+git commit -m "Ihre Nachricht hier"
+```
+_Beispiel: `git commit -m "Feat: Redesign des Admin Dashboards"`_
+
+### Schritt 3: Änderungen zum Remote-Server hochladen
+
+Dieser Befehl lädt Ihre "committeten" Änderungen in das Online-Repository hoch.
+
+```bash
+git push
+```
+
+Nachdem dieser Befehl abgeschlossen ist, sind Ihre Änderungen sicher im Git-Repository gespeichert.
