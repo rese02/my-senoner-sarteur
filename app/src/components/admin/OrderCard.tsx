@@ -1,0 +1,85 @@
+'use client';
+import type { Order, OrderStatus } from "@/lib/types";
+import { format, isToday, parseISO } from "date-fns";
+import { de } from "date-fns/locale";
+import { ChevronRight, FileText, ShoppingCart } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+
+const statusMap: Record<OrderStatus, {label: string, className: string}> = {
+  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg' },
+  picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
+  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg' },
+  ready_for_delivery: { label: 'Bereit Zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg' },
+  delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg' },
+  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg' },
+  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' },
+  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg' }
+};
+
+const StatusBadge = ({ status }: { status: OrderStatus }) => {
+  const statusInfo = statusMap[status];
+  return (
+    <Badge className={cn("capitalize font-semibold text-xs", statusInfo.className)}>
+      {statusInfo.label}
+    </Badge>
+  );
+};
+
+type OrderCardProps = {
+    order: Order;
+    onShowDetails?: () => void;
+}
+
+export function OrderCard({ order, onShowDetails }: OrderCardProps) {
+  const isGroceryList = order.type === 'grocery_list';
+  const pickupDate = order.pickupDate || order.deliveryDate ? parseISO(order.pickupDate || order.deliveryDate!) : parseISO(order.createdAt);
+  const itemCount = isGroceryList ? order.rawList?.split('\n').length : order.items?.reduce((sum, item) => sum + item.quantity, 0);
+
+  return (
+    <div 
+      onClick={onShowDetails}
+      className={cn(
+        "bg-card rounded-xl p-3 shadow-sm border hover:shadow-md transition-all duration-300 flex items-center justify-between gap-4 group relative",
+        onShowDetails && "cursor-pointer"
+      )}>
+      
+      {/* Icon, Name, ID */}
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className={cn(
+            "p-3 rounded-lg hidden sm:block", 
+            isGroceryList ? 'bg-orange-100 text-orange-600' : 'bg-primary/10 text-primary'
+          )}
+        >
+          {isGroceryList ? <FileText size={20} /> : <ShoppingCart size={20} />}
+        </div>
+        <div>
+          <h4 className="font-bold text-sm sm:text-base text-foreground truncate">{order.customerName}</h4>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">#{order.id.slice(-6)}</p>
+        </div>
+      </div>
+
+      {/* Details (Item count & Date) - visible on larger screens */}
+      <div className="hidden md:block text-sm text-muted-foreground text-center shrink-0">
+        <p>{itemCount} Artikel</p>
+        <p className="font-medium text-foreground">{isToday(pickupDate) ? 'Heute' : format(pickupDate, 'dd. MMM', { locale: de })}</p>
+      </div>
+
+      {/* Price & Status */}
+      <div className="text-right flex flex-col items-end justify-center w-auto shrink-0">
+        {order.total && order.total > 0 ? 
+          <p className="font-bold text-base sm:text-lg text-foreground">€{order.total.toFixed(2)}</p>
+          : <p className="font-bold text-base sm:text-lg text-muted-foreground">-</p>
+        }
+        <StatusBadge status={order.status} />
+      </div>
+
+      {/* Action Chevron */}
+      {onShowDetails && (
+        <div className="hidden sm:flex items-center ml-2">
+            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+        </div>
+      )}
+    </div>
+  );
+}
