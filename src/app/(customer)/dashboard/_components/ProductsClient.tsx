@@ -9,14 +9,8 @@ import { Cart } from "./Cart";
 import { WheelOfFortuneCard } from './WheelOfFortuneCard';
 import { RecipeCard } from './RecipeCard';
 import { ProductCard } from '@/components/custom/ProductCard';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 import { PackageCard } from '@/components/custom/PackageCard';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 interface ProductsClientProps {
     products: Product[];
@@ -30,7 +24,8 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
     const cartItems = useCartStore(state => state.items);
 
     return (
-      <>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:gap-8 items-start">
+        {/* Main Content */}
         <div className="flex flex-col gap-8 pb-28 lg:pb-8">
             <Stories stories={stories} />
             
@@ -57,39 +52,41 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
                       </div>
                   )}
 
+                  {/* Mobile: Horizontal Scroll Area */}
                   {categoryProducts.length > 0 && (
-                    <div className="md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-4">
-                        {/* Mobile Carousel */}
-                        <div className="md:hidden">
-                            <Carousel opts={{ align: "start", loop: false, }} className="w-full">
-                                <CarouselContent className="-ml-2">
-                                    {categoryProducts.map((product) => (
-                                    <CarouselItem key={product.id} className="basis-1/2 pl-2">
+                     <div className="md:hidden">
+                        <ScrollArea className="w-full whitespace-nowrap">
+                            <div className="flex w-max space-x-4 pb-4">
+                                {categoryProducts.map((product) => (
+                                    <div key={product.id} className="w-40">
                                         <ProductCard product={product} />
-                                    </CarouselItem>
-                                    ))}
-                                </CarouselContent>
-                            </Carousel>
-                        </div>
-                        {/* Desktop Grid */}
-                         <div className="hidden md:grid md:col-span-3 lg:col-span-4 xl:col-span-5 md:grid-cols-subgrid">
+                                    </div>
+                                ))}
+                            </div>
+                            <ScrollBar orientation="horizontal" className="invisible" />
+                        </ScrollArea>
+                    </div>
+                  )}
+
+                  {/* Desktop: Grid Layout */}
+                   {categoryProducts.length > 0 && (
+                        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                             {categoryProducts.map(product => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
                         </div>
-                    </div>
-                  )}
+                   )}
                 </div>
               )
             })}
         </div>
         
-        {/* Desktop Cart */}
-        <div className="hidden lg:block fixed right-8 top-[100px] w-[380px]">
-             <div className="sticky top-6 h-[calc(100vh-4.5rem)]">
+        {/* Desktop Cart Sidebar */}
+        <div className="hidden lg:block lg:sticky lg:top-8 h-auto">
+             <div className="h-full">
                 <Cart />
              </div>
         </div>
-      </>
+      </div>
     );
 }

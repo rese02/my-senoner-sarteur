@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useTransition, useEffect, use } from 'react';
+import { useState, useMemo, useTransition, useEffect } from 'react';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { de } from 'date-fns/locale';
 import Link from 'next/link';
 import { getCustomerDetails } from '@/app/actions/customer.actions';
 import type { Order, User } from '@/lib/types';
-
+import { Skeleton } from '@/components/ui/skeleton';
 
 function UnpaidOrderRow({ order, onMarkAsPaid, isPending }: { order: Order; onMarkAsPaid: (orderId: string) => void; isPending: boolean; }) {
     const [isSubmitting, startTransition] = useTransition();
@@ -46,12 +46,54 @@ function UnpaidOrderRow({ order, onMarkAsPaid, isPending }: { order: Order; onMa
     );
 }
 
-// Die Client Komponente, die die Daten darstellt
-function CustomerDetailClient({ customerId, initialData }: { customerId: string, initialData: { customer: User | null, orders: Order[] } }) {
-    const [customer, setCustomer] = useState<User | null>(initialData.customer);
-    const [orders, setOrders] = useState<Order[]>(initialData.orders);
+function LoadingSkeleton() {
+    return (
+        <div className="space-y-6">
+            <div className="flex items-center gap-4">
+                <Skeleton className="h-10 w-10 rounded-md" />
+                <div className="space-y-2">
+                    <Skeleton className="h-7 w-48" />
+                    <Skeleton className="h-4 w-64" />
+                </div>
+            </div>
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-6 w-32" />
+                    <Skeleton className="h-4 w-full max-w-lg mt-2" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-32 w-full" />
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
+
+// Die übergeordnete Server Komponente, die Daten lädt
+export default function CustomerDetailPage({ params }: { params: { id: string } }) {
+    const customerId = params.id;
+    const [customer, setCustomer] = useState<User | null>(null);
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [loading, setLoading] = useState(true);
     const [isPagePending, startPageTransition] = useTransition();
     const { toast } = useToast();
+
+    useEffect(() => {
+        async function loadData() {
+            setLoading(true);
+            try {
+                const data = await getCustomerDetails(customerId);
+                setCustomer(data.customer);
+                setOrders(data.orders);
+            } catch (error) {
+                toast({ variant: 'destructive', title: 'Fehler', description: "Kundendetails konnten nicht geladen werden." });
+            } finally {
+                setLoading(false);
+            }
+        }
+        loadData();
+    }, [customerId, toast]);
 
     const unpaidGroceryOrders = useMemo(() => {
         return orders.filter(o => 
@@ -75,6 +117,10 @@ function CustomerDetailClient({ customerId, initialData }: { customerId: string,
             }
         });
     };
+    
+    if (loading) {
+        return <LoadingSkeleton />;
+    }
 
     if (!customer) {
         return (
@@ -122,21 +168,4 @@ function CustomerDetailClient({ customerId, initialData }: { customerId: string,
             </Card>
         </div>
     );
-}
-
-// Die übergeordnete Server Komponente, die Daten lädt
-export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
-    const data = await getCustomerDetails(id);
-
-    if (!data.customer) {
-        return (
-            <div>
-                <PageHeader title="Kunde nicht gefunden" />
-                <p>Der Kunde mit der ID {id} konnte nicht gefunden werden.</p>
-            </div>
-        );
-    }
-
-    return <CustomerDetailClient customerId={id} initialData={data} />;
 }
