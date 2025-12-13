@@ -95,8 +95,8 @@ export default function AdminLayout({
     <div className="flex h-dvh bg-background text-foreground">
       <AdminSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-         <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b bg-card px-4 md:px-6 sticky top-0 z-20">
-             <div className="md:hidden font-bold font-headline text-lg text-primary">
+         <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b border-primary-foreground/20 bg-primary px-4 md:px-6 sticky top-0 z-20">
+             <div className="md:hidden font-bold font-headline text-lg text-primary-foreground">
                  Admin
              </div>
              {session && <UserProfileDropdown user={session as User} />}
