@@ -10,7 +10,7 @@ import Link from "next/link";
 import { useState, useTransition, useEffect } from "react";
 import type { Order, User, OrderStatus } from "@/lib/types";
 import { OrderCard } from "@/components/admin/OrderCard";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -81,13 +81,88 @@ function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onCl
     );
 }
 
+function OrderDetailsModal({ order, user, isOpen, onOpenChange }: { order: Order | null; user: User | null; isOpen: boolean; onOpenChange: (open: boolean) => void }) {
+    if (!order) return null;
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-md m-4">
+                <DialogHeader className="p-6 pb-4">
+                    <DialogTitle>Bestelldetails</DialogTitle>
+                    <DialogDescription>
+                        Details für Bestellung #{order.id.slice(-6)}
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 max-h-[70vh] overflow-y-auto px-6 pb-6">
+                    {user && (
+                        <div className="space-y-3 pb-3 border-b">
+                            <h3 className="font-semibold text-base">Kundendetails</h3>
+                            <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
+                                <p className="text-muted-foreground">Name:</p>
+                                <p className="font-medium">{user.name}</p>
+                                <p className="text-muted-foreground">Email:</p>
+                                <p className="font-medium">{user.email}</p>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="space-y-3">
+                        <h3 className="font-semibold text-base">Bestellübersicht</h3>
+                        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
+                            <p className="text-muted-foreground">{order.type === 'grocery_list' ? 'Lieferung:' : 'Abholung:'}</p>
+                            <p className="font-medium">{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEEE, dd.MM.yyyy", { locale: de })}</p>
+                            <p className="text-muted-foreground">Status:</p>
+                            <div><Badge className={cn("capitalize font-semibold", statusMap[order.status]?.className)}>{statusMap[order.status]?.label}</Badge></div>
+                        </div>
+
+                        {order.type === 'preorder' && order.items && (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Produkt</TableHead>
+                                        <TableHead>Menge</TableHead>
+                                        <TableHead className="text-right">Preis</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {order.items.map(item => (
+                                        <TableRow key={item.productId}>
+                                            <TableCell>{item.productName}</TableCell>
+                                            <TableCell>{item.quantity}</TableCell>
+                                            <TableCell className="text-right">€{(item.price * item.quantity).toFixed(2)}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
+
+                        {order.type === 'grocery_list' && order.rawList && (
+                            <div>
+                                <h4 className="font-semibold mt-3 mb-2">Einkaufszettel</h4>
+                                <div className="p-3 bg-secondary rounded-md text-sm whitespace-pre-line text-muted-foreground">
+                                    {order.rawList}
+                                </div>
+                            </div>
+                        )}
+                        {order.total != null && (
+                            <div className="flex justify-end font-bold text-lg border-t pt-3 mt-2">
+                                Gesamt: €{order.total.toFixed(2)}
+                            </div>
+                        )}
+                    </div>
+
+                    <OrderDetailsDeleteSection orderId={order.id} onClose={() => onOpenChange(false)} />
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
 
 export default function AdminDashboardPage() {
     const [data, setData] = useState<{orders: Order[], users: User[], chartData: any[]} | null>(null);
     const [loading, setLoading] = useState(true);
 
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-    const [customerDetails, setCustomerDetails] = useState<User | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { toast } = useToast();
     
@@ -108,10 +183,7 @@ export default function AdminDashboardPage() {
 
 
     const handleShowDetails = (order: Order) => {
-        if (!data) return;
         setSelectedOrder(order);
-        const customer = data.users.find(u => u.id === order.userId) || null;
-        setCustomerDetails(customer);
         setIsModalOpen(true);
     };
 
@@ -200,80 +272,12 @@ export default function AdminDashboardPage() {
             </Card>
        </div>
 
-       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-md m-4">
-          <DialogHeader className="p-6 pb-4">
-            <DialogTitle>Bestelldetails</DialogTitle>
-            <DialogDescription>
-              Details für Bestellung #{selectedOrder?.id.slice(-6)}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedOrder && (
-            <div className="space-y-4 max-h-[70vh] overflow-y-auto px-6 pb-6">
-              
-              {customerDetails && (
-                  <div className="space-y-3 pb-3 border-b">
-                      <h3 className="font-semibold text-base">Kundendetails</h3>
-                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
-                          <p className="text-muted-foreground">Name:</p>
-                          <p className="font-medium">{customerDetails.name}</p>
-                          <p className="text-muted-foreground">Email:</p>
-                          <p className="font-medium">{customerDetails.email}</p>
-                      </div>
-                  </div>
-              )}
-              
-              <div className="space-y-3">
-                  <h3 className="font-semibold text-base">Bestellübersicht</h3>
-                   <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
-                        <p className="text-muted-foreground">{selectedOrder.type === 'grocery_list' ? 'Lieferung:' : 'Abholung:'}</p>
-                        <p className="font-medium">{format(parseISO(selectedOrder.pickupDate || selectedOrder.deliveryDate || selectedOrder.createdAt), "EEEE, dd.MM.yyyy", { locale: de })}</p>
-                        <p className="text-muted-foreground">Status:</p>
-                        <div><Badge className={cn("capitalize font-semibold", statusMap[selectedOrder.status]?.className)}>{statusMap[selectedOrder.status]?.label}</Badge></div>
-                   </div>
-                  
-                  {selectedOrder.type === 'preorder' && selectedOrder.items && (
-                      <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Produkt</TableHead>
-                                <TableHead>Menge</TableHead>
-                                <TableHead className="text-right">Preis</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {selectedOrder.items.map(item => (
-                                <TableRow key={item.productId}>
-                                    <TableCell>{item.productName}</TableCell>
-                                    <TableCell>{item.quantity}</TableCell>
-                                    <TableCell className="text-right">€{(item.price * item.quantity).toFixed(2)}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                      </Table>
-                  )}
-
-                  {selectedOrder.type === 'grocery_list' && selectedOrder.rawList && (
-                      <div>
-                          <h4 className="font-semibold mt-3 mb-2">Einkaufszettel</h4>
-                          <div className="p-3 bg-secondary rounded-md text-sm whitespace-pre-line text-muted-foreground">
-                            {selectedOrder.rawList}
-                          </div>
-                      </div>
-                  )}
-                  {selectedOrder.total && (
-                    <div className="flex justify-end font-bold text-lg border-t pt-3 mt-2">
-                        Gesamt: €{selectedOrder.total.toFixed(2)}
-                    </div>
-                  )}
-              </div>
-                            
-              <OrderDetailsDeleteSection orderId={selectedOrder.id} onClose={() => setIsModalOpen(false)} />
-
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+       <OrderDetailsModal
+          order={selectedOrder}
+          user={data.users.find(u => u.id === selectedOrder?.userId) || null}
+          isOpen={isModalOpen}
+          onOpenChange={setIsModalOpen}
+        />
     </div>
   );
 }
