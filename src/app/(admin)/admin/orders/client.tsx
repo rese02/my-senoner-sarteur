@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Search, FileText, ShoppingCart, Trash2, Loader2 } from "lucide-react";
+import { Search, FileText, ShoppingCart, Trash2, Loader2, ListChecks, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo, useTransition, useEffect } from "react";
 import type { Order, OrderStatus, User } from "@/lib/types";
@@ -23,9 +23,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { cn } from "@/lib/utils";
 import { OrderCard } from "@/components/admin/OrderCard";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { deleteOrder } from "@/app/actions/admin-cleanup.actions";
+import { deleteOrder, deleteMultipleOrders } from "@/app/actions/admin-cleanup.actions";
 import { updateOrderStatus } from "@/app/actions/order.actions";
 import { useRouter } from "next/navigation";
+import { Checkbox } from "@/components/ui/checkbox";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
@@ -105,6 +106,11 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
 
+  // State for bulk selection
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+  const [isBulkDeleting, startBulkDeleteTransition] = useTransition();
+
 
   const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
     startTransition(async () => {
@@ -128,6 +134,10 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
   };
 
   const handleShowDetails = (order: Order) => {
+    if (isSelectionMode) {
+      handleSelectOrder(order.id);
+      return;
+    }
     setSelectedOrder(order);
     const customer = users.find(u => u.id === order.userId) || null;
     setCustomerDetails(customer);
@@ -149,6 +159,36 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
       })
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [orders, searchTerm, statusFilter]);
+
+  const handleSelectOrder = (orderId: string) => {
+    setSelectedOrderIds(prev =>
+      prev.includes(orderId)
+        ? prev.filter(id => id !== orderId)
+        : [...prev, orderId]
+    );
+  };
+
+  const handleSelectAll = (checked: boolean | 'indeterminate') => {
+    if (checked) {
+      setSelectedOrderIds(filteredOrders.map(o => o.id));
+    } else {
+      setSelectedOrderIds([]);
+    }
+  };
+  
+  const handleBulkDelete = () => {
+    startBulkDeleteTransition(async () => {
+        const result = await deleteMultipleOrders(selectedOrderIds);
+        if (result.success) {
+            setOrders(prev => prev.filter(o => !selectedOrderIds.includes(o.id)));
+            toast({ title: "Erfolg", description: `${result.count} Bestellungen gelöscht.` });
+        } else {
+            toast({ variant: "destructive", title: "Fehler", description: result.error });
+        }
+        setIsSelectionMode(false);
+        setSelectedOrderIds([]);
+    });
+  };
 
 
   return (
@@ -176,6 +216,35 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                           ))}
                     </SelectContent>
                 </Select>
+                 {!isSelectionMode ? (
+                     <Button variant="outline" onClick={() => setIsSelectionMode(true)}>
+                         <ListChecks className="mr-2 h-4 w-4" /> Verwalten
+                    </Button>
+                ) : (
+                    <div className="flex gap-2">
+                        <Button variant="ghost" onClick={() => { setIsSelectionMode(false); setSelectedOrderIds([]); }}>
+                             <X className="mr-2 h-4 w-4" /> Abbrechen
+                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" disabled={selectedOrderIds.length === 0 || isBulkDeleting}>
+                                    {isBulkDeleting ? <Loader2 className="animate-spin mr-2"/> : <Trash2 className="mr-2 h-4 w-4" />}
+                                    Löschen ({selectedOrderIds.length})
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
+                                    <AlertDialogDescription>Möchten Sie die {selectedOrderIds.length} ausgewählten Bestellungen wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting}>Ja, löschen</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
+                )}
              </div>
         </CardHeader>
         <CardContent>
@@ -183,6 +252,14 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
             <Table>
               <TableHeader>
                 <TableRow>
+                  {isSelectionMode && (
+                      <TableHead className="w-12">
+                          <Checkbox
+                              checked={selectedOrderIds.length === filteredOrders.length && filteredOrders.length > 0}
+                              onCheckedChange={handleSelectAll}
+                           />
+                      </TableHead>
+                  )}
                   <TableHead>Bestell-ID</TableHead>
                   <TableHead>Typ</TableHead>
                   <TableHead>Kunde</TableHead>
@@ -195,15 +272,26 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
               <TableBody>
                 {filteredOrders.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} className="h-24 text-center">Keine Bestellungen gefunden.</TableCell>
+                    <TableCell colSpan={isSelectionMode ? 8 : 7} className="h-24 text-center">Keine Bestellungen gefunden.</TableCell>
                   </TableRow>
                 )}
                 {filteredOrders.map((order) => {
                   const isGroceryList = order.type === 'grocery_list';
                   const itemCount = isGroceryList ? order.rawList?.split('\n').length : order.items?.length;
+                  const isSelected = selectedOrderIds.includes(order.id);
 
                   return (
-                  <TableRow key={order.id} className="transition-colors hover:bg-secondary">
+                  <TableRow 
+                    key={order.id} 
+                    data-state={isSelected ? "selected" : ""}
+                    onClick={() => handleShowDetails(order)} 
+                    className={cn("transition-colors", isSelectionMode ? "cursor-pointer" : "hover:bg-secondary")}
+                  >
+                     {isSelectionMode && (
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                           <Checkbox checked={isSelected} onCheckedChange={() => handleSelectOrder(order.id)} />
+                        </TableCell>
+                     )}
                     <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -225,6 +313,15 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                         value={order.status} 
                         onValueChange={(value: OrderStatus) => handleStatusChange(order.id, value)}
                         disabled={isPending}
+                        onOpenChange={(open) => {
+                            if (open) {
+                                // This is a trick to stop event propagation so the row's onClick isn't fired when opening the select.
+                                const event = new Event('dummy', { bubbles: true, cancelable: true });
+                                window.dispatchEvent(event);
+                                event.stopPropagation();
+                            }
+                        }}
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <SelectTrigger className="h-8 w-[140px] capitalize text-xs bg-background focus:ring-primary/50">
                           <SelectValue />
@@ -237,7 +334,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                       </Select>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => handleShowDetails(order)}>Details</Button>
+                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleShowDetails(order); }}>Details</Button>
                     </TableCell>
                   </TableRow>
                 )})}
@@ -250,11 +347,21 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                 <div className="text-center text-muted-foreground py-16">Keine Bestellungen gefunden.</div>
              )}
              {filteredOrders.map(order => (
-                <OrderCard 
-                    key={order.id} 
-                    order={order}
-                    onShowDetails={() => handleShowDetails(order)}
-                />
+                <div key={order.id} className="flex gap-2 items-center">
+                    {isSelectionMode && (
+                        <Checkbox 
+                            checked={selectedOrderIds.includes(order.id)} 
+                            onCheckedChange={() => handleSelectOrder(order.id)}
+                            className="h-6 w-6"
+                         />
+                    )}
+                    <div className="flex-1" onClick={() => handleShowDetails(order)}>
+                        <OrderCard 
+                            order={order}
+                            onShowDetails={isSelectionMode ? undefined : () => handleShowDetails(order)}
+                        />
+                    </div>
+                </div>
              ))}
           </div>
         </CardContent>
