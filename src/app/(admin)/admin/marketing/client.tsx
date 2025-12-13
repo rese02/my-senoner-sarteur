@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CookingPot, Camera, PartyPopper, FerrisWheel } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DeveloperWheelPreview } from "./_components/DeveloperWheelPreview";
 
 interface MarketingClientProps {
     initialStories: Story[];
@@ -25,6 +26,8 @@ type ModalType = 'recipe' | 'stories' | 'planner' | 'wheel' | null;
 
 export function MarketingClient({ initialStories, initialPlannerEvents, availableProducts, initialRecipe, initialWheelSettings }: MarketingClientProps) {
     const [openModal, setOpenModal] = useState<ModalType>(null);
+    const [wheelSettings, setWheelSettings] = useState(initialWheelSettings);
+
 
     const sections = [
         { 
@@ -53,16 +56,17 @@ export function MarketingClient({ initialStories, initialPlannerEvents, availabl
             title: "Glücksrad", 
             description: "Passen Sie die Gewinne und Regeln für das Glücksrad an.", 
             icon: FerrisWheel,
-            component: <WheelOfFortuneManager initialSettings={initialWheelSettings} />
+            component: <WheelOfFortuneManager initialSettings={wheelSettings} />
         },
     ];
     
     const activeSection = sections.find(s => s.id === openModal);
 
     return (
-        <div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {sections.map(section => (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {/* Left Column: Management Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:col-span-1">
+                 {sections.map(section => (
                     <Card key={section.id} className="hover:shadow-lg transition-shadow group flex flex-col">
                         <CardHeader>
                             <div className="flex items-start justify-between gap-4">
@@ -82,6 +86,11 @@ export function MarketingClient({ initialStories, initialPlannerEvents, availabl
                 ))}
             </div>
 
+            {/* Right Column: Developer Preview */}
+            <div className="xl:col-span-1">
+                <DeveloperWheelPreview initialSettings={wheelSettings} />
+            </div>
+
             <Dialog open={openModal !== null} onOpenChange={(isOpen) => !isOpen && setOpenModal(null)}>
                 <DialogContent className={cn(
                     "sm:max-w-4xl p-0", 
@@ -89,8 +98,8 @@ export function MarketingClient({ initialStories, initialPlannerEvents, availabl
                     openModal === 'wheel' && 'sm:max-w-2xl'
                 )}>
                     {activeSection && (
-                        <>
-                            <DialogHeader className="p-6 pb-0 sr-only">
+                         <>
+                            <DialogHeader className="p-6 pb-4">
                                 <DialogTitle>{activeSection.title}</DialogTitle>
                             </DialogHeader>
                             {activeSection.component}
