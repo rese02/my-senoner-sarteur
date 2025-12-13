@@ -18,20 +18,15 @@ export default function AdminDashboardLoading() {
       </div>
 
       <div className="grid gap-8 lg:grid-cols-5 items-start">
-        {/* Chart Skeleton */}
-        <div className="lg:col-span-3">
-           <Skeleton className="h-[400px] w-full" />
-        </div>
-        
         {/* Recent Orders Skeleton */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
             <Skeleton className="h-8 w-3/4 mb-4" />
-            <div className="space-y-3">
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
-                 <Skeleton className="h-20 w-full" />
-            </div>
+            <Skeleton className="h-[300px] w-full" />
+        </div>
+
+        {/* Chart Skeleton */}
+        <div className="lg:col-span-2">
+           <Skeleton className="h-[400px] w-full" />
         </div>
       </div>
     </div>

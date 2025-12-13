@@ -2,14 +2,13 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Users, ShoppingCart, Trash2, Loader2, CheckCircle, Euro } from "lucide-react";
+import { Users, ShoppingCart, Trash2, Loader2, CheckCircle, Euro, Package } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState, useTransition, useEffect } from "react";
 import type { Order, User, OrderStatus } from "@/lib/types";
-import { OrderCard } from "@/components/admin/OrderCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
@@ -121,8 +120,7 @@ export default function AdminDashboardPage() {
     
     const recentAndUpcomingOrders = data.orders
             .filter(o => ['new', 'picking', 'ready', 'ready_for_delivery'].includes(o.status))
-            .sort((a, b) => new Date(a.pickupDate || a.createdAt).getTime() - new Date(b.pickupDate || b.createdAt).getTime())
-            .slice(0, 5);
+            .sort((a, b) => new Date(a.pickupDate || a.createdAt).getTime() - new Date(b.pickupDate || b.createdAt).getTime());
 
     const totalRevenue = data.orders.reduce((sum, order) => sum + (order.total || 0), 0);
     const totalOrders = data.orders.length;
@@ -169,27 +167,41 @@ export default function AdminDashboardPage() {
       </div>
 
 
-       <div className="grid gap-8 grid-cols-1 lg:grid-cols-3 items-start">
-            <div className="lg:col-span-2">
-                <OrdersByDayChart data={data.chartData} loading={loading} />
-            </div>
-
-            <Card className="flex flex-col lg:col-span-1">
+       <div className="grid gap-8 grid-cols-1 lg:grid-cols-5 items-start">
+            <Card className="flex flex-col lg:col-span-3">
                 <CardHeader>
-                <CardTitle>Dringende Bestellungen</CardTitle>
+                    <CardTitle>Dringende & Offene Bestellungen</CardTitle>
                 </CardHeader>
-                <CardContent className="flex-grow">
+                <CardContent className="flex-grow p-0">
                 {recentAndUpcomingOrders.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-8 h-full flex flex-col justify-center items-center">
+                    <div className="text-center text-muted-foreground p-8 h-full flex flex-col justify-center items-center">
                         <CheckCircle className="w-12 h-12 text-green-400 mb-2"/>
                         <p>Keine aktiven Bestellungen. Sehr gut!</p>
                     </div>
                 ) : (
-                    <div className="space-y-3">
-                        {recentAndUpcomingOrders.map((order) => (
-                            <OrderCard key={order.id} order={order} onShowDetails={() => handleShowDetails(order)} />
-                        ))}
-                    </div>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Kunde</TableHead>
+                                <TableHead>Fälligkeit</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead className="text-right">Gesamt</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {recentAndUpcomingOrders.slice(0, 10).map((order) => (
+                                <TableRow key={order.id} onClick={() => handleShowDetails(order)} className="cursor-pointer">
+                                    <TableCell>
+                                        <div className="font-medium">{order.customerName}</div>
+                                        <div className="text-xs text-muted-foreground font-mono">#{order.id.slice(-6)}</div>
+                                    </TableCell>
+                                    <TableCell>{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEE, dd.MM.", { locale: de })}</TableCell>
+                                    <TableCell><Badge className={cn("capitalize font-semibold", statusMap[order.status]?.className)}>{statusMap[order.status]?.label}</Badge></TableCell>
+                                    <TableCell className="text-right font-medium">€{order.total?.toFixed(2) || '-'}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 )}
                 </CardContent>
                 <CardFooter>
@@ -198,6 +210,10 @@ export default function AdminDashboardPage() {
                     </Button>
                 </CardFooter>
             </Card>
+
+             <div className="lg:col-span-2">
+                <OrdersByDayChart data={data.chartData} loading={loading} />
+            </div>
        </div>
 
        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
