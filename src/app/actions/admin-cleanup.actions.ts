@@ -39,7 +39,31 @@ export async function deleteOrder(orderId: string) {
   return { success: true };
 }
 
-// 2. Massen-Löschen: Bestellungen älter als X Monate
+// 2. Mehrere Bestellungen löschen (NEU)
+export async function deleteMultipleOrders(orderIds: string[]) {
+    await requireAdmin();
+
+    const validatedOrderIds = z.array(z.string().min(1)).min(1).safeParse(orderIds);
+    if (!validatedOrderIds.success) {
+        return { success: false, error: "Keine gültigen Bestell-IDs angegeben." };
+    }
+
+    const batch = adminDb.batch();
+    validatedOrderIds.data.forEach(id => {
+        const docRef = adminDb.collection('orders').doc(id);
+        batch.delete(docRef);
+    });
+
+    await batch.commit();
+
+    revalidatePath('/admin/orders');
+    revalidatePath('/admin/dashboard');
+    
+    return { success: true, count: validatedOrderIds.data.length };
+}
+
+
+// 3. Massen-Löschen: Bestellungen älter als X Monate
 export async function deleteOldOrders(months: number) {
   await requireAdmin();
 

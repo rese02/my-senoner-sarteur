@@ -7,9 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Search, FileText, ShoppingCart, Trash2, Loader2 } from "lucide-react";
+import { Search, FileText, ShoppingCart, Trash2, Loader2, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState, useMemo, useTransition, useEffect } from "react";
+import { useState, useMemo, useTransition } from "react";
 import type { Order, OrderStatus, User } from "@/lib/types";
 import { 
   Select, 
@@ -23,9 +23,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { cn } from "@/lib/utils";
 import { OrderCard } from "@/components/admin/OrderCard";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { deleteOrder } from "@/app/actions/admin-cleanup.actions";
+import { deleteOrder, deleteMultipleOrders } from "@/app/actions/admin-cleanup.actions";
 import { updateOrderStatus } from "@/app/actions/order.actions";
 import { useRouter } from "next/navigation";
+import { Checkbox } from "@/components/ui/checkbox";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
@@ -103,6 +104,10 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [customerDetails, setCustomerDetails] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // State for bulk delete
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const router = useRouter();
 
 
@@ -150,6 +155,39 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [orders, searchTerm, statusFilter]);
 
+  const handleToggleSelection = (orderId: string) => {
+    setSelectedOrderIds(prev =>
+      prev.includes(orderId)
+        ? prev.filter(id => id !== orderId)
+        : [...prev, orderId]
+    );
+  };
+
+  const handleToggleSelectAll = () => {
+    if (selectedOrderIds.length === filteredOrders.length) {
+      setSelectedOrderIds([]);
+    } else {
+      setSelectedOrderIds(filteredOrders.map(o => o.id));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    startTransition(async () => {
+      try {
+        const result = await deleteMultipleOrders(selectedOrderIds);
+        if (result.success) {
+          toast({ title: "Erfolg", description: `${result.count} Bestellungen wurden gelöscht.` });
+          setOrders(prev => prev.filter(o => !selectedOrderIds.includes(o.id)));
+          setSelectedOrderIds([]);
+          setIsSelectionMode(false);
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error: any) {
+        toast({ variant: 'destructive', title: 'Fehler beim Löschen', description: error.message });
+      }
+    });
+  };
 
   return (
     <>
@@ -176,13 +214,56 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                           ))}
                     </SelectContent>
                 </Select>
+                <Button variant="outline" onClick={() => { setIsSelectionMode(!isSelectionMode); setSelectedOrderIds([]); }}>
+                  <Trash2 className="h-4 w-4 mr-2" /> {isSelectionMode ? 'Abbrechen' : 'Löschen'}
+                </Button>
              </div>
         </CardHeader>
         <CardContent>
+          {isSelectionMode && (
+            <div className="p-3 mb-4 bg-secondary border rounded-lg flex flex-col sm:flex-row items-center justify-between gap-2">
+              <p className="font-medium text-sm">{selectedOrderIds.length} Bestellungen ausgewählt</p>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={selectedOrderIds.length === 0 || isPending}
+                  >
+                    {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                    Ausgewählte löschen
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Sind Sie absolut sicher?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Diese Aktion kann nicht rückgängig gemacht werden. Die ausgewählten Bestellungen werden permanent gelöscht.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleBulkDelete} disabled={isPending} className="bg-destructive hover:bg-destructive/90">
+                      {isPending ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Löschen...</>) : 'Ja, löschen'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
           <div className="hidden md:block">
             <Table>
               <TableHeader>
                 <TableRow>
+                  {isSelectionMode && (
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={selectedOrderIds.length === filteredOrders.length && filteredOrders.length > 0}
+                        onCheckedChange={handleToggleSelectAll}
+                        aria-label="Alle auswählen"
+                      />
+                    </TableHead>
+                  )}
                   <TableHead>Bestell-ID</TableHead>
                   <TableHead>Typ</TableHead>
                   <TableHead>Kunde</TableHead>
@@ -195,7 +276,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
               <TableBody>
                 {filteredOrders.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} className="h-24 text-center">Keine Bestellungen gefunden.</TableCell>
+                    <TableCell colSpan={isSelectionMode ? 8 : 7} className="h-24 text-center">Keine Bestellungen gefunden.</TableCell>
                   </TableRow>
                 )}
                 {filteredOrders.map((order) => {
@@ -203,7 +284,16 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                   const itemCount = isGroceryList ? order.rawList?.split('\n').length : order.items?.length;
 
                   return (
-                  <TableRow key={order.id} className="transition-colors hover:bg-secondary">
+                  <TableRow key={order.id} className={cn("transition-colors hover:bg-secondary", isSelectionMode && "cursor-pointer")} onClick={() => isSelectionMode && handleToggleSelection(order.id)} data-state={selectedOrderIds.includes(order.id) ? "selected" : undefined}>
+                    {isSelectionMode && (
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedOrderIds.includes(order.id)}
+                          onCheckedChange={() => handleToggleSelection(order.id)}
+                          aria-label="Bestellung auswählen"
+                        />
+                      </TableCell>
+                    )}
                     <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -224,7 +314,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                       <Select 
                         value={order.status} 
                         onValueChange={(value: OrderStatus) => handleStatusChange(order.id, value)}
-                        disabled={isPending}
+                        disabled={isPending || isSelectionMode}
                       >
                         <SelectTrigger className="h-8 w-[140px] capitalize text-xs bg-background focus:ring-primary/50">
                           <SelectValue />
@@ -237,7 +327,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                       </Select>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => handleShowDetails(order)}>Details</Button>
+                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleShowDetails(order); }} disabled={isSelectionMode}>Details</Button>
                     </TableCell>
                   </TableRow>
                 )})}
@@ -250,11 +340,22 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                 <div className="text-center text-muted-foreground py-16">Keine Bestellungen gefunden.</div>
              )}
              {filteredOrders.map(order => (
-                <OrderCard 
-                    key={order.id} 
-                    order={order}
-                    onShowDetails={() => handleShowDetails(order)}
-                />
+                <div key={order.id} className="flex items-center gap-2">
+                  {isSelectionMode && (
+                    <Checkbox
+                      id={`select-mobile-${order.id}`}
+                      checked={selectedOrderIds.includes(order.id)}
+                      onCheckedChange={() => handleToggleSelection(order.id)}
+                      className="h-6 w-6"
+                    />
+                  )}
+                  <div className="flex-1">
+                    <OrderCard 
+                        order={order}
+                        onShowDetails={() => handleShowDetails(order)}
+                    />
+                  </div>
+                </div>
              ))}
           </div>
         </CardContent>
