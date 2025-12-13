@@ -17,7 +17,7 @@ const WineInfoSchema = z.object({
 });
 
 const EnrichWineListInputSchema = z.object({
-  wineNames: z.array(z.string()).describe('A list of wine names to be enriched.'),
+  wineNames: z.array(z.string().min(1)).min(1).describe('A list of wine names to be enriched.'),
 });
 export type EnrichWineListInput = z.infer<typeof EnrichWineListInputSchema>;
 
@@ -27,7 +27,11 @@ const EnrichWineListOutputSchema = z.object({
 export type EnrichWineListOutput = z.infer<typeof EnrichWineListOutputSchema>;
 
 export async function enrichWineList(input: EnrichWineListInput): Promise<EnrichWineListOutput> {
-  return enrichWineListFlow(input);
+  const validation = EnrichWineListInputSchema.safeParse(input);
+  if (!validation.success) {
+    throw new Error("Invalid input for wine enrichment.");
+  }
+  return enrichWineListFlow(validation.data);
 }
 
 const enrichWineListPrompt = ai.definePrompt({

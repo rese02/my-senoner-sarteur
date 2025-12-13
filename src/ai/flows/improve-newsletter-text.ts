@@ -15,6 +15,7 @@ import {z} from 'zod';
 const ImproveTextWithAIInputSchema = z.object({
   text: z
     .string()
+    .min(3, "Text must be at least 3 characters long.")
     .describe('The newsletter text to improve (in German or Italian).'),
 });
 export type ImproveTextWithAIInput = z.infer<typeof ImproveTextWithAIInputSchema>;
@@ -25,7 +26,12 @@ const ImproveTextWithAIOutputSchema = z.object({
 export type ImproveTextWithAIOutput = z.infer<typeof ImproveTextWithAIOutputSchema>;
 
 export async function improveTextWithAI(input: ImproveTextWithAIInput): Promise<ImproveTextWithAIOutput> {
-  return improveTextWithAIFlow(input);
+  const validation = ImproveTextWithAIInputSchema.safeParse(input);
+   if (!validation.success) {
+    // Return original text if validation fails instead of throwing an error.
+    return { improvedText: input.text };
+  }
+  return improveTextWithAIFlow(validation.data);
 }
 
 const improveTextWithAIPrompt = ai.definePrompt({
@@ -57,9 +63,6 @@ const improveTextWithAIFlow = ai.defineFlow(
     }
   },
   async input => {
-    if (!input.text || input.text.length < 3) {
-      return { improvedText: input.text };
-    }
     const {output} = await improveTextWithAIPrompt(input);
     return output!;
   }

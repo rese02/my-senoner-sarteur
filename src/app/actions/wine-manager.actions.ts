@@ -2,7 +2,7 @@
 
 import 'server-only';
 import { getSession } from '@/lib/session';
-import { enrichWineList } from '@/ai/flows/enrich-wine-list';
+import { enrichWineList } from '@/app/actions/ai.actions';
 import { revalidatePath } from 'next/cache';
 import { adminDb } from '@/lib/firebase-admin';
 import type { Product } from '@/lib/types';
@@ -93,7 +93,8 @@ export async function bulkImportWines(wineNames: string[]): Promise<Product[]> {
     return newWineDocs;
 }
 
-// Diese Funktion ist öffentlich für den Sommelier-Flow zugänglich.
+// This function is public for the Sommelier Flow.
+// The flow itself is protected by session check.
 export async function getWineCatalog(): Promise<Product[]> {
     try {
         const snapshot = await adminDb.collection('wine_catalog').get();

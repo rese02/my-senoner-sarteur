@@ -66,22 +66,31 @@ export async function createSession(idToken: string | null) {
 }
 
 const registerFormSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  password: z.string().min(8),
-  phone: z.string().min(5),
-  street: z.string().min(3),
-  city: z.string().min(2),
-  zip: z.string().min(4),
-  province: z.string().min(2),
-  privacyPolicy: z.boolean().refine((val) => val === true),
+  name: z.string().min(2, "Name must be at least 2 characters."),
+  email: z.string().email("Invalid email address."),
+  password: z.string().min(8, "Password must be at least 8 characters."),
+  phone: z.string().min(5, "Invalid phone number."),
+  street: z.string().min(3, "Invalid street."),
+  city: z.string().min(2, "Invalid city."),
+  zip: z.string().min(4, "Invalid ZIP code."),
+  province: z.string().min(2, "Invalid province."),
+  privacyPolicy: z.boolean().refine((val) => val === true, {
+    message: "You must accept the privacy policy.",
+  }),
 });
 
-export async function registerUser(values: z.infer<typeof registerFormSchema>) {
+export async function registerUser(values: unknown) {
+  const validation = registerFormSchema.safeParse(values);
+  if (!validation.success) {
+    // This provides a generic error. For more specific field errors,
+    // the client-side validation should be the primary source of feedback.
+    return { success: false, error: 'Invalid data provided. Please check all fields.' };
+  }
+
+  const { name, email, password, phone, street, city, zip, province, privacyPolicy } = validation.data;
+  
   let userRecord;
   try {
-    const { name, email, password, phone, street, city, zip, province, privacyPolicy } = registerFormSchema.parse(values);
-
     // 1. Auth-Benutzer erstellen
     userRecord = await adminAuth.createUser({
       email: email,
@@ -110,7 +119,6 @@ export async function registerUser(values: z.infer<typeof registerFormSchema>) {
     };
     await userRef.set(toPlainObject(newUser));
 
-    // Send success response instead of redirecting from server action
     return { success: true };
 
   } catch (error: any) {

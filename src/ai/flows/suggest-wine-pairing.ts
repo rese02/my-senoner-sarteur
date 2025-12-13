@@ -19,7 +19,7 @@ import { adminDb } from '@/lib/firebase-admin';
 
 // Define input and output schemas with Zod
 const SuggestWinePairingInputSchema = z.object({
-  foodPhoto: z.string().describe("A photo of a food dish as a data URI. Expected format: 'data:image/jpeg;base64,<encoded_data>'"),
+  foodPhoto: z.string().startsWith('data:image/').describe("A photo of a food dish as a data URI. Expected format: 'data:image/jpeg;base64,<encoded_data>'"),
 });
 export type SuggestWinePairingInput = z.infer<typeof SuggestWinePairingInputSchema>;
 
@@ -32,7 +32,11 @@ export type SuggestWinePairingOutput = z.infer<typeof SuggestWinePairingOutputSc
 
 // The main function exported to the application
 export async function suggestWinePairing(input: SuggestWinePairingInput): Promise<SuggestWinePairingOutput> {
-  return suggestWinePairingFlow(input);
+    const validation = SuggestWinePairingInputSchema.safeParse(input);
+    if (!validation.success) {
+      throw new Error("Invalid image data provided.");
+    }
+    return suggestWinePairingFlow(validation.data);
 }
 
 // --- Rate Limiting Configuration ---
