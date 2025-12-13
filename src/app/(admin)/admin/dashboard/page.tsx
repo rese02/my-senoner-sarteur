@@ -7,7 +7,7 @@ import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useCallback } from "react";
 import type { Order, User, OrderStatus } from "@/lib/types";
 import { OrderCard } from "@/components/admin/OrderCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
@@ -20,7 +20,6 @@ import { getDashboardPageData } from "@/app/actions/product.actions";
 import { Badge } from "@/components/ui/badge";
 import { OrdersByDayChart } from "./_components/OrdersByDayChart";
 import AdminDashboardLoading from "./loading";
-import { useRouter } from "next/navigation";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
@@ -34,10 +33,9 @@ const statusMap: Record<OrderStatus, {label: string, className: string}> = {
   cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg' }
 };
 
-function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onClose: () => void }) {
+function OrderDetailsDeleteSection({ orderId, onClose, onOrderDeleted }: { orderId: string, onClose: () => void, onOrderDeleted: () => void }) {
     const { toast } = useToast();
     const [isDeleting, startDeleteTransition] = useTransition();
-    const router = useRouter();
 
     const handleDelete = () => {
         startDeleteTransition(async () => {
@@ -45,7 +43,7 @@ function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onCl
             if (result.success) {
                 toast({ title: "Gelöscht", description: "Bestellung wurde entfernt." });
                 onClose(); // This closes the modal
-                router.refresh(); // This re-fetches the server data
+                onOrderDeleted(); // This triggers a data refresh on the parent page
             } else {
                  toast({ variant: 'destructive', title: 'Fehler', description: result.error || 'Konnte nicht gelöscht werden.' });
             }
@@ -81,7 +79,7 @@ function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onCl
     );
 }
 
-function OrderDetailsModal({ order, user, isOpen, onOpenChange }: { order: Order | null; user: User | null; isOpen: boolean; onOpenChange: (open: boolean) => void }) {
+function OrderDetailsModal({ order, user, isOpen, onOpenChange, onOrderDeleted }: { order: Order | null; user: User | null; isOpen: boolean; onOpenChange: (open: boolean) => void; onOrderDeleted: () => void; }) {
     if (!order) return null;
 
     return (
@@ -151,7 +149,7 @@ function OrderDetailsModal({ order, user, isOpen, onOpenChange }: { order: Order
                         )}
                     </div>
 
-                    <OrderDetailsDeleteSection orderId={order.id} onClose={() => onOpenChange(false)} />
+                    <OrderDetailsDeleteSection orderId={order.id} onClose={() => onOpenChange(false)} onOrderDeleted={onOrderDeleted} />
                 </div>
             </DialogContent>
         </Dialog>
@@ -166,26 +164,32 @@ export default function AdminDashboardPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { toast } = useToast();
     
-    useEffect(() => {
-        async function loadData() {
-            setLoading(true);
-            try {
-                const fetchedData = await getDashboardPageData();
-                setData(fetchedData);
-            } catch(error: any) {
-                toast({ variant: 'destructive', title: 'Daten-Fehler', description: "Dashboard-Daten konnten nicht geladen werden." });
-            } finally {
-                setLoading(false);
-            }
+    const loadData = useCallback(async () => {
+        setLoading(true);
+        try {
+            const fetchedData = await getDashboardPageData();
+            setData(fetchedData);
+        } catch(error: any) {
+            toast({ variant: 'destructive', title: 'Daten-Fehler', description: "Dashboard-Daten konnten nicht geladen werden." });
+        } finally {
+            setLoading(false);
         }
-       loadData();
     }, [toast]);
+    
+    useEffect(() => {
+       loadData();
+    }, [loadData]);
 
 
     const handleShowDetails = (order: Order) => {
         setSelectedOrder(order);
         setIsModalOpen(true);
     };
+    
+    const handleOrderDeleted = () => {
+        // Reload data after an order was deleted
+        loadData();
+    }
 
     if (loading || !data) {
         return <AdminDashboardLoading />;
@@ -282,6 +286,7 @@ export default function AdminDashboardPage() {
           user={data.users.find(u => u.id === selectedOrder?.userId) || null}
           isOpen={isModalOpen}
           onOpenChange={setIsModalOpen}
+          onOrderDeleted={handleOrderDeleted}
         />
     </div>
   );
