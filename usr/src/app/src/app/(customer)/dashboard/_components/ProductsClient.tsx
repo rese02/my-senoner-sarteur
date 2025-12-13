@@ -17,6 +17,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { PackageCard } from '@/components/custom/PackageCard';
+import { cn } from '@/lib/utils';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 interface ProductsClientProps {
     products: Product[];
@@ -58,20 +60,23 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
                       </div>
                   )}
 
+                  {/* Mobile: Horizontal Scroll Area */}
                   {categoryProducts.length > 0 && (
-                    <div className="md:hidden">
-                        <Carousel opts={{ align: "start", loop: false, }} className="w-full">
-                            <CarouselContent className="-ml-2">
+                     <div className="md:hidden">
+                        <ScrollArea className="w-full whitespace-nowrap">
+                            <div className="flex w-max space-x-4 pb-4">
                                 {categoryProducts.map((product) => (
-                                <CarouselItem key={product.id} className="basis-1/2 pl-2">
-                                    <ProductCard product={product} />
-                                </CarouselItem>
+                                    <div key={product.id} className="w-40">
+                                        <ProductCard product={product} />
+                                    </div>
                                 ))}
-                            </CarouselContent>
-                        </Carousel>
+                            </div>
+                            <ScrollBar orientation="horizontal" className="invisible" />
+                        </ScrollArea>
                     </div>
                   )}
 
+                  {/* Desktop: Grid Layout */}
                    {categoryProducts.length > 0 && (
                         <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                             {categoryProducts.map(product => (
