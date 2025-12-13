@@ -56,9 +56,9 @@ export function SommelierClient({ initialWines }: { initialWines: Product[] }) {
             toast({ title: "Erfolg", description: `${newWines.length} Weine wurden importiert und analysiert.` });
             setInputList('');
             setWines(currentWines => [...currentWines, ...newWines]);
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            toast({ variant: "destructive", title: "Fehler", description: "Import fehlgeschlagen." });
+            toast({ variant: "destructive", title: "Fehler", description: error.message || "Import fehlgeschlagen." });
         }
     });
   };
@@ -69,9 +69,9 @@ export function SommelierClient({ initialWines }: { initialWines: Product[] }) {
             await deleteAllWines();
             setWines([]);
             toast({ title: "Gelöscht", description: "Die Weinliste ist jetzt leer." });
-          } catch (error) {
+          } catch (error: any) {
             console.error(error);
-            toast({ variant: "destructive", title: "Fehler", description: "Löschen fehlgeschlagen." });
+            toast({ variant: "destructive", title: "Fehler", description: error.message || "Löschen fehlgeschlagen." });
           }
       });
   };
@@ -82,9 +82,9 @@ export function SommelierClient({ initialWines }: { initialWines: Product[] }) {
             await deleteWine(wineId);
             setWines(current => current.filter(w => w.id !== wineId));
             toast({ title: "Wein entfernt" });
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            toast({ variant: "destructive", title: "Fehler", description: "Entfernen fehlgeschlagen." });
+            toast({ variant: "destructive", title: "Fehler", description: error.message || "Entfernen fehlgeschlagen." });
         }
     })
   }
@@ -103,9 +103,9 @@ export function SommelierClient({ initialWines }: { initialWines: Product[] }) {
             toast({ title: "Wein aktualisiert" });
             setIsEditModalOpen(false);
             setEditingWine(null);
-          } catch (error) {
+          } catch (error: any) {
               console.error(error);
-              toast({ variant: "destructive", title: "Fehler", description: "Update fehlgeschlagen." });
+              toast({ variant: "destructive", title: "Fehler", description: error.message || "Update fehlgeschlagen." });
           }
       });
   }
@@ -213,9 +213,23 @@ export function SommelierClient({ initialWines }: { initialWines: Product[] }) {
                                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenEditModal(wine)} disabled={isPending}>
                                                 <Edit className="w-4 h-4 text-primary" />
                                             </Button>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDeleteOne(wine.id)} disabled={isPending}>
-                                                <Trash2 className="w-4 h-4 text-destructive" />
-                                            </Button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isPending}>
+                                                        <Trash2 className="w-4 h-4 text-destructive" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
+                                                        <AlertDialogDescription>Möchten Sie den Wein '{wine.name}' wirklich löschen?</AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDeleteOne(wine.id)}>Löschen</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                           </div>
                                       </TableCell>
                                   </TableRow>

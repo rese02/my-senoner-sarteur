@@ -21,6 +21,17 @@ const WineSchema = z.object({
     id: z.string().min(1),
     name: z.string().min(1),
     tags: z.array(z.string()),
+    // Hinzufügen der optionalen Felder, die in Product vorhanden sind
+    price: z.number().optional(),
+    unit: z.string().optional(),
+    imageUrl: z.string().optional(),
+    imageHint: z.string().optional(),
+    categoryId: z.string().optional(),
+    description: z.string().optional(),
+    isAvailable: z.boolean().optional(),
+    type: z.enum(['product', 'package']).optional(),
+    packageContent: z.array(z.object({ item: z.string(), amount: z.string() })).optional(),
+    createdAt: z.string().optional(),
 });
 
 
@@ -48,12 +59,14 @@ export async function updateWine(wine: Product): Promise<Product> {
     await requireAdmin();
     const validation = WineSchema.safeParse(wine);
     if (!validation.success) {
-        throw new Error("Invalid wine data.");
+        throw new Error("Invalid wine data: " + JSON.stringify(validation.error.flatten().fieldErrors));
     }
     const { id, ...data } = validation.data;
 
     const wineRef = adminDb.collection('wine_catalog').doc(id);
-    await wineRef.update(toPlainObject(data));
+    // Nur die Felder aktualisieren, die im Schema definiert sind.
+    const dataToUpdate = { name: data.name, tags: data.tags };
+    await wineRef.update(toPlainObject(dataToUpdate));
 
     revalidatePath('/admin/sommelier');
     return wine;
@@ -82,6 +95,14 @@ export async function bulkImportWines(wineNames: string[]): Promise<Product[]> {
             name: wine.name,
             tags: wine.tags,
             createdAt: new Date().toISOString(),
+            // Setzen von Standardwerten, damit sie mit dem Product-Typ übereinstimmen
+            price: 0,
+            unit: 'Flasche',
+            isAvailable: true,
+            type: 'product',
+            imageUrl: '',
+            imageHint: 'wine bottle',
+            categoryId: 'ai-sommelier-weine' // Eine Standard-Kategorie
         };
         batch.set(docRef, newWineData);
         newWineDocs.push(toPlainObject({ ...newWineData, id: docRef.id } as Product));
