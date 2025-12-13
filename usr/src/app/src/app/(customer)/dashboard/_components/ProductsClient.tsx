@@ -5,19 +5,12 @@ import { useState } from 'react';
 import type { Recipe, Product, Story, Category, WheelOfFortuneSettings } from "@/lib/types";
 import { Stories } from '@/components/custom/Stories';
 import { useCartStore } from '@/hooks/use-cart-store';
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Cart } from "./Cart";
 import { WheelOfFortuneCard } from './WheelOfFortuneCard';
 import { RecipeCard } from './RecipeCard';
 import { ProductCard } from '@/components/custom/ProductCard';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
 import { PackageCard } from '@/components/custom/PackageCard';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 
 interface ProductsClientProps {
@@ -60,23 +53,16 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
                   )}
 
                   {categoryProducts.length > 0 && (
-                    <Carousel
-                      opts={{
-                        align: "start",
-                        loop: false,
-                      }}
-                      className="w-full"
-                    >
-                      <CarouselContent className="-ml-2 md:-ml-4">
-                        {categoryProducts.map((product) => (
-                          <CarouselItem key={product.id} className="basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 pl-2 md:pl-4">
+                    <ScrollArea className="w-full whitespace-nowrap rounded-md">
+                      <div className="flex w-max space-x-4 pb-4">
+                        {categoryProducts.map(product => (
+                          <div key={product.id} className="w-40 sm:w-48">
                             <ProductCard product={product} />
-                          </CarouselItem>
+                          </div>
                         ))}
-                      </CarouselContent>
-                      <CarouselPrevious className="hidden sm:flex" />
-                      <CarouselNext className="hidden sm:flex" />
-                    </Carousel>
+                      </div>
+                      <ScrollBar orientation="horizontal" className="h-2" />
+                    </ScrollArea>
                   )}
                 </div>
               )
