@@ -5,20 +5,17 @@ import type { Product } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Plus, Minus, ShoppingCart } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useCartStore } from '@/hooks/use-cart-store';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-
 export function ProductCard({ product }: { product: Product }) {
     const [quantity, setQuantity] = useState(1);
     const { toast } = useToast();
     const addToCart = useCartStore(state => state.addToCart);
     const fallbackImageUrl = PlaceHolderImages.find(p => p.id === 'placeholder-general')?.imageUrl || 'https://placehold.co/400x300';
-
 
     const handleAddToCart = () => {
         addToCart({
@@ -32,16 +29,14 @@ export function ProductCard({ product }: { product: Product }) {
             description: `${quantity}x ${product.name}`,
         });
 
-        // Haptic feedback
         if (typeof window.navigator.vibrate === 'function') {
             window.navigator.vibrate(50);
         }
-
         setQuantity(1);
     };
 
     return (
-        <Card className="overflow-hidden group transition-all duration-300 w-full h-full flex flex-col">
+        <Card className="overflow-hidden group transition-all duration-300 w-full h-full flex flex-col shadow-md border">
            <div className="relative aspect-[4/3] w-full bg-muted">
                 <Image 
                     src={product.imageUrl || fallbackImageUrl} 
@@ -75,4 +70,3 @@ export function ProductCard({ product }: { product: Product }) {
         </Card>
     );
 }
-

@@ -17,6 +17,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import { PackageCard } from '@/components/custom/PackageCard';
 
 
 interface ProductsClientProps {
@@ -42,27 +43,41 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
             
             {categories.map(category => {
               const categoryProducts = products.filter(p => p.categoryId === category.id && p.type === 'product');
-              if (categoryProducts.length === 0) return null;
+              const categoryPackages = products.filter(p => p.categoryId === category.id && p.type === 'package');
+              
+              if (categoryProducts.length === 0 && categoryPackages.length === 0) return null;
+
               return (
                 <div key={category.id}>
                   <h2 className="text-2xl font-bold font-headline mb-4 text-foreground">{category.name}</h2>
-                  <Carousel
-                    opts={{
-                      align: "start",
-                      loop: false,
-                    }}
-                    className="w-full"
-                  >
-                    <CarouselContent className="-ml-2">
-                      {categoryProducts.map((product) => (
-                        <CarouselItem key={product.id} className="basis-1/2 md:basis-1/3 lg:basis-1/4 pl-2">
-                           <ProductCard product={product} />
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="hidden sm:flex" />
-                    <CarouselNext className="hidden sm:flex" />
-                  </Carousel>
+                  
+                  {categoryPackages.length > 0 && (
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-6">
+                          {categoryPackages.map((product) => (
+                              <PackageCard key={product.id} product={product} />
+                          ))}
+                      </div>
+                  )}
+
+                  {categoryProducts.length > 0 && (
+                    <Carousel
+                      opts={{
+                        align: "start",
+                        loop: false,
+                      }}
+                      className="w-full"
+                    >
+                      <CarouselContent className="-ml-2">
+                        {categoryProducts.map((product) => (
+                          <CarouselItem key={product.id} className="basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 pl-2">
+                            <ProductCard product={product} />
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious className="hidden sm:flex" />
+                      <CarouselNext className="hidden sm:flex" />
+                    </Carousel>
+                  )}
                 </div>
               )
             })}
