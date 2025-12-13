@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import type { Story } from '@/lib/types';
@@ -5,9 +6,6 @@ import Image from 'next/image';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -34,7 +32,6 @@ export function Stories({ stories }: { stories: Story[] }) {
 
   return (
     <div className="w-full">
-        <h2 className="text-xl font-bold mb-4 font-headline">Daily Stories</h2>
         <div className="flex space-x-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
           {stories.map(story => (
             <div 
@@ -42,20 +39,19 @@ export function Stories({ stories }: { stories: Story[] }) {
               className="flex-shrink-0 w-20 flex flex-col items-center gap-2 cursor-pointer group"
               onClick={() => handleStoryClick(story)}
             >
-                <div className="relative w-20 h-20 rounded-full p-1 bg-gradient-to-tr from-yellow-400 to-primary">
-                    <div className="bg-background p-1 rounded-full w-full h-full">
+                <div className="relative w-[70px] h-[70px] rounded-full p-0.5 bg-gradient-to-tr from-accent to-primary">
+                    <div className="bg-background p-0.5 rounded-full w-full h-full">
                         <Image
                           src={story.imageUrl}
                           alt={story.label}
-                          width={72}
-                          height={72}
-                          sizes="72px"
+                          width={66}
+                          height={66}
+                          sizes="66px"
                           className="rounded-full object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                           data-ai-hint={story.imageHint}
                         />
                     </div>
                 </div>
-                <p className="text-xs text-center font-medium text-muted-foreground w-full truncate">{story.label}</p>
             </div>
           ))}
         </div>
@@ -63,10 +59,6 @@ export function Stories({ stories }: { stories: Story[] }) {
         {selectedStory && (
            <Dialog open={open} onOpenChange={handleOpenChange}>
               <DialogContent className="p-0 m-0 bg-black border-none max-w-lg w-full h-[90vh] max-h-[90vh] rounded-xl overflow-hidden">
-                  <DialogHeader className="sr-only">
-                    <DialogTitle>Story: {selectedStory.label}</DialogTitle>
-                    <DialogDescription>Vollbildansicht der Story von {selectedStory.author}.</DialogDescription>
-                  </DialogHeader>
                   <div className="relative h-full w-full">
                       <Image
                           src={selectedStory.imageUrl}
