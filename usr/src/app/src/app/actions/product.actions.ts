@@ -84,34 +84,83 @@ export async function getDashboardPageData() {
     const orders = ordersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
     const users = usersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as User));
     
-    // --- Chart Data Logic ---
-    const last7Days = Array.from({ length: 7 }).map((_, i) => {
-        const d = subDays(new Date(), i);
-        return format(startOfDay(d), 'yyyy-MM-dd');
+    // --- Chart and Revenue Data Logic for last 7 days ---
+    const today = startOfDay(new Date());
+    const last7DaysCutoff = subDays(today, 6);
+    const last14DaysCutoff = subDays(today, 13);
+    
+    let revenueLast7Days = 0;
+    let revenuePrevious7Days = 0;
+
+    const ordersLast7Days = orders.filter(order => {
+        const orderDate = parseISO(order.createdAt);
+        return orderDate >= last7DaysCutoff;
+    });
+    revenueLast7Days = ordersLast7Days.reduce((sum, order) => sum + (order.total || 0), 0);
+
+    const ordersPrevious7Days = orders.filter(order => {
+        const orderDate = parseISO(order.createdAt);
+        return orderDate >= last14DaysCutoff && orderDate < last7DaysCutoff;
+    });
+    revenuePrevious7Days = ordersPrevious7Days.reduce((sum, order) => sum + (order.total || 0), 0);
+    
+    let revenueTrend = 0;
+    if (revenuePrevious7Days > 0) {
+        revenueTrend = ((revenueLast7Days - revenuePrevious7Days) / revenuePrevious7Days) * 100;
+    } else if (revenueLast7Days > 0) {
+        revenueTrend = 100; // If there was no revenue before, any new revenue is 100% growth
+    }
+
+    const last7DaysDates = Array.from({ length: 7 }).map((_, i) => {
+        return format(subDays(today, i), 'yyyy-MM-dd');
     }).reverse();
 
-    const ordersByDay: Record<string, number> = last7Days.reduce((acc, dateStr) => {
+    const ordersByDay: Record<string, number> = last7DaysDates.reduce((acc, dateStr) => {
         acc[dateStr] = 0;
         return acc;
     }, {} as Record<string, number>);
 
-    orders.forEach(order => {
-        if (!order.createdAt) return;
+    ordersLast7Days.forEach(order => {
         const orderDate = format(parseISO(order.createdAt), 'yyyy-MM-dd');
         if (ordersByDay.hasOwnProperty(orderDate)) {
             ordersByDay[orderDate]++;
         }
     });
 
-    const chartData = last7Days.map(dateStr => ({
-        date: format(parseISO(dateStr), 'EEE'), // Format as "Mon", "Tue", etc.
-        totalOrders: ordersByDay[dateStr]
+    const chartData = last7DaysDates.map(dateStr => ({
+        date: format(parseISO(dateStr), 'EEE'),
+        totalOrders: ordersByDay[dateStr] || 0
     }));
 
-    return { orders, users, chartData };
+    // New customers in the last 7 days
+    const newCustomersLast7Days = users.filter(user => 
+        user.customerSince && parseISO(user.customerSince) >= last7DaysCutoff
+    ).length;
+
+    return { 
+        orders, 
+        users, 
+        chartData, 
+        stats: {
+            revenueLast7Days,
+            revenueTrend,
+            totalCustomers: users.length,
+            newCustomersLast7Days,
+        }
+    };
   } catch (error) {
     console.error("Error fetching data for dashboard:", error);
-    return { orders: [], users: [], chartData: [] };
+    return { 
+        orders: [], 
+        users: [], 
+        chartData: [],
+        stats: {
+            revenueLast7Days: 0,
+            revenueTrend: 0,
+            totalCustomers: 0,
+            newCustomersLast7Days: 0,
+        }
+    };
   }
 }
 

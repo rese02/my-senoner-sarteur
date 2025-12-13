@@ -1,0 +1,287 @@
+
+'use client';
+import { PageHeader } from "@/components/common/PageHeader";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Users, ShoppingCart, Trash2, Loader2, CheckCircle, Euro, ArrowUp, ArrowDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useState, useTransition, useEffect, useCallback } from "react";
+import type { Order, User, OrderStatus } from "@/lib/types";
+import { OrderCard } from "@/components/admin/OrderCard";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { deleteOrder } from "@/app/actions/admin-cleanup.actions";
+import { useToast } from "@/hooks/use-toast";
+import { getDashboardPageData } from "@/app/actions/product.actions";
+import { Badge } from "@/components/ui/badge";
+import { OrdersByDayChart } from "./_components/OrdersByDayChart";
+import AdminDashboardLoading from "./loading";
+import { format, parseISO } from "date-fns";
+import { de } from "date-fns/locale";
+
+const statusMap: Record<OrderStatus, {label: string, className: string}> = {
+  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg' },
+  picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
+  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg' },
+  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg' },
+  delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg' },
+  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg' },
+  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' },
+  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg' }
+};
+
+function OrderDetailsDeleteSection({ orderId, onClose, onOrderDeleted }: { orderId: string, onClose: () => void, onOrderDeleted: () => void }) {
+    const { toast } = useToast();
+    const [isDeleting, startDeleteTransition] = useTransition();
+
+    const handleDelete = () => {
+        startDeleteTransition(async () => {
+            const result = await deleteOrder(orderId);
+            if (result.success) {
+                toast({ title: "Gelöscht", description: "Bestellung wurde entfernt." });
+                onClose();
+                onOrderDeleted();
+            } else {
+                 toast({ variant: 'destructive', title: 'Fehler', description: result.error || 'Konnte nicht gelöscht werden.' });
+            }
+        });
+    };
+
+    return (
+        <div className="mt-6 pt-4 border-t">
+            <h3 className="text-sm font-bold text-muted-foreground uppercase mb-3">Verwaltung</h3>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="w-full md:w-auto" size="sm">
+                        {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                        Bestellung löschen
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Sind Sie absolut sicher?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Diese Aktion kann nicht rückgängig gemacht werden. Die Bestellung wird permanent aus der Datenbank entfernt.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+                            {isDeleting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Löschen...</>) : 'Ja, löschen'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
+    );
+}
+
+function OrderDetailsModal({ order, user, isOpen, onOpenChange, onOrderDeleted }: { order: Order | null; user: User | null; isOpen: boolean; onOpenChange: (open: boolean) => void; onOrderDeleted: () => void; }) {
+    if (!order) return null;
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-md m-4">
+                <DialogHeader className="p-6 pb-4">
+                    <DialogTitle>Bestelldetails</DialogTitle>
+                    <DialogDescription>
+                        Details für Bestellung #{order.id.slice(-6)}
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 max-h-[70vh] overflow-y-auto px-6 pb-6">
+                    {user && (
+                        <div className="space-y-3 pb-3 border-b">
+                            <h3 className="font-semibold text-base">Kundendetails</h3>
+                            <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
+                                <p className="text-muted-foreground">Name:</p>
+                                <p className="font-medium">{user.name}</p>
+                                <p className="text-muted-foreground">Email:</p>
+                                <p className="font-medium">{user.email}</p>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="space-y-3">
+                        <h3 className="font-semibold text-base">Bestellübersicht</h3>
+                        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm">
+                            <p className="text-muted-foreground">{order.type === 'grocery_list' ? 'Lieferung:' : 'Abholung:'}</p>
+                            <p className="font-medium">{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEEE, dd.MM.yyyy", { locale: de })}</p>
+                            <p className="text-muted-foreground">Status:</p>
+                            <div><Badge className={cn("capitalize font-semibold", statusMap[order.status]?.className)}>{statusMap[order.status]?.label}</Badge></div>
+                        </div>
+
+                        {order.type === 'preorder' && order.items && (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Produkt</TableHead>
+                                        <TableHead>Menge</TableHead>
+                                        <TableHead className="text-right">Preis</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {order.items.map(item => (
+                                        <TableRow key={item.productId}>
+                                            <TableCell>{item.productName}</TableCell>
+                                            <TableCell>{item.quantity}</TableCell>
+                                            <TableCell className="text-right">€{(item.price * item.quantity).toFixed(2)}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
+
+                        {order.type === 'grocery_list' && order.rawList && (
+                            <div>
+                                <h4 className="font-semibold mt-3 mb-2">Einkaufszettel</h4>
+                                <div className="p-3 bg-secondary rounded-md text-sm whitespace-pre-line text-muted-foreground">
+                                    {order.rawList}
+                                </div>
+                            </div>
+                        )}
+                        {order.total != null && (
+                            <div className="flex justify-end font-bold text-lg border-t pt-3 mt-2">
+                                Gesamt: €{order.total.toFixed(2)}
+                            </div>
+                        )}
+                    </div>
+
+                    <OrderDetailsDeleteSection orderId={order.id} onClose={() => onOpenChange(false)} onOrderDeleted={onOrderDeleted} />
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+interface DashboardData {
+  orders: Order[];
+  users: User[];
+  chartData: any[];
+  stats: {
+    revenueLast7Days: number;
+    revenueTrend: number;
+    totalCustomers: number;
+    newCustomersLast7Days: number;
+  };
+}
+
+export default function AdminDashboardPage() {
+    const [data, setData] = useState<DashboardData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const { toast } = useToast();
+    
+    const loadData = useCallback(async () => {
+        setLoading(true);
+        try {
+            const fetchedData = await getDashboardPageData();
+            setData(fetchedData as DashboardData);
+        } catch(error: any) {
+            toast({ variant: 'destructive', title: 'Daten-Fehler', description: "Dashboard-Daten konnten nicht geladen werden." });
+        } finally {
+            setLoading(false);
+        }
+    }, [toast]);
+    
+    useEffect(() => {
+       loadData();
+    }, [loadData]);
+
+
+    const handleShowDetails = (order: Order) => {
+        setSelectedOrder(order);
+        setIsModalOpen(true);
+    };
+    
+    const handleOrderDeleted = () => {
+        loadData();
+    }
+
+    if (loading || !data) {
+        return <AdminDashboardLoading />;
+    }
+    
+    const recentAndUpcomingOrders = data.orders
+            .filter(o => ['new', 'picking', 'ready', 'ready_for_delivery'].includes(o.status))
+            .sort((a, b) => new Date(a.pickupDate || a.createdAt).getTime() - new Date(b.pickupDate || b.createdAt).getTime())
+            .slice(0, 10);
+        
+  return (
+    <div className="space-y-6">
+      <PageHeader title="Dashboard" description="Willkommen zurück! Hier ist Ihre aktuelle Übersicht." />
+      
+       <div className="grid gap-8 grid-cols-1 lg:grid-cols-5 items-start">
+            
+            <div className="lg:col-span-3">
+                <div className="flex flex-col h-full">
+                    <h2 className="text-2xl font-bold font-headline mb-4">Dringende Bestellungen</h2>
+                    
+                    <div className="flex-grow">
+                    {recentAndUpcomingOrders.length === 0 ? (
+                        <Card className="text-center text-muted-foreground py-8 h-full flex flex-col justify-center items-center">
+                            <CheckCircle className="w-12 h-12 text-green-400 mb-2"/>
+                            <p>Keine aktiven Bestellungen. Sehr gut!</p>
+                        </Card>
+                    ) : (
+                        <div className="space-y-3">
+                            {recentAndUpcomingOrders.map((order) => (
+                                <OrderCard key={order.id} order={order} onShowDetails={() => handleShowDetails(order)} />
+                            ))}
+                        </div>
+                    )}
+                    </div>
+                    <div className="mt-4">
+                        <Button asChild variant="outline" size="sm" className="w-full">
+                            <Link href="/admin/orders">Alle Bestellungen anzeigen</Link>
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
+            <div className="lg:col-span-2 space-y-8">
+                 <Card>
+                    <CardHeader>
+                        <CardDescription>Umsatz letzte 7 Tage</CardDescription>
+                        <CardTitle className="text-4xl font-bold">€{data.stats.revenueLast7Days.toFixed(2)}</CardTitle>
+                        {data.stats.revenueTrend !== 0 && (
+                            <div className={cn("flex items-center gap-1 text-sm", data.stats.revenueTrend > 0 ? "text-green-600" : "text-destructive")}>
+                                {data.stats.revenueTrend > 0 ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+                                {data.stats.revenueTrend.toFixed(1)}% zur Vorwoche
+                            </div>
+                        )}
+                    </CardHeader>
+                    <CardContent className="pt-4">
+                         <OrdersByDayChart data={data.chartData} loading={loading} />
+                    </CardContent>
+                    <CardFooter className="flex justify-between text-sm text-muted-foreground border-t pt-4">
+                        <div className="text-center">
+                            <p className="font-bold text-foreground text-lg">{data.stats.totalCustomers}</p>
+                            <p className="text-xs">Kunden gesamt</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="font-bold text-foreground text-lg">{data.stats.newCustomersLast7Days}</p>
+                            <p className="text-xs">Neue Kunden (7 T.)</p>
+                        </div>
+                         <div className="text-center">
+                            <p className="font-bold text-foreground text-lg">{recentAndUpcomingOrders.length}</p>
+                            <p className="text-xs">Offene Bestell.</p>
+                        </div>
+                    </CardFooter>
+                 </Card>
+            </div>
+
+       </div>
+
+       <OrderDetailsModal
+          order={selectedOrder}
+          user={data.users.find(u => u.id === selectedOrder?.userId) || null}
+          isOpen={isModalOpen}
+          onOpenChange={setIsModalOpen}
+          onOrderDeleted={handleOrderDeleted}
+        />
+    </div>
+  );
+}
