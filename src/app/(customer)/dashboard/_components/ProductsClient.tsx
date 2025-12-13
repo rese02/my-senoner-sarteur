@@ -65,7 +65,10 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
         <div className="flex flex-col gap-8 pb-28">
             <Stories stories={stories} />
             
-            {wheelData && <WheelOfFortuneCard settings={wheelData} />}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {wheelData && <WheelOfFortuneCard settings={wheelData} />}
+                <RecipeCard recipe={recipe} />
+            </div>
             
             {categories.map(category => {
               const categoryProducts = products.filter(p => p.categoryId === category.id);
@@ -82,26 +85,7 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
               )
             })}
         </div>
-
-        {/* Floating Cart Button for mobile */}
-        <div className="lg:hidden fixed bottom-20 right-4 z-20">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button size="lg" className="rounded-full h-16 w-16 shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground relative">
-                <ShoppingCart className="h-7 w-7" />
-                {cartItems.length > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-accent text-accent-foreground text-xs font-bold animate-in zoom-in-50">
-                    {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
-                  </span>
-                )}
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="bottom" className="h-[80vh] flex flex-col rounded-t-2xl p-0 bg-background">
-              <Cart />
-            </SheetContent>
-          </Sheet>
-        </div>
-
+        
         {/* Desktop Cart */}
         <div className="hidden lg:block fixed right-8 top-[100px] w-[380px]">
              <div className="sticky top-6 h-[calc(100vh-4.5rem)]">
