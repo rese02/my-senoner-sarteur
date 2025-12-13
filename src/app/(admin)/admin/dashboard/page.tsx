@@ -233,16 +233,15 @@ export default function AdminDashboardPage() {
             
             {/* Main Content: Urgent Orders */}
             <div className="lg:col-span-3">
-                <Card className="flex flex-col h-full">
-                    <CardHeader>
-                    <CardTitle>Dringende Bestellungen</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
+                <div className="flex flex-col h-full">
+                    <h2 className="text-2xl font-bold font-headline mb-4">Dringende Bestellungen</h2>
+                    
+                    <div className="flex-grow">
                     {recentAndUpcomingOrders.length === 0 ? (
-                        <div className="text-center text-muted-foreground py-8 h-full flex flex-col justify-center items-center">
+                        <Card className="text-center text-muted-foreground py-8 h-full flex flex-col justify-center items-center">
                             <CheckCircle className="w-12 h-12 text-green-400 mb-2"/>
                             <p>Keine aktiven Bestellungen. Sehr gut!</p>
-                        </div>
+                        </Card>
                     ) : (
                         <div className="space-y-3">
                             {recentAndUpcomingOrders.map((order) => (
@@ -250,13 +249,13 @@ export default function AdminDashboardPage() {
                             ))}
                         </div>
                     )}
-                    </CardContent>
-                    <CardFooter>
+                    </div>
+                    <div className="mt-4">
                         <Button asChild variant="outline" size="sm" className="w-full">
                             <Link href="/admin/orders">Alle Bestellungen anzeigen</Link>
                         </Button>
-                    </CardFooter>
-                </Card>
+                    </div>
+                </div>
             </div>
 
             {/* Sidebar: Stats & Chart */}
@@ -291,3 +290,5 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+
+    
