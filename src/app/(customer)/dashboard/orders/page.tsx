@@ -60,10 +60,10 @@ function OrderHistoryCard({ order }: { order: Order }) {
                 <div>
                     {order.items && order.items.length > 0 && (
                          <div className="space-y-2">
-                             {order.items.map(item => (
-                                 <div key={item.productId} className="flex justify-between text-sm items-center py-1 border-b last:border-0">
-                                     <span>{item.quantity}x {item.productName}</span>
-                                     <span className="font-mono text-muted-foreground">€{(item.price * item.quantity).toFixed(2)}</span>
+                             {order.items.map((item, index) => (
+                                 <div key={item.productId + index} className="flex justify-between text-sm items-center py-1 border-b last:border-0">
+                                     <span className="font-medium">{item.quantity}x <span className="text-muted-foreground">{item.productName}</span></span>
+                                     <span className="font-mono text-foreground">€{(item.price * item.quantity).toFixed(2)}</span>
                                  </div>
                              ))}
                          </div>
