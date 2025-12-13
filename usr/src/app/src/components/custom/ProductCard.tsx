@@ -36,7 +36,7 @@ export function ProductCard({ product }: { product: Product }) {
     };
 
     return (
-        <Card className="overflow-hidden group transition-all duration-300 w-full h-full flex flex-col shadow-md border">
+        <Card className="overflow-hidden group transition-all duration-300 w-full h-full flex flex-col shadow-sm border">
            <div className="relative aspect-[4/3] w-full bg-muted">
                 <Image 
                     src={product.imageUrl || fallbackImageUrl} 

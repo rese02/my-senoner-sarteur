@@ -33,7 +33,7 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
 
     return (
       <>
-        <div className="flex flex-col gap-8 pb-28">
+        <div className="flex flex-col gap-8 pb-28 lg:pb-8">
             <Stories stories={stories} />
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -67,9 +67,9 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
                       }}
                       className="w-full"
                     >
-                      <CarouselContent className="-ml-2">
+                      <CarouselContent className="-ml-2 md:-ml-4">
                         {categoryProducts.map((product) => (
-                          <CarouselItem key={product.id} className="basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 pl-2">
+                          <CarouselItem key={product.id} className="basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 pl-2 md:pl-4">
                             <ProductCard product={product} />
                           </CarouselItem>
                         ))}
