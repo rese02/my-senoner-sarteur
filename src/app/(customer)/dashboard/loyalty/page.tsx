@@ -1,3 +1,4 @@
+
 'use server';
 
 import { PageHeader } from "@/components/common/PageHeader";
@@ -59,7 +60,7 @@ export default async function LoyaltyPage() {
                     </Card>
 
                     {activePrize && (
-                        <Card className="shadow-lg bg-gradient-to-br from-accent/80 to-amber-400 border-accent animate-in fade-in-50">
+                        <Card className="shadow-lg bg-gradient-to-br from-accent/80 to-blue-400 border-accent animate-in fade-in-50">
                              <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-accent-foreground">
                                     <Star className="w-5 h-5"/> Aktiver Gewinn
@@ -87,7 +88,7 @@ export default async function LoyaltyPage() {
                 </div>
 
                 <div className="lg:col-span-2 space-y-6">
-                    <Card className="shadow-lg bg-gradient-to-br from-primary to-[#003366] text-primary-foreground border-none">
+                    <Card className="shadow-lg bg-primary text-primary-foreground border-none">
                         <CardHeader>
                             <CardTitle>Ihr Status</CardTitle>
                         </CardHeader>

@@ -1,3 +1,4 @@
+
 'use client'
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -19,27 +20,27 @@ export function MobileNav() {
   const cartItems = useCartStore(state => state.items);
   
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t border-border/50 shadow-t-lg lg:hidden z-40">
+    <div className="fixed bottom-0 left-0 right-0 h-20 bg-card border-t border-border/50 shadow-t-lg lg:hidden z-40">
       <nav className="grid h-full grid-cols-5 items-center px-2">
         {navItems.map((item) => {
+          const isActive = pathname === item.href;
           if (item.isCentral) {
-            const isActive = pathname === item.href;
             return (
-              <Link 
-                key={item.href} 
-                href={item.href}
-                className={cn(
-                  "relative -mt-6 flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-full shadow-lg transition-all duration-300",
-                  isActive ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground border hover:bg-secondary"
-                )}
-              >
-                <item.icon className="h-6 w-6" />
-                <span className="text-[10px] font-bold">{item.label}</span>
-              </Link>
+              <div key={item.href} className="flex justify-center">
+                <Link 
+                  href={item.href}
+                  className={cn(
+                    "relative -mt-8 flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-full shadow-lg transition-all duration-300 p-2",
+                    isActive ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground border hover:bg-secondary"
+                  )}
+                >
+                  <item.icon className="h-7 w-7" />
+                  <span className="text-xs font-bold">{item.label}</span>
+                </Link>
+              </div>
             )
           }
 
-          const isActive = pathname === item.href;
           return (
             <Link 
               key={item.href} 

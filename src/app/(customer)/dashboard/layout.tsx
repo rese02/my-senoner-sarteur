@@ -45,10 +45,10 @@ export default async function CustomerLayout({
     <div className="flex min-h-[100dvh] bg-background text-foreground">
       <DesktopSidebar />
       <div className="flex-1 flex flex-col">
-        <header className={cn("lg:hidden flex-none flex h-16 items-center justify-between px-4 sticky top-0 z-30 bg-background/80 backdrop-blur-sm border-b")}>
+        <header className={cn("lg:hidden flex-none flex h-16 items-center justify-between px-4 sticky top-0 z-30 bg-primary text-primary-foreground backdrop-blur-sm border-b")}>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10">
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Menü öffnen</span>
                 </Button>
