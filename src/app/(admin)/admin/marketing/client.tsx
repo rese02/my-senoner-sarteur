@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +9,7 @@ import { RecipeManager } from "./_components/RecipeManager";
 import { StoriesManager } from "./_components/StoriesManager";
 import { PlannerManager } from "./_components/PlannerManager";
 import { WheelOfFortuneManager } from "./_components/WheelOfFortuneManager";
+import { ChefHat, Camera, PartyPopper, FerrisWheel } from "lucide-react";
 
 
 interface MarketingClientProps {
@@ -23,11 +25,23 @@ export function MarketingClient({ initialStories, initialPlannerEvents, availabl
     return (
         <div>
             <Tabs defaultValue="recipe" className="w-full">
-                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4 mb-6 h-auto sm:h-10">
-                    <TabsTrigger value="recipe" className="h-10 text-sm sm:text-xs md:text-sm">🍳 Rezept der Woche</TabsTrigger>
-                    <TabsTrigger value="stories" className="h-10 text-sm sm:text-xs md:text-sm">📸 Daily Stories</TabsTrigger>
-                    <TabsTrigger value="planner" className="h-10 text-sm sm:text-xs md:text-sm">🎉 Party Planer</TabsTrigger>
-                    <TabsTrigger value="wheel" className="h-10 text-sm sm:text-xs md:text-sm">🎡 Glücksrad</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-6 h-auto gap-2 bg-transparent p-0">
+                    <TabsTrigger value="recipe" className="h-14 text-sm sm:text-xs md:text-sm flex items-center justify-start gap-3 p-4 rounded-lg">
+                        <ChefHat className="w-5 h-5 text-primary" />
+                        <span className="font-semibold">Rezept der Woche</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="stories" className="h-14 text-sm sm:text-xs md:text-sm flex items-center justify-start gap-3 p-4 rounded-lg">
+                        <Camera className="w-5 h-5 text-primary" />
+                        <span className="font-semibold">Daily Stories</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="planner" className="h-14 text-sm sm:text-xs md:text-sm flex items-center justify-start gap-3 p-4 rounded-lg">
+                        <PartyPopper className="w-5 h-5 text-primary" />
+                        <span className="font-semibold">Party Planer</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="wheel" className="h-14 text-sm sm:text-xs md:text-sm flex items-center justify-start gap-3 p-4 rounded-lg">
+                        <FerrisWheel className="w-5 h-5 text-primary" />
+                        <span className="font-semibold">Glücksrad</span>
+                    </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="recipe">
