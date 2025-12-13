@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -31,8 +32,8 @@ function EventSelectionGrid({ events, onSelect, selectedEvent }: { events: Plann
                     key={event.id}
                     onClick={() => onSelect(event)}
                     className={cn(
-                        "rounded-2xl overflow-hidden cursor-pointer group relative transition-all duration-300 ease-in-out border-4 shadow-md",
-                        selectedEvent?.id === event.id ? "border-primary shadow-2xl scale-105" : "border-transparent hover:shadow-lg"
+                        "rounded-2xl overflow-hidden cursor-pointer group relative transition-all duration-300 ease-in-out border-4 shadow-sm hover:shadow-lg",
+                        selectedEvent?.id === event.id ? "border-primary shadow-xl scale-105" : "border-transparent"
                     )}
                 >
                     <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors z-10"></div>

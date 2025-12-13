@@ -5,49 +5,18 @@ import { useState } from 'react';
 import type { Recipe, Product, Story, Category, WheelOfFortuneSettings } from "@/lib/types";
 import { Stories } from '@/components/custom/Stories';
 import { useCartStore } from '@/hooks/use-cart-store';
-import { Button } from '@/components/ui/button';
-import { ShoppingCart } from 'lucide-react';
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Cart } from "./Cart";
 import { WheelOfFortuneCard } from './WheelOfFortuneCard';
 import { RecipeCard } from './RecipeCard';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-
-function ProductGridCard({ product }: { product: Product }) {
-  const fallbackImageUrl = PlaceHolderImages.find(p => p.id === 'placeholder-general')?.imageUrl || 'https://placehold.co/400x300';
-  const { addToCart } = useCartStore();
-
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card click
-    addToCart({
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: 1,
-    });
-  };
-
-  return (
-    <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden group shadow-lg cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.99]">
-      <Image 
-        src={product.imageUrl || fallbackImageUrl} 
-        alt={product.name} 
-        fill
-        sizes="(max-width: 768px) 50vw, 33vw"
-        className="object-cover transition-transform duration-500 group-hover:scale-110"
-        data-ai-hint={product.imageHint}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0 p-4 text-white flex justify-between items-end">
-        <h3 className="font-headline text-lg font-bold leading-tight drop-shadow-md">{product.name}</h3>
-        <Button size="icon" className="h-9 w-9 rounded-full bg-white/20 backdrop-blur-sm text-white shrink-0" onClick={handleAddToCart}>
-          <ShoppingCart className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
-  );
-}
+import { ProductCard } from '@/components/custom/ProductCard';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { PackageCard } from '@/components/custom/PackageCard';
 
 interface ProductsClientProps {
     products: Product[];
@@ -62,7 +31,7 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
 
     return (
       <>
-        <div className="flex flex-col gap-8 pb-28">
+        <div className="flex flex-col gap-8 pb-28 lg:pb-8">
             <Stories stories={stories} />
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -71,16 +40,43 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
             </div>
             
             {categories.map(category => {
-              const categoryProducts = products.filter(p => p.categoryId === category.id);
-              if (categoryProducts.length === 0) return null;
+              const categoryProducts = products.filter(p => p.categoryId === category.id && p.type === 'product');
+              const categoryPackages = products.filter(p => p.categoryId === category.id && p.type === 'package');
+              
+              if (categoryProducts.length === 0 && categoryPackages.length === 0) return null;
+
               return (
                 <div key={category.id}>
                   <h2 className="text-2xl font-bold font-headline mb-4 text-foreground">{category.name}</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {categoryProducts.map(product => (
-                      <ProductGridCard key={product.id} product={product} />
-                    ))}
-                  </div>
+                  
+                  {categoryPackages.length > 0 && (
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-6">
+                          {categoryPackages.map((product) => (
+                              <PackageCard key={product.id} product={product} />
+                          ))}
+                      </div>
+                  )}
+
+                  {categoryProducts.length > 0 && (
+                    <div className="md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-4">
+                        <div className="md:hidden">
+                            <Carousel opts={{ align: "start", loop: false, }} className="w-full">
+                                <CarouselContent className="-ml-2">
+                                    {categoryProducts.map((product) => (
+                                    <CarouselItem key={product.id} className="basis-1/2 pl-2">
+                                        <ProductCard product={product} />
+                                    </CarouselItem>
+                                    ))}
+                                </CarouselContent>
+                            </Carousel>
+                        </div>
+                         <div className="hidden md:grid md:col-span-3 lg:col-span-4 xl:col-span-5 md:grid-cols-subgrid">
+                            {categoryProducts.map(product => (
+                                <ProductCard key={product.id} product={product} />
+                            ))}
+                        </div>
+                    </div>
+                  )}
                 </div>
               )
             })}

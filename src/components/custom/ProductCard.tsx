@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Product } from '@/lib/types';
@@ -41,7 +42,7 @@ export function ProductCard({ product }: { product: Product }) {
                     src={product.imageUrl || fallbackImageUrl} 
                     alt={product.name} 
                     fill 
-                    sizes="(max-width: 768px) 50vw, 25vw"
+                    sizes="(max-width: 768px) 50vw, 20vw"
                     className="object-cover transition-transform duration-300 group-hover:scale-105" 
                     data-ai-hint={product.imageHint} 
                 />

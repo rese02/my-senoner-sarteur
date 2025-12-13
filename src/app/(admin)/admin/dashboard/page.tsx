@@ -169,12 +169,12 @@ export default function AdminDashboardPage() {
       </div>
 
 
-       <div className="grid gap-8 lg:grid-cols-5 items-start">
-            <div className="lg:col-span-3">
+       <div className="grid gap-8 grid-cols-1 lg:grid-cols-3 items-start">
+            <div className="lg:col-span-2">
                 <OrdersByDayChart data={data.chartData} loading={loading} />
             </div>
 
-            <Card className="flex flex-col lg:col-span-2">
+            <Card className="flex flex-col lg:col-span-1">
                 <CardHeader>
                 <CardTitle>Dringende Bestellungen</CardTitle>
                 </CardHeader>

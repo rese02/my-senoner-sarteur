@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition, useEffect } from "react";
@@ -215,7 +216,7 @@ export function PlannerManager({ initialPlannerEvents, availableProducts }: { in
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
                                             <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => handleDeletePlannerEvent(event.id)}>Löschen</AlertDialogAction>
+                                            <AlertDialogAction onClick={() => handleDeletePlannerEvent(event.id)} disabled={isPending}>Löschen</AlertDialogAction>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>

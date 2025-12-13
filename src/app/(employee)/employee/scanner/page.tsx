@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect, useCallback, useTransition } from 'react';
@@ -198,10 +199,11 @@ function ScanResultView({ user, orders, onNextCustomer }: { user: UserType, orde
 
   return (
     <div className="w-full space-y-4 animate-in fade-in-50">
-        <Card className="w-full p-4 text-center shadow-lg border-none">
-            <h2 className="text-xl font-bold font-headline">{user.name}</h2>
-            <div className="text-5xl font-bold text-primary my-1">
-                {stamps} <span className="text-lg text-muted-foreground font-normal">Stempel</span>
+        <Card className="w-full p-4 text-center shadow-lg border-none bg-card">
+            <h2 className="text-2xl font-bold font-headline">{user.name}</h2>
+            <div className="flex items-baseline justify-center gap-2 text-primary my-1">
+                <span className="text-6xl font-bold">{stamps}</span>
+                <span className="text-xl font-semibold">Stempel</span>
             </div>
         </Card>
 
