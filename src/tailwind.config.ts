@@ -1,5 +1,33 @@
 import type {Config} from 'tailwindcss';
 
+const svgToDataUri = (svg: string) => `data:image/svg+xml,${encodeURIComponent(svg)}`;
+
+const foodPatternSvg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <defs>
+    <style>
+      .icon {
+        stroke: hsl(var(--border));
+        stroke-width: 1;
+        fill: none;
+        opacity: 0.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+    </style>
+  </defs>
+  <!-- Wine Bottle at (15, 15) -->
+  <path d="M40 10 C40 5, 35 5, 35 10 L35 20 L45 20 L45 10 C45 5, 40 5, 40 10 M35 20 L45 20 M30 22 L50 22 L50 40 C50 45, 30 45, 30 40 Z" class="icon" transform="translate(-20, -5) scale(0.6)"/>
+  <!-- Cheese at (80, 20) -->
+  <path d="M70 20 L90 20 L70 40 Z M70 25 L85 25 M70 30 L80 30 M70 35 L75 35" class="icon" transform="scale(0.8)"/>
+  <!-- Fish at (20, 70) -->
+  <path d="M10 70 Q 25 60, 40 70 Q 25 80, 10 70 M38 70 L45 65 M38 70 L45 75 M15 70 A 1 1 0 0 1 15 70.1" class="icon" transform="scale(0.9) translate(5,0)"/>
+  <!-- Grapes at (75, 75) -->
+  <path d="M80 65 L82 62 M85 70 A 5 5 0 0 1 75 70 A 5 5 0 0 1 85 70 M80 75 A 5 5 0 0 1 70 75 A 5 5 0 0 1 80 75 M90 75 A 5 5 0 0 1 80 75" class="icon"/>
+</svg>
+`;
+
+
 export default {
   darkMode: ['class'],
   content: [
@@ -15,6 +43,9 @@ export default {
       },
     },
     extend: {
+      backgroundImage: {
+        'food-pattern': `url("${svgToDataUri(foodPatternSvg)}")`,
+      },
       fontFamily: {
         body: ['var(--font-body)', 'sans-serif'],
         headline: ['var(--font-headline)', 'serif'],
