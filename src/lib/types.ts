@@ -166,4 +166,5 @@ export interface WheelOfFortuneSettings {
     isActive: boolean;
     schedule: 'daily' | 'weekly' | 'monthly';
     segments: WheelSegment[];
+    developerMode?: boolean;
 }

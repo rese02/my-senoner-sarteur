@@ -56,6 +56,7 @@ const WheelOfFortuneSettingsSchema = z.object({
         text: z.string().min(1, "Segment text cannot be empty"),
         type: z.enum(['win', 'lose']),
     })).min(2, "At least two segments are required."),
+    developerMode: z.boolean().optional(),
 });
 
 
@@ -166,10 +167,14 @@ export async function spinWheel(): Promise<{ winningSegment: number; prize: stri
         throw new Error("Das Glücksrad ist derzeit nicht aktiv.");
     }
     
-    const canPlay = await canUserPlay(session.userId, wheelSettings.schedule);
-    if (!canPlay) {
-        throw new Error("Sie können im Moment nicht spielen. Versuchen Sie es später erneut.");
+    // Check if the user can play, but skip this check if developer mode is on
+    if (!wheelSettings.developerMode) {
+        const canPlay = await canUserPlay(session.userId, wheelSettings.schedule);
+        if (!canPlay) {
+            throw new Error("Sie können im Moment nicht spielen. Versuchen Sie es später erneut.");
+        }
     }
+
 
     const winningSegmentIndex = Math.floor(Math.random() * wheelSettings.segments.length);
     const winningSegment = wheelSettings.segments[winningSegmentIndex];
@@ -242,6 +247,11 @@ export async function getWheelOfFortuneDataForCustomer() {
     const settings = await getWheelSettings();
     if (!settings.isActive) return null;
 
+    // If in developer mode, always show the wheel
+    if (settings.developerMode) {
+        return settings;
+    }
+    
     const canPlay = await canUserPlay(session.userId, settings.schedule);
 
     if (canPlay) {
@@ -323,6 +333,7 @@ function getFallbackWheelSettings(): WheelOfFortuneSettings {
             { text: 'Niete', type: 'lose' },
             { text: '10% Rabatt', type: 'win' },
             { text: 'Niete', type: 'lose' },
-        ]
+        ],
+        developerMode: false,
     };
 }

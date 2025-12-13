@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { saveWheelSettings } from '@/app/actions/marketing.actions';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash2, Plus } from 'lucide-react';
+import { Loader2, Trash2, Plus, TestTube2 } from 'lucide-react';
 import type { WheelOfFortuneSettings, WheelSegment } from '@/lib/types';
 
 export function WheelOfFortuneManager({ initialSettings }: { initialSettings: WheelOfFortuneSettings }) {
@@ -123,6 +123,23 @@ export function WheelOfFortuneManager({ initialSettings }: { initialSettings: Wh
                      <Button variant="outline" size="sm" onClick={handleAddSegment} className="w-full">
                         <Plus className="mr-2 h-4 w-4" /> Segment hinzufügen
                     </Button>
+                </div>
+                
+                <div className="space-y-4 pt-4 border-t border-dashed border-amber-500">
+                    <div className="flex items-center justify-between p-4 border rounded-xl bg-amber-500/10 border-amber-500/50">
+                        <div className='flex items-center gap-2'>
+                           <TestTube2 className='w-5 h-5 text-amber-600'/>
+                           <div>
+                             <Label htmlFor="developerMode" className="font-bold text-base text-amber-800">Entwicklermodus</Label>
+                             <p className="text-xs text-amber-700">Ignoriert die zeitliche Sperre zum Testen.</p>
+                           </div>
+                        </div>
+                        <Switch
+                            id="developerMode"
+                            checked={settings.developerMode}
+                            onCheckedChange={(checked) => setSettings(s => ({ ...s, developerMode: checked }))}
+                        />
+                    </div>
                 </div>
 
             </CardContent>
