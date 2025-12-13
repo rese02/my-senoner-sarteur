@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +9,7 @@ import { StoriesManager } from "./_components/StoriesManager";
 import { PlannerManager } from "./_components/PlannerManager";
 import { WheelOfFortuneManager } from "./_components/WheelOfFortuneManager";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CookingPot, Camera, PartyPopper, FerrisWheel } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -55,6 +56,8 @@ export function MarketingClient({ initialStories, initialPlannerEvents, availabl
             component: <WheelOfFortuneManager initialSettings={initialWheelSettings} />
         },
     ];
+    
+    const activeSection = sections.find(s => s.id === openModal);
 
     return (
         <div>
@@ -85,7 +88,14 @@ export function MarketingClient({ initialStories, initialPlannerEvents, availabl
                     openModal === 'planner' && 'sm:max-w-lg',
                     openModal === 'wheel' && 'sm:max-w-2xl'
                 )}>
-                    {sections.find(s => s.id === openModal)?.component}
+                    {activeSection && (
+                        <>
+                            <DialogHeader className="p-6 pb-0 sr-only">
+                                <DialogTitle>{activeSection.title}</DialogTitle>
+                            </DialogHeader>
+                            {activeSection.component}
+                        </>
+                    )}
                 </DialogContent>
             </Dialog>
         </div>
