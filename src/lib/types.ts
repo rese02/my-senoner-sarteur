@@ -64,7 +64,17 @@ export interface Product {
 }
 
 export type OrderType = 'preorder' | 'grocery_list';
-export type OrderStatus = 'new' | 'picking' | 'ready' | 'collected' | 'ready_for_delivery' | 'delivered' | 'paid' | 'cancelled';
+export enum OrderStatus {
+  NEW = 'new',
+  PICKING = 'picking',
+  READY = 'ready',
+  COLLECTED = 'collected',
+  READY_FOR_DELIVERY = 'ready_for_delivery',
+  DELIVERED = 'delivered',
+  PAID = 'paid',
+  CANCELLED = 'cancelled',
+}
+
 
 export interface OrderItem {
   productId: string;
@@ -99,7 +109,7 @@ export interface Order {
   processedBy?: string; // Employee User ID
 
   total?: number; // Can be pre-calculated for 'preorder' or set for 'grocery_list'
-  status: OrderStatus;
+  status: 'new' | 'picking' | 'ready' | 'collected' | 'ready_for_delivery' | 'delivered' | 'paid' | 'cancelled';
 }
 
 

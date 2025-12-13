@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Loader2, Sparkles, Gift } from 'lucide-react';
 import type { WheelOfFortuneSettings } from '@/lib/types';
 import { spinWheel } from '@/app/actions/marketing.actions';
@@ -12,15 +12,18 @@ import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
 const WHEEL_COLORS = [
-    '#FBBF24', // accent
-    '#1E40AF', // primary-dark
-    '#93C5FD', // blue-300
-    '#F87171', // red-400
-    '#34D399', // green-400
-    '#A78BFA', // violet-400
-    '#FB923C', // orange-400
-    '#60A5FA', // blue-400
+    'hsl(var(--primary))',
+    'hsl(var(--secondary))',
+    'hsl(var(--accent))',
+    'hsl(var(--secondary))',
 ];
+
+const TEXT_COLORS = [
+    'hsl(var(--primary-foreground))',
+    'hsl(var(--secondary-foreground))',
+    'hsl(var(--accent-foreground))',
+    'hsl(var(--secondary-foreground))',
+]
 
 function Wheel({ segments, rotation, isSpinning }: { segments: {text: string}[], rotation: number, isSpinning: boolean }) {
     const segmentAngle = 360 / segments.length;
@@ -41,8 +44,11 @@ function Wheel({ segments, rotation, isSpinning }: { segments: {text: string}[],
                             style={{ backgroundColor: WHEEL_COLORS[index % WHEEL_COLORS.length] }}
                         >
                             <span
-                                className="text-white font-bold text-xs transform -rotate-90 -translate-x-8"
-                                style={{ transform: `rotate(${(segmentAngle/2)-90}deg) translateX(-3.5rem)`}}
+                                className="font-bold text-xs transform -rotate-90 -translate-x-8"
+                                style={{ 
+                                    transform: `rotate(${(segmentAngle/2)-90}deg) translateX(-3.5rem)`,
+                                    color: TEXT_COLORS[index % TEXT_COLORS.length]
+                                }}
                             >{segment.text}</span>
                         </div>
                     </div>
@@ -128,7 +134,10 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
             </Card>
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent onInteractOutside={(e) => e.preventDefault()} className="max-w-sm">
+                <DialogContent onInteractOutside={(e) => {
+                    // Prevent closing while spinning
+                    if (isSpinning) e.preventDefault();
+                }} className="max-w-sm">
                     <DialogHeader>
                         <DialogTitle>Viel Glück!</DialogTitle>
                         <DialogDescription>

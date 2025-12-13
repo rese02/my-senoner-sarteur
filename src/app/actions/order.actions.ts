@@ -3,7 +3,7 @@
 import { getSession } from '@/lib/session';
 import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
-import type { CartItem, Order, User, ChecklistItem, OrderStatus } from '@/lib/types';
+import type { CartItem, Order, User, ChecklistItem } from '@/lib/types';
 import { toPlainObject } from '@/lib/utils';
 import { z } from 'zod';
 
@@ -98,11 +98,11 @@ export async function createConciergeOrder(
     revalidatePath('/dashboard/orders');
 }
 
-export async function updateOrderStatus(orderId: string, status: OrderStatus) {
+export async function updateOrderStatus(orderId: string, status: 'new' | 'picking' | 'ready' | 'collected' | 'ready_for_delivery' | 'delivered' | 'paid' | 'cancelled') {
   await requireRole(['admin', 'employee']);
 
   const validatedOrderId = z.string().min(1).parse(orderId);
-  const validatedStatus = z.nativeEnum(OrderStatus).parse(status);
+  const validatedStatus = z.enum(['new', 'picking', 'ready', 'collected', 'ready_for_delivery', 'delivered', 'paid', 'cancelled']).parse(status);
 
   await adminDb.collection('orders').doc(validatedOrderId).update({ status: validatedStatus });
 

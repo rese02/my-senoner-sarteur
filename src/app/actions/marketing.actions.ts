@@ -225,6 +225,11 @@ export async function getWheelOfFortuneDataForCustomer() {
     const session = await getSession();
     if (!session?.userId) return null;
 
+    const userDoc = await adminDb.collection('users').doc(session.userId).get();
+    const user = userDoc.data() as User;
+
+    if (user.activePrize) return null; // If they have a prize, don't show the wheel
+
     const settings = await getWheelSettings();
     if (!settings.isActive) return null;
 
