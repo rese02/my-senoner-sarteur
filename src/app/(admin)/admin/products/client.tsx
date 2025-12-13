@@ -386,12 +386,12 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                   </div>
                   
                   {editingProduct?.type === 'package' && (
-                      <div className="space-y-4 border p-4 rounded-xl bg-secondary/50">
+                      <div className="space-y-4 pt-4 border-t mt-4">
                         <h3 className="font-semibold text-primary text-sm">Paket-Inhalt definieren</h3>
                         
-                        <div className="flex gap-2 items-end">
+                        <div className="flex gap-2 items-end bg-secondary p-2 rounded-lg border">
                             <div className="flex-1 space-y-1.5">
-                                <Label htmlFor="package-amount">Menge (z.B. 200g)</Label>
+                                <Label htmlFor="package-amount" className="text-xs">Menge (z.B. 200g)</Label>
                                 <Input 
                                 id="package-amount"
                                 placeholder="Menge" 
@@ -401,7 +401,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                                 />
                             </div>
                             <div className="flex-1 space-y-1.5">
-                                 <Label htmlFor="package-item">Produktname</Label>
+                                 <Label htmlFor="package-item" className="text-xs">Produktname</Label>
                                 <Input 
                                 id="package-item"
                                 placeholder="Produktname" 
