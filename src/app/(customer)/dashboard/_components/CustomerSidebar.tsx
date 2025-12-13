@@ -19,17 +19,22 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/common/Logo';
 
-const navItems = [
+const baseNavItems = [
   { href: '/dashboard', icon: ShoppingCart, label: 'Entdecken' },
   { href: '/dashboard/orders', icon: History, label: 'Meine Bestellungen'},
   { href: '/dashboard/concierge', icon: NotebookPen, label: 'Concierge' },
-  { href: '/dashboard/planner', icon: Calculator, label: 'Party Planer' },
   { href: '/dashboard/loyalty', icon: CreditCard, label: 'Meine Treuekarte' },
   { href: '/dashboard/sommelier', icon: Sparkles, label: 'AI Sommelier'},
 ];
 
-export function CustomerSidebar() {
+const plannerNavItem = { href: '/dashboard/planner', icon: Calculator, label: 'Party Planer' };
+
+export function CustomerSidebar({ showPlanner }: { showPlanner: boolean }) {
   const pathname = usePathname();
+
+  const navItems = showPlanner ? 
+    [...baseNavItems.slice(0, 3), plannerNavItem, ...baseNavItems.slice(3)] : 
+    baseNavItems;
 
   return (
     <div className="h-full flex flex-col">

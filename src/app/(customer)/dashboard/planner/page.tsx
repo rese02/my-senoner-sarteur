@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { getPlannerPageData } from '@/app/actions/marketing.actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Slider } from '@/components/ui/slider';
+import { useRouter } from 'next/navigation';
 
 function EventSelectionGrid({ events, onSelect, selectedEvent }: { events: PlannerEvent[], onSelect: (event: PlannerEvent) => void, selectedEvent: PlannerEvent | null }) {
     if (events.length === 0) {
@@ -81,12 +82,19 @@ export default function PartyPlannerPage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const addToCart = useCartStore(state => state.addToCart); 
+  const router = useRouter();
 
 
   useEffect(() => {
     setLoading(true);
     getPlannerPageData()
         .then(data => {
+            if (data.plannerEvents.length === 0) {
+                // If no events, redirect to dashboard
+                router.replace('/dashboard');
+                toast({ variant: 'destructive', title: 'Nicht verfügbar', description: 'Der Party Planer ist derzeit nicht konfiguriert.' });
+                return;
+            }
             setEvents(data.plannerEvents);
             setProducts(data.products);
             if (data.plannerEvents.length > 0) {
@@ -95,7 +103,7 @@ export default function PartyPlannerPage() {
         })
         .catch(err => toast({ variant: 'destructive', title: 'Fehler', description: 'Daten konnten nicht geladen werden.'}))
         .finally(() => setLoading(false));
-  }, [toast]);
+  }, [toast, router]);
 
   const handleAddToCart = () => {
     if (!selectedEvent) return;
@@ -124,6 +132,11 @@ export default function PartyPlannerPage() {
 
   if (loading) {
     return <PlannerSkeleton />;
+  }
+
+  // If redirected, this component will unmount, but as a fallback:
+  if (events.length === 0) {
+      return <PlannerSkeleton />;
   }
 
   return (

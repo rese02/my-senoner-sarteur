@@ -2,23 +2,35 @@
 'use client'
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, NotebookPen, CreditCard, ShoppingBag, ShoppingCart } from 'lucide-react';
+import { Home, NotebookPen, CreditCard, ShoppingBag, ShoppingCart, Calculator } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { useCartStore } from '@/hooks/use-cart-store';
 import { Cart } from '@/app/(customer)/dashboard/_components/Cart';
 
-const navItems = [
+const baseNavItems = [
   { href: '/dashboard', icon: Home, label: 'Home' },
   { href: '/dashboard/concierge', icon: NotebookPen, label: 'Concierge' },
   { href: '/dashboard/loyalty', icon: CreditCard, label: 'Treuekarte', isCentral: true },
   { href: '/dashboard/orders', icon: ShoppingBag, label: 'Bestell.' },
 ];
 
-export function MobileNav() {
+const plannerNavItem = { href: '/dashboard/planner', icon: Calculator, label: 'Planer' };
+
+export function MobileNav({ showPlanner }: { showPlanner: boolean }) {
   const pathname = usePathname();
   const cartItems = useCartStore(state => state.items);
   
+  const navItems = showPlanner ?
+     [
+      { href: '/dashboard', icon: Home, label: 'Home' },
+      { href: '/dashboard/planner', icon: Calculator, label: 'Planer' },
+      { href: '/dashboard/loyalty', icon: CreditCard, label: 'Treuekarte', isCentral: true },
+      { href: '/dashboard/orders', icon: ShoppingBag, label: 'Bestell.' },
+    ]
+    : baseNavItems;
+
+
   return (
     <div className="fixed bottom-0 left-0 right-0 h-20 bg-card border-t border-border/50 shadow-t-lg lg:hidden z-40">
       <nav className="grid h-full grid-cols-5 items-center px-2">

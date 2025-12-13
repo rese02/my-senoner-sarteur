@@ -12,11 +12,15 @@ import type { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { getPlannerPageData } from "@/app/actions/marketing.actions";
 
-function DesktopSidebar() {
+
+async function DesktopSidebar() {
+  const { plannerEvents } = await getPlannerPageData();
+  const showPlanner = plannerEvents.length > 0;
   return (
     <aside className="hidden lg:flex flex-col w-64 bg-card border-r">
-        <CustomerSidebar />
+        <CustomerSidebar showPlanner={showPlanner} />
     </aside>
   );
 }
@@ -40,6 +44,9 @@ export default async function CustomerLayout({
     if (session.role === 'employee') {
       redirect('/employee/scanner');
     }
+
+    const { plannerEvents } = await getPlannerPageData();
+    const showPlanner = plannerEvents.length > 0;
     
   return (
     <div className="flex min-h-[100dvh] bg-background text-foreground">
@@ -54,7 +61,7 @@ export default async function CustomerLayout({
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="p-0 w-64">
-                <CustomerSidebar />
+                <CustomerSidebar showPlanner={showPlanner} />
               </SheetContent>
             </Sheet>
 
@@ -65,7 +72,7 @@ export default async function CustomerLayout({
         <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-28 lg:pb-8">
             {children}
         </main>
-         <MobileNav />
+         <MobileNav showPlanner={showPlanner} />
       </div>
     </div>
   );
