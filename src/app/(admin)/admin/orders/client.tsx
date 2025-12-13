@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Search, FileText, ShoppingCart, Trash2, Loader2, X } from "lucide-react";
+import { Search, FileText, ShoppingCart, Trash2, Loader2, X, MoreVertical, Edit } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo, useTransition } from "react";
 import type { Order, OrderStatus, User } from "@/lib/types";
@@ -27,6 +27,7 @@ import { deleteOrder, deleteMultipleOrders } from "@/app/actions/admin-cleanup.a
 import { updateOrderStatus } from "@/app/actions/order.actions";
 import { useRouter } from "next/navigation";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
@@ -177,7 +178,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
         const result = await deleteMultipleOrders(selectedOrderIds);
         if (result.success) {
           toast({ title: "Erfolg", description: `${result.count} Bestellungen wurden gelöscht.` });
-          setOrders(prev => prev.filter(o => !selectedOrderIds.includes(o.id)));
+          router.refresh();
           setSelectedOrderIds([]);
           setIsSelectionMode(false);
         } else {
@@ -186,6 +187,22 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
       } catch (error: any) {
         toast({ variant: 'destructive', title: 'Fehler beim Löschen', description: error.message });
       }
+    });
+  };
+
+  const handleSingleDelete = (orderId: string) => {
+    startTransition(async () => {
+        try {
+            const result = await deleteOrder(orderId);
+            if (result.success) {
+                toast({ title: 'Bestellung gelöscht' });
+                router.refresh(); // Refresh data from server
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: 'Fehler', description: error.message });
+        }
     });
   };
 
@@ -215,7 +232,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                     </SelectContent>
                 </Select>
                 <Button variant="outline" onClick={() => { setIsSelectionMode(!isSelectionMode); setSelectedOrderIds([]); }}>
-                  <Trash2 className="h-4 w-4 mr-2" /> {isSelectionMode ? 'Abbrechen' : 'Löschen'}
+                  <Trash2 className="h-4 w-4 mr-2" /> {isSelectionMode ? 'Abbrechen' : 'Auswählen'}
                 </Button>
              </div>
         </CardHeader>
@@ -284,9 +301,9 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                   const itemCount = isGroceryList ? order.rawList?.split('\n').length : order.items?.length;
 
                   return (
-                  <TableRow key={order.id} className={cn("transition-colors hover:bg-secondary", isSelectionMode && "cursor-pointer")} onClick={() => isSelectionMode && handleToggleSelection(order.id)} data-state={selectedOrderIds.includes(order.id) ? "selected" : undefined}>
+                  <TableRow key={order.id} className={cn("transition-colors", isSelectionMode && "cursor-pointer hover:bg-secondary")} onClick={() => isSelectionMode && handleToggleSelection(order.id)} data-state={selectedOrderIds.includes(order.id) ? "selected" : undefined}>
                     {isSelectionMode && (
-                      <TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         <Checkbox
                           checked={selectedOrderIds.includes(order.id)}
                           onCheckedChange={() => handleToggleSelection(order.id)}
@@ -327,7 +344,39 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                       </Select>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleShowDetails(order); }} disabled={isSelectionMode}>Details</Button>
+                       <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isSelectionMode}>
+                                    <MoreVertical className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleShowDetails(order)}>
+                                    <Edit className="mr-2 h-4 w-4" /> Details anzeigen
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10">
+                                            <Trash2 className="mr-2 h-4 w-4" /> Löschen
+                                        </DropdownMenuItem>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Bestellung löschen?</AlertDialogTitle>
+                                            <AlertDialogDescription>Möchten Sie die Bestellung #{order.id.slice(-6)} wirklich unwiderruflich löschen?</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleSingleDelete(order.id)} disabled={isPending} className="bg-destructive hover:bg-destructive/90">
+                                                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
+                                                Ja, löschen
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 )})}
@@ -431,9 +480,6 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                             
               <OrderDetailsDeleteSection orderId={selectedOrder.id} onClose={() => setIsModalOpen(false)} />
 
-               <DialogClose asChild>
-                <Button variant="outline" className="mt-4">Schließen</Button>
-              </DialogClose>
             </div>
           )}
         </DialogContent>
