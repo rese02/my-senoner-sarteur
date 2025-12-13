@@ -1,4 +1,3 @@
-
 'use server';
 
 import { PageHeader } from "@/components/common/PageHeader";
@@ -46,7 +45,7 @@ export default async function LoyaltyPage() {
 
     return (
         <div className="space-y-6">
-            <PageHeader title="Meine Treuekarte" description="Zeigen Sie Ihren QR-Code an der Kasse, um Stempel zu sammeln und Belohnungen einzulösen." />
+            <PageHeader title="Meine Fidelity-Karte" description="Zeigen Sie Ihren QR-Code an der Kasse, um Stempel zu sammeln und Belohnungen einzulösen." />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1 space-y-6">
@@ -72,19 +71,6 @@ export default async function LoyaltyPage() {
                             </CardContent>
                         </Card>
                     )}
-
-                    <Card className="shadow-lg">
-                        <CardHeader>
-                            <CardTitle>Stempelkarte</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid grid-cols-5 gap-2">
-                                {Array.from({ length: 10 }).map((_, i) => (
-                                    <Stamp key={i} index={i} filled={i < stamps} />
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
                 </div>
 
                 <div className="lg:col-span-2 space-y-6">
@@ -96,6 +82,19 @@ export default async function LoyaltyPage() {
                             <div className="flex items-baseline gap-2">
                                 <p className="text-7xl font-bold">{stamps}</p>
                                 <p className="text-xl">Stempel</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    
+                    <Card className="shadow-lg">
+                        <CardHeader>
+                            <CardTitle>Stempelkarte</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-5 gap-2">
+                                {Array.from({ length: 10 }).map((_, i) => (
+                                    <Stamp key={i} index={i} filled={i < stamps} />
+                                ))}
                             </div>
                         </CardContent>
                     </Card>
@@ -122,7 +121,7 @@ export default async function LoyaltyPage() {
                                     />
                                 </div>
                                  {stamps >= 5 && stamps < 10 && (
-                                    <p className="text-xs text-accent-foreground mt-2 font-bold animate-pulse text-center">
+                                    <p className="text-xs text-accent mt-2 font-bold animate-pulse text-center">
                                     Bereit zum Einlösen! (Oder weiter sparen für 7€)
                                     </p>
                                 )}
@@ -144,14 +143,13 @@ export default async function LoyaltyPage() {
                                     />
                                 </div>
                                 {stamps >= 10 && (
-                                    <p className="text-xs text-accent-foreground mt-2 font-bold text-center">
+                                    <p className="text-xs text-accent mt-2 font-bold text-center">
                                     Maximale Belohnung erreicht!
                                     </p>
                                 )}
                             </div>
                         </CardContent>
                     </Card>
-
                 </div>
             </div>
         </div>

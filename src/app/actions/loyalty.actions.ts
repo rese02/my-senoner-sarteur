@@ -1,4 +1,3 @@
-
 'use server';
 
 import { getSession } from '@/lib/session';
@@ -109,14 +108,17 @@ export async function redeemPrize(userId: string) {
     const validatedUserId = z.string().min(1).parse(userId);
     const userRef = adminDb.collection('users').doc(validatedUserId);
     
-    const userDoc = await userRef.get();
-    if (!userDoc.exists || !userDoc.data()?.activePrize) {
-        throw new Error("Kein aktiver Gewinn für diesen Benutzer gefunden.");
-    }
-
-    await userRef.update({
-        activePrize: FieldValue.delete() // Löscht das Feld aus dem Dokument
+    await adminDb.runTransaction(async (transaction) => {
+        const userDoc = await transaction.get(userRef);
+        if (!userDoc.exists || !userDoc.data()?.activePrize) {
+            throw new Error("Kein aktiver Gewinn für diesen Benutzer gefunden.");
+        }
+        
+        transaction.update(userRef, {
+            activePrize: FieldValue.delete() // Löscht das Feld aus dem Dokument
+        });
     });
+
 
     revalidatePath('/employee/scanner');
     revalidatePath('/dashboard/loyalty');

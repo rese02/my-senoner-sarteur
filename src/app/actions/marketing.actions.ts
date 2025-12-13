@@ -1,4 +1,3 @@
-
 'use server';
 
 import { adminDb } from '@/lib/firebase-admin';
@@ -7,6 +6,7 @@ import { getSession } from '@/lib/session';
 import type { Story, PlannerEvent, Product, Recipe, WheelOfFortuneSettings, User } from '@/lib/types';
 import { toPlainObject } from '@/lib/utils';
 import { z } from 'zod';
+import { FieldValue } from 'firebase-admin/firestore';
 
 // Strikte Berechtigungsprüfung: Nur Admins dürfen diese Aktionen ausführen.
 async function requireAdmin() {
@@ -152,6 +152,9 @@ export async function spinWheel(): Promise<{ winningSegment: number; prize: stri
     }
     const userRef = adminDb.collection('users').doc(session.userId);
     const userSnap = await userRef.get();
+    if (!userSnap.exists) {
+        throw new Error("User not found.");
+    }
     const user = userSnap.data() as User;
 
     if (user.activePrize) {
@@ -159,10 +162,13 @@ export async function spinWheel(): Promise<{ winningSegment: number; prize: stri
     }
 
     const wheelSettings = await getWheelSettings();
+    if (!wheelSettings.isActive) {
+        throw new Error("Das Glücksrad ist derzeit nicht aktiv.");
+    }
+    
     const canPlay = await canUserPlay(session.userId, wheelSettings.schedule);
-
-    if (!wheelSettings.isActive || !canPlay) {
-        throw new Error("Not eligible to play right now.");
+    if (!canPlay) {
+        throw new Error("Sie können im Moment nicht spielen. Versuchen Sie es später erneut.");
     }
 
     const winningSegmentIndex = Math.floor(Math.random() * wheelSettings.segments.length);
@@ -225,6 +231,13 @@ async function getWheelSettings(): Promise<WheelOfFortuneSettings> {
 export async function getWheelOfFortuneDataForCustomer() {
     const session = await getSession();
     if (!session?.userId) return null;
+
+    const userSnap = await adminDb.collection('users').doc(session.userId).get();
+    if (!userSnap.exists) return null;
+    const user = userSnap.data() as User;
+    
+    // Don't show wheel if user already has an active prize
+    if (user.activePrize) return null;
 
     const settings = await getWheelSettings();
     if (!settings.isActive) return null;
