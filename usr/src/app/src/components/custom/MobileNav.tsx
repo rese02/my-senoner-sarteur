@@ -30,12 +30,11 @@ export function MobileNav() {
                 <Link 
                   href={item.href}
                   className={cn(
-                    "relative -mt-8 flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-full shadow-lg transition-all duration-300 p-2",
+                    "relative -mt-8 flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-full shadow-lg transition-all duration-300",
                     isActive ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground border hover:bg-secondary"
                   )}
                 >
                   <item.icon className="h-7 w-7" />
-                  <span className="text-xs font-bold">{item.label}</span>
                 </Link>
               </div>
             )
