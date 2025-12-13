@@ -59,6 +59,7 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
 
                   {categoryProducts.length > 0 && (
                     <div className="md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-4">
+                        {/* Mobile Carousel */}
                         <div className="md:hidden">
                             <Carousel opts={{ align: "start", loop: false, }} className="w-full">
                                 <CarouselContent className="-ml-2">
@@ -70,6 +71,7 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
                                 </CarouselContent>
                             </Carousel>
                         </div>
+                        {/* Desktop Grid */}
                          <div className="hidden md:grid md:col-span-3 lg:col-span-4 xl:col-span-5 md:grid-cols-subgrid">
                             {categoryProducts.map(product => (
                                 <ProductCard key={product.id} product={product} />
