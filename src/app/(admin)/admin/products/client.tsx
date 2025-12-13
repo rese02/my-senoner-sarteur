@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Trash2, Edit, Loader2, Plus, GripVertical, MoreVertical } from "lucide-react";
+import { PlusCircle, Trash2, Edit, Loader2, Plus, MoreVertical } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState, useTransition, useEffect } from "react";
