@@ -9,9 +9,14 @@ import { Cart } from "./Cart";
 import { WheelOfFortuneCard } from './WheelOfFortuneCard';
 import { RecipeCard } from './RecipeCard';
 import { ProductCard } from '@/components/custom/ProductCard';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { PackageCard } from '@/components/custom/PackageCard';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-
 
 interface ProductsClientProps {
     products: Product[];
@@ -53,16 +58,26 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
                   )}
 
                   {categoryProducts.length > 0 && (
-                    <ScrollArea className="w-full whitespace-nowrap rounded-md">
-                      <div className="flex w-max space-x-4 pb-4">
-                        {categoryProducts.map(product => (
-                          <div key={product.id} className="w-40 sm:w-48">
-                            <ProductCard product={product} />
-                          </div>
-                        ))}
-                      </div>
-                      <ScrollBar orientation="horizontal" className="h-2" />
-                    </ScrollArea>
+                    <div className="md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-4">
+                        {/* Mobile Carousel */}
+                        <div className="md:hidden">
+                            <Carousel opts={{ align: "start", loop: false, }} className="w-full">
+                                <CarouselContent className="-ml-2">
+                                    {categoryProducts.map((product) => (
+                                    <CarouselItem key={product.id} className="basis-1/2 pl-2">
+                                        <ProductCard product={product} />
+                                    </CarouselItem>
+                                    ))}
+                                </CarouselContent>
+                            </Carousel>
+                        </div>
+                        {/* Desktop Grid */}
+                         <div className="hidden md:grid md:col-span-3 lg:col-span-4 xl:col-span-5 md:grid-cols-subgrid">
+                            {categoryProducts.map(product => (
+                                <ProductCard key={product.id} product={product} />
+                            ))}
+                        </div>
+                    </div>
                   )}
                 </div>
               )
