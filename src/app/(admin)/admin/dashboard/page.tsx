@@ -194,7 +194,7 @@ export default function AdminDashboardPage() {
     const recentAndUpcomingOrders = data.orders
             .filter(o => ['new', 'picking', 'ready', 'ready_for_delivery'].includes(o.status))
             .sort((a, b) => new Date(a.pickupDate || a.createdAt).getTime() - new Date(b.pickupDate || b.createdAt).getTime())
-            .slice(0, 5);
+            .slice(0, 10);
 
     const totalRevenue = data.orders.reduce((sum, order) => sum + (order.total || 0), 0);
     const totalOrders = data.orders.length;
@@ -225,51 +225,56 @@ export default function AdminDashboardPage() {
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Willkommen zurück! Hier ist Ihre aktuelle Übersicht." />
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {statItems.map((item) => (
-            <Card key={item.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
-                    <item.icon className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{item.value}</div>
-                    <p className="text-xs text-muted-foreground">{item.description}</p>
-                </CardContent>
-            </Card>
-          ))}
-      </div>
+       <div className="grid gap-8 grid-cols-1 lg:grid-cols-5 items-start">
+            
+            {/* Main Content: Urgent Orders */}
+            <div className="lg:col-span-3">
+                <Card className="flex flex-col h-full">
+                    <CardHeader>
+                    <CardTitle>Dringende Bestellungen</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                    {recentAndUpcomingOrders.length === 0 ? (
+                        <div className="text-center text-muted-foreground py-8 h-full flex flex-col justify-center items-center">
+                            <CheckCircle className="w-12 h-12 text-green-400 mb-2"/>
+                            <p>Keine aktiven Bestellungen. Sehr gut!</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {recentAndUpcomingOrders.map((order) => (
+                                <OrderCard key={order.id} order={order} onShowDetails={() => handleShowDetails(order)} />
+                            ))}
+                        </div>
+                    )}
+                    </CardContent>
+                    <CardFooter>
+                        <Button asChild variant="outline" size="sm" className="w-full">
+                            <Link href="/admin/orders">Alle Bestellungen anzeigen</Link>
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </div>
 
-
-       <div className="grid gap-8 grid-cols-1 lg:grid-cols-3 items-start">
-            <div className="lg:col-span-2">
+            {/* Sidebar: Stats & Chart */}
+            <div className="lg:col-span-2 space-y-8">
+                 <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4">
+                    {statItems.map((item) => (
+                        <Card key={item.title}>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
+                                <item.icon className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{item.value}</div>
+                                <p className="text-xs text-muted-foreground">{item.description}</p>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+                
                 <OrdersByDayChart data={data.chartData} loading={loading} />
             </div>
 
-            <Card className="flex flex-col lg:col-span-1">
-                <CardHeader>
-                <CardTitle>Dringende Bestellungen</CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                {recentAndUpcomingOrders.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-8 h-full flex flex-col justify-center items-center">
-                        <CheckCircle className="w-12 h-12 text-green-400 mb-2"/>
-                        <p>Keine aktiven Bestellungen. Sehr gut!</p>
-                    </div>
-                ) : (
-                    <div className="space-y-3">
-                        {recentAndUpcomingOrders.map((order) => (
-                            <OrderCard key={order.id} order={order} onShowDetails={() => handleShowDetails(order)} />
-                        ))}
-                    </div>
-                )}
-                </CardContent>
-                <CardFooter>
-                    <Button asChild variant="outline" size="sm" className="w-full">
-                        <Link href="/admin/orders">Alle Bestellungen anzeigen</Link>
-                    </Button>
-                </CardFooter>
-            </Card>
        </div>
 
        <OrderDetailsModal
