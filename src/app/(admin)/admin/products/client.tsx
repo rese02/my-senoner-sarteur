@@ -10,6 +10,16 @@ import { Label } from "@/components/ui/label";
 import { useState, useTransition, useEffect } from "react";
 import type { Product, Category, PackageItem } from "@/lib/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -44,7 +54,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
 
-  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [isProductSheetOpen, setIsProductSheetOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
   const [currentCategoryId, setCurrentCategoryId] = useState<string | null>(null);
 
@@ -100,7 +110,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
         : { name: '', price: 0, unit: '', imageUrl: '', imageHint: '', type: 'product', packageContent: [] };
       setEditingProduct(initialProductState);
       setCurrentCategoryId(categoryId);
-      setIsProductModalOpen(true);
+      setIsProductSheetOpen(true);
   };
 
   const handleProductFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -142,7 +152,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                 const created = await createProduct(newProductData);
                 setProducts(prods => [...prods, created]);
             }
-            setIsProductModalOpen(false);
+            setIsProductSheetOpen(false);
             setEditingProduct(null);
             toast({ title: editingProduct.id ? 'Produkt aktualisiert!' : 'Produkt erstellt!' });
           } catch(error: any) {
@@ -330,16 +340,16 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
         </DialogContent>
       </Dialog>
       
-      <Dialog open={isProductModalOpen} onOpenChange={setIsProductModalOpen}>
-        <DialogContent className="sm:max-w-lg p-0">
-            <DialogHeader className="p-6 pb-0">
-                <DialogTitle>{editingProduct?.id ? 'Produkt bearbeiten' : 'Neues Produkt erstellen'}</DialogTitle>
-                <DialogDescription>
+      <Sheet open={isProductSheetOpen} onOpenChange={setIsProductSheetOpen}>
+        <SheetContent className="sm:max-w-lg p-0">
+            <SheetHeader className="p-6 pb-0">
+                <SheetTitle>{editingProduct?.id ? 'Produkt bearbeiten' : 'Neues Produkt erstellen'}</SheetTitle>
+                <SheetDescription>
                     {editingProduct?.id ? 'Aktualisieren Sie die Details dieses Produkts.' : 'Fügen Sie ein neues Produkt zu dieser Kategorie hinzu.'}
-                </DialogDescription>
-            </DialogHeader>
+                </SheetDescription>
+            </SheetHeader>
             <form onSubmit={handleSaveProduct}>
-              <ScrollArea className="max-h-[70vh]">
+              <ScrollArea className="h-[calc(100vh-140px)]">
                 <div className="grid gap-4 p-6">
                   <div className="space-y-1.5">
                       <Label htmlFor="type">Produkttyp</Label>
@@ -433,16 +443,16 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                   )}
                 </div>
               </ScrollArea>
-                <DialogFooter className="p-6 pt-4 border-t sticky bottom-0 bg-card">
-                    <DialogClose asChild><Button type="button" variant="outline">Abbrechen</Button></DialogClose>
+                <SheetFooter className="p-6 pt-4 border-t sticky bottom-0 bg-card">
+                    <SheetClose asChild><Button type="button" variant="outline">Abbrechen</Button></SheetClose>
                     <Button type="submit" disabled={isPending}>
                         {isPending && <Loader2 className="mr-2 animate-spin h-4 w-4" />}
                         Speichern
                     </Button>
-                </DialogFooter>
+                </SheetFooter>
             </form>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }
