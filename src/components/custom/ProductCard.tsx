@@ -49,9 +49,10 @@ export function ProductCard({ product }: { product: Product }) {
             </div>
             <CardContent className="p-3 flex flex-col flex-grow">
                 <h3 className="text-sm font-bold font-headline leading-tight line-clamp-2 flex-grow whitespace-normal">{product.name}</h3>
-                <div className="flex items-baseline mt-1">
-                    <p className="text-lg font-bold text-primary">€{product.price.toFixed(2)}</p>
-                    <span className="text-xs text-muted-foreground ml-1">/ {product.unit}</span>
+                <div className="mt-1">
+                    <p className="text-sm text-muted-foreground">
+                        <span className="font-semibold text-foreground">€{product.price.toFixed(2)}</span> / {product.unit}
+                    </p>
                 </div>
 
                 <div className="flex items-center justify-center gap-2 mt-3">
