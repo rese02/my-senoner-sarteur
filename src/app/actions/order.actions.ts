@@ -1,9 +1,10 @@
+
 'use server';
 
 import { getSession } from '@/lib/session';
 import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
-import type { CartItem, Order, User, ChecklistItem } from '@/lib/types';
+import type { CartItem, Order, User, ChecklistItem, OrderItem } from '@/lib/types';
 import { toPlainObject } from '@/lib/utils';
 import { z } from 'zod';
 
@@ -42,12 +43,20 @@ export async function createPreOrder(
 
   const total = validatedItems.data.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+  // Map CartItem[] to OrderItem[] and ensure productName is included
+  const orderItems: OrderItem[] = validatedItems.data.map(item => ({
+    productId: item.productId,
+    productName: item.name, // Ensure the name is explicitly mapped
+    quantity: item.quantity,
+    price: item.price,
+  }));
+
   const orderData = {
     userId: session.userId,
     customerName: session.name,
     createdAt: new Date().toISOString(),
     type: 'preorder' as const,
-    items: validatedItems.data.map(item => toPlainObject(item)),
+    items: toPlainObject(orderItems), // Use the new orderItems array
     pickupDate: validatedDate.data.toISOString(),
     total,
     status: 'new' as const,
@@ -177,4 +186,35 @@ export async function getCustomerOrders() {
         console.error("Error fetching customer orders:", error);
         throw new Error("Could not fetch customer orders.");
     }
+}
+
+export async function deleteMyOrder(orderId: string) {
+    const session = await requireRole(['customer']);
+    const validatedOrderId = z.string().min(1).parse(orderId);
+  
+    const orderRef = adminDb.collection('orders').doc(validatedOrderId);
+    const orderDoc = await orderRef.get();
+  
+    if (!orderDoc.exists) {
+      throw new Error('Bestellung nicht gefunden.');
+    }
+  
+    const order = orderDoc.data() as Order;
+  
+    // SICHERHEITS-CHECK: Gehört die Bestellung dem angemeldeten Benutzer?
+    if (order.userId !== session.userId) {
+      throw new Error('Nicht autorisiert.');
+    }
+  
+    // LOGIK-CHECK: Ist die Bestellung in einem löschbaren Zustand?
+    const deletableStatuses = ['collected', 'delivered', 'paid', 'cancelled'];
+    if (!deletableStatuses.includes(order.status)) {
+      throw new Error('Aktive Bestellungen können nicht gelöscht werden.');
+    }
+  
+    await orderRef.delete();
+  
+    revalidatePath('/dashboard/orders');
+  
+    return { success: true };
 }
