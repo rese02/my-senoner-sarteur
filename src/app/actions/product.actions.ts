@@ -31,7 +31,6 @@ async function requireAdmin() {
   if (session?.role !== 'admin') {
     throw new Error('Unauthorized: Admin access required.');
   }
-  return true;
 }
 
 // Get all products and categories for the customer dashboard page

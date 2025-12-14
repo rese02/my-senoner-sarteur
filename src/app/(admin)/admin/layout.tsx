@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserProfileDropdown } from "@/components/custom/UserProfileDropdown";
 import type { User } from "@/lib/types";
+import { PageHeader } from "@/components/common/PageHeader";
 
 function AdminLoadingSkeleton() {
     return (
@@ -79,29 +80,35 @@ export default function AdminLayout({
   }, [session, loading, pathname]);
   
 
+  if (loading) {
+      return <AdminLoadingSkeleton />;
+  }
+  
   // SICHERHEITS-CHECK: Nur Admins dürfen hier rein.
+  // Führen Sie die Umleitung durch, wenn die Daten geladen wurden und der Benutzer kein Admin ist.
   if (!loading && session && session.role !== 'admin') {
-    // Falls ein Kunde/Mitarbeiter hier landet, leite ihn zu seiner Startseite.
     const homePage = session.role === 'employee' ? '/employee/scanner' : '/dashboard';
     redirect(homePage);
+    return null; // Geben Sie null zurück, während die Umleitung stattfindet
   }
 
-  if (loading || !session) {
-      return <AdminLoadingSkeleton />;
+  // Fallback, wenn die Session noch nicht geladen ist, aber nicht mehr "loading" ist
+  if (!session) {
+    return <AdminLoadingSkeleton />;
   }
 
 
   return (
-    <div className="flex h-dvh bg-background text-foreground">
+    <div className="flex h-dvh bg-secondary/50 text-foreground">
       <AdminSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-         <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b border-primary-foreground/20 bg-primary px-4 md:px-6 sticky top-0 z-20">
-             <div className="md:hidden font-bold font-headline text-lg text-primary-foreground">
+         <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b bg-card px-4 md:px-6 sticky top-0 z-20">
+             <div className="md:hidden font-bold font-headline text-lg text-foreground">
                  Admin
              </div>
              {session && <UserProfileDropdown user={session as User} />}
         </header>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-24 md:pb-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-24 md:pb-8 bg-background rounded-tl-2xl">
             {children}
         </main>
         <AdminMobileNav />
