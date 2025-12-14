@@ -18,7 +18,7 @@ export default function LoginPage() {
                             <Image src="/logo.png" alt="Senoner Sarteur Logo" width={160} height={40} className="h-full w-auto object-contain" />
                         </Link>
                     </div>
-                    <CardTitle className="text-3xl font-headline">Willkommen zurück</CardTitle>
+                    <CardTitle className="text-3xl font-headline text-primary-foreground">Willkommen zurück</CardTitle>
                 </CardHeader>
                 <CardContent className="p-8 pt-6 bg-primary">
                     <LoginForm />
