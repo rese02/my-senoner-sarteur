@@ -23,16 +23,16 @@ export default function LoginPage() {
                 <CardContent className="p-8 pt-6 bg-primary">
                     <LoginForm />
                 </CardContent>
-                 <CardFooter className="flex-col items-center gap-4 px-8 pb-10">
-                    <p className="text-sm text-muted-foreground">
+                 <CardFooter className="flex-col items-center gap-4 px-8 pb-10 bg-primary">
+                    <p className="text-sm text-primary-foreground/80">
                         Noch kein Konto?{' '}
-                        <Link href="/register" className="font-semibold text-primary hover:underline">
+                        <Link href="/register" className="font-semibold text-secondary hover:underline">
                             Jetzt registrieren
                         </Link>
                     </p>
-                    <div className="flex justify-center gap-4 text-xs text-muted-foreground/80">
-                        <Link href="/impressum" className="hover:text-foreground">Impressum</Link>
-                        <Link href="/datenschutz" className="hover:text-foreground">Datenschutz</Link>
+                    <div className="flex justify-center gap-4 text-xs text-primary-foreground/60">
+                        <Link href="/impressum" className="hover:text-primary-foreground">Impressum</Link>
+                        <Link href="/datenschutz" className="hover:text-primary-foreground">Datenschutz</Link>
                     </div>
                 </CardFooter>
             </Card>
