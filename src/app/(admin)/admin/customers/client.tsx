@@ -10,9 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Wand2, Send, RotateCw, Trophy, Filter, Loader2 } from "lucide-react";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useTransition } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { improveTextWithAI } from "@/app/actions/ai.actions";
+import { sendNewsletter } from "@/app/actions/email.actions";
 import { Badge } from "@/components/ui/badge";
 import { getLoyaltyTier, loyaltyTiers } from "@/lib/loyalty";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -95,6 +96,7 @@ export function CustomersClient({ initialCustomers, initialOrders, initialProduc
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
     const [isImproving, setIsImproving] = useState(false);
+    const [isSending, startSendingTransition] = useTransition();
     const { toast } = useToast();
 
     const filteredCustomers = useMemo(() => {
@@ -141,6 +143,24 @@ export function CustomersClient({ initialCustomers, initialOrders, initialProduc
             setIsImproving(false);
         }
     };
+
+    const handleSendNewsletter = () => {
+        if (!subject || !message) {
+            toast({ variant: 'destructive', title: 'Betreff und Nachricht sind erforderlich.' });
+            return;
+        }
+        startSendingTransition(async () => {
+            const result = await sendNewsletter(selectedCustomers, subject, message);
+            if (result.success) {
+                toast({ title: "Newsletter gesendet!", description: result.message });
+                setSubject('');
+                setMessage('');
+                setSelectedCustomers([]);
+            } else {
+                toast({ variant: 'destructive', title: 'Senden fehlgeschlagen', description: result.error });
+            }
+        });
+    }
 
     const toggleCategory = (category: Category) => {
         setSelectedCategories(prev => 
@@ -271,8 +291,8 @@ export function CustomersClient({ initialCustomers, initialOrders, initialProduc
                             {isImproving ? <RotateCw className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
                             Mit KI verbessern
                         </Button>
-                        <Button disabled={selectedCustomers.length === 0} className="w-full sm:w-auto" size="sm">
-                            <Send className="mr-2 h-4 w-4" />
+                        <Button onClick={handleSendNewsletter} disabled={selectedCustomers.length === 0 || isSending} className="w-full sm:w-auto" size="sm">
+                            {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                             Senden an {selectedCustomers.length} Kunde(n)
                         </Button>
                     </div>
