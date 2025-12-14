@@ -2,7 +2,7 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Users, ShoppingCart, Trash2, Loader2, CheckCircle, Euro, Package } from "lucide-react";
+import { Users, ShoppingCart, Trash2, Loader2, CheckCircle, Euro } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { OrdersByDayChart } from "./_components/OrdersByDayChart";
 import AdminDashboardLoading from "./loading";
 import { useRouter } from "next/navigation";
+import { OrderCard } from "@/components/admin/OrderCard";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
@@ -173,50 +174,58 @@ export default function AdminDashboardPage() {
 
 
        <div className="grid gap-8 grid-cols-1 lg:grid-cols-5 items-start">
-            <Card className="flex flex-col lg:col-span-3">
-                <CardHeader>
-                    <CardTitle>Dringende & Offene Bestellungen</CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow p-0">
+            <div className="lg:col-span-3 space-y-4">
+                <h2 className="text-xl font-bold font-headline text-foreground">Dringende & Offene Bestellungen</h2>
+                
                 {recentAndUpcomingOrders.length === 0 ? (
-                    <div className="text-center text-muted-foreground p-8 h-full flex flex-col justify-center items-center">
+                    <Card className="text-center text-muted-foreground p-8 h-full flex flex-col justify-center items-center">
                         <CheckCircle className="w-12 h-12 text-green-400 mb-2"/>
                         <p>Keine aktiven Bestellungen. Sehr gut!</p>
-                    </div>
+                    </Card>
                 ) : (
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Kunde</TableHead>
-                                <TableHead>Fälligkeit</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Gesamt</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <>
+                        {/* Mobile View */}
+                        <div className="md:hidden space-y-3">
                             {recentAndUpcomingOrders.slice(0, 10).map((order) => (
-                                <TableRow key={order.id} onClick={() => handleShowDetails(order)} className="cursor-pointer">
-                                    <TableCell>
-                                        <div className="font-medium">{order.customerName}</div>
-                                        <div className="text-xs text-muted-foreground font-mono">#{order.id.slice(-6)}</div>
-                                    </TableCell>
-                                    <TableCell>{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEE, dd.MM.", { locale: de })}</TableCell>
-                                    <TableCell><Badge className={cn("capitalize font-semibold", statusMap[order.status]?.className)}>{statusMap[order.status]?.label}</Badge></TableCell>
-                                    <TableCell className="text-right font-medium">€{order.total?.toFixed(2) || '-'}</TableCell>
-                                </TableRow>
+                                <OrderCard key={order.id} order={order} onShowDetails={() => handleShowDetails(order)} />
                             ))}
-                        </TableBody>
-                    </Table>
+                        </div>
+
+                        {/* Desktop View */}
+                        <div className="hidden md:block border rounded-lg overflow-hidden bg-card">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Kunde</TableHead>
+                                        <TableHead>Fälligkeit</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-right">Gesamt</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {recentAndUpcomingOrders.slice(0, 10).map((order) => (
+                                        <TableRow key={order.id} onClick={() => handleShowDetails(order)} className="cursor-pointer">
+                                            <TableCell>
+                                                <div className="font-medium">{order.customerName}</div>
+                                                <div className="text-xs text-muted-foreground font-mono">#{order.id.slice(-6)}</div>
+                                            </TableCell>
+                                            <TableCell>{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEE, dd.MM.", { locale: de })}</TableCell>
+                                            <TableCell><Badge className={cn("capitalize font-semibold", statusMap[order.status]?.className)}>{statusMap[order.status]?.label}</Badge></TableCell>
+                                            <TableCell className="text-right font-medium">€{order.total?.toFixed(2) || '-'}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+
+                        {recentAndUpcomingOrders.length > 10 && (
+                            <Button asChild variant="outline" size="sm" className="w-full">
+                                <Link href="/admin/orders">Alle {recentAndUpcomingOrders.length} offenen Bestellungen anzeigen</Link>
+                            </Button>
+                        )}
+                    </>
                 )}
-                </CardContent>
-                {recentAndUpcomingOrders.length > 0 && (
-                    <CardFooter>
-                        <Button asChild variant="outline" size="sm" className="w-full">
-                            <Link href="/admin/orders">Alle Bestellungen anzeigen</Link>
-                        </Button>
-                    </CardFooter>
-                )}
-            </Card>
+            </div>
 
              <div className="lg:col-span-2">
                 <OrdersByDayChart data={data.chartData} loading={loading} />

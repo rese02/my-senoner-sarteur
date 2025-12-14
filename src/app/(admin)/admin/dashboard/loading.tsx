@@ -21,12 +21,16 @@ export default function AdminDashboardLoading() {
         {/* Recent Orders Skeleton */}
         <div className="lg:col-span-3">
             <Skeleton className="h-8 w-3/4 mb-4" />
-            <Skeleton className="h-[300px] w-full" />
+            <div className="space-y-3">
+              <Skeleton className="h-20 w-full rounded-xl" />
+              <Skeleton className="h-20 w-full rounded-xl" />
+              <Skeleton className="h-20 w-full rounded-xl" />
+            </div>
         </div>
 
         {/* Chart Skeleton */}
         <div className="lg:col-span-2">
-           <Skeleton className="h-[400px] w-full" />
+           <Skeleton className="h-[400px] w-full rounded-xl" />
         </div>
       </div>
     </div>
