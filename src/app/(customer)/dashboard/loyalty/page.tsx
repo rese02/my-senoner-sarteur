@@ -60,7 +60,7 @@ export default async function LoyaltyPage() {
                     </Card>
 
                     {activePrize && (
-                        <Card className="shadow-lg bg-gradient-to-br from-accent/80 to-yellow-400 border-accent animate-in fade-in-50">
+                        <Card className="shadow-lg bg-gradient-to-br from-accent/80 to-blue-400 border-accent animate-in fade-in-50">
                              <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-accent-foreground">
                                     <Star className="w-5 h-5"/> Aktiver Gewinn
@@ -122,7 +122,7 @@ export default async function LoyaltyPage() {
                                     />
                                 </div>
                                  {stamps >= 5 && stamps < 10 && (
-                                    <p className="text-xs text-accent-foreground mt-2 font-bold animate-pulse text-center">
+                                    <p className="text-xs text-accent mt-2 font-bold animate-pulse text-center">
                                     Bereit zum Einlösen! (Oder weiter sparen für 7€)
                                     </p>
                                 )}
@@ -144,7 +144,7 @@ export default async function LoyaltyPage() {
                                     />
                                 </div>
                                 {stamps >= 10 && (
-                                    <p className="text-xs text-accent-foreground mt-2 font-bold text-center">
+                                    <p className="text-xs text-accent mt-2 font-bold text-center">
                                     Maximale Belohnung erreicht!
                                     </p>
                                 )}
