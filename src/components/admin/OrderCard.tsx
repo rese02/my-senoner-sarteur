@@ -77,8 +77,8 @@ export function OrderCard({ order, onShowDetails }: OrderCardProps) {
 
       {/* Action Button */}
       {onShowDetails && (
-        <div className="sm:ml-4 flex items-center">
-            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+        <div className="absolute top-4 right-4 h-8 w-8 flex items-center justify-center bg-secondary rounded-md group-hover:bg-accent transition-colors">
+            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-accent-foreground transition-colors" />
         </div>
       )}
     </div>
