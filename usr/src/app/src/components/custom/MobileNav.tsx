@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, NotebookPen, CreditCard, ShoppingBag, ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { useCartStore } from '@/hooks/use-cart-store';
 import { Cart } from '@/app/(customer)/dashboard/_components/Cart';
 
@@ -70,6 +70,10 @@ export function MobileNav() {
               </button>
             </SheetTrigger>
             <SheetContent side="bottom" className="h-[80vh] flex flex-col rounded-t-2xl p-0 bg-background">
+              <SheetHeader className="sr-only">
+                <SheetTitle>Warenkorb</SheetTitle>
+                <SheetDescription>Verwalten Sie hier die Artikel in Ihrem Warenkorb und schließen Sie Ihre Vorbestellung ab.</SheetDescription>
+              </SheetHeader>
               <Cart />
             </SheetContent>
           </Sheet>
