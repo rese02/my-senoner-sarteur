@@ -11,10 +11,10 @@ export default function AdminDashboardLoading() {
       </div>
 
       {/* Stat Cards Skeleton */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <Skeleton className="h-28 w-full" />
-        <Skeleton className="h-28 w-full" />
-        <Skeleton className="h-28 w-full" />
+      <div className="grid grid-cols-3 gap-4">
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
       </div>
 
       <div className="grid gap-8 lg:grid-cols-5 items-start">
