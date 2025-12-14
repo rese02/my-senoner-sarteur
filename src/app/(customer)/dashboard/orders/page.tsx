@@ -109,7 +109,7 @@ async function OrderList() {
     }
     
     return (
-         <div className="space-y-6">
+         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
              {orders.map(order => <OrderHistoryCard key={order.id} order={order} />)}
          </div>
     );

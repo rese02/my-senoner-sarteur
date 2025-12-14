@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -128,66 +127,74 @@ export default function PartyPlannerPage() {
 
   return (
     <div className="w-full space-y-8">
-      <div>
-          <PageHeader title="Party Planer" description="Wählen Sie ein Event und wir berechnen die perfekte Menge für Ihre Gäste." />
-      </div>
-      
-       <EventSelectionGrid events={events} onSelect={setSelectedEvent} selectedEvent={selectedEvent} />
-      
-      {selectedEvent && (
-        <Card className="shadow-xl animate-in fade-in-50 overflow-hidden">
-            <CardHeader className="p-4">
-                <CardTitle className="text-xl font-headline">Mengenrechner für "{selectedEvent.title}"</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 space-y-6">
-                <div className="space-y-2">
-                    <Label>Wie viele Gäste erwarten Sie?</Label>
-                    <div className="flex items-center justify-between gap-4 bg-secondary p-2 rounded-xl border">
-                        <div className="flex items-center gap-2">
-                            <Users className="w-6 h-6 text-primary" />
-                            <span className="text-3xl font-bold font-headline text-primary">{people}</span>
-                        </div>
-                         <Slider
-                            defaultValue={[people]}
-                            max={30}
-                            min={1}
-                            step={1}
-                            onValueChange={(value) => setPeople(value[0])}
-                            className="w-full max-w-xs"
-                        />
-                    </div>
+        <PageHeader title="Party Planer" description="Wählen Sie ein Event und wir berechnen die perfekte Menge für Ihre Gäste." />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            {/* Linke Spalte: Event-Auswahl */}
+            <div className="space-y-4">
+                <h2 className="text-xl font-bold font-headline">1. Event auswählen</h2>
+                <EventSelectionGrid events={events} onSelect={setSelectedEvent} selectedEvent={selectedEvent} />
+            </div>
+
+            {/* Rechte Spalte: Rechner */}
+            {selectedEvent && (
+                <div className="space-y-4 sticky top-8">
+                    <h2 className="text-xl font-bold font-headline">2. Gästeanzahl festlegen</h2>
+                    <Card className="shadow-xl animate-in fade-in-50 overflow-hidden">
+                        <CardHeader className="p-4">
+                            <CardTitle className="text-xl font-headline">Mengenrechner für "{selectedEvent.title}"</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 space-y-6">
+                            <div className="space-y-2">
+                                <Label>Wie viele Gäste erwarten Sie?</Label>
+                                <div className="flex items-center justify-between gap-4 bg-secondary p-2 rounded-xl border">
+                                    <div className="flex items-center gap-2">
+                                        <Users className="w-6 h-6 text-primary" />
+                                        <span className="text-3xl font-bold font-headline text-primary">{people}</span>
+                                    </div>
+                                    <Slider
+                                        defaultValue={[people]}
+                                        max={30}
+                                        min={1}
+                                        step={1}
+                                        onValueChange={(value) => setPeople(value[0])}
+                                        className="w-full max-w-xs"
+                                    />
+                                </div>
+                            </div>
+                        
+                        
+                            <div className="bg-secondary/50 p-4 rounded-xl border w-full max-w-full overflow-hidden">
+                                <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-bold mb-3 flex items-center gap-2">
+                                    <Info size={14}/> Empfehlung für {people} Personen:
+                                </h3>
+                                <ul className="space-y-3 w-full">
+                                    {selectedEvent.ingredients.map((ing, idx) => {
+                                    const totalAmount = ing.baseAmount * people;
+                                    return (
+                                        <li key={idx} className="block sm:flex sm:justify-between sm:items-center border-b last:border-0 pb-2 last:pb-0 w-full">
+                                            <span className="text-sm font-medium text-card-foreground break-words pr-0 sm:pr-4">
+                                                {ing.productName}
+                                            </span>
+                                            <span className="font-bold text-primary bg-primary/10 px-2 py-1 rounded text-xs mt-1 sm:mt-0 inline-block whitespace-nowrap">
+                                                {totalAmount.toLocaleString('de-DE')} {ing.unit}
+                                            </span>
+                                        </li>
+                                    );
+                                    })}
+                                </ul>
+                            </div>
+                        </CardContent>
+                        <CardFooter className="p-4 bg-secondary/50 border-t">
+                            <Button onClick={handleAddToCart} className="w-full h-12 text-base" size="lg">
+                                <ShoppingCart className="mr-2 w-5 h-5" />
+                                Gesamtpaket in den Warenkorb
+                            </Button>
+                        </CardFooter>
+                    </Card>
                 </div>
-            
-            
-                <div className="bg-secondary/50 p-4 rounded-xl border w-full max-w-full overflow-hidden">
-                    <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-bold mb-3 flex items-center gap-2">
-                        <Info size={14}/> Empfehlung für {people} Personen:
-                    </h3>
-                    <ul className="space-y-3 w-full">
-                        {selectedEvent.ingredients.map((ing, idx) => {
-                        const totalAmount = ing.baseAmount * people;
-                        return (
-                            <li key={idx} className="block sm:flex sm:justify-between sm:items-center border-b last:border-0 pb-2 last:pb-0 w-full">
-                                <span className="text-sm font-medium text-card-foreground break-words pr-0 sm:pr-4">
-                                    {ing.productName}
-                                </span>
-                                <span className="font-bold text-primary bg-primary/10 px-2 py-1 rounded text-xs mt-1 sm:mt-0 inline-block whitespace-nowrap">
-                                    {totalAmount.toLocaleString('de-DE')} {ing.unit}
-                                </span>
-                            </li>
-                        );
-                        })}
-                    </ul>
-                </div>
-            </CardContent>
-            <CardFooter className="p-4 bg-secondary/50 border-t">
-                <Button onClick={handleAddToCart} className="w-full h-12 text-base" size="lg">
-                    <ShoppingCart className="mr-2 w-5 h-5" />
-                    Gesamtpaket in den Warenkorb
-                </Button>
-            </CardFooter>
-        </Card>
-      )}
+            )}
+        </div>
     </div>
   );
 }

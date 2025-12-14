@@ -39,53 +39,55 @@ export default function ConciergePage() {
     };
 
     return (
-        <div className="w-full max-w-2xl mx-auto space-y-6">
+        <div className="space-y-6">
             <PageHeader title="Concierge Service" description="Ihr persönlicher Einkaufszettel & Lieferservice." />
             
-            <Card className="shadow-lg">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Feather className="w-5 h-5 text-primary"/>
-                        Ihr digitaler Einkaufszettel
-                    </CardTitle>
-                    <CardDescription>
-                        Schreiben Sie einfach auf, was Sie benötigen. Wir stellen es zusammen und bringen es morgen gegen 11:00 Uhr.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-1.5">
-                        <Label htmlFor="shopping-list">Was darf es sein?</Label>
-                         <Textarea 
-                            id="shopping-list"
-                            placeholder="- 1L Frische Vollmilch&#10;- 200g Südtiroler Speck&#10;- 1 Laib Brot..." 
-                            className="bg-secondary/50 min-h-[200px]"
-                            value={notes}
-                            onChange={e => setNotes(e.target.value)}
-                            disabled={isPending}
-                        />
-                    </div>
-                     <div className="p-3 bg-secondary/50 rounded-lg space-y-3 border">
-                        <h4 className="font-semibold text-sm">Lieferdetails</h4>
-                        <div className="grid md:grid-cols-2 gap-3">
-                            <div className="space-y-1.5">
-                                <Label htmlFor="street">Straße & Hausnummer</Label>
-                                <Input id="street" value={address.street} onChange={e => setAddress(a => ({...a, street: e.target.value}))} disabled={isPending} />
-                            </div>
-                            <div className="space-y-1.5">
-                                <Label htmlFor="city">Ort</Label>
-                                <Input id="city" value={address.city} onChange={e => setAddress(a => ({...a, city: e.target.value}))} disabled={isPending} />
-                            </div>
+            <div className="max-w-2xl mx-auto">
+                <Card className="shadow-lg">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Feather className="w-5 h-5 text-primary"/>
+                            Ihr digitaler Einkaufszettel
+                        </CardTitle>
+                        <CardDescription>
+                            Schreiben Sie einfach auf, was Sie benötigen. Wir stellen es zusammen und bringen es morgen gegen 11:00 Uhr.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="shopping-list">Was darf es sein?</Label>
+                            <Textarea 
+                                id="shopping-list"
+                                placeholder="- 1L Frische Vollmilch&#10;- 200g Südtiroler Speck&#10;- 1 Laib Brot..." 
+                                className="bg-secondary/50 min-h-[200px]"
+                                value={notes}
+                                onChange={e => setNotes(e.target.value)}
+                                disabled={isPending}
+                            />
                         </div>
-                        <p className="text-xs text-muted-foreground">Der Betrag wird Ihrem Kundenkonto zur späteren Bezahlung hinzugefügt.</p>
-                    </div>
-                </CardContent>
-                <CardFooter>
-                    <Button onClick={handleSubmit} disabled={isPending || !notes.trim()} className="w-full" size="lg">
-                        {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Bestellung an Senoner Team senden
-                    </Button>
-                </CardFooter>
-            </Card>
+                        <div className="p-3 bg-secondary/50 rounded-lg space-y-3 border">
+                            <h4 className="font-semibold text-sm">Lieferdetails</h4>
+                            <div className="grid md:grid-cols-2 gap-3">
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="street">Straße & Hausnummer</Label>
+                                    <Input id="street" value={address.street} onChange={e => setAddress(a => ({...a, street: e.target.value}))} disabled={isPending} />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="city">Ort</Label>
+                                    <Input id="city" value={address.city} onChange={e => setAddress(a => ({...a, city: e.target.value}))} disabled={isPending} />
+                                </div>
+                            </div>
+                            <p className="text-xs text-muted-foreground">Der Betrag wird Ihrem Kundenkonto zur späteren Bezahlung hinzugefügt.</p>
+                        </div>
+                    </CardContent>
+                    <CardFooter>
+                        <Button onClick={handleSubmit} disabled={isPending || !notes.trim()} className="w-full" size="lg">
+                            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Bestellung an Senoner Team senden
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </div>
         </div>
     );
 }
