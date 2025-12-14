@@ -24,7 +24,7 @@ const navItems = [
   { href: '/dashboard/orders', icon: History, label: 'Meine Bestellungen'},
   { href: '/dashboard/concierge', icon: NotebookPen, label: 'Concierge' },
   { href: '/dashboard/planner', icon: Calculator, label: 'Party Planer' },
-  { href: '/dashboard/loyalty', icon: CreditCard, label: 'Meine Treuekarte' },
+  { href: '/dashboard/loyalty', icon: CreditCard, label: 'Fidelity' },
   { href: '/dashboard/sommelier', icon: Sparkles, label: 'AI Sommelier'},
 ];
 

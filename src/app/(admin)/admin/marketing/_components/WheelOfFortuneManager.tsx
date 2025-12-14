@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition } from 'react';
@@ -9,8 +10,9 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { saveWheelSettings } from '@/app/actions/marketing.actions';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash2, Plus } from 'lucide-react';
+import { Loader2, Trash2, Plus, FlaskConical } from 'lucide-react';
 import type { WheelOfFortuneSettings, WheelSegment } from '@/lib/types';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export function WheelOfFortuneManager({ initialSettings }: { initialSettings: WheelOfFortuneSettings }) {
     const [settings, setSettings] = useState(initialSettings);
@@ -124,6 +126,21 @@ export function WheelOfFortuneManager({ initialSettings }: { initialSettings: Wh
                         <Plus className="mr-2 h-4 w-4" /> Segment hinzufügen
                     </Button>
                 </div>
+                
+                 <Alert variant="destructive" className="bg-yellow-50 border-yellow-200 text-yellow-900 [&>svg]:text-yellow-600">
+                    <FlaskConical className="h-4 w-4" />
+                    <AlertTitle className="font-bold">Entwickler-Einstellungen</AlertTitle>
+                    <AlertDescription className="flex items-center justify-between">
+                       <div>
+                            <p className="font-semibold">Testmodus aktivieren</p>
+                            <p className="text-xs">Deaktiviert alle Zeitlimits für das Glücksrad.</p>
+                       </div>
+                       <Switch
+                            checked={settings.developerMode}
+                            onCheckedChange={(checked) => setSettings(s => ({ ...s, developerMode: checked }))}
+                       />
+                    </AlertDescription>
+                </Alert>
 
             </CardContent>
             <CardFooter>

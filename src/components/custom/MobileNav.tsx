@@ -11,7 +11,7 @@ import { Cart } from '@/app/(customer)/dashboard/_components/Cart';
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Home' },
   { href: '/dashboard/concierge', icon: NotebookPen, label: 'Concierge' },
-  { href: '/dashboard/loyalty', icon: CreditCard, label: 'Treuekarte', isCentral: true },
+  { href: '/dashboard/loyalty', icon: CreditCard, label: 'Fidelity', isCentral: true },
   { href: '/dashboard/orders', icon: ShoppingBag, label: 'Bestell.' },
 ];
 

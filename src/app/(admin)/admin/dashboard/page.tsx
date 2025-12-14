@@ -123,9 +123,16 @@ export default function AdminDashboardPage() {
             .filter(o => ['new', 'picking', 'ready', 'ready_for_delivery'].includes(o.status))
             .sort((a, b) => new Date(a.pickupDate || a.createdAt).getTime() - new Date(b.pickupDate || b.createdAt).getTime());
 
+    const totalRevenue = data.orders.reduce((sum, order) => sum + (order.total || 0), 0);
     const totalCustomers = data.users.length;
         
     const statItems = [
+        {
+            title: "Gesamtumsatz",
+            value: `€${totalRevenue.toFixed(2)}`,
+            description: `aus ${data.orders.length} Bestellungen`,
+            icon: Euro,
+        },
         {
             title: "Kunden",
             value: totalCustomers,
@@ -144,7 +151,7 @@ export default function AdminDashboardPage() {
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Willkommen zurück! Hier ist Ihre aktuelle Übersicht." />
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {statItems.map((item) => (
             <Card key={item.title}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

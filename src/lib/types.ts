@@ -1,3 +1,4 @@
+
 export type UserRole = 'customer' | 'employee' | 'admin';
 
 export interface User {
@@ -176,4 +177,5 @@ export interface WheelOfFortuneSettings {
     isActive: boolean;
     schedule: 'daily' | 'weekly' | 'monthly';
     segments: WheelSegment[];
+    developerMode?: boolean;
 }

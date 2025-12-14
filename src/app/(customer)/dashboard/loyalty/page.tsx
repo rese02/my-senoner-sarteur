@@ -46,7 +46,7 @@ export default async function LoyaltyPage() {
 
     return (
         <div className="space-y-6">
-            <PageHeader title="Meine Treuekarte" description="Zeigen Sie Ihren QR-Code an der Kasse, um Stempel zu sammeln und Belohnungen einzulösen." />
+            <PageHeader title="Fidelity" description="Zeigen Sie Ihren QR-Code an der Kasse, um Stempel zu sammeln und Belohnungen einzulösen." />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1 space-y-6">
@@ -60,7 +60,7 @@ export default async function LoyaltyPage() {
                     </Card>
 
                     {activePrize && (
-                        <Card className="shadow-lg bg-gradient-to-br from-accent/80 to-blue-400 border-accent animate-in fade-in-50">
+                        <Card className="shadow-lg bg-gradient-to-br from-accent/80 to-yellow-400 border-accent animate-in fade-in-50">
                              <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-accent-foreground">
                                     <Star className="w-5 h-5"/> Aktiver Gewinn
