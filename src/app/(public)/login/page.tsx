@@ -20,7 +20,7 @@ export default function LoginPage() {
                     </div>
                     <CardTitle className="text-3xl font-headline">Willkommen zurück</CardTitle>
                 </CardHeader>
-                <CardContent className="p-8 pt-6">
+                <CardContent className="p-8 pt-6 bg-primary">
                     <LoginForm />
                 </CardContent>
                  <CardFooter className="flex-col items-center gap-4 px-8 pb-10">
