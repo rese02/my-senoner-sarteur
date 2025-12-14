@@ -37,20 +37,24 @@ export async function sendNewsletter(
   if (!validation.success) {
     return { success: false, error: 'Ungültige Eingabedaten.' };
   }
+  
+  if (validation.data.customerIds.length === 0) {
+    return { success: false, error: 'Keine Empfänger ausgewählt.' };
+  }
 
   // Fetch customer emails from Firestore
-  const customersSnapshot = await adminDb.collection('users').where('__name__', 'in', customerIds).get();
+  const customersSnapshot = await adminDb.collection('users').where('__name__', 'in', validation.data.customerIds).get();
   const emails = customersSnapshot.docs.map(doc => (doc.data() as User).email);
   
   if (emails.length === 0) {
       return { success: false, error: 'Keine gültigen Empfänger gefunden.' };
   }
 
-
+  // Configure Nodemailer for Gmail
   const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_SERVER_HOST,
-    port: parseInt(process.env.EMAIL_SERVER_PORT || "587"),
-    secure: false, // true for 465, false for other ports
+    port: parseInt(process.env.EMAIL_SERVER_PORT || "465"),
+    secure: true, // Use true for port 465 with SSL
     auth: {
       user: process.env.EMAIL_SERVER_USER,
       pass: process.env.EMAIL_SERVER_PASSWORD,
@@ -59,8 +63,8 @@ export async function sendNewsletter(
 
   try {
     const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: process.env.EMAIL_SERVER_USER, // Send to yourself
+      from: `"${process.env.EMAIL_FROM_NAME || 'Senoner Sarteur'}" <${process.env.EMAIL_FROM}>`,
+      to: process.env.EMAIL_SERVER_USER, // Send to yourself for record
       bcc: emails.join(','), // Use BCC to hide recipients from each other
       subject: subject,
       html: `<p>${message.replace(/\n/g, '<br>')}</p>`, // Convert newlines to <br> for HTML
@@ -70,6 +74,6 @@ export async function sendNewsletter(
     return { success: true, message: `Newsletter wurde an ${emails.length} Empfänger gesendet.` };
   } catch (error) {
     console.error('Error sending email:', error);
-    return { success: false, error: 'E-Mail konnte nicht gesendet werden.' };
+    return { success: false, error: 'E-Mail konnte nicht gesendet werden. Prüfen Sie die Server-Logs.' };
   }
 }

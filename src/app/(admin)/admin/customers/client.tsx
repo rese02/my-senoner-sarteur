@@ -149,6 +149,10 @@ export function CustomersClient({ initialCustomers, initialOrders, initialProduc
             toast({ variant: 'destructive', title: 'Betreff und Nachricht sind erforderlich.' });
             return;
         }
+        if (selectedCustomers.length === 0) {
+            toast({ variant: 'destructive', title: 'Keine Kunden ausgewählt.' });
+            return;
+        }
         startSendingTransition(async () => {
             const result = await sendNewsletter(selectedCustomers, subject, message);
             if (result.success) {
