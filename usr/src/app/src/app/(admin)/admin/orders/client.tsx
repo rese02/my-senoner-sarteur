@@ -411,7 +411,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                         <TableBody>
                             {selectedOrder.items.map(item => (
                                 <TableRow key={item.productId}>
-                                    <TableCell>{item.productName}</TableCell>
+                                    <TableCell>{item.productName || item.productId}</TableCell>
                                     <TableCell>{item.quantity}</TableCell>
                                     <TableCell className="text-right">€{(item.price * item.quantity).toFixed(2)}</TableCell>
                                 </TableRow>
