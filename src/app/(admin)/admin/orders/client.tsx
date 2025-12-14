@@ -193,20 +193,20 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
 
   return (
     <>
-      <Card>
-        <CardHeader>
+      <div>
+        <div className="mb-4">
              <div className="flex flex-col sm:flex-row gap-2 w-full">
                 <div className="relative w-full flex-1">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input 
                         placeholder="Kunde oder ID suchen..." 
-                        className="pl-8 bg-background"
+                        className="pl-8 bg-card"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
                 <Select value={statusFilter} onValueChange={(value: OrderStatus | 'all') => setStatusFilter(value)}>
-                    <SelectTrigger className="w-full sm:w-[180px] bg-background">
+                    <SelectTrigger className="w-full sm:w-[180px] bg-card">
                         <SelectValue placeholder="Status filtern" />
                     </SelectTrigger>
                     <SelectContent>
@@ -217,7 +217,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                     </SelectContent>
                 </Select>
                  {!isSelectionMode ? (
-                     <Button variant="outline" onClick={() => setIsSelectionMode(true)}>
+                     <Button variant="outline" className="bg-card" onClick={() => setIsSelectionMode(true)}>
                          <ListChecks className="mr-2 h-4 w-4" /> Verwalten
                     </Button>
                 ) : (
@@ -246,9 +246,9 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                     </div>
                 )}
              </div>
-        </CardHeader>
-        <CardContent>
-          <div className="hidden md:block">
+        </div>
+        <div>
+          <div className="hidden md:block border rounded-lg overflow-hidden bg-card">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -364,8 +364,8 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                 </div>
              ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-md m-4">
