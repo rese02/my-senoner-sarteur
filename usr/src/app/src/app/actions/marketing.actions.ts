@@ -1,3 +1,4 @@
+
 'use server';
 import 'server-only';
 
@@ -8,15 +9,20 @@ import type { Story, PlannerEvent, Product, Recipe, WheelOfFortuneSettings, User
 import { toPlainObject } from '@/lib/utils';
 import { z } from 'zod';
 
-// Strikte Berechtigungsprüfung: Nur Admins dürfen diese Aktionen ausführen.
-async function requireAdmin() {
+// Helper for strict role checks
+async function requireRole(roles: Array<'customer' | 'admin'>) {
     const session = await getSession();
-    if (session?.role !== 'admin') {
-        throw new Error('Unauthorized: Admin access required.');
+    if (!session || !roles.includes(session.role)) {
+        throw new Error('Unauthorized');
     }
+    return session;
 }
 
-// Zod Schemata für die Validierung
+async function requireAdmin() {
+    return requireRole(['admin']);
+}
+
+// Zod Schemas for validation
 const StorySchema = z.object({
     id: z.string().optional(),
     label: z.string().min(1, "Label is required."),
@@ -147,10 +153,7 @@ export async function saveWheelSettings(settings: WheelOfFortuneSettings) {
 }
 
 export async function spinWheel(): Promise<{ winningSegment: number; prize: string; }> {
-    const session = await getSession();
-    if (!session?.userId) {
-        throw new Error("Not authenticated.");
-    }
+    const session = await requireRole(['customer']);
     const userRef = adminDb.collection('users').doc(session.userId);
     const userSnap = await userRef.get();
     const user = userSnap.data() as User;
@@ -275,7 +278,8 @@ async function canUserPlay(userId: string, settings: WheelOfFortuneSettings): Pr
 
 
 export async function getPlannerPageData() {
-    // Diese Funktion ist öffentlich zugänglich
+    // This function can be called by customers.
+    await requireRole(['customer']);
     try {
         const plannerEventsSnap = await adminDb.collection('plannerEvents').get();
         const productsSnap = await adminDb.collection('products').where('isAvailable', '==', true).get();
