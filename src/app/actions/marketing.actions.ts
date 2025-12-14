@@ -1,4 +1,5 @@
 'use server';
+import 'server-only';
 
 import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
@@ -7,15 +8,20 @@ import type { Story, PlannerEvent, Product, Recipe, WheelOfFortuneSettings, User
 import { toPlainObject } from '@/lib/utils';
 import { z } from 'zod';
 
-// Strikte Berechtigungsprüfung: Nur Admins dürfen diese Aktionen ausführen.
-async function requireAdmin() {
+// Helper for strict role checks
+async function requireRole(roles: Array<'customer' | 'admin'>) {
     const session = await getSession();
-    if (session?.role !== 'admin') {
-        throw new Error('Unauthorized: Admin access required.');
+    if (!session || !roles.includes(session.role)) {
+        throw new Error('Unauthorized');
     }
+    return session;
 }
 
-// Zod Schemata für die Validierung
+async function requireAdmin() {
+    return requireRole(['admin']);
+}
+
+// Zod Schemas for validation
 const StorySchema = z.object({
     id: z.string().optional(),
     label: z.string().min(1, "Label is required."),
@@ -55,6 +61,7 @@ const WheelOfFortuneSettingsSchema = z.object({
         text: z.string().min(1, "Segment text cannot be empty"),
         type: z.enum(['win', 'lose']),
     })).min(2, "At least two segments are required."),
+    developerMode: z.boolean().optional(),
 });
 
 
@@ -145,10 +152,7 @@ export async function saveWheelSettings(settings: WheelOfFortuneSettings) {
 }
 
 export async function spinWheel(): Promise<{ winningSegment: number; prize: string; }> {
-    const session = await getSession();
-    if (!session?.userId) {
-        throw new Error("Not authenticated.");
-    }
+    const session = await requireRole(['customer']);
     const userRef = adminDb.collection('users').doc(session.userId);
     const userSnap = await userRef.get();
     const user = userSnap.data() as User;
@@ -158,7 +162,7 @@ export async function spinWheel(): Promise<{ winningSegment: number; prize: stri
     }
 
     const wheelSettings = await getWheelSettings();
-    const canPlay = await canUserPlay(session.userId, wheelSettings.schedule);
+    const canPlay = await canUserPlay(session.userId, wheelSettings);
 
     if (!wheelSettings.isActive || !canPlay) {
         throw new Error("Not eligible to play right now.");
@@ -233,7 +237,7 @@ export async function getWheelOfFortuneDataForCustomer() {
     const settings = await getWheelSettings();
     if (!settings.isActive) return null;
 
-    const canPlay = await canUserPlay(session.userId, settings.schedule);
+    const canPlay = await canUserPlay(session.userId, settings);
 
     if (canPlay) {
         return settings;
@@ -242,7 +246,12 @@ export async function getWheelOfFortuneDataForCustomer() {
     return null;
 }
 
-async function canUserPlay(userId: string, schedule: 'daily' | 'weekly' | 'monthly'): Promise<boolean> {
+async function canUserPlay(userId: string, settings: WheelOfFortuneSettings): Promise<boolean> {
+    // If developer mode is on, user can always play.
+    if (settings.developerMode) {
+        return true;
+    }
+
     const userDoc = await adminDb.collection('users').doc(userId).get();
     const user = userDoc.data() as User;
 
@@ -254,7 +263,7 @@ async function canUserPlay(userId: string, schedule: 'daily' | 'weekly' | 'month
     const diffTime = Math.abs(now.getTime() - lastSpin.getTime());
     const diffHours = diffTime / (1000 * 60 * 60);
 
-    switch (schedule) {
+    switch (settings.schedule) {
         case 'daily':
             return diffHours >= 24;
         case 'weekly':
@@ -268,7 +277,8 @@ async function canUserPlay(userId: string, schedule: 'daily' | 'weekly' | 'month
 
 
 export async function getPlannerPageData() {
-    // Diese Funktion ist öffentlich zugänglich
+    // This function can be called by customers.
+    await requireRole(['customer']);
     try {
         const plannerEventsSnap = await adminDb.collection('plannerEvents').get();
         const productsSnap = await adminDb.collection('products').where('isAvailable', '==', true).get();
@@ -314,6 +324,7 @@ function getFallbackWheelSettings(): WheelOfFortuneSettings {
             { text: 'Niete', type: 'lose' },
             { text: '10% Rabatt', type: 'win' },
             { text: 'Niete', type: 'lose' },
-        ]
+        ],
+        developerMode: false,
     };
 }
