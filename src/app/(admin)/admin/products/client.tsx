@@ -325,9 +325,9 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
             <DialogDescription>Geben Sie einen Namen für die neue Produktkategorie ein.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="category-name" className="text-right">Name</Label>
-                  <Input id="category-name" value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} className="col-span-3"/>
+              <div className="space-y-1.5">
+                  <Label htmlFor="category-name">Name</Label>
+                  <Input id="category-name" value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} />
               </div>
           </div>
           <DialogFooter>
