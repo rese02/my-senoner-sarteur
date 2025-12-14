@@ -194,61 +194,59 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
   return (
     <>
       <div>
-        <div className="mb-4">
-             <div className="flex flex-col sm:flex-row gap-2 w-full">
-                <div className="relative w-full flex-1">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                        placeholder="Kunde oder ID suchen..." 
-                        className="pl-8 bg-card"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
-                <Select value={statusFilter} onValueChange={(value: OrderStatus | 'all') => setStatusFilter(value)}>
-                    <SelectTrigger className="w-full sm:w-[180px] bg-card">
-                        <SelectValue placeholder="Status filtern" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">Alle Status</SelectItem>
-                        {Object.keys(statusMap).map(s => (
-                              <SelectItem key={s} value={s} className="capitalize text-xs">{statusMap[s as OrderStatus].label}</SelectItem>
-                          ))}
-                    </SelectContent>
-                </Select>
-                 {!isSelectionMode ? (
-                     <Button variant="outline" className="bg-card" onClick={() => setIsSelectionMode(true)}>
-                         <ListChecks className="mr-2 h-4 w-4" /> Verwalten
+        <div className="flex flex-col sm:flex-row gap-2 w-full mb-4">
+            <div className="relative w-full flex-1">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input 
+                    placeholder="Kunde oder ID suchen..." 
+                    className="pl-8 bg-card"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+            <Select value={statusFilter} onValueChange={(value: OrderStatus | 'all') => setStatusFilter(value)}>
+                <SelectTrigger className="w-full sm:w-[180px] bg-card">
+                    <SelectValue placeholder="Status filtern" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">Alle Status</SelectItem>
+                    {Object.keys(statusMap).map(s => (
+                            <SelectItem key={s} value={s} className="capitalize text-xs">{statusMap[s as OrderStatus].label}</SelectItem>
+                        ))}
+                </SelectContent>
+            </Select>
+            {!isSelectionMode ? (
+                <Button variant="outline" className="bg-card" onClick={() => setIsSelectionMode(true)}>
+                    <ListChecks className="mr-2 h-4 w-4" /> Verwalten
+                </Button>
+            ) : (
+                <div className="flex gap-2">
+                    <Button variant="ghost" onClick={() => { setIsSelectionMode(false); setSelectedOrderIds([]); }}>
+                            <X className="mr-2 h-4 w-4" /> Abbrechen
                     </Button>
-                ) : (
-                    <div className="flex gap-2">
-                        <Button variant="ghost" onClick={() => { setIsSelectionMode(false); setSelectedOrderIds([]); }}>
-                             <X className="mr-2 h-4 w-4" /> Abbrechen
-                        </Button>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button variant="destructive" disabled={selectedOrderIds.length === 0 || isBulkDeleting}>
-                                    {isBulkDeleting ? <Loader2 className="animate-spin mr-2"/> : <Trash2 className="mr-2 h-4 w-4" />}
-                                    Löschen ({selectedOrderIds.length})
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
-                                    <AlertDialogDescription>Möchten Sie die {selectedOrderIds.length} ausgewählten Bestellungen wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.</AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                    <AlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting}>Ja, löschen</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    </div>
-                )}
-             </div>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive" disabled={selectedOrderIds.length === 0 || isBulkDeleting}>
+                                {isBulkDeleting ? <Loader2 className="animate-spin mr-2"/> : <Trash2 className="mr-2 h-4 w-4" />}
+                                Löschen ({selectedOrderIds.length})
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
+                                <AlertDialogDescription>Möchten Sie die {selectedOrderIds.length} ausgewählten Bestellungen wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting}>Ja, löschen</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </div>
+            )}
         </div>
-        <div>
-          <div className="hidden md:block border rounded-lg overflow-hidden bg-card">
+        <div className="bg-card border rounded-lg overflow-hidden">
+          <div className="hidden md:block">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -342,7 +340,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
             </Table>
           </div>
 
-          <div className="md:hidden space-y-3">
+          <div className="md:hidden space-y-3 p-4">
              {filteredOrders.length === 0 && (
                 <div className="text-center text-muted-foreground py-16">Keine Bestellungen gefunden.</div>
              )}

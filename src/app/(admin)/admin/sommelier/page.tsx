@@ -8,9 +8,9 @@ export default async function WineManagerPage() {
     const wines = await getWineCatalog();
 
     return (
-        <>
+        <div className="space-y-6">
             <PageHeader title="Sommelier Inventar" description="Verwalten Sie hier die Datenbank für den AI-Sommelier." />
             <SommelierClient initialWines={wines} />
-        </>
+        </div>
     );
 }

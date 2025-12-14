@@ -154,16 +154,12 @@ export function CustomersClient({ initialCustomers, initialOrders, initialProduc
   return (
       <div className="space-y-6">
             <div>
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                    <div>
-                        <h2 className="text-xl font-bold font-headline text-foreground">Kundenliste</h2>
-                        <p className="text-sm text-muted-foreground">Segmentieren Sie Kunden für gezielte Newsletter.</p>
-                    </div>
+                <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4 mb-4">
                     <Popover open={open} onOpenChange={setOpen}>
                         <PopoverTrigger asChild>
                             <Button variant="outline" className="shrink-0 w-full sm:w-auto" size="sm">
                                 <Filter className="mr-2 h-4 w-4" />
-                                Filter
+                                Nach Käufen filtern
                                 {selectedCategories.length > 0 && <Badge variant="secondary" className="ml-2">{selectedCategories.length}</Badge>}
                             </Button>
                         </PopoverTrigger>
