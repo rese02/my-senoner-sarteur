@@ -70,7 +70,7 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
 
                   {/* Desktop: Grid Layout */}
                    {categoryProducts.length > 0 && (
-                        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {categoryProducts.map(product => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
