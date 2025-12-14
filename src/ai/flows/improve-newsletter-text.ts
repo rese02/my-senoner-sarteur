@@ -47,7 +47,7 @@ const improveTextWithAIPrompt = ai.definePrompt({
        - Wenn Input Deutsch -> Ausgabe Deutsch.
        - Wenn Input Italienisch -> Ausgabe Italienisch.
        - NIEMALS ins Englische übersetzen.
-    4. Halte den Text prägnant.
+    4. Halte den Text prägnant und schreibe ihn nicht komplett um, sondern verbessere den bestehenden.
 
     Original text: {{{text}}}`,
 });
