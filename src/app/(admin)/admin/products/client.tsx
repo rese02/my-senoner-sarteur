@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Trash2, Edit, Loader2, Plus, GripVertical, MoreVertical } from "lucide-react";
+import { PlusCircle, Trash2, Edit, Loader2, Plus, MoreVertical } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState, useTransition, useEffect } from "react";
@@ -17,7 +17,6 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
@@ -324,7 +323,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
             <DialogTitle>Neue Kategorie erstellen</DialogTitle>
             <DialogDescription>Geben Sie einen Namen für die neue Produktkategorie ein.</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="py-4">
               <div className="space-y-1.5">
                   <Label htmlFor="category-name">Name</Label>
                   <Input id="category-name" value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} />
