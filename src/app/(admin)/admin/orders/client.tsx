@@ -1,3 +1,4 @@
+
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -6,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Search, FileText, ShoppingCart, Trash2, Loader2, ListChecks, X } from "lucide-react";
+import { Search, FileText, ShoppingCart, Trash2, Loader2, ListChecks, X, Home } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo, useTransition, useEffect } from "react";
 import type { Order, OrderStatus, User } from "@/lib/types";
@@ -397,6 +398,14 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                         <p className="text-muted-foreground">Status:</p>
                         <div><Badge className={cn("capitalize font-semibold", statusMap[selectedOrder.status]?.className)}>{statusMap[selectedOrder.status]?.label}</Badge></div>
                    </div>
+
+                  {selectedOrder.type === 'grocery_list' && selectedOrder.deliveryAddress && (
+                    <div className="p-3 bg-secondary rounded-lg border text-sm">
+                        <h4 className="font-semibold mb-2 flex items-center gap-2"><Home className="w-4 h-4 text-muted-foreground"/>Lieferadresse</h4>
+                        <p>{selectedOrder.deliveryAddress.street}</p>
+                        <p>{selectedOrder.deliveryAddress.city}</p>
+                    </div>
+                  )}
                   
                   {selectedOrder.type === 'preorder' && selectedOrder.items && (
                       <Table>

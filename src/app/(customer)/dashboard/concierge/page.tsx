@@ -8,19 +8,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Feather } from 'lucide-react';
+import { Loader2, Feather, Truck } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { createConciergeOrder } from '@/app/actions/order.actions';
 
 export default function ConciergePage() {
     const [notes, setNotes] = useState('');
-    const [address, setAddress] = useState({ street: 'Musterweg 1', city: '39046 St. Ulrich' });
+    const [address, setAddress] = useState({ street: '', city: '' });
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
     
     const handleSubmit = async () => {
         if (!notes.trim()) {
             toast({ variant: 'destructive', title: 'Ihr Einkaufszettel ist leer.' });
+            return;
+        }
+        if (!address.street.trim() || !address.city.trim()) {
+            toast({ variant: 'destructive', title: 'Lieferadresse unvollständig.' });
             return;
         }
 
@@ -32,6 +36,7 @@ export default function ConciergePage() {
                     description: 'Wir haben Ihren Einkaufszettel erhalten und werden ihn für Sie zusammenstellen.',
                 });
                 setNotes('');
+                setAddress({ street: '', city: '' });
             } catch (error) {
                 console.error(error);
                 toast({ variant: 'destructive', title: 'Fehler', description: 'Ihre Bestellung konnte nicht gesendet werden.' });
@@ -65,19 +70,26 @@ export default function ConciergePage() {
                             disabled={isPending}
                         />
                     </div>
-                    <div className="p-3 bg-secondary/50 rounded-lg space-y-3 border">
+                    <div className="p-4 bg-secondary/50 rounded-lg space-y-4 border">
                         <h4 className="font-semibold text-sm">Lieferdetails</h4>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground bg-background p-3 rounded-lg border">
+                           <Truck className="w-5 h-5 text-primary shrink-0" />
+                           <div>
+                                <p>Wir liefern nur nach <strong>Wolkenstein</strong> und <strong>St. Christina</strong>.</p>
+                                <p>Die Liefergebühr beträgt pauschal <strong>5,00 €</strong>.</p>
+                           </div>
+                        </div>
                         <div className="grid md:grid-cols-2 gap-3">
                             <div className="space-y-1.5">
                                 <Label htmlFor="street">Straße & Hausnummer</Label>
-                                <Input id="street" value={address.street} onChange={e => setAddress(a => ({...a, street: e.target.value}))} disabled={isPending} />
+                                <Input id="street" value={address.street} onChange={e => setAddress(a => ({...a, street: e.target.value}))} disabled={isPending} placeholder="Musterweg 1" />
                             </div>
                             <div className="space-y-1.5">
                                 <Label htmlFor="city">Ort</Label>
-                                <Input id="city" value={address.city} onChange={e => setAddress(a => ({...a, city: e.target.value}))} disabled={isPending} />
+                                <Input id="city" value={address.city} onChange={e => setAddress(a => ({...a, city: e.target.value}))} disabled={isPending} placeholder="Wolkenstein" />
                             </div>
                         </div>
-                        <p className="text-xs text-muted-foreground">Der Betrag wird Ihrem Kundenkonto zur späteren Bezahlung hinzugefügt.</p>
+                        <p className="text-xs text-muted-foreground">Die Gesamtsumme inkl. Liefergebühr wird Ihrem Kundenkonto zur späteren Bezahlung hinzugefügt.</p>
                     </div>
                 </CardContent>
                 <CardFooter>
