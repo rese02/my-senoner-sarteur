@@ -48,7 +48,7 @@ export default function ConciergePage() {
         <div className="space-y-6">
             <PageHeader title="Concierge Service" description="Ihr persönlicher Einkaufszettel & Lieferservice." />
             
-            <Card className="shadow-lg">
+            <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Feather className="w-5 h-5 text-primary"/>
@@ -82,11 +82,11 @@ export default function ConciergePage() {
                         <div className="grid md:grid-cols-2 gap-3">
                             <div className="space-y-1.5">
                                 <Label htmlFor="street">Straße & Hausnummer</Label>
-                                <Input id="street" value={address.street} onChange={e => setAddress(a => ({...a, street: e.target.value}))} disabled={isPending} placeholder="Musterweg 1" />
+                                <Input id="street" value={address.street} onChange={e => setAddress(a => ({...a, street: e.target.value}))} disabled={isPending} placeholder="Ihre Straße" />
                             </div>
                             <div className="space-y-1.5">
                                 <Label htmlFor="city">Ort</Label>
-                                <Input id="city" value={address.city} onChange={e => setAddress(a => ({...a, city: e.target.value}))} disabled={isPending} placeholder="Wolkenstein" />
+                                <Input id="city" value={address.city} onChange={e => setAddress(a => ({...a, city: e.target.value}))} disabled={isPending} placeholder="Ihr Ort" />
                             </div>
                         </div>
                         <p className="text-xs text-muted-foreground">Die Gesamtsumme inkl. Liefergebühr wird Ihrem Kundenkonto zur späteren Bezahlung hinzugefügt.</p>
