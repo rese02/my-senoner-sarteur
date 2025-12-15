@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 9002 --hostname 0.0.0.0",
+    "dev": "next dev -p 9003 --hostname 0.0.0.0",
     "genkit:dev": "echo 'Genkit dev server disabled'",
     "genkit:watch": "echo 'Genkit watch server disabled'",
     "build": "NODE_ENV=production next build",
@@ -28,6 +28,7 @@
     "@radix-ui/react-switch": "latest",
     "@radix-ui/react-tabs": "latest",
     "@radix-ui/react-toast": "latest",
+    "@radix-ui/react-tooltip": "latest",
     "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

@@ -50,17 +50,15 @@ export function ProductCard({ product }: { product: Product }) {
             <CardContent className="p-3 flex flex-col flex-grow">
                 <h3 className="text-sm font-bold font-headline leading-tight line-clamp-2 flex-grow whitespace-normal">{product.name}</h3>
                 <div className="mt-1">
-                    <p className="text-sm text-muted-foreground">
-                        <span className="font-semibold text-foreground">€{product.price.toFixed(2)}</span> / {product.unit}
-                    </p>
+                     <p className="text-base font-bold text-foreground">€{product.price.toFixed(2)} <span className="text-xs text-muted-foreground font-normal">/ {product.unit}</span></p>
                 </div>
 
-                <div className="flex items-center justify-center gap-2 mt-3">
-                    <Button variant="outline" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))} className="active:scale-95 transition-transform h-7 w-7 rounded-full shrink-0" aria-label="Menge verringern">
+                <div className="flex items-center justify-center gap-2 mt-4">
+                    <Button variant="outline" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))} className="active:scale-95 transition-transform h-8 w-8 rounded-full shrink-0" aria-label="Menge verringern">
                         <Minus className="h-4 w-4" />
                     </Button>
-                    <span className="w-5 text-center font-bold text-sm">{quantity}</span>
-                    <Button variant="outline" size="icon" onClick={() => setQuantity(q => q + 1)} className="active:scale-95 transition-transform h-7 w-7 rounded-full shrink-0" aria-label="Menge erhöhen">
+                    <span className="w-8 text-center font-bold text-base">{quantity}</span>
+                    <Button variant="outline" size="icon" onClick={() => setQuantity(q => q + 1)} className="active:scale-95 transition-transform h-8 w-8 rounded-full shrink-0" aria-label="Menge erhöhen">
                         <Plus className="h-4 w-4" />
                     </Button>
                 </div>
