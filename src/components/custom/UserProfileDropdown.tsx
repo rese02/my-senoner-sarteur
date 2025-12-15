@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -35,14 +36,16 @@ export function UserProfileDropdown({ user }: { user: User }) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
-          <UserIcon className="mr-2 h-4 w-4" />
-          <span>Mein Profil</span>
-        </DropdownMenuItem>
+        {user.role === 'customer' && (
+          <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
+            <UserIcon className="mr-2 h-4 w-4" />
+            <span>Mein Profil</span>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem className="text-destructive focus:text-destructive-foreground focus:bg-destructive" asChild>
             <form action={logout} className="w-full">
-                 <button type="submit" className="w-full text-left flex items-center cursor-pointer">
+                 <button type="submit" className="w-full text-left flex items-center cursor-default">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Abmelden</span>
                 </button>

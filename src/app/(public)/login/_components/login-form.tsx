@@ -1,3 +1,4 @@
+
 'use client';
 
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -5,14 +6,13 @@ import { useAuth } from '@/firebase/provider';
 import { createSession } from '@/app/actions/auth.actions';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { useForm } from 'react-hook-form';
+import { useForm, useFormState } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { SubmitButton } from '@/components/custom/SubmitButton';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Bitte geben Sie eine gültige E-Mail ein.' }),
@@ -31,6 +31,8 @@ export function LoginForm() {
       password: '',
     },
   });
+
+  const { isSubmitting } = useFormState({ control: form.control });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -97,6 +99,7 @@ export function LoginForm() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-foreground/60 hover:text-primary-foreground"
+                      aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}
                     >
                       {showPassword ? <EyeOff className="h-5 w-5"/> : <Eye className="h-5 w-5" />}
                     </button>
@@ -106,7 +109,9 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <SubmitButton variant="secondary" className="w-full">Anmelden</SubmitButton>
+        <SubmitButton variant="secondary" className="w-full" isSubmitting={isSubmitting}>
+          {isSubmitting ? 'Anmelden...' : 'Anmelden'}
+        </SubmitButton>
       </form>
     </Form>
   );

@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useState, useRef, useEffect, useCallback, useTransition } from 'react';
+import { useState, useTransition, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Camera, Gift, Loader2, QrCode, X, ListTodo, Check, Package, Star } from 'lucide-react';
@@ -9,14 +10,22 @@ import type { User as UserType, Order, ChecklistItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import Webcam from 'react-webcam';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { addStamp, redeemReward, redeemPrize } from '@/app/actions/loyalty.actions';
 import { setGroceryOrderTotal } from '@/app/actions/order.actions';
 import { getScannerPageData } from '@/app/actions/scanner.actions';
+import { Skeleton } from '@/components/ui/skeleton';
 
+
+const ActiveScannerView = dynamic(() => 
+    import('./_components/ActiveScannerView').then(mod => mod.ActiveScannerView), 
+    { 
+        ssr: false,
+        loading: () => <div className="fixed inset-0 bg-black flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-white"/></div>
+    }
+);
 
 // =================================================================
 // Zustand 1: Hauptansicht (mit Tabs)
@@ -78,61 +87,6 @@ function MainView({ onStartScan, onStartPicking, groceryLists }: { onStartScan: 
                  </Card>
             </TabsContent>
         </Tabs>
-    );
-}
-
-
-// =================================================================
-// Zustand 2: Aktiver Scanner
-// =================================================================
-function ActiveScannerView({ onScanSuccess, onCancel }: { onScanSuccess: (data: string) => void, onCancel: () => void }) {
-    const webcamRef = useRef<Webcam>(null);
-    const { toast } = useToast();
-
-    useEffect(() => {
-        if (typeof window.navigator.vibrate === 'function') {
-            window.navigator.vibrate(100);
-        }
-    }, []);
-
-    const handleMockScan = useCallback(() => {
-        if (typeof window.navigator.vibrate === 'function') {
-            window.navigator.vibrate(50);
-        }
-        toast({ title: 'QR Code erkannt, verarbeite...' });
-
-        setTimeout(() => {
-            // This simulates scanning a QR code with the content "senoner-user:user-1-customer"
-            onScanSuccess('senoner-user:user-1-customer');
-        }, 1000);
-    }, [onScanSuccess, toast]);
-    
-    return (
-        <div className="fixed inset-0 z-50 bg-black flex flex-col text-white">
-            <header className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center bg-gradient-to-b from-black/50 to-transparent">
-                 <h2 className="font-bold text-lg drop-shadow-md">Karte scannen</h2>
-                <Button variant="ghost" size="icon" onClick={onCancel} className="text-white hover:bg-white/20 hover:text-white rounded-full">
-                    <X />
-                </Button>
-            </header>
-            <main className="flex-grow relative">
-                <Webcam
-                    audio={false}
-                    ref={webcamRef}
-                    videoConstraints={{ facingMode: "environment" }}
-                    className="h-full w-full object-cover"
-                />
-                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-60 h-60 border-4 border-white/50 rounded-2xl animate-pulse" />
-                </div>
-            </main>
-            <footer className="p-4 bg-gradient-to-t from-black/50 to-transparent">
-                 <Button onClick={handleMockScan} className="w-full h-12 text-lg rounded-full" >
-                    <QrCode className="mr-2 h-5 w-5" />
-                    Code simulieren
-                </Button>
-            </footer>
-        </div>
     );
 }
 
@@ -392,6 +346,15 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
     )
 }
 
+function MainLoadingSkeleton() {
+    return (
+        <div className="w-full space-y-4">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-64 w-full" />
+        </div>
+    )
+}
+
 // =================================================================
 // Hauptkomponente
 // =================================================================
@@ -410,9 +373,9 @@ export default function ScannerPage() {
     const refreshData = useCallback(async () => {
         setLoading(true);
         try {
-            const { users, orders, groceryLists } = await getScannerPageData();
+            const { users, groceryLists, allOrders } = await getScannerPageData();
             setUsers(users);
-            setOrders(orders);
+            setOrders(allOrders);
             setGroceryLists(groceryLists);
         } catch(err) {
             toast({ variant: 'destructive', title: 'Fehler', description: 'Daten konnten nicht geladen werden.'});
@@ -460,20 +423,11 @@ export default function ScannerPage() {
     };
     
     const startScanFlow = async () => {
-        try {
-             if (!navigator.mediaDevices?.getUserMedia) {
-                throw new Error("getUserMedia not supported");
-            }
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            stream.getTracks().forEach(track => track.stop());
-            setViewState('scanning');
-        } catch(err) {
-             toast({ variant: 'destructive', title: 'Kamerazugriff verweigert', description: 'Bitte erlauben Sie den Kamerazugriff in Ihren Browser-Einstellungen.' });
-        }
+       setViewState('scanning');
     }
 
     if (loading && viewState === 'main') {
-         return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+         return <MainLoadingSkeleton />;
     }
 
     if (viewState === 'scanning') {
@@ -484,8 +438,6 @@ export default function ScannerPage() {
         const userOrders = orders.filter(o => o.userId === scannedUser.id);
         return <ScanResultView user={scannedUser} orders={userOrders} onNextCustomer={resetToMain} />;
     }
-
-
 
     if (viewState === 'picking' && currentOrder) {
         return <PickerModeView order={currentOrder} onFinish={resetToMain} />

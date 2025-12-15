@@ -77,8 +77,11 @@ export async function getDashboardData() {
 export async function getDashboardPageData() {
   await requireAdmin();
   try {
-    const ordersSnapshot = await adminDb.collection('orders').get();
-    const usersSnapshot = await adminDb.collection('users').get();
+    // Perform queries in parallel for efficiency
+    const [ordersSnapshot, usersSnapshot] = await Promise.all([
+      adminDb.collection('orders').get(),
+      adminDb.collection('users').get(),
+    ]);
     
     const orders = ordersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
     const users = usersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as User));

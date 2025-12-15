@@ -10,7 +10,7 @@ import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Package, FileText, Calendar, Info, CheckCircle, Truck, ShoppingBag, XCircle, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Suspense, useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, use } from "react";
 import Loading from './loading';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,13 +36,15 @@ function OrderHistoryCard({ order, onDelete }: { order: Order; onDelete: (orderI
     const isGroceryList = order.type === 'grocery_list';
     const relevantDate = order.pickupDate || order.deliveryDate || order.createdAt;
     const StatusIcon = statusMap[order.status]?.icon || Info;
-    const statusBgClass = statusMap[order.status]?.className.split(' ')[0] || 'bg-secondary'; // e.g. "bg-status-new-bg"
+    const headerBgClass = statusMap[order.status]?.className.split(' ')[0] || 'bg-secondary';
+    const headerFgClass = statusMap[order.status]?.className.split(' ')[1] || 'text-secondary-foreground';
+
 
     const deletableStatuses = ['collected', 'delivered', 'paid', 'cancelled'];
     const isDeletable = deletableStatuses.includes(order.status);
     
     const handleDelete = (e: React.MouseEvent) => {
-        e.stopPropagation(); // Verhindert, dass Klick-Events auf der Karte ausgelöst werden
+        e.stopPropagation(); 
         startDeleteTransition(async () => {
             try {
                 await deleteMyOrder(order.id);
@@ -55,22 +57,24 @@ function OrderHistoryCard({ order, onDelete }: { order: Order; onDelete: (orderI
     };
 
     return (
-        <Card className="overflow-hidden shadow-lg">
-            <CardHeader className={cn("flex flex-row items-start sm:items-center justify-between gap-4 p-4 relative", statusBgClass)}>
-                <div>
-                    <CardTitle className="text-base font-bold flex items-center gap-2">
-                        {isGroceryList ? <FileText className="w-4 h-4 text-orange-600" /> : <Package className="w-4 h-4 text-primary" />}
-                        <span className="text-card-foreground">{isGroceryList ? 'Concierge Bestellung' : 'Vorbestellung'}</span>
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                        #{order.id.slice(-6)} - {format(parseISO(order.createdAt), "dd.MM.yyyy, HH:mm")}
-                    </CardDescription>
+        <Card className="overflow-hidden shadow-lg bg-card">
+            <CardHeader className={cn("p-4")}>
+                <div className="flex flex-row items-start sm:items-center justify-between gap-4">
+                     <div>
+                        <CardTitle className="text-base font-bold flex items-center gap-2">
+                            {isGroceryList ? <FileText className="w-4 h-4 text-orange-600" /> : <Package className="w-4 h-4 text-primary" />}
+                            <span className="text-card-foreground">{isGroceryList ? 'Concierge Bestellung' : 'Vorbestellung'}</span>
+                        </CardTitle>
+                        <CardDescription className="text-xs text-muted-foreground">
+                            #{order.id.slice(-6)} - {format(parseISO(order.createdAt), "dd.MM.yyyy, HH:mm")}
+                        </CardDescription>
+                    </div>
+                     <Badge className={cn("capitalize font-semibold text-xs whitespace-nowrap", statusMap[order.status]?.className)}>
+                        <StatusIcon className="w-3 h-3 mr-1.5"/>
+                        {statusMap[order.status]?.label}
+                    </Badge>
                 </div>
-                 <Badge className={cn("capitalize font-semibold text-xs whitespace-nowrap", statusMap[order.status]?.className)}>
-                    <StatusIcon className="w-3 h-3 mr-1.5"/>
-                    {statusMap[order.status]?.label}
-                </Badge>
-                {isDeletable && (
+                 {isDeletable && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                              <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={(e) => e.stopPropagation()}>
@@ -96,7 +100,7 @@ function OrderHistoryCard({ order, onDelete }: { order: Order; onDelete: (orderI
                     </AlertDialog>
                 )}
             </CardHeader>
-            <CardContent className="space-y-4 pt-4 p-4">
+            <CardContent className="space-y-4 pt-0 p-4">
                 <div className="flex items-center justify-between text-sm bg-secondary p-3 rounded-md">
                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="w-4 h-4"/>
@@ -143,7 +147,8 @@ function OrderHistoryCard({ order, onDelete }: { order: Order; onDelete: (orderI
     );
 }
 
-function OrderList() {
+
+export default function OrdersPage() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
@@ -163,29 +168,21 @@ function OrderList() {
     if (isLoading) {
         return <Loading />;
     }
-    
-    if (orders.length === 0) {
-        return (
-            <Card className="text-center py-16 text-muted-foreground border-dashed shadow-none">
-                <Package className="mx-auto h-12 w-12 text-gray-300"/>
-                <h3 className="mt-4 text-lg font-medium">Noch keine Bestellungen</h3>
-                <p className="mt-1 text-sm">Ihre Bestellungen werden hier angezeigt.</p>
-            </Card>
-        );
-    }
-    
-    return (
-         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-             {orders.map(order => <OrderHistoryCard key={order.id} order={order} onDelete={handleOrderDeleted} />)}
-         </div>
-    );
-}
 
-export default function OrdersPage() {
     return (
         <div className="space-y-6">
             <PageHeader title="Meine Bestellungen" description="Hier sehen Sie den Status Ihrer aktuellen und vergangenen Bestellungen."/>
-            <OrderList />
+              {orders.length === 0 ? (
+                <Card className="text-center py-16 text-muted-foreground border-dashed shadow-none">
+                    <Package className="mx-auto h-12 w-12 text-gray-300"/>
+                    <h3 className="mt-4 text-lg font-medium">Noch keine Bestellungen</h3>
+                    <p className="mt-1 text-sm">Ihre Bestellungen werden hier angezeigt.</p>
+                </Card>
+            ) : (
+                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-24 md:pb-8">
+                    {orders.map(order => <OrderHistoryCard key={order.id} order={order} onDelete={handleOrderDeleted} />)}
+                </div>
+            )}
         </div>
     );
 }

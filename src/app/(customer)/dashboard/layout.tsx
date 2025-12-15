@@ -6,11 +6,11 @@ import { UserProfileDropdown } from "@/components/custom/UserProfileDropdown";
 import { Logo } from "@/components/common/Logo";
 import { MobileNav } from "@/components/custom/MobileNav";
 import { CustomerSidebar } from "./_components/CustomerSidebar";
-import { Menu, Phone } from "lucide-react";
+import { Menu } from "lucide-react";
 import { redirect } from "next/navigation";
 import type { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
 function DesktopSidebar() {
@@ -54,6 +54,10 @@ export default async function CustomerLayout({
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="p-0 w-64">
+                <SheetHeader className="sr-only">
+                    <SheetTitle>Hauptmenü</SheetTitle>
+                    <SheetDescription>Navigation für den Kundenbereich</SheetDescription>
+                </SheetHeader>
                 <CustomerSidebar />
               </SheetContent>
             </Sheet>

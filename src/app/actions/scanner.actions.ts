@@ -1,3 +1,4 @@
+
 'use server';
 
 import 'server-only';
@@ -18,21 +19,22 @@ export async function getScannerPageData() {
   await requireEmployeeOrAdmin();
 
   try {
-    // Holen Sie sich alle Benutzer und alle Bestellungen auf einmal
-    const usersSnapshot = await adminDb.collection('users').get();
-    const ordersSnapshot = await adminDb.collection('orders').get();
+    // Abfragen parallel ausführen für bessere Performance
+    const [usersSnapshot, groceryListsSnapshot, allOrdersSnapshot] = await Promise.all([
+      adminDb.collection('users').get(),
+      adminDb.collection('orders').where('type', '==', 'grocery_list').where('status', '==', 'new').get(),
+      adminDb.collection('orders').get(),
+    ]);
       
     const users = usersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as User));
-    const orders = ordersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
+    const groceryLists = groceryListsSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
+    const allOrders = allOrdersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
     
-    // Filtern Sie die Einkaufslisten serverseitig
-    const groceryLists = orders.filter(order => order.type === 'grocery_list' && order.status === 'new');
-
     // Geben Sie alle relevanten Daten zurück
-    return { users, orders, groceryLists };
+    return { users, groceryLists, allOrders };
   } catch (error) {
     console.error("Error fetching data for scanner page:", error);
     // Stabile Rückgabe im Fehlerfall
-    return { users: [], orders: [], groceryLists: [] };
+    return { users: [], groceryLists: [], allOrders: [] };
   }
 }

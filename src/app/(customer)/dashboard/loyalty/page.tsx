@@ -6,17 +6,15 @@ import { getSession } from "@/lib/session";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Gift, Sparkles, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { QRCodeSVG } from 'qrcode.react';
+import dynamic from 'next/dynamic';
+import { Skeleton } from "@/components/ui/skeleton";
 
-function QrCodeDisplay({ userId }: { userId: string }) {
-    const qrData = `senoner-user:${userId}`;
-    return (
-        <div className="bg-white p-4 rounded-lg shadow-inner">
-             <QRCodeSVG value={qrData} size={256} className="w-full h-full" />
-            <p className="text-center mt-2 font-mono text-xs text-muted-foreground break-all">{qrData}</p>
-        </div>
-    );
-}
+// Lazy load the QR code component
+const QrCodeDisplay = dynamic(() => import('./_components/QrCodeDisplay').then(mod => mod.QrCodeDisplay), {
+    ssr: false,
+    loading: () => <Skeleton className="w-full aspect-square" />
+});
+
 
 function Stamp({ filled, index }: { filled: boolean, index: number }) {
     return (
