@@ -436,9 +436,13 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                           </div>
                       </div>
                   )}
-                  {selectedOrder.total && (
+                  {selectedOrder.total && selectedOrder.total > 0 ? (
                     <div className="flex justify-end font-bold text-lg border-t pt-3 mt-2">
                         Gesamt: €{selectedOrder.total.toFixed(2)}
+                    </div>
+                  ) : selectedOrder.type === 'grocery_list' && (
+                    <div className="text-center text-xs text-muted-foreground pt-2 border-t mt-2">
+                        Endbetrag wird nach dem Packen berechnet.
                     </div>
                   )}
               </div>

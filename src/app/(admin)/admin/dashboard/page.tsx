@@ -2,7 +2,7 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Users, ShoppingCart, Trash2, Loader2, CheckCircle, Euro, Package } from "lucide-react";
+import { Users, ShoppingCart, Trash2, Loader2, CheckCircle, Euro, Package, Home } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -257,7 +257,7 @@ export default function AdminDashboardPage() {
                   
                   {selectedOrder.type === 'grocery_list' && selectedOrder.deliveryAddress && (
                     <div className="p-3 bg-secondary rounded-lg border text-sm">
-                        <h4 className="font-semibold mb-2 flex items-center gap-2">Lieferadresse</h4>
+                        <h4 className="font-semibold mb-2 flex items-center gap-2"><Home className="w-4 h-4 text-muted-foreground"/>Lieferadresse</h4>
                         <p>{selectedOrder.deliveryAddress.street}</p>
                         <p>{selectedOrder.deliveryAddress.city}</p>
                     </div>
@@ -292,9 +292,13 @@ export default function AdminDashboardPage() {
                           </div>
                       </div>
                   )}
-                  {selectedOrder.total && (
+                  {selectedOrder.total && selectedOrder.total > 0 ? (
                     <div className="flex justify-end font-bold text-lg border-t pt-3 mt-2">
                         Gesamt: €{selectedOrder.total.toFixed(2)}
+                    </div>
+                  ) : selectedOrder.type === 'grocery_list' && (
+                    <div className="text-center text-xs text-muted-foreground pt-2 border-t mt-2">
+                        Endbetrag wird nach dem Packen berechnet.
                     </div>
                   )}
               </div>

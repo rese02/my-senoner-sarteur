@@ -95,7 +95,7 @@ export async function createConciergeOrder(
         rawList: validatedNotes.data,
         deliveryAddress: validatedAddress.data,
         deliveryDate: deliveryDate.toISOString(),
-        total: 5, // Delivery Fee
+        total: 0, // Set initial total to 0, it will be calculated later.
         status: 'new' as const,
     };
     
