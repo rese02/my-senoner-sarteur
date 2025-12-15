@@ -20,7 +20,7 @@ export async function processOrderStatusUpdates() {
   }
 
   try {
-    const now = new Date().toISOString();
+    const now = new Date();
     const batch = adminDb.batch();
     let updatedCount = 0;
 
@@ -41,7 +41,7 @@ export async function processOrderStatusUpdates() {
       const dueDate = new Date(dueDateString);
 
       // Check if the due date is today or in the past
-      if (dueDate <= new Date()) {
+      if (dueDate <= now) {
         let newStatus: Order['status'] | null = null;
         
         if (order.type === 'preorder') {

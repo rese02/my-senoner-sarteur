@@ -74,6 +74,7 @@ function OrderHistoryCard({ order, onDelete }: { order: Order; onDelete: (orderI
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                              <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={(e) => e.stopPropagation()}>
+                                <span className="sr-only">Bestellung löschen</span>
                                 {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4" />}
                             </Button>
                         </AlertDialogTrigger>
@@ -109,7 +110,7 @@ function OrderHistoryCard({ order, onDelete }: { order: Order; onDelete: (orderI
                          <div className="space-y-2">
                              {order.items.map(item => (
                                  <div key={item.productId} className="flex justify-between text-sm items-center py-1 border-b last:border-0">
-                                     <span>{item.quantity}x {item.productName || item.productId}</span>
+                                     <span>{item.quantity}x {item.productName}</span>
                                      <span className="font-mono text-muted-foreground">€{(item.price * item.quantity).toFixed(2)}</span>
                                  </div>
                              ))}
@@ -188,5 +189,3 @@ export default function OrdersPage() {
         </div>
     );
 }
-
-    
