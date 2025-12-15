@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useTransition } from 'react';
@@ -70,9 +69,9 @@ export default function ConciergePage() {
                             disabled={isPending}
                         />
                     </div>
-                    <div className="p-4 bg-secondary/50 rounded-lg space-y-4 border">
+                    <div className="space-y-4">
                         <h4 className="font-semibold text-sm">Lieferdetails</h4>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground bg-background p-3 rounded-lg border">
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
                            <Truck className="w-5 h-5 text-primary shrink-0" />
                            <div>
                                 <p>Wir liefern nur nach <strong>Wolkenstein</strong> und <strong>St. Christina</strong>.</p>
