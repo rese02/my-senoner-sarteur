@@ -225,7 +225,7 @@ export default function AdminPickerPage() {
     return (
         <div className="space-y-6">
             <PageHeader title="Picker" description="Bearbeiten Sie hier die offenen Einkaufszettel-Bestellungen."/>
-            <div className="max-w-2xl mx-auto">
+            <div>
                 <GroceryListsView onStartPicking={handleStartPicking} groceryLists={groceryLists} />
             </div>
         </div>
