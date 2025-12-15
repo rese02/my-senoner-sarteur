@@ -1,3 +1,4 @@
+
 'use server';
 
 import { PageHeader } from "@/components/common/PageHeader";
@@ -39,16 +40,16 @@ export default async function ProfilePage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="border-destructive">
+                    <Card>
                         <CardHeader>
-                            <CardTitle className="text-destructive">Gefahrenzone</CardTitle>
+                            <CardTitle>Gefahrenzone</CardTitle>
                             <CardDescription>Diese Aktionen können nicht rückgängig gemacht werden.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <form action={deleteUserAccount}>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button variant="destructive" className="w-full">Konto endgültig löschen</Button>
+                                        <Button variant="outline" className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive">Konto endgültig löschen</Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                         <AlertDialogHeader>
@@ -60,7 +61,7 @@ export default async function ProfilePage() {
                                         <AlertDialogFooter>
                                             <AlertDialogCancel>Abbrechen</AlertDialogCancel>
                                             {/* The form submission is handled by the parent form element */}
-                                            <AlertDialogAction type="submit">Ja, mein Konto löschen</AlertDialogAction>
+                                            <AlertDialogAction type="submit" className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Ja, mein Konto löschen</AlertDialogAction>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>

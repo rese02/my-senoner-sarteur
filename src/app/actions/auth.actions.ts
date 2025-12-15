@@ -1,3 +1,4 @@
+
 'use server';
 
 import { cookies } from 'next/headers';
@@ -206,12 +207,30 @@ export async function deleteUserAccount() {
     return redirect('/login');
   }
 
+  const userId = session.userId;
+
   try {
-    // Zuerst das DB-Dokument löschen, dann den Auth-User
-    await adminDb.collection('users').doc(session.userId).delete();
-    await adminAuth.deleteUser(session.userId);
+    const batch = adminDb.batch();
+
+    // 1. Alle Bestellungen des Nutzers zum Löschen finden und zum Batch hinzufügen
+    const ordersQuery = adminDb.collection('orders').where('userId', '==', userId);
+    const ordersSnapshot = await ordersQuery.get();
+    ordersSnapshot.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+
+    // 2. Das Benutzerdokument zum Löschen zum Batch hinzufügen
+    const userRef = adminDb.collection('users').doc(userId);
+    batch.delete(userRef);
+    
+    // 3. Den Batch ausführen, um alle DB-Einträge zu löschen
+    await batch.commit();
+
+    // 4. Den Auth-User löschen, nachdem die DB-Einträge entfernt wurden
+    await adminAuth.deleteUser(userId);
+    
   } catch (error) {
-    console.error(`Failed to delete user ${session.userId}:`, error);
+    console.error(`Failed to completely delete user ${userId}:`, error);
     // Selbst wenn ein Fehler auftritt, versuchen wir auszuloggen
   }
 
