@@ -13,6 +13,7 @@ import {
   Sparkles,
   Settings,
   LogOut,
+  ListTodo,
 } from 'lucide-react';
 import { logout } from '@/app/actions/auth.actions';
 import { Separator } from '@/components/ui/separator';
@@ -26,6 +27,7 @@ const navItems = [
   { href: '/admin/customers', label: 'Kunden', icon: Users },
   { href: '/admin/marketing', label: 'Marketing', icon: Megaphone },
   { href: '/admin/sommelier', label: 'AI Sommelier', icon: Sparkles },
+  { href: '/admin/picker', label: 'Picker', icon: ListTodo },
 ];
 
 const secondaryNavItems = [

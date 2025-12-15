@@ -1,8 +1,9 @@
+
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, ShoppingCart, Package, Users, Megaphone, Sparkles } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Users, Megaphone, Sparkles, ListTodo } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // Unified nav items with AdminSidebar
@@ -13,13 +14,14 @@ const navItems = [
   { href: '/admin/customers', icon: Users, label: 'Kunden' },
   { href: '/admin/marketing', icon: Megaphone, label: 'Marketing' },
   { href: '/admin/sommelier', icon: Sparkles, label: 'Sommelier' },
+  { href: '/admin/picker', icon: ListTodo, label: 'Picker' },
 ];
 
 export function AdminMobileNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t border-border flex justify-around items-center md:hidden z-30">
+    <nav className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t border-border grid grid-cols-7 items-center md:hidden z-30">
       {navItems.map((item) => {
         const isActive = pathname.startsWith(item.href) && (item.href !== '/admin/dashboard' || pathname === '/admin/dashboard');
         return (
@@ -27,7 +29,7 @@ export function AdminMobileNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              'flex flex-col items-center gap-1 p-2 rounded-md transition-colors w-1/5 relative',
+              'flex flex-col items-center gap-1 p-2 rounded-md transition-colors w-full relative',
               isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'
             )}
           >
