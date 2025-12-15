@@ -202,7 +202,7 @@ export default function AdminDashboardPage() {
                 )}
                 </CardContent>
                 {recentAndUpcomingOrders.length > 0 && (
-                    <CardFooter>
+                    <CardFooter className="justify-center">
                         <Button asChild variant="outline" size="sm" className="w-full">
                             <Link href="/admin/orders">Alle {recentAndUpcomingOrders.length} offenen Bestellungen anzeigen</Link>
                         </Button>
@@ -304,5 +304,7 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+
+    
 
     

@@ -1,6 +1,6 @@
 
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
@@ -216,7 +216,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteCategory(category.id)} disabled={isPending}>Löschen</AlertDialogAction>
+                              <AlertDialogAction onClick={() => handleDeleteCategory(category.id)} disabled={isPending} className="bg-destructive hover:bg-destructive/90">Löschen</AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
@@ -230,56 +230,56 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                             <Image src={product.imageUrl || fallbackImageUrl} alt={product.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={product.imageHint} />
                               {product.type === 'package' && <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground border-none" variant="secondary">PAKET</Badge>}
                           </div>
-                          <CardContent className="p-4 flex flex-col flex-1">
+                          <CardContent className="p-4 flex flex-col flex-grow">
                               <h3 className="font-semibold text-base leading-tight flex-grow">{product.name}</h3>
                               <div className="flex items-baseline justify-between mt-1">
                                   <p className="text-lg font-bold text-primary">€{(product.price || 0).toFixed(2)}</p>
                                   <span className="text-xs text-muted-foreground">/ {product.unit}</span>
                               </div>
-                              <div className="mt-auto pt-4 flex items-center justify-between gap-4 border-t mt-4">
-                                  <div className="flex items-center space-x-2">
-                                      <Switch 
-                                          id={`availability-${product.id}`} 
-                                          checked={product.isAvailable} 
-                                          onCheckedChange={() => handleAvailabilityToggle(product.id, product.isAvailable)}
-                                          disabled={isPending}
-                                      />
-                                      <Label htmlFor={`availability-${product.id}`} className="text-xs text-muted-foreground">
-                                          {product.isAvailable ? "Aktiv" : "Inaktiv"}
-                                      </Label>
-                                  </div>
-                                   <DropdownMenu>
-                                      <DropdownMenuTrigger asChild>
-                                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                                              <MoreVertical className="h-4 w-4" />
-                                          </Button>
-                                      </DropdownMenuTrigger>
-                                      <DropdownMenuContent align="end">
-                                          <DropdownMenuItem onClick={() => handleOpenProductModal(product, category.id)}>
-                                              <Edit className="mr-2 h-4 w-4" /> Bearbeiten
-                                          </DropdownMenuItem>
-                                          <DropdownMenuSeparator />
-                                          <AlertDialog>
-                                              <AlertDialogTrigger asChild>
-                                                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10">
-                                                      <Trash2 className="mr-2 h-4 w-4" /> Löschen
-                                                  </DropdownMenuItem>
-                                              </AlertDialogTrigger>
-                                              <AlertDialogContent>
-                                                  <AlertDialogHeader>
-                                                      <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
-                                                      <AlertDialogDescription>Möchten Sie '{product.name}' wirklich löschen?</AlertDialogDescription>
-                                                  </AlertDialogHeader>
-                                                  <AlertDialogFooter>
-                                                      <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                                      <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>Löschen</AlertDialogAction>
-                                                  </AlertDialogFooter>
-                                              </AlertDialogContent>
-                                          </AlertDialog>
-                                      </DropdownMenuContent>
-                                  </DropdownMenu>
-                              </div>
-                          </CardContent>
+                            </CardContent>
+                            <CardFooter className="pt-0 p-4 flex items-center justify-between gap-4">
+                                <div className="flex items-center space-x-2">
+                                    <Switch 
+                                        id={`availability-${product.id}`} 
+                                        checked={product.isAvailable} 
+                                        onCheckedChange={() => handleAvailabilityToggle(product.id, product.isAvailable)}
+                                        disabled={isPending}
+                                    />
+                                    <Label htmlFor={`availability-${product.id}`} className="text-xs text-muted-foreground">
+                                        {product.isAvailable ? "Aktiv" : "Inaktiv"}
+                                    </Label>
+                                </div>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                                          <MoreVertical className="h-4 w-4" />
+                                      </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                      <DropdownMenuItem onClick={() => handleOpenProductModal(product, category.id)}>
+                                          <Edit className="mr-2 h-4 w-4" /> Bearbeiten
+                                      </DropdownMenuItem>
+                                      <DropdownMenuSeparator />
+                                      <AlertDialog>
+                                          <AlertDialogTrigger asChild>
+                                              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10">
+                                                  <Trash2 className="mr-2 h-4 w-4" /> Löschen
+                                              </DropdownMenuItem>
+                                          </AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                              <AlertDialogHeader>
+                                                  <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
+                                                  <AlertDialogDescription>Möchten Sie '{product.name}' wirklich löschen?</AlertDialogDescription>
+                                              </AlertDialogHeader>
+                                              <AlertDialogFooter>
+                                                  <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                                  <AlertDialogAction onClick={() => handleDeleteProduct(product.id)} className="bg-destructive hover:bg-destructive/90">Löschen</AlertDialogAction>
+                                              </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                      </AlertDialog>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                            </CardFooter>
                         </Card>
                       ))}
                     </div>
@@ -455,3 +455,5 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
     </>
   );
 }
+
+    

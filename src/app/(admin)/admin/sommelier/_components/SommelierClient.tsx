@@ -145,14 +145,14 @@ export function SommelierClient({ initialWines }: { initialWines: Product[] }) {
           <Card>
               <CardHeader>
                   <CardTitle>Gefahrenzone</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
+                  <CardDescription>
                   Möchten Sie die Liste komplett neu aufbauen? Hiermit werden alle Weine unwiderruflich aus dem Sommelier-System gelöscht.
-                  </p>
+                  </CardDescription>
+              </CardHeader>
+              <CardContent>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="outline" disabled={isPending} className="w-full border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive">
+                      <Button variant="outline" disabled={isPending} className="w-full">
                           <Trash2 className="mr-2 w-4 h-4" />
                           Alle Weine löschen
                       </Button>
@@ -269,3 +269,5 @@ export function SommelierClient({ initialWines }: { initialWines: Product[] }) {
     </>
   );
 }
+
+    

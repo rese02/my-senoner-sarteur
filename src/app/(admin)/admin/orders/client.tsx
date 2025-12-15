@@ -218,7 +218,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                 </Select>
                  {!isSelectionMode ? (
                      <Button variant="outline" onClick={() => setIsSelectionMode(true)}>
-                         <ListChecks className="mr-2 h-4 w-4" /> Verwalten
+                         <ListChecks className="mr-2 h-4 w-4" /> Mehrfachauswahl
                     </Button>
                 ) : (
                     <div className="flex gap-2">
@@ -239,7 +239,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                     <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                    <AlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting}>Ja, löschen</AlertDialogAction>
+                                    <AlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting} className="bg-destructive hover:bg-destructive/90">Ja, löschen</AlertDialogAction>
                                 </AlertDialogFooter>
                             </AlertDialogContent>
                         </AlertDialog>
@@ -305,7 +305,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                     <TableCell className="font-medium">{order.customerName}</TableCell>
                     <TableCell className="text-muted-foreground text-xs">
                         {itemCount} Artikel
-                        {order.total ? <span className="font-semibold text-foreground"> • €{order.total.toFixed(2)}</span> : ''}
+                        {order.total && order.total > 0 ? <span className="font-semibold text-foreground"> • €{order.total.toFixed(2)}</span> : ''}
                     </TableCell>
                     <TableCell>{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEE, dd.MM.", { locale: de })}</TableCell>
                     <TableCell>
@@ -459,3 +459,5 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
     </>
   );
 }
+
+    

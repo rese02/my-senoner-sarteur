@@ -285,23 +285,26 @@ export function CustomersClient({ initialCustomers, initialOrders, initialProduc
             <Card>
                 <CardHeader>
                     <CardTitle>Newsletter-Editor</CardTitle>
+                    <CardDescription>Erstellen Sie eine Nachricht und senden Sie sie an die ausgewählte Kundengruppe.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <Input placeholder="Betreff des Newsletters" value={subject} onChange={e => setSubject(e.target.value)} />
                     <Textarea placeholder="Schreiben Sie hier Ihre Newsletter-Nachricht..." className="min-h-[160px]" value={message} onChange={e => setMessage(e.target.value)} />
-                     <p className="text-xs text-muted-foreground flex items-start gap-2">Ihre Nachricht wird von einem KI-Dienst zur Verbesserung verarbeitet. Bitte geben Sie keine sensiblen Daten ein.</p>
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
-                        <Button variant="outline" onClick={handleImproveText} disabled={isImproving} className="w-full sm:w-auto" size="sm">
+                     <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t">
+                        <Button variant="outline" onClick={handleImproveText} disabled={isImproving} className="w-full sm:w-auto">
                             {isImproving ? <RotateCw className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
                             Mit KI verbessern
                         </Button>
-                        <Button onClick={handleSendNewsletter} disabled={selectedCustomers.length === 0 || isSending} className="w-full sm:w-auto" size="sm">
+                        <Button onClick={handleSendNewsletter} disabled={selectedCustomers.length === 0 || isSending} className="w-full sm:w-auto">
                             {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                             Senden an {selectedCustomers.length} Kunde(n)
                         </Button>
                     </div>
+                    <p className="text-xs text-muted-foreground pt-2">Ihre Nachricht wird von einem KI-Dienst zur Verbesserung verarbeitet. Bitte geben Sie keine sensiblen Daten ein.</p>
                 </CardContent>
             </Card>
       </div>
   );
 }
+
+    
