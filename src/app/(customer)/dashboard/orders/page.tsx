@@ -17,16 +17,17 @@ import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 
-const statusMap: Record<OrderStatus, { label: string; className: string; icon: React.ElementType, colorClass: string }> = {
-    new: { label: 'In Bearbeitung', className: 'bg-status-new-bg text-status-new-fg', icon: Info, colorClass: 'border-status-new-fg' },
-    picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800', icon: ShoppingBag, colorClass: 'border-yellow-500' },
-    ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg', icon: CheckCircle, colorClass: 'border-status-ready-fg' },
-    ready_for_delivery: { label: 'Auf dem Weg', className: 'bg-status-ready-bg text-status-ready-fg', icon: Truck, colorClass: 'border-status-ready-fg' },
-    delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg', icon: CheckCircle, colorClass: 'border-status-collected-fg' },
-    collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg', icon: CheckCircle, colorClass: 'border-status-collected-fg' },
-    paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700', icon: CheckCircle, colorClass: 'border-green-500' },
-    cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg', icon: XCircle, colorClass: 'border-status-cancelled-fg' }
+const statusMap: Record<OrderStatus, { label: string; className: string; icon: React.ElementType }> = {
+    new: { label: 'In Bearbeitung', className: 'bg-status-new-bg text-status-new-fg', icon: Info },
+    picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800', icon: ShoppingBag },
+    ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg', icon: CheckCircle },
+    ready_for_delivery: { label: 'Auf dem Weg', className: 'bg-status-ready-bg text-status-ready-fg', icon: Truck },
+    delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg', icon: CheckCircle },
+    collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg', icon: CheckCircle },
+    paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700', icon: CheckCircle },
+    cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg', icon: XCircle }
 };
+
 
 function OrderHistoryCard({ order, onDelete }: { order: Order; onDelete: (orderId: string) => void }) {
     const [isDeleting, startDeleteTransition] = useTransition();
@@ -35,7 +36,7 @@ function OrderHistoryCard({ order, onDelete }: { order: Order; onDelete: (orderI
     const isGroceryList = order.type === 'grocery_list';
     const relevantDate = order.pickupDate || order.deliveryDate || order.createdAt;
     const StatusIcon = statusMap[order.status]?.icon || Info;
-    const statusColor = statusMap[order.status]?.colorClass || 'border-primary';
+    const statusBgClass = statusMap[order.status]?.className.split(' ')[0] || 'bg-secondary'; // e.g. "bg-status-new-bg"
 
     const deletableStatuses = ['collected', 'delivered', 'paid', 'cancelled'];
     const isDeletable = deletableStatuses.includes(order.status);
@@ -54,14 +55,14 @@ function OrderHistoryCard({ order, onDelete }: { order: Order; onDelete: (orderI
     };
 
     return (
-        <Card className={cn("overflow-hidden shadow-lg border-l-4", statusColor)}>
-            <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-4 p-4 relative">
+        <Card className="overflow-hidden shadow-lg">
+            <CardHeader className={cn("flex flex-row items-start sm:items-center justify-between gap-4 p-4 relative", statusBgClass)}>
                 <div>
                     <CardTitle className="text-base font-bold flex items-center gap-2">
-                        {isGroceryList ? <FileText className="w-4 h-4 text-orange-500" /> : <Package className="w-4 h-4 text-primary" />}
-                        {isGroceryList ? 'Concierge Bestellung' : 'Vorbestellung'}
+                        {isGroceryList ? <FileText className="w-4 h-4 text-orange-600" /> : <Package className="w-4 h-4 text-primary" />}
+                        <span className="text-card-foreground">{isGroceryList ? 'Concierge Bestellung' : 'Vorbestellung'}</span>
                     </CardTitle>
-                    <CardDescription className="text-xs">
+                    <CardDescription className="text-xs text-muted-foreground">
                         #{order.id.slice(-6)} - {format(parseISO(order.createdAt), "dd.MM.yyyy, HH:mm")}
                     </CardDescription>
                 </div>
@@ -94,7 +95,7 @@ function OrderHistoryCard({ order, onDelete }: { order: Order; onDelete: (orderI
                     </AlertDialog>
                 )}
             </CardHeader>
-            <CardContent className="space-y-4 pt-0 p-4">
+            <CardContent className="space-y-4 pt-4 p-4">
                 <div className="flex items-center justify-between text-sm bg-secondary p-3 rounded-md">
                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="w-4 h-4"/>
