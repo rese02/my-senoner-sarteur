@@ -2,21 +2,20 @@
 'use client';
 
 import { useState, useTransition, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ImageUploader } from "@/components/custom/ImageUploader";
 import type { PlannerEvent, Product, PlannerIngredientRule } from "@/lib/types";
 import { savePlannerEvent, deletePlannerEvent } from "@/app/actions/marketing.actions";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, PlusCircle, Trash2, Edit, Plus } from "lucide-react";
+import { Loader2, Trash2, Edit, Plus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet";
 
-function PlannerEventForm({ event: initialEvent, onSave, isPending, availableProducts }: { event: Partial<PlannerEvent> | null, onSave: (event: Partial<PlannerEvent>) => void, isPending: boolean, availableProducts: Product[] }) {
+function PlannerEventForm({ event: initialEvent, onSave, isPending, availableProducts, onCancel }: { event: Partial<PlannerEvent> | null, onSave: (event: Partial<PlannerEvent>) => void, isPending: boolean, availableProducts: Product[], onCancel: () => void }) {
     const [event, setEvent] = useState(initialEvent);
     
     useEffect(() => {
@@ -66,8 +65,8 @@ function PlannerEventForm({ event: initialEvent, onSave, isPending, availablePro
     };
 
     return (
-        <form onSubmit={handleFormSubmit}>
-            <ScrollArea className="max-h-[70vh]">
+        <form onSubmit={handleFormSubmit} className="flex flex-col h-full">
+            <ScrollArea className="flex-1">
                 <div className="grid gap-4 p-6">
                     <div className="space-y-1.5">
                         <Label htmlFor="title">Event Name</Label>
@@ -126,18 +125,18 @@ function PlannerEventForm({ event: initialEvent, onSave, isPending, availablePro
                     </div>
                 </div>
             </ScrollArea>
-            <DialogFooter className="p-6 pt-4 sticky bottom-0 bg-card border-t">
-                <DialogClose asChild><Button type="button" variant="outline">Abbrechen</Button></DialogClose>
+            <SheetFooter className="p-6 pt-4 mt-auto sticky bottom-0 bg-card border-t">
+                <SheetClose asChild><Button type="button" variant="outline" onClick={onCancel}>Abbrechen</Button></SheetClose>
                 <Button type="submit" disabled={isPending}>
                     {isPending && <Loader2 className="mr-2 animate-spin h-4 w-4" />}
                     Speichern
                 </Button>
-            </DialogFooter>
+            </SheetFooter>
         </form>
     );
 }
 
-export function PlannerManager({ initialPlannerEvents, availableProducts }: { initialPlannerEvents: PlannerEvent[], availableProducts: Product[] }) {
+export function PlannerManager({ initialPlannerEvents, availableProducts, onUpdate }: { initialPlannerEvents: PlannerEvent[], availableProducts: Product[], onUpdate: (events: PlannerEvent[]) => void }) {
     const [plannerEvents, setPlannerEvents] = useState<PlannerEvent[]>(initialPlannerEvents);
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
@@ -145,7 +144,10 @@ export function PlannerManager({ initialPlannerEvents, availableProducts }: { in
     const [isPlannerModalOpen, setIsPlannerModalOpen] = useState(false);
     const [editingPlannerEvent, setEditingPlannerEvent] = useState<Partial<PlannerEvent> | null>(null);
 
-    useEffect(() => setPlannerEvents(initialPlannerEvents), [initialPlannerEvents]);
+    useEffect(() => {
+        setPlannerEvents(initialPlannerEvents);
+        onUpdate(initialPlannerEvents);
+    }, [initialPlannerEvents, onUpdate]);
     
     const handleOpenPlannerModal = (event: PlannerEvent | null) => {
         setEditingPlannerEvent(event ? { ...event } : { id: `plan-${Date.now()}`, title: '', description: '', imageUrl: '', imageHint: '', ingredients: [] });
@@ -156,11 +158,14 @@ export function PlannerManager({ initialPlannerEvents, availableProducts }: { in
         startTransition(async () => {
             try {
                 const savedEvent = await savePlannerEvent(eventData);
+                let updatedEvents;
                  if (plannerEvents.some(e => e.id === savedEvent.id)) {
-                    setPlannerEvents(plannerEvents.map(e => e.id === savedEvent.id ? savedEvent : e));
+                    updatedEvents = plannerEvents.map(e => e.id === savedEvent.id ? savedEvent : e);
                 } else {
-                    setPlannerEvents([...plannerEvents, savedEvent]);
+                    updatedEvents = [...plannerEvents, savedEvent];
                 }
+                setPlannerEvents(updatedEvents);
+                onUpdate(updatedEvents);
                 toast({ title: "Planer Event gespeichert!" });
                 setIsPlannerModalOpen(false);
                 setEditingPlannerEvent(null);
@@ -174,7 +179,9 @@ export function PlannerManager({ initialPlannerEvents, availableProducts }: { in
         startTransition(async () => {
              try {
                 await deletePlannerEvent(eventId);
-                setPlannerEvents(plannerEvents.filter(e => e.id !== eventId));
+                const updatedEvents = plannerEvents.filter(e => e.id !== eventId);
+                setPlannerEvents(updatedEvents);
+                onUpdate(updatedEvents);
                 toast({ title: "Planer Event gelöscht." });
             } catch (error) {
                 toast({ variant: 'destructive', title: 'Fehler', description: 'Event konnte nicht gelöscht werden.'});
@@ -184,62 +191,54 @@ export function PlannerManager({ initialPlannerEvents, availableProducts }: { in
 
     return (
         <>
-            <Card>
-                <CardHeader className="flex flex-row justify-between items-start">
-                    <div>
-                        <CardTitle>Party Planer Events</CardTitle>
-                        <CardDescription>
-                        Erstellen Sie Vorlagen für den Party-Planer.
-                    </CardDescription>
-                    </div>
-                    <Button onClick={() => handleOpenPlannerModal(null)} size="sm"><PlusCircle className="mr-2 h-4 w-4" />Neu</Button>
-                </CardHeader>
-                <CardContent className="grid sm:grid-cols-2 gap-3">
-                    {plannerEvents.map(event => (
-                        <div key={event.id} className="group relative border rounded-xl p-3 pr-10">
-                            <p className="font-bold text-sm">{event.title}</p>
-                            <p className="text-xs text-muted-foreground">{event.ingredients.length} Zutaten-Regeln</p>
-                            <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button variant="secondary" size="icon" className="h-7 w-7" onClick={() => handleOpenPlannerModal(event)}>
-                                    <Edit className="h-4 w-4" />
-                                </Button>
-                                    <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="destructive" size="icon" className="h-7 w-7">
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
-                                            <AlertDialogDescription>Möchten Sie das Event '{event.title}' wirklich löschen?</AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => handleDeletePlannerEvent(event.id)} disabled={isPending}>Löschen</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </div>
+            <div className="flex-1 overflow-y-auto px-6 pb-6 space-y-3">
+                {plannerEvents.map(event => (
+                    <div key={event.id} className="group relative border rounded-xl p-3 pr-10">
+                        <p className="font-bold text-sm">{event.title}</p>
+                        <p className="text-xs text-muted-foreground">{event.ingredients.length} Zutaten-Regeln</p>
+                        <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button variant="secondary" size="icon" className="h-7 w-7" onClick={() => handleOpenPlannerModal(event)}>
+                                <Edit className="h-4 w-4" />
+                            </Button>
+                                <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" size="icon" className="h-7 w-7">
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
+                                        <AlertDialogDescription>Möchten Sie das Event '{event.title}' wirklich löschen?</AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeletePlannerEvent(event.id)} disabled={isPending}>Löschen</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </div>
-                    ))}
-                    {plannerEvents.length === 0 && (
-                         <p className="text-muted-foreground text-sm col-span-full text-center py-8">Keine Events erstellt.</p>
-                    )}
-                </CardContent>
-            </Card>
+                    </div>
+                ))}
+                {plannerEvents.length === 0 && (
+                     <p className="text-muted-foreground text-sm col-span-full text-center py-8">Keine Events erstellt.</p>
+                )}
+            </div>
+            <div className="p-6 border-t mt-auto sticky bottom-0 bg-card">
+                 <Button onClick={() => handleOpenPlannerModal(null)} className="w-full">Neues Event</Button>
+            </div>
 
-            <Dialog open={isPlannerModalOpen} onOpenChange={setIsPlannerModalOpen}>
-                <DialogContent className="sm:max-w-lg p-0">
-                    <DialogHeader className="p-6 pb-0">
-                        <DialogTitle>{editingPlannerEvent?.id?.startsWith('plan-') ? 'Neues Planer Event erstellen' : 'Planer Event bearbeiten'}</DialogTitle>
-                        <DialogDescription>
+            <Sheet open={isPlannerModalOpen} onOpenChange={setIsPlannerModalOpen}>
+                <SheetContent className="sm:max-w-lg p-0">
+                    <SheetHeader className="p-6 pb-0">
+                        <SheetTitle>{editingPlannerEvent?.id?.startsWith('plan-') ? 'Neues Planer Event erstellen' : 'Planer Event bearbeiten'}</SheetTitle>
+                        <SheetDescription>
                             Definieren Sie hier die Regeln für den Mengenrechner.
-                        </DialogDescription>
-                    </DialogHeader>
-                    {isPlannerModalOpen && <PlannerEventForm event={editingPlannerEvent} onSave={handleSavePlannerEvent} isPending={isPending} availableProducts={availableProducts} />}
-                </DialogContent>
-            </Dialog>
+                        </SheetDescription>
+                    </SheetHeader>
+                    {isPlannerModalOpen && <PlannerEventForm event={editingPlannerEvent} onSave={handleSavePlannerEvent} isPending={isPending} availableProducts={availableProducts} onCancel={() => setIsPlannerModalOpen(false)} />}
+                </SheetContent>
+            </Sheet>
         </>
     );
 }

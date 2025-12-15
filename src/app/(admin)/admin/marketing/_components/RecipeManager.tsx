@@ -1,7 +1,7 @@
+
 'use client';
 
 import { useState, useTransition } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +12,7 @@ import { saveRecipeOfTheWeek } from "@/app/actions/marketing.actions";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
-export function RecipeManager({ initialRecipe }: { initialRecipe: Recipe }) {
+export function RecipeManager({ initialRecipe, onUpdate }: { initialRecipe: Recipe, onUpdate: (recipe: Recipe) => void }) {
     const [recipe, setRecipe] = useState<Recipe>(initialRecipe);
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
@@ -34,6 +34,7 @@ export function RecipeManager({ initialRecipe }: { initialRecipe: Recipe }) {
         startTransition(async () => {
             try {
                 await saveRecipeOfTheWeek(recipe);
+                onUpdate(recipe);
                 toast({
                     title: "Wochen-Special veröffentlicht!",
                     description: "Das neue Rezept der Woche ist jetzt für Kunden sichtbar.",
@@ -49,14 +50,8 @@ export function RecipeManager({ initialRecipe }: { initialRecipe: Recipe }) {
     };
     
   return (
-    <Card>
-        <CardHeader>
-            <CardTitle>Rezept der Woche</CardTitle>
-            <CardDescription>
-                Änderungen sind nach dem Veröffentlichen sofort sichtbar.
-            </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4">
+    <div className="flex flex-col h-full">
+        <div className="flex-1 overflow-y-auto px-6 pb-6 space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                     <Label htmlFor="title">Titel</Label>
@@ -91,13 +86,14 @@ export function RecipeManager({ initialRecipe }: { initialRecipe: Recipe }) {
                 <Label htmlFor="instructions">Anleitung</Label>
                 <Textarea id="instructions" name="instructions" value={recipe.instructions} onChange={handleInputChange} placeholder="1. Pilze putzen...\n2. Zwiebeln anbraten..." className="min-h-32" />
             </div>
-        </CardContent>
-        <CardFooter>
-            <Button onClick={handlePublishRecipe} disabled={isPending}>
+        </div>
+        <div className="p-6 border-t bg-card mt-auto sticky bottom-0">
+            <Button onClick={handlePublishRecipe} disabled={isPending} className="w-full">
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Jetzt veröffentlichen
             </Button>
-        </CardFooter>
-    </Card>
+        </div>
+    </div>
   );
 }
+

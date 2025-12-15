@@ -1,16 +1,16 @@
 
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Recipe, Story, PlannerEvent, Product, WheelOfFortuneSettings } from "@/lib/types";
 import { RecipeManager } from "./_components/RecipeManager";
 import { StoriesManager } from "./_components/StoriesManager";
 import { PlannerManager } from "./_components/PlannerManager";
 import { WheelOfFortuneManager } from "./_components/WheelOfFortuneManager";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { CookingPot, Camera, PartyPopper, FerrisWheel } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose } from "@/components/ui/sheet";
+import { CookingPot, Camera, PartyPopper, FerrisWheel, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DeveloperWheelPreview } from "./_components/DeveloperWheelPreview";
 
@@ -22,45 +22,50 @@ interface MarketingClientProps {
     initialWheelSettings: WheelOfFortuneSettings;
 }
 
-type ModalType = 'recipe' | 'stories' | 'planner' | 'wheel' | null;
+type SheetType = 'recipe' | 'stories' | 'planner' | 'wheel' | null;
 
 export function MarketingClient({ initialStories, initialPlannerEvents, availableProducts, initialRecipe, initialWheelSettings }: MarketingClientProps) {
-    const [openModal, setOpenModal] = useState<ModalType>(null);
+    const [openSheet, setOpenSheet] = useState<SheetType>(null);
+    
+    // We pass the settings down to the preview and the manager
     const [wheelSettings, setWheelSettings] = useState(initialWheelSettings);
+    const [recipe, setRecipe] = useState(initialRecipe);
+    const [stories, setStories] = useState(initialStories);
+    const [plannerEvents, setPlannerEvents] = useState(initialPlannerEvents);
 
 
     const sections = [
         { 
-            id: 'recipe' as ModalType, 
+            id: 'recipe' as SheetType, 
             title: "Rezept der Woche", 
             description: "Verwalten Sie das Rezept, das auf dem Dashboard erscheint.", 
             icon: CookingPot,
-            component: <RecipeManager initialRecipe={initialRecipe} />
+            component: <RecipeManager initialRecipe={recipe} onUpdate={setRecipe} />
         },
         { 
-            id: 'stories' as ModalType, 
+            id: 'stories' as SheetType, 
             title: "Daily Stories", 
             description: "Verwalten Sie kurzlebige Bilder-Stories für Kunden.", 
             icon: Camera,
-            component: <StoriesManager initialStories={initialStories} />
+            component: <StoriesManager initialStories={stories} onUpdate={setStories} />
         },
         { 
-            id: 'planner' as ModalType, 
+            id: 'planner' as SheetType, 
             title: "Party Planer", 
             description: "Konfigurieren Sie Event-Vorlagen und Zutaten.", 
             icon: PartyPopper,
-            component: <PlannerManager initialPlannerEvents={initialPlannerEvents} availableProducts={availableProducts} />
+            component: <PlannerManager initialPlannerEvents={plannerEvents} availableProducts={availableProducts} onUpdate={setPlannerEvents} />
         },
         { 
-            id: 'wheel' as ModalType, 
+            id: 'wheel' as SheetType, 
             title: "Glücksrad", 
             description: "Passen Sie die Gewinne und Regeln für das Glücksrad an.", 
             icon: FerrisWheel,
-            component: <WheelOfFortuneManager initialSettings={wheelSettings} />
+            component: <WheelOfFortuneManager initialSettings={wheelSettings} onUpdate={setWheelSettings} />
         },
     ];
     
-    const activeSection = sections.find(s => s.id === openModal);
+    const activeSection = sections.find(s => s.id === openSheet);
 
     return (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
@@ -78,7 +83,7 @@ export function MarketingClient({ initialStories, initialPlannerEvents, availabl
                             </div>
                         </CardHeader>
                         <CardContent className="mt-auto">
-                            <Button variant="outline" className="w-full" onClick={() => setOpenModal(section.id)}>
+                            <Button variant="outline" className="w-full" onClick={() => setOpenSheet(section.id)}>
                                 Verwalten
                             </Button>
                         </CardContent>
@@ -91,22 +96,26 @@ export function MarketingClient({ initialStories, initialPlannerEvents, availabl
                 <DeveloperWheelPreview initialSettings={wheelSettings} />
             </div>
 
-            <Dialog open={openModal !== null} onOpenChange={(isOpen) => !isOpen && setOpenModal(null)}>
-                <DialogContent className={cn(
-                    "sm:max-w-4xl p-0", 
-                    openModal === 'planner' && 'sm:max-w-lg',
-                    openModal === 'wheel' && 'sm:max-w-2xl'
+            <Sheet open={openSheet !== null} onOpenChange={(isOpen) => !isOpen && setOpenSheet(null)}>
+                <SheetContent className={cn(
+                    "sm:max-w-2xl w-full p-0 flex flex-col",
+                    (openSheet === 'stories' || openSheet === 'planner') && 'sm:max-w-lg'
                 )}>
                     {activeSection && (
                          <>
-                            <DialogHeader className="p-6 pb-4">
-                                <DialogTitle>{activeSection.title}</DialogTitle>
-                            </DialogHeader>
+                            <SheetHeader className="p-6">
+                                <SheetTitle>{activeSection.title}</SheetTitle>
+                                <SheetDescription>{activeSection.description}</SheetDescription>
+                            </SheetHeader>
                             {activeSection.component}
                         </>
                     )}
-                </DialogContent>
-            </Dialog>
+                     <SheetClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-secondary">
+                        <X className="h-4 w-4" />
+                        <span className="sr-only">Close</span>
+                    </SheetClose>
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }

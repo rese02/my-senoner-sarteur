@@ -1,21 +1,21 @@
+
 'use client';
 
 import { useState, useTransition, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ImageUploader } from "@/components/custom/ImageUploader";
 import type { Story } from "@/lib/types";
 import { saveStory, deleteStory } from "@/app/actions/marketing.actions";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, PlusCircle, Trash2, Edit } from "lucide-react";
+import { Loader2, Trash2, Edit } from "lucide-react";
 import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet";
 
-function StoryForm({ story, onSave, isPending }: { story: Partial<Story> | null, onSave: (story: Partial<Story>) => void, isPending: boolean }) {
+function StoryForm({ story, onSave, isPending, onCancel }: { story: Partial<Story> | null, onSave: (story: Partial<Story>) => void, isPending: boolean, onCancel: () => void }) {
     const [currentStory, setCurrentStory] = useState(story);
     
     useEffect(() => {
@@ -43,8 +43,8 @@ function StoryForm({ story, onSave, isPending }: { story: Partial<Story> | null,
     if (!currentStory) return null;
 
     return (
-        <form onSubmit={handleFormSubmit}>
-            <ScrollArea className="max-h-[70vh]">
+        <form onSubmit={handleFormSubmit} className="flex flex-col h-full">
+            <ScrollArea className="flex-1">
                 <div className="grid gap-4 p-6">
                     <div className="space-y-1.5">
                         <Label>Story Bild</Label>
@@ -68,18 +68,18 @@ function StoryForm({ story, onSave, isPending }: { story: Partial<Story> | null,
                     </div>
                 </div>
             </ScrollArea>
-            <DialogFooter className="p-6 pt-4 sticky bottom-0 bg-card border-t">
-                <DialogClose asChild><Button type="button" variant="outline">Abbrechen</Button></DialogClose>
+            <SheetFooter className="p-6 pt-4 mt-auto border-t sticky bottom-0 bg-card">
+                <SheetClose asChild><Button type="button" variant="outline" onClick={onCancel}>Abbrechen</Button></SheetClose>
                 <Button type="submit" disabled={isPending}>
                     {isPending && <Loader2 className="mr-2 animate-spin h-4 w-4" />}
                     Speichern
                 </Button>
-            </DialogFooter>
+            </SheetFooter>
         </form>
     )
 }
 
-export function StoriesManager({ initialStories }: { initialStories: Story[] }) {
+export function StoriesManager({ initialStories, onUpdate }: { initialStories: Story[], onUpdate: (stories: Story[]) => void }) {
     const [stories, setStories] = useState<Story[]>(initialStories);
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
@@ -87,7 +87,10 @@ export function StoriesManager({ initialStories }: { initialStories: Story[] }) 
     const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
     const [editingStory, setEditingStory] = useState<Partial<Story> | null>(null);
 
-    useEffect(() => setStories(initialStories), [initialStories]);
+    useEffect(() => {
+        setStories(initialStories)
+        onUpdate(initialStories);
+    }, [initialStories, onUpdate]);
 
     const handleOpenStoryModal = (story: Story | null) => {
         setEditingStory(story ? { ...story } : { id: `story-${Date.now()}`, label: '', author: '', imageUrl: '', imageHint: '' });
@@ -98,11 +101,14 @@ export function StoriesManager({ initialStories }: { initialStories: Story[] }) 
         startTransition(async () => {
             try {
                 const savedStory = await saveStory(storyData);
+                let updatedStories;
                 if (stories.some(s => s.id === savedStory.id)) {
-                    setStories(stories.map(s => s.id === savedStory.id ? savedStory : s));
+                    updatedStories = stories.map(s => s.id === savedStory.id ? savedStory : s);
                 } else {
-                    setStories([...stories, savedStory]);
+                    updatedStories = [...stories, savedStory];
                 }
+                setStories(updatedStories);
+                onUpdate(updatedStories);
                 toast({ title: "Story gespeichert!" });
                 setIsStoryModalOpen(false);
                 setEditingStory(null);
@@ -116,7 +122,9 @@ export function StoriesManager({ initialStories }: { initialStories: Story[] }) 
         startTransition(async () => {
             try {
                 await deleteStory(storyId);
-                setStories(stories.filter(s => s.id !== storyId));
+                const updatedStories = stories.filter(s => s.id !== storyId);
+                setStories(updatedStories);
+                onUpdate(updatedStories);
                 toast({ title: "Story gelöscht." });
             } catch (error) {
                 toast({ variant: 'destructive', title: 'Fehler', description: 'Story konnte nicht gelöscht werden.'});
@@ -126,17 +134,8 @@ export function StoriesManager({ initialStories }: { initialStories: Story[] }) 
 
     return (
         <>
-            <Card>
-                <CardHeader className="flex flex-row justify-between items-start">
-                    <div>
-                        <CardTitle>Daily Stories</CardTitle>
-                        <CardDescription>
-                            Verwalten Sie die Stories auf dem Kunden-Dashboard (24h gültig).
-                        </CardDescription>
-                    </div>
-                    <Button onClick={() => handleOpenStoryModal(null)} size="sm"><PlusCircle className="mr-2 h-4 w-4" />Neu</Button>
-                </CardHeader>
-                <CardContent className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="flex-1 overflow-y-auto px-6 pb-6">
+                <div className="grid sm:grid-cols-2 md:grid-cols-2 gap-3">
                     {stories.map(story => (
                         <div key={story.id} className="group relative">
                             <div className="relative aspect-square w-full rounded-lg overflow-hidden shadow-md">
@@ -174,20 +173,23 @@ export function StoriesManager({ initialStories }: { initialStories: Story[] }) 
                     {stories.length === 0 && (
                         <p className="text-muted-foreground text-sm col-span-full text-center py-8">Keine aktiven Stories.</p>
                     )}
-                </CardContent>
-            </Card>
+                </div>
+            </div>
+             <div className="p-6 border-t mt-auto sticky bottom-0 bg-card">
+                 <Button onClick={() => handleOpenStoryModal(null)} className="w-full">Neue Story</Button>
+            </div>
 
-            <Dialog open={isStoryModalOpen} onOpenChange={setIsStoryModalOpen}>
-                <DialogContent className="sm:max-w-md p-0">
-                    <DialogHeader className="p-6 pb-0">
-                        <DialogTitle>{editingStory?.id?.startsWith('story-') ? 'Neue Story erstellen' : 'Story bearbeiten'}</DialogTitle>
-                        <DialogDescription>
+            <Sheet open={isStoryModalOpen} onOpenChange={setIsStoryModalOpen}>
+                <SheetContent className="sm:max-w-md p-0">
+                    <SheetHeader className="p-6 pb-0">
+                        <SheetTitle>{editingStory?.id?.startsWith('story-') ? 'Neue Story erstellen' : 'Story bearbeiten'}</SheetTitle>
+                        <SheetDescription>
                             Fügen Sie ein Bild hinzu und geben Sie einen Titel und Autor an.
-                        </DialogDescription>
-                    </DialogHeader>
-                    {isStoryModalOpen && <StoryForm story={editingStory} onSave={handleSaveStory} isPending={isPending} />}
-                </DialogContent>
-            </Dialog>
+                        </SheetDescription>
+                    </SheetHeader>
+                    {isStoryModalOpen && <StoryForm story={editingStory} onSave={handleSaveStory} isPending={isPending} onCancel={() => setIsStoryModalOpen(false)} />}
+                </SheetContent>
+            </Sheet>
         </>
     );
 }

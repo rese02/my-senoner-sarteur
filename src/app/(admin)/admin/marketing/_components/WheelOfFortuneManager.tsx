@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -14,7 +13,7 @@ import { Loader2, Trash2, Plus, FlaskConical } from 'lucide-react';
 import type { WheelOfFortuneSettings, WheelSegment } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-export function WheelOfFortuneManager({ initialSettings }: { initialSettings: WheelOfFortuneSettings }) {
+export function WheelOfFortuneManager({ initialSettings, onUpdate }: { initialSettings: WheelOfFortuneSettings, onUpdate: (settings: WheelOfFortuneSettings) => void }) {
     const [settings, setSettings] = useState(initialSettings);
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
@@ -23,6 +22,7 @@ export function WheelOfFortuneManager({ initialSettings }: { initialSettings: Wh
         startTransition(async () => {
             try {
                 await saveWheelSettings(settings);
+                onUpdate(settings);
                 toast({ title: 'Glücksrad-Einstellungen gespeichert!' });
             } catch (error: any) {
                 toast({ variant: 'destructive', title: 'Fehler', description: error.message });
@@ -57,14 +57,8 @@ export function WheelOfFortuneManager({ initialSettings }: { initialSettings: Wh
     };
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Glücksrad-Konfiguration</CardTitle>
-                <CardDescription>
-                    Passen Sie das Glücksrad an, das den Kunden auf ihrem Dashboard angezeigt wird.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+        <div className="flex flex-col h-full">
+            <div className="flex-1 overflow-y-auto px-6 pb-6 space-y-6">
                 <div className="flex items-center justify-between p-4 border rounded-xl bg-secondary/50">
                     <Label htmlFor="isActive" className="font-bold text-base">Glücksrad aktivieren</Label>
                     <Switch
@@ -142,13 +136,13 @@ export function WheelOfFortuneManager({ initialSettings }: { initialSettings: Wh
                     </AlertDescription>
                 </Alert>
 
-            </CardContent>
-            <CardFooter>
-                <Button onClick={handleSave} disabled={isPending}>
+            </div>
+            <div className="p-6 border-t mt-auto sticky bottom-0 bg-card">
+                <Button onClick={handleSave} disabled={isPending} className="w-full">
                     {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Einstellungen speichern
                 </Button>
-            </CardFooter>
-        </Card>
+            </div>
+        </div>
     );
 }
