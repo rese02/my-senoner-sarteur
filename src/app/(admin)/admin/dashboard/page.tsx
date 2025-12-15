@@ -2,7 +2,7 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Users, ShoppingCart, Trash2, Loader2, CheckCircle, Euro } from "lucide-react";
+import { Users, ShoppingCart, Trash2, Loader2, CheckCircle, Euro, Package } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { OrdersByDayChart } from "./_components/OrdersByDayChart";
 import AdminDashboardLoading from "./loading";
 import { useRouter } from "next/navigation";
-import { OrderCard } from "@/components/admin/OrderCard";
+import { processOrderStatusUpdates } from "@/app/actions/cron.actions";
 
 
 const statusMap: Record<OrderStatus, {label: string, className: string}> = {
@@ -95,6 +95,10 @@ export default function AdminDashboardPage() {
         async function loadData() {
             setLoading(true);
             try {
+                // Trigger background status update check
+                await processOrderStatusUpdates();
+                
+                // Then fetch the (potentially updated) data
                 const fetchedData = await getDashboardPageData();
                 setData(fetchedData);
             } catch(error: any) {
@@ -124,13 +128,14 @@ export default function AdminDashboardPage() {
             .sort((a, b) => new Date(a.pickupDate || a.createdAt).getTime() - new Date(b.pickupDate || b.createdAt).getTime());
 
     const totalRevenue = data.orders.reduce((sum, order) => sum + (order.total || 0), 0);
+    const totalOrders = data.orders.length;
     const totalCustomers = data.users.length;
         
     const statItems = [
         {
             title: "Gesamtumsatz",
             value: `€${totalRevenue.toFixed(2)}`,
-            description: `aus ${data.orders.length} Bestellungen`,
+            description: `aus ${totalOrders} Bestellungen`,
             icon: Euro,
         },
         {
@@ -168,58 +173,50 @@ export default function AdminDashboardPage() {
 
 
        <div className="grid gap-8 grid-cols-1 lg:grid-cols-5 items-start">
-            <div className="lg:col-span-3 space-y-4">
-                <h2 className="text-xl font-bold font-headline text-foreground">Dringende & Offene Bestellungen</h2>
-                
+            <Card className="flex flex-col lg:col-span-3">
+                <CardHeader>
+                    <CardTitle>Dringende & Offene Bestellungen</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-grow p-0">
                 {recentAndUpcomingOrders.length === 0 ? (
-                    <Card className="text-center text-muted-foreground p-8 h-full flex flex-col justify-center items-center">
+                    <div className="text-center text-muted-foreground p-8 h-full flex flex-col justify-center items-center">
                         <CheckCircle className="w-12 h-12 text-green-400 mb-2"/>
                         <p>Keine aktiven Bestellungen. Sehr gut!</p>
-                    </Card>
+                    </div>
                 ) : (
-                    <>
-                        {/* Mobile View */}
-                        <div className="md:hidden space-y-3">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Kunde</TableHead>
+                                <TableHead>Fälligkeit</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead className="text-right">Gesamt</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
                             {recentAndUpcomingOrders.slice(0, 10).map((order) => (
-                                <OrderCard key={order.id} order={order} onShowDetails={() => handleShowDetails(order)} />
+                                <TableRow key={order.id} onClick={() => handleShowDetails(order)} className="cursor-pointer">
+                                    <TableCell>
+                                        <div className="font-medium">{order.customerName}</div>
+                                        <div className="text-xs text-muted-foreground font-mono">#{order.id.slice(-6)}</div>
+                                    </TableCell>
+                                    <TableCell>{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEE, dd.MM.", { locale: de })}</TableCell>
+                                    <TableCell><Badge className={cn("capitalize font-semibold", statusMap[order.status]?.className)}>{statusMap[order.status]?.label}</Badge></TableCell>
+                                    <TableCell className="text-right font-medium">€{order.total?.toFixed(2) || '-'}</TableCell>
+                                </TableRow>
                             ))}
-                        </div>
-
-                        {/* Desktop View */}
-                        <div className="hidden md:block border rounded-lg overflow-hidden bg-card">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Kunde</TableHead>
-                                        <TableHead>Fälligkeit</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Gesamt</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {recentAndUpcomingOrders.slice(0, 10).map((order) => (
-                                        <TableRow key={order.id} onClick={() => handleShowDetails(order)} className="cursor-pointer">
-                                            <TableCell>
-                                                <div className="font-medium">{order.customerName}</div>
-                                                <div className="text-xs text-muted-foreground font-mono">#{order.id.slice(-6)}</div>
-                                            </TableCell>
-                                            <TableCell>{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEE, dd.MM.", { locale: de })}</TableCell>
-                                            <TableCell><Badge className={cn("capitalize font-semibold", statusMap[order.status]?.className)}>{statusMap[order.status]?.label}</Badge></TableCell>
-                                            <TableCell className="text-right font-medium">€{order.total?.toFixed(2) || '-'}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </div>
-
-                        {recentAndUpcomingOrders.length > 10 && (
-                            <Button asChild variant="outline" size="sm" className="w-full">
-                                <Link href="/admin/orders">Alle {recentAndUpcomingOrders.length} offenen Bestellungen anzeigen</Link>
-                            </Button>
-                        )}
-                    </>
+                        </TableBody>
+                    </Table>
                 )}
-            </div>
+                </CardContent>
+                {recentAndUpcomingOrders.length > 0 && (
+                    <CardFooter>
+                        <Button asChild variant="outline" size="sm" className="w-full">
+                            <Link href="/admin/orders">Alle {recentAndUpcomingOrders.length} offenen Bestellungen anzeigen</Link>
+                        </Button>
+                    </CardFooter>
+                )}
+            </Card>
 
              <div className="lg:col-span-2">
                 <OrdersByDayChart data={data.chartData} loading={loading} />
@@ -258,6 +255,14 @@ export default function AdminDashboardPage() {
                         <div><Badge className={cn("capitalize font-semibold", statusMap[selectedOrder.status]?.className)}>{statusMap[selectedOrder.status]?.label}</Badge></div>
                    </div>
                   
+                  {selectedOrder.type === 'grocery_list' && selectedOrder.deliveryAddress && (
+                    <div className="p-3 bg-secondary rounded-lg border text-sm">
+                        <h4 className="font-semibold mb-2 flex items-center gap-2">Lieferadresse</h4>
+                        <p>{selectedOrder.deliveryAddress.street}</p>
+                        <p>{selectedOrder.deliveryAddress.city}</p>
+                    </div>
+                  )}
+
                   {selectedOrder.type === 'preorder' && selectedOrder.items && (
                       <Table>
                         <TableHeader>
