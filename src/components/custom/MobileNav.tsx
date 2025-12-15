@@ -11,7 +11,7 @@ import { Cart } from '@/app/(customer)/dashboard/_components/Cart';
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Home' },
   { href: '/dashboard/concierge', icon: NotebookPen, label: 'Concierge' },
-  { href: '/dashboard/loyalty', icon: CreditCard, label: 'Fidelity' },
+  { href: '/dashboard/loyalty', icon: CreditCard, label: 'Fidelity', isCentral: true },
   { href: '/dashboard/orders', icon: ShoppingBag, label: 'Bestell.' },
 ];
 
@@ -24,13 +24,30 @@ export function MobileNav() {
       <nav className="grid h-full grid-cols-5 items-center px-1">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
+          if (item.isCentral) {
+            return (
+              <div key={item.href} className="flex justify-center">
+                <Link 
+                  href={item.href}
+                  className={cn(
+                    "relative -mt-6 flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-full shadow-lg transition-all duration-300 p-2 border-4 border-background",
+                    isActive ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-secondary"
+                  )}
+                >
+                  <item.icon className="h-6 w-6" />
+                  <span className="text-[10px] font-bold">{item.label}</span>
+                </Link>
+              </div>
+            )
+          }
+
           return (
             <Link 
               key={item.href} 
               href={item.href} 
               className={cn(
                 'flex h-full flex-col items-center justify-center gap-1 p-1 transition-colors rounded-lg',
-                isActive ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-primary'
+                isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'
               )}
                aria-current={isActive ? 'page' : undefined}
             >

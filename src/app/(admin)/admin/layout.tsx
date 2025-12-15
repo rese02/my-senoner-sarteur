@@ -102,7 +102,7 @@ export default function AdminLayout({
     <div className="flex h-dvh bg-secondary/50 text-foreground">
       <AdminSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-         <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b bg-primary px-4 md:px-6 sticky top-0 z-20">
+         <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b bg-primary text-primary-foreground px-4 md:px-6 sticky top-0 z-20">
              <div className="md:hidden font-bold font-headline text-lg text-primary-foreground">
                  Admin
              </div>

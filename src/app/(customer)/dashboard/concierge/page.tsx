@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition } from 'react';
@@ -57,7 +58,7 @@ export default function ConciergePage() {
                         Schreiben Sie einfach auf, was Sie benötigen. Wir stellen es zusammen und bringen es morgen gegen 11:00 Uhr.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
                     <div className="space-y-1.5">
                         <Label htmlFor="shopping-list">Was darf es sein?</Label>
                         <Textarea 
@@ -70,14 +71,9 @@ export default function ConciergePage() {
                         />
                     </div>
                     <div className="space-y-4">
-                        <h4 className="font-semibold text-sm">Lieferdetails</h4>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                           <Truck className="w-5 h-5 text-primary shrink-0" />
-                           <div>
-                                <p>Wir liefern nur nach <strong>Wolkenstein</strong> und <strong>St. Christina</strong>.</p>
-                                <p>Die Liefergebühr beträgt pauschal <strong>5,00 €</strong>.</p>
-                           </div>
-                        </div>
+                        <h3 className="font-semibold text-sm flex items-center gap-2">
+                           <Truck className="w-5 h-5 text-primary shrink-0" /> Lieferdetails
+                        </h3>
                         <div className="grid md:grid-cols-2 gap-3">
                             <div className="space-y-1.5">
                                 <Label htmlFor="street">Straße & Hausnummer</Label>
@@ -88,7 +84,7 @@ export default function ConciergePage() {
                                 <Input id="city" value={address.city} onChange={e => setAddress(a => ({...a, city: e.target.value}))} disabled={isPending} placeholder="Ihr Ort" />
                             </div>
                         </div>
-                        <p className="text-xs text-muted-foreground">Die Gesamtsumme inkl. Liefergebühr wird Ihrem Kundenkonto zur späteren Bezahlung hinzugefügt.</p>
+                         <p className="text-xs text-muted-foreground">Wir liefern nur nach <strong>Wolkenstein</strong> und <strong>St. Christina</strong>. Die Liefergebühr beträgt pauschal <strong>5,00 €</strong>. Die Gesamtsumme wird Ihrem Kundenkonto zur späteren Bezahlung hinzugefügt.</p>
                     </div>
                 </CardContent>
                 <CardFooter>

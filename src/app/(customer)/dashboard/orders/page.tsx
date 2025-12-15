@@ -1,7 +1,7 @@
 
 'use client';
 
-import { getCustomerOrders, deleteMyOrder, deleteMyOrders } from "@/app/actions/order.actions";
+import { getCustomerOrders, deleteMyOrders } from "@/app/actions/order.actions";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";

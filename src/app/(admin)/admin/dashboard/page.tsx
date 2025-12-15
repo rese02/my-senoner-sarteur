@@ -216,7 +216,7 @@ export default function AdminDashboardPage() {
        </div>
 
        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-md m-4">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader className="p-6 pb-4">
             <DialogTitle>Bestelldetails</DialogTitle>
             <DialogDescription>

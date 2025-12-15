@@ -1,3 +1,4 @@
+
 'use server';
 
 import { PageHeader } from "@/components/common/PageHeader";
@@ -11,6 +12,7 @@ export default async function LoyaltyPage() {
     const user = await getSession();
 
     if (!user) {
+        // This case should be handled by the layout, but as a fallback:
         return <PageHeader title="Nicht angemeldet" description="Bitte melden Sie sich an, um Ihre Treuekarte zu sehen." />;
     }
     
