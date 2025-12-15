@@ -1,3 +1,4 @@
+
 'use server';
 
 import { getSession } from '@/lib/session';
@@ -94,7 +95,7 @@ export async function createConciergeOrder(
         rawList: validatedNotes.data,
         deliveryAddress: validatedAddress.data,
         deliveryDate: deliveryDate.toISOString(),
-        total: 0,
+        total: 5, // Delivery Fee
         status: 'new' as const,
     };
     
@@ -132,8 +133,11 @@ export async function setGroceryOrderTotal(orderId: string, total: number, check
     const validatedTotal = z.number().positive().parse(total);
     const validatedChecklist = z.array(ChecklistItemSchema).parse(checklist);
 
+    // Add delivery fee to final total
+    const finalTotal = validatedTotal + 5;
+
     await adminDb.collection('orders').doc(validatedOrderId).update({
-        total: validatedTotal,
+        total: finalTotal,
         checklist: toPlainObject(validatedChecklist),
         status: 'ready_for_delivery',
         processedBy: session.userId,

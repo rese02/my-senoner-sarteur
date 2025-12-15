@@ -74,7 +74,7 @@ function OrderHistoryCard({ order, onDelete }: { order: Order; onDelete: (orderI
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                              <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={(e) => e.stopPropagation()}>
-                                <Trash2 className="w-4 h-4" />
+                                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4" />}
                             </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
