@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition } from 'react';
@@ -27,35 +28,38 @@ const TEXT_COLORS = [
 
 function Wheel({ segments, rotation, isSpinning }: { segments: {text: string}[], rotation: number, isSpinning: boolean }) {
     const segmentAngle = 360 / segments.length;
+    const gradientColors = segments.map((_, index) => 
+        `${WHEEL_COLORS[index % WHEEL_COLORS.length]} ${index * segmentAngle}deg ${(index + 1) * segmentAngle}deg`
+    ).join(', ');
+
     return (
         <div className="relative w-72 h-72 md:w-80 md:h-80 mx-auto transition-transform duration-[6000ms] ease-out" style={{ transform: `rotate(${rotation}deg)`}}>
-            <div className={cn("absolute inset-0 rounded-full border-8 border-primary shadow-2xl transition-all", isSpinning && "animate-pulse")}>
+            <div 
+                className={cn(
+                    "absolute inset-0 rounded-full border-8 border-primary shadow-2xl transition-all flex items-center justify-center", 
+                    isSpinning && "animate-pulse"
+                )}
+                style={{ background: `conic-gradient(${gradientColors})` }}
+            >
                 {segments.map((segment, index) => (
-                    <div
+                     <div
                         key={index}
-                        className="absolute w-1/2 h-1/2 origin-bottom-right"
+                        className="absolute h-1/2 w-full origin-bottom flex justify-center"
                         style={{
-                            transform: `rotate(${index * segmentAngle}deg)`,
-                            clipPath: `polygon(0 0, 100% 0, 100% 1px, ${Math.tan((segmentAngle/2) * (Math.PI / 180)) * 100}% 100%, 1px 100%)`
+                            transform: `rotate(${index * segmentAngle + segmentAngle / 2}deg)`,
                         }}
                     >
-                        <div
-                            className="absolute inset-0 flex items-center justify-center"
-                            style={{ backgroundColor: WHEEL_COLORS[index % WHEEL_COLORS.length] }}
+                        <span
+                            className="font-bold text-xs -translate-y-12 transform"
+                            style={{ 
+                                color: TEXT_COLORS[index % TEXT_COLORS.length],
+                                transform: `rotate(-90deg) translateY(3.5rem)`,
+                            }}
                         >
-                            <span
-                                className="font-bold text-xs transform -rotate-90 -translate-x-8"
-                                style={{ 
-                                    transform: `rotate(${(segmentAngle/2)-90}deg) translateX(-3.5rem)`,
-                                    color: TEXT_COLORS[index % TEXT_COLORS.length]
-                                }}
-                            >{segment.text}</span>
-                        </div>
+                            {segment.text}
+                        </span>
                     </div>
                 ))}
-            </div>
-             <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2 border-4 border-primary z-10 flex items-center justify-center">
-                <Sparkles className="text-primary w-8 h-8"/>
             </div>
         </div>
     );
@@ -137,7 +141,7 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
                 <DialogContent onInteractOutside={(e) => {
                     // Prevent closing while spinning
                     if (isSpinning) e.preventDefault();
-                }} className="max-w-sm">
+                }} className="max-w-sm m-2">
                     <DialogHeader>
                         <DialogTitle>Viel Glück!</DialogTitle>
                         <DialogDescription>
