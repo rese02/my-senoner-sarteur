@@ -204,12 +204,10 @@ export async function deleteMyOrder(orderId: string) {
   
     const order = orderDoc.data() as Order;
   
-    // SICHERHEITS-CHECK: Gehört die Bestellung dem angemeldeten Benutzer?
     if (order.userId !== session.userId) {
       throw new Error('Nicht autorisiert.');
     }
   
-    // LOGIK-CHECK: Ist die Bestellung in einem löschbaren Zustand?
     const deletableStatuses = ['collected', 'delivered', 'paid', 'cancelled'];
     if (!deletableStatuses.includes(order.status)) {
       throw new Error('Aktive Bestellungen können nicht gelöscht werden.');
@@ -222,4 +220,36 @@ export async function deleteMyOrder(orderId: string) {
     return { success: true };
 }
 
-    
+export async function deleteMyOrders(orderIds: string[]): Promise<{ success: boolean, count: number, error?: string }> {
+    const session = await requireRole(['customer']);
+    const validatedIds = z.array(z.string().min(1)).safeParse(orderIds);
+
+    if (!validatedIds.success || validatedIds.data.length === 0) {
+        return { success: false, count: 0, error: 'Keine gültigen Bestellungen zum Löschen ausgewählt.' };
+    }
+
+    const deletableStatuses = ['collected', 'delivered', 'paid', 'cancelled'];
+    const batch = adminDb.batch();
+    let deletedCount = 0;
+
+    for (const id of validatedIds.data) {
+        const orderRef = adminDb.collection('orders').doc(id);
+        const doc = await orderRef.get();
+
+        if (doc.exists) {
+            const order = doc.data() as Order;
+            // SECURITY CHECKS: Must be own order and must be in a deletable state
+            if (order.userId === session.userId && deletableStatuses.includes(order.status)) {
+                batch.delete(orderRef);
+                deletedCount++;
+            }
+        }
+    }
+
+    if (deletedCount > 0) {
+        await batch.commit();
+        revalidatePath('/dashboard/orders');
+    }
+
+    return { success: true, count: deletedCount };
+}

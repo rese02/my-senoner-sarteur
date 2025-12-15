@@ -38,7 +38,30 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'senoner-sarteur-cart', // Unique and descriptive name
-      storage: createJSONStorage(() => localStorage), // Persist to localStorage
+      storage: createJSONStorage(() => ({
+        getItem: (name) => {
+          try {
+            const str = localStorage.getItem(name);
+            if (!str) {
+              // If the stored value is null or an empty string, return a valid initial state.
+              return JSON.stringify({ state: { items: [] }, version: 0 });
+            }
+            return str;
+          } catch (e) {
+            // If any other error occurs during parsing, fall back to a safe initial state.
+             console.error("Failed to read from localStorage for cart:", e);
+             return JSON.stringify({ state: { items: [] }, version: 0 });
+          }
+        },
+        setItem: (name, value) => {
+          try {
+            localStorage.setItem(name, value);
+          } catch (e) {
+            console.error("Failed to write to localStorage for cart:", e);
+          }
+        },
+        removeItem: (name) => localStorage.removeItem(name),
+      })),
     }
   )
 );
