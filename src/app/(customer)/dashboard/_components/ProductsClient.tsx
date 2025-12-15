@@ -11,6 +11,7 @@ import { RecipeCard } from './RecipeCard';
 import { ProductCard } from '@/components/custom/ProductCard';
 import { PackageCard } from '@/components/custom/PackageCard';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 interface ProductsClientProps {
     products: Product[];
@@ -31,7 +32,9 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {wheelData && <WheelOfFortuneCard settings={wheelData} />}
-                <RecipeCard recipe={recipe} />
+                <div className={cn(!wheelData && "md:col-span-2")}>
+                  <RecipeCard recipe={recipe} />
+                </div>
             </div>
             
             {categories.map(category => {
