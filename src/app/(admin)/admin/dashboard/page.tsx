@@ -127,17 +127,9 @@ export default function AdminDashboardPage() {
             .filter(o => ['new', 'picking', 'ready', 'ready_for_delivery'].includes(o.status))
             .sort((a, b) => new Date(a.pickupDate || a.createdAt).getTime() - new Date(b.pickupDate || b.createdAt).getTime());
 
-    const totalRevenue = data.orders.reduce((sum, order) => sum + (order.total || 0), 0);
-    const totalOrders = data.orders.length;
     const totalCustomers = data.users.length;
         
     const statItems = [
-        {
-            title: "Gesamtumsatz",
-            value: `€${totalRevenue.toFixed(2)}`,
-            description: `aus ${totalOrders} Bestellungen`,
-            icon: Euro,
-        },
         {
             title: "Kunden",
             value: totalCustomers,
@@ -312,3 +304,5 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+
+    
