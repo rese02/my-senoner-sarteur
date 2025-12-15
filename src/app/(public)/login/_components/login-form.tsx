@@ -13,6 +13,7 @@ import * as z from 'zod';
 import { SubmitButton } from '@/components/custom/SubmitButton';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Bitte geben Sie eine gültige E-Mail ein.' }),
@@ -72,11 +73,11 @@ export function LoginForm() {
               <FormLabel className="sr-only">Email</FormLabel>
               <FormControl>
                 <div className="relative">
-                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary-foreground/60" />
-                   <Input placeholder="Email" {...field} className="pl-10 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60" />
+                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                   <Input placeholder="Email" {...field} className="pl-10" />
                 </div>
               </FormControl>
-              <FormMessage className="text-destructive-foreground/80"/>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -88,28 +89,28 @@ export function LoginForm() {
               <FormLabel className="sr-only">Passwort</FormLabel>
               <FormControl>
                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary-foreground/60" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input 
                       type={showPassword ? 'text' : 'password'} 
                       placeholder="Passwort" 
                       {...field} 
-                      className="pl-10 pr-10 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60"
+                      className="pl-10 pr-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-foreground/60 hover:text-primary-foreground"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}
                     >
                       {showPassword ? <EyeOff className="h-5 w-5"/> : <Eye className="h-5 w-5" />}
                     </button>
                  </div>
               </FormControl>
-              <FormMessage className="text-destructive-foreground/80"/>
+              <FormMessage />
             </FormItem>
           )}
         />
-        <SubmitButton variant="secondary" className="w-full" isSubmitting={isSubmitting}>
+        <SubmitButton variant="default" className="w-full" isSubmitting={isSubmitting}>
           {isSubmitting ? 'Anmelden...' : 'Anmelden'}
         </SubmitButton>
       </form>
