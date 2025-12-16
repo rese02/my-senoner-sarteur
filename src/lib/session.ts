@@ -29,6 +29,7 @@ export async function getSession() {
     const plainUserData = userData ? toPlainObject(userData) : {};
 
     return {
+      id: decodedClaims.uid, // KORREKTUR: von userId zu id
       userId: decodedClaims.uid,
       email: decodedClaims.email,
       name: (plainUserData as any)?.name || 'No Name',
