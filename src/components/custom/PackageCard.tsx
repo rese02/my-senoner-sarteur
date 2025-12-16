@@ -61,7 +61,7 @@ export function PackageCard({ product }: { product: Product }) {
                   <h3 className="font-headline text-base text-foreground font-bold leading-tight line-clamp-2">
                     {product.name}
                   </h3>
-                   <p className="text-lg font-bold text-primary mt-1">€{product.price.toFixed(2)}</p>
+                   <p className="text-base font-semibold text-primary mt-1">€{product.price.toFixed(2)}</p>
                   <p className="text-muted-foreground text-xs mt-1 line-clamp-2">
                     {product.description || 'Das Rundum-Sorglos-Paket für Ihren Start.'}
                   </p>
