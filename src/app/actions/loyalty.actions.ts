@@ -83,13 +83,14 @@ export async function redeemPrize(userId: string) {
     if (!doc.exists || !doc.data()?.activePrize) {
         throw new Error("Kunde hat keinen aktiven Gewinn zum Einlösen.");
     }
+    const prize = doc.data()?.activePrize;
     
     await userRef.update({ activePrize: null });
 
     revalidatePath('/dashboard/loyalty');
     revalidatePath('/admin/customers');
 
-    return { success: true, prize: doc.data()?.activePrize };
+    return { success: true, prize: prize };
 }
 
 

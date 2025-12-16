@@ -1,147 +1,148 @@
+
 'use client';
 
-import { useState } from 'react';
-import jsQR from 'jsqr';
-import { addStamp } from '@/app/actions/loyalty.actions';
-import { Card, CardContent } from "@/components/ui/card";
+import { useState, useTransition, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Loader2 } from "lucide-react";
-import Webcam from 'react-webcam';
-import { useRef, useCallback, useEffect } from 'react';
+import { Loader2, QrCode, ListTodo, User, Gift, CheckCircle, XCircle } from "lucide-react";
+import { addStamp, redeemPrize } from '@/app/actions/loyalty.actions';
+import { getScannerPageData } from '@/app/actions/scanner.actions';
+import type { User as UserType } from '@/lib/types';
+import { ActiveScannerView } from './_components/ActiveScannerView';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import Link from 'next/link';
 
-export default function EmployeeScannerPage() {
-    const [scanResult, setScanResult] = useState<string | null>(null);
-    const [manualId, setManualId] = useState("");
-    const [loading, setLoading] = useState(false);
+type ViewState = 'main' | 'scanning' | 'result';
+
+function MainView({ onStartScan }: { onStartScan: () => void }) {
+    return (
+        <div className="space-y-6">
+             <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle>Mitarbeiter-Menü</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 gap-4">
+                    <Button onClick={onStartScan} className="h-20 text-lg" variant="default">
+                        <QrCode className="mr-4 h-8 w-8"/>
+                        Kundenkarte scannen
+                    </Button>
+                     <Button asChild className="h-20 text-lg" variant="secondary">
+                        <Link href="/employee/picker">
+                            <ListTodo className="mr-4 h-8 w-8"/>
+                            Einkaufszettel packen
+                        </Link>
+                    </Button>
+                </CardContent>
+             </Card>
+        </div>
+    );
+}
+
+function ResultView({ user, onReset }: { user: UserType, onReset: () => void }) {
+    const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
-    const webcamRef = useRef<Webcam>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const requestRef = useRef<number>();
 
-    const processUser = (userId: string) => {
-        if (userId) {
-            setScanResult(userId);
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        }
+    const handleAddStamp = () => {
+        startTransition(async () => {
+            try {
+                await addStamp(user.id, 10); // purchaseAmount is currently symbolic
+                toast({ title: "Stempel gutgeschrieben!", description: `Ein Stempel wurde für ${user.name} hinzugefügt.` });
+                onReset();
+            } catch (error: any) {
+                toast({ variant: 'destructive', title: 'Fehler', description: error.message });
+            }
+        });
     };
     
-    const scanQrCode = useCallback(() => {
-        if (!webcamRef.current?.video || !canvasRef.current) return;
-        
-        const video = webcamRef.current.video;
-        if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            const canvas = canvasRef.current;
-            const context = canvas.getContext('2d', { willReadFrequently: true });
-            if (!context) return;
-            
-            canvas.height = video.videoHeight;
-            canvas.width = video.videoWidth;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            
-            const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                inversionAttempts: "dontInvert"
-            });
-            
-            if (code && code.data.startsWith('senoner-user:')) {
-                const userId = code.data.replace('senoner-user:', '');
-                processUser(userId);
-                 cancelAnimationFrame(requestRef.current!);
-            } else {
-                 requestRef.current = requestAnimationFrame(scanQrCode);
+    const handleRedeemPrize = () => {
+        startTransition(async () => {
+             try {
+                const result = await redeemPrize(user.id);
+                toast({ title: "Gewinn eingelöst!", description: `Gewinn "${result.prize}" für ${user.name} eingelöst.` });
+                onReset();
+            } catch (error: any) {
+                toast({ variant: 'destructive', title: 'Fehler', description: error.message });
             }
-        } else {
-             requestRef.current = requestAnimationFrame(scanQrCode);
-        }
-
-    }, []);
-
-    useEffect(() => {
-        if (!scanResult) {
-            requestRef.current = requestAnimationFrame(scanQrCode);
-        }
-        return () => {
-            if (requestRef.current) {
-                 cancelAnimationFrame(requestRef.current);
-            }
-        }
-    }, [scanResult, scanQrCode]);
-
-    const handleGivePoints = async (purchaseAmount: number) => {
-        if (!scanResult) return;
-        setLoading(true);
-        try {
-            await addStamp(scanResult, purchaseAmount);
-            toast({ 
-                title: "Erfolg", 
-                description: `Stempel gutgeschrieben!`,
-                className: "bg-green-600 text-white" 
-            });
-            resetScanner();
-        } catch (e: any) {
-            toast({ variant: "destructive", title: "Fehler", description: e.message || "Kunde nicht gefunden." });
-        } finally {
-            setLoading(false);
-        }
-    };
-    
-    const resetScanner = () => {
-        setScanResult(null);
-        setManualId("");
+        });
     }
 
     return (
-        <div className="space-y-6">
-            {!scanResult ? (
-                <div className="space-y-4">
-                    {/* Kamera Bereich */}
-                    <div className="rounded-xl overflow-hidden border-2 border-primary aspect-square relative bg-black">
-                         <Webcam
-                            audio={false}
-                            ref={webcamRef}
-                            screenshotFormat="image/jpeg"
-                            videoConstraints={{ facingMode: "environment" }}
-                            className="h-full w-full object-cover"
-                         />
-                         <canvas ref={canvasRef} style={{ display: 'none' }} />
-                        <div className="absolute inset-0 border-8 border-white/30 m-8 rounded-lg pointer-events-none" />
-                        <p className="absolute bottom-4 left-0 right-0 text-center text-white font-bold bg-black/50 p-2">QR Code scannen</p>
-                    </div>
-
-                    {/* Manuelle Eingabe als Fallback */}
-                    <div className="flex gap-2">
-                        <Input 
-                            placeholder="Kunden-ID manuell..." 
-                            value={manualId}
-                            onChange={e => setManualId(e.target.value)}
-                        />
-                        <Button onClick={() => processUser(manualId)} disabled={manualId.length < 5}>OK</Button>
-                    </div>
+        <Card className="animate-in fade-in-50">
+            <CardHeader className="items-center text-center">
+                <div className="p-4 bg-green-100 rounded-full mb-2">
+                    <User className="w-8 h-8 text-green-700"/>
                 </div>
-            ) : (
-                // Ansicht NACH dem Scan
-                <Card className="bg-green-50 border-green-200">
-                    <CardContent className="pt-6 text-center space-y-6">
-                        <CheckCircle2 className="w-16 h-16 text-green-600 mx-auto" />
-                        <div>
-                            <h2 className="text-xl font-bold text-green-900">Kunde erkannt!</h2>
-                            <p className="text-sm font-mono text-green-700 mt-1">{scanResult}</p>
-                        </div>
-                        
-                         <div className="space-y-2">
-                            <Button onClick={() => handleGivePoints(10)} disabled={loading} className="w-full h-14" variant="outline">Stempel für Einkauf geben</Button>
-                             <p className="text-xs text-muted-foreground">Fügt einen Stempel für den heutigen Einkauf hinzu.</p>
-                        </div>
-                        
+                <CardTitle>{user.name}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <Button onClick={handleAddStamp} disabled={isPending} className="w-full h-14 text-base">
+                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Stempel für heutigen Einkauf geben
+                </Button>
 
-                        <Button variant="ghost" onClick={resetScanner} className="text-muted-foreground">
-                            Abbrechen / Neuer Scan
+                {user.activePrize && (
+                    <div className="p-4 border-2 border-dashed border-accent rounded-xl text-center space-y-3 bg-accent/10">
+                        <div className="flex items-center justify-center gap-2 font-bold text-accent">
+                            <Gift className="w-5 h-5"/>
+                            <span>Aktiver Gewinn</span>
+                        </div>
+                        <p className="text-xl font-bold text-foreground">{user.activePrize}</p>
+                         <Button onClick={handleRedeemPrize} disabled={isPending} className="w-full" variant="secondary">
+                            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Gewinn jetzt einlösen
                         </Button>
-                    </CardContent>
-                </Card>
-            )}
-        </div>
+                    </div>
+                )}
+
+            </CardContent>
+            <CardFooter>
+                 <Button variant="ghost" onClick={onReset} className="w-full text-muted-foreground">
+                    Zurück / Nächster Scan
+                </Button>
+            </CardFooter>
+        </Card>
     );
+}
+
+
+export default function EmployeeScannerPage() {
+    const [view, setView] = useState<ViewState>('main');
+    const [scannedUser, setScannedUser] = useState<UserType | null>(null);
+    const [users, setUsers] = useState<UserType[]>([]);
+    const { toast } = useToast();
+
+    // Load users initially
+    useEffect(() => {
+        getScannerPageData().then(data => setUsers(data.users));
+    }, []);
+
+    const handleScanSuccess = (scannedData: string) => {
+        const userId = scannedData.replace('senoner-user:', '');
+        const foundUser = users.find(u => u.id === userId);
+
+        if (foundUser) {
+            setScannedUser(foundUser);
+            setView('result');
+        } else {
+            toast({ variant: 'destructive', title: 'Fehler', description: 'Kunde nicht gefunden. Bitte stellen Sie sicher, dass die App auf dem neuesten Stand ist.' });
+            setView('main');
+        }
+    };
+    
+    const resetView = () => {
+        // Refresh user data in the background for the next scan
+        getScannerPageData().then(data => setUsers(data.users));
+        setScannedUser(null);
+        setView('main');
+    };
+
+    if (view === 'scanning') {
+        return <ActiveScannerView onScanSuccess={handleScanSuccess} onCancel={resetView} />;
+    }
+    
+    if (view === 'result' && scannedUser) {
+        return <ResultView user={scannedUser} onReset={resetView} />;
+    }
+
+    return <MainView onStartScan={() => setView('scanning')} />;
 }
