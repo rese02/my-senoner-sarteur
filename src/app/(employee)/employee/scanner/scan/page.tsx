@@ -5,26 +5,20 @@ import { useToast } from '@/hooks/use-toast';
 import { useEffect, useRef, useCallback, useState } from 'react';
 import Webcam from 'react-webcam';
 import jsQR from 'jsqr';
+import { useRouter } from 'next/navigation';
+import { getCustomerDetails } from '@/app/actions/loyalty.actions';
 
-interface ActiveScannerViewProps {
-    onScanSuccess: (data: string) => void;
-    onCancel: () => void;
-}
 
-export function ActiveScannerView({ onScanSuccess, onCancel }: ActiveScannerViewProps) {
+export default function ScanPage() {
     const { toast } = useToast();
+    const router = useRouter();
     const webcamRef = useRef<Webcam>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const requestRef = useRef<number>();
     const [isScanning, setIsScanning] = useState(true);
 
     const scanQrCode = useCallback(() => {
-        if (
-            !isScanning ||
-            !webcamRef.current ||
-            !webcamRef.current.video ||
-            !canvasRef.current
-        ) {
+        if (!isScanning || !webcamRef.current || !webcamRef.current.video || !canvasRef.current) {
             return;
         }
 
@@ -44,26 +38,29 @@ export function ActiveScannerView({ onScanSuccess, onCancel }: ActiveScannerView
                 });
 
                 if (code && code.data.startsWith('senoner-user:')) {
-                    setIsScanning(false); // Stop scanning on success
+                    setIsScanning(false);
                     if (typeof window.navigator.vibrate === 'function') {
                         window.navigator.vibrate([100, 50, 100]);
                     }
                     toast({ title: 'QR Code erkannt', description: 'Daten werden verarbeitet...' });
-                    onScanSuccess(code.data);
+                    
+                    const userId = code.data.replace('senoner-user:', '');
+                    
+                    // We can't pass the user object directly, so we'll have to re-fetch on the result page.
+                    // A better approach for larger apps might be to store this in a client-side state manager.
+                    // For now, redirecting with a query param is simple and effective.
+                    // The client component on the scanner page will need to read this.
+                    router.push(`/employee/scanner?userId=${userId}`);
                 }
             }
         }
-        // Continue scanning if no code was found
         if (isScanning) {
             requestRef.current = requestAnimationFrame(scanQrCode);
         }
-    }, [isScanning, onScanSuccess, toast]);
+    }, [isScanning, toast, router]);
 
     useEffect(() => {
-        // Start the scanning loop
         requestRef.current = requestAnimationFrame(scanQrCode);
-
-        // Cleanup function to stop the loop when the component unmounts
         return () => {
             if (requestRef.current) {
                 cancelAnimationFrame(requestRef.current);
@@ -81,7 +78,7 @@ export function ActiveScannerView({ onScanSuccess, onCancel }: ActiveScannerView
         <div className="fixed inset-0 z-50 bg-black flex flex-col text-white">
             <header className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center bg-gradient-to-b from-black/50 to-transparent z-20">
                  <h2 className="font-bold text-lg drop-shadow-md flex items-center gap-2"><QrCode className="w-5 h-5"/> Kundenkarte scannen</h2>
-                <Button variant="ghost" size="icon" onClick={onCancel} className="text-white hover:bg-white/20 hover:text-white rounded-full">
+                <Button variant="ghost" size="icon" onClick={() => router.back()} className="text-white hover:bg-white/20 hover:text-white rounded-full">
                     <X />
                     <span className="sr-only">Schließen</span>
                 </Button>
