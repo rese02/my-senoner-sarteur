@@ -2,7 +2,7 @@
 'use server';
 
 import 'server-only';
-import { suggestWinePairing } from '@/ai/flows/suggest-wine-pairing';
+import { suggestWinePairing as suggestWinePairingFlow } from '@/ai/flows/suggest-wine-pairing';
 import type { SuggestWinePairingInput, SuggestWinePairingOutput } from '@/ai/flows/suggest-wine-pairing';
 import { getSession } from '@/lib/session';
 
@@ -13,7 +13,7 @@ import { getSession } from '@/lib/session';
  * @param input The image data for the wine pairing suggestion.
  * @returns The AI's suggestion for food and recommended wines.
  */
-export async function getWineSuggestion(input: SuggestWinePairingInput): Promise<SuggestWinePairingOutput> {
+export async function suggestWinePairing(input: SuggestWinePairingInput): Promise<SuggestWinePairingOutput> {
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
@@ -21,6 +21,5 @@ export async function getWineSuggestion(input: SuggestWinePairingInput): Promise
   
   // This function is now the only one that calls the flow from the server-side.
   // It provides a layer of abstraction and security.
-  // KORREKTUR: Das Ergebnis des Flows wird explizit zurückgegeben.
-  return suggestWinePairing(input);
+  return suggestWinePairingFlow(input);
 }
