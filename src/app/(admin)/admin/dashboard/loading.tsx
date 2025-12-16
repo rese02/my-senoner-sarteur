@@ -1,14 +1,11 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/common/PageHeader";
 
 export default function AdminDashboardLoading() {
   return (
     <div className="space-y-6">
-      {/* Page Header Skeleton */}
-      <div className="space-y-2 mb-8">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-5 w-72" />
-      </div>
+      <PageHeader title="Dashboard" description="Willkommen zurück! Hier ist Ihre aktuelle Übersicht." />
 
       {/* Stat Cards Skeleton */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">

@@ -51,8 +51,8 @@ export async function createSession(idToken: string | null) {
     cookieStore.set('session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
-      secure: true,      // ZWINGEND TRUE für HTTPS/Cloud
-      sameSite: 'lax',  // 'lax' ist ein sicherer Standard für die meisten Fälle
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       path: '/',
     });
 
@@ -80,7 +80,7 @@ const registerFormSchema = z.object({
     message: "Sie müssen die AGB und Datenschutzerklärung akzeptieren.",
   }),
   marketingConsent: z.boolean().optional(),
-  profilingConsent: z.boolean().optional(), // NEU
+  profilingConsent: z.boolean().optional(),
 });
 
 export async function registerUser(values: unknown) {
@@ -188,7 +188,7 @@ export async function updateUserProfile(formData: FormData) {
   const dataToUpdate: any = {};
   const now = new Date().toISOString();
 
-  // Only add fields if they are actually being updated
+  // Nur Felder hinzufügen, die tatsächlich aktualisiert werden
   if (name) dataToUpdate.name = name;
   if (phone !== undefined) dataToUpdate.phone = phone;
 
@@ -199,6 +199,7 @@ export async function updateUserProfile(formData: FormData) {
       dataToUpdate['deliveryAddress.province'] = province || '';
   }
 
+  // Behandelt Consent-Änderungen als separate Objekte, um Timestamps zu aktualisieren
   if (marketingConsent !== undefined) {
     dataToUpdate['consent.marketing'] = {
         accepted: marketingConsent === 'on',

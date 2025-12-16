@@ -6,9 +6,9 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
-  password?: string; // Only for mock data, not in real DB
+  password?: string;
   customerSince?: string;
-  loyaltyStamps?: number; // New stamp system
+  loyaltyStamps?: number;
   phone?: string;
   deliveryAddress?: {
     street: string;
@@ -17,16 +17,16 @@ export interface User {
     province: string;
   };
   currentDebt?: number;
-  consent?: {
+  consent: { // Made non-optional
     privacyPolicy: {
       accepted: boolean;
       timestamp: string;
     },
-    marketing?: {
+    marketing: { // Made non-optional
       accepted: boolean;
       timestamp: string;
     },
-    profiling?: {
+    profiling: { // Made non-optional
       accepted: boolean;
       timestamp: string;
     }
@@ -37,13 +37,80 @@ export interface User {
   lastLogin?: string;
 }
 
-export interface LoyaltyData {
-  // This interface is now deprecated in favor of loyaltyStamps on User
-  // Kept for potential history or other data in the future
-  stamps?: number;
-  history?: { date: string; action: string; amount: number; note: string }[];
+export type OrderType = 'preorder' | 'grocery_list';
+
+export enum OrderStatus {
+  NEW = 'new',
+  PICKING = 'picking',
+  READY = 'ready',
+  COLLECTED = 'collected',
+  READY_FOR_DELIVERY = 'ready_for_delivery',
+  DELIVERED = 'delivered',
+  PAID = 'paid',
+  CANCELLED = 'cancelled',
 }
 
+export interface OrderItem {
+  productId: string;
+  productName: string;
+  quantity: number;
+  price: number;
+}
+
+export interface ChecklistItem {
+    item: string;
+    isFound: boolean;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  customerName: string;
+  createdAt: string;
+  type: OrderType;
+  items?: OrderItem[];
+  pickupDate?: string;
+  rawList?: string;
+  checklist?: ChecklistItem[];
+  deliveryAddress?: { street: string; city: string; zip: string; province: string; };
+  deliveryDate?: string;
+  processedBy?: string;
+  total?: number;
+  status: OrderStatus;
+}
+
+
+export interface Session {
+  userId: string;
+  role: UserRole;
+  [key: string]: any;
+}
+
+export interface Recipe {
+  title: string;
+  subtitle: string;
+  image: string;
+  imageHint: string;
+  ingredients: string[];
+  instructions: string;
+  description: string;
+}
+
+export type CartItem = {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+};
+
+export interface Story {
+  id: string;
+  imageUrl: string;
+  imageHint: string;
+  label: string;
+  author: string;
+  expiresAt: string;
+}
 
 export interface Category {
   id: string;
@@ -63,109 +130,19 @@ export interface Product {
   imageUrl: string;
   imageHint: string;
   categoryId: string;
-  description?: string; // Added for bundles
-  availabilityDay?: 'Donnerstag' | 'Freitag';
+  description?: string;
   isAvailable: boolean;
-  timesOrderedLast30Days?: number;
   type: 'product' | 'package';
   packageContent?: PackageItem[];
-  // For wine catalog
   tags: string[];
   createdAt?: string;
 }
 
-export type OrderType = 'preorder' | 'grocery_list';
-export enum OrderStatus {
-  NEW = 'new',
-  PICKING = 'picking',
-  READY = 'ready',
-  COLLECTED = 'collected',
-  READY_FOR_DELIVERY = 'ready_for_delivery',
-  DELIVERED = 'delivered',
-  PAID = 'paid',
-  CANCELLED = 'cancelled',
-}
-
-
-export interface OrderItem {
-  productId: string;
-  productName: string;
-  quantity: number;
-  price: number;
-}
-
-export interface ChecklistItem {
-    item: string;
-    isFound: boolean;
-}
-
-export interface Order {
-  id: string;
-  userId: string;
-  customerName: string;
-  createdAt: string;
-  
-  type: OrderType;
-  
-  // For 'preorder'
-  items?: OrderItem[];
-  pickupDate?: string;
-  
-  // For 'grocery_list'
-  rawList?: string;
-  checklist?: ChecklistItem[];
-  deliveryAddress?: { street: string; city: string; notes?: string };
-  deliveryDate?: string;
-  
-  processedBy?: string; // Employee User ID
-
-  total?: number; // Can be pre-calculated for 'preorder' or set for 'grocery_list'
-  status: 'new' | 'picking' | 'ready' | 'collected' | 'ready_for_delivery' | 'delivered' | 'paid' | 'cancelled';
-}
-
-
-export interface Session {
-  userId: string;
-  role: UserRole;
-  [key: string]: any;
-}
-
-export interface Recipe {
-  title: string;
-  subtitle: string;
-  image: string;
-  imageHint: string;
-  ingredients: string[];
-  instructions: string;
-  description: string;
-}
-export interface AppConfig {
-  isWheelOfFortuneActive: boolean;
-}
-
-export type CartItem = {
-  productId: string;
-  name: string;
-  price: number;
-  quantity: number;
-};
-
-export interface Story {
-  id: string;
-  imageUrl: string;
-  imageHint: string;
-  label: string;
-  author: string;
-  expiresAt: string;
-}
-
-
-// --- Party Planner ---
 export interface PlannerIngredientRule {
   productId: string;
   productName: string;
-  baseAmount: number; // Amount for 1 person
-  unit: string; // e.g., 'g', 'ml', 'Stück'
+  baseAmount: number; 
+  unit: string; 
 }
 
 export interface PlannerEvent {
@@ -177,7 +154,6 @@ export interface PlannerEvent {
   ingredients: PlannerIngredientRule[];
 }
 
-// --- Wheel of Fortune ---
 export interface WheelSegment {
     text: string;
     type: 'win' | 'lose';

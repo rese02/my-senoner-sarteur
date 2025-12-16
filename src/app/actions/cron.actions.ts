@@ -1,3 +1,4 @@
+
 'use server';
 import 'server-only';
 
@@ -63,6 +64,7 @@ export async function processOrderStatusUpdates() {
       revalidatePath('/admin/dashboard', 'page');
       revalidatePath('/admin/orders', 'page');
       revalidatePath('/dashboard/orders', 'page');
+      revalidatePath('/dashboard', 'page');
     }
 
     return { success: true, updated: updatedCount };

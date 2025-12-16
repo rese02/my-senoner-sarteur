@@ -177,7 +177,7 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                     </Table>
                 )}
                 </CardContent>
-                {initialRecentOrders.length > 0 && (
+                {initialStats.openOrders > 0 && (
                     <CardFooter className="justify-center border-t pt-4">
                         <Button asChild variant="outline" size="sm" className="w-full">
                             <Link href="/admin/orders">Alle {initialStats.openOrders} offenen Bestellungen anzeigen</Link>
@@ -193,7 +193,7 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
 
        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader className="p-6 pb-4">
+          <DialogHeader>
             <DialogTitle>Bestelldetails</DialogTitle>
             <DialogDescription>
               Details für Bestellung #{selectedOrder?.id.slice(-6)}
@@ -214,7 +214,7 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                     <div className="p-3 bg-secondary rounded-lg border text-sm">
                         <h4 className="font-semibold mb-2 flex items-center gap-2"><Home className="w-4 h-4 text-muted-foreground"/>Lieferadresse</h4>
                         <p>{selectedOrder.deliveryAddress.street}</p>
-                        <p>{selectedOrder.deliveryAddress.city}</p>
+                        <p>{selectedOrder.deliveryAddress.zip} {selectedOrder.deliveryAddress.city}</p>
                     </div>
                   )}
 

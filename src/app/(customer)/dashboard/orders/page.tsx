@@ -29,7 +29,7 @@ const statusMap: Record<OrderStatus, { label: string; className: string; icon: R
     cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg', icon: XCircle }
 };
 
-const deletableStatuses = ['collected', 'delivered', 'paid', 'cancelled'];
+const deletableStatuses: OrderStatus[] = ['collected', 'delivered', 'paid', 'cancelled'];
 
 function OrderHistoryCard({ 
     order, 
@@ -197,37 +197,40 @@ export default function OrdersPage() {
         <div className="space-y-6">
             <PageHeader title="Meine Bestellungen" description="Hier sehen Sie den Status Ihrer aktuellen und vergangenen Bestellungen."/>
             
-            <div className="flex justify-end gap-2 items-center">
-                {!isSelectionMode ? (
-                    <Button variant="outline" onClick={() => setIsSelectionMode(true)} disabled={deletableOrderIds.length === 0}>
-                        <ListChecks className="mr-2 h-4 w-4" /> Verwalten
-                    </Button>
-                ) : (
-                    <>
-                        <Button variant="ghost" onClick={() => { setIsSelectionMode(false); setSelectedOrderIds([]); }}>
-                             <X className="mr-2 h-4 w-4" /> Abbrechen
+            {deletableOrderIds.length > 0 && (
+                <div className="flex justify-end gap-2 items-center">
+                    {!isSelectionMode ? (
+                        <Button variant="outline" onClick={() => setIsSelectionMode(true)}>
+                            <ListChecks className="mr-2 h-4 w-4" /> Verwalten
                         </Button>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button variant="destructive" disabled={selectedOrderIds.length === 0 || isDeleting}>
-                                    {isDeleting ? <Loader2 className="animate-spin mr-2"/> : <Trash2 className="mr-2 h-4 w-4" />}
-                                    Löschen ({selectedOrderIds.length})
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
-                                    <AlertDialogDescription>Möchten Sie die {selectedOrderIds.length} ausgewählten Bestellungen wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.</AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                    <AlertDialogAction onClick={handleBulkDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">Ja, löschen</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    </>
-                )}
-            </div>
+                    ) : (
+                        <>
+                            <Button variant="ghost" onClick={() => { setIsSelectionMode(false); setSelectedOrderIds([]); }}>
+                                <X className="mr-2 h-4 w-4" /> Abbrechen
+                            </Button>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" disabled={selectedOrderIds.length === 0 || isDeleting}>
+                                        {isDeleting ? <Loader2 className="animate-spin mr-2"/> : <Trash2 className="mr-2 h-4 w-4" />}
+                                        Löschen ({selectedOrderIds.length})
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
+                                        <AlertDialogDescription>Möchten Sie die {selectedOrderIds.length} ausgewählten Bestellungen wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.</AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleBulkDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">Ja, löschen</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </>
+                    )}
+                </div>
+            )}
+
 
             {isSelectionMode && deletableOrderIds.length > 0 && (
                  <div className="flex items-center space-x-2 p-3 bg-secondary rounded-lg border">

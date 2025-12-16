@@ -1,9 +1,10 @@
+
 'use server';
 
 import { getSession } from '@/lib/session';
 import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
-import type { CartItem, Order, User, ChecklistItem, OrderItem } from '@/lib/types';
+import type { CartItem, Order, User, ChecklistItem, OrderItem, OrderStatus } from '@/lib/types';
 import { toPlainObject } from '@/lib/utils';
 import { z } from 'zod';
 
@@ -50,23 +51,23 @@ export async function createPreOrder(
     price: item.price,
   }));
 
-  const orderData = {
+  const orderData: Omit<Order, 'id'> = {
     userId: session.userId,
     customerName: session.name,
     createdAt: new Date().toISOString(),
-    type: 'preorder' as const,
+    type: 'preorder',
     items: toPlainObject(orderItems), // Use the new orderItems array
     pickupDate: validatedDate.data.toISOString(),
     total,
-    status: 'new' as const,
+    status: 'new',
   };
 
   await adminDb.collection('orders').add(orderData);
 
-  revalidatePath('/admin/orders');
-  revalidatePath('/admin/dashboard');
-  revalidatePath('/employee/scanner');
-  revalidatePath('/dashboard/orders');
+  revalidatePath('/admin/orders', 'page');
+  revalidatePath('/admin/dashboard', 'page');
+  revalidatePath('/dashboard/orders', 'page');
+  revalidatePath('/dashboard', 'page');
 }
 
 
@@ -88,38 +89,38 @@ export async function createConciergeOrder(
     const finalDeliveryDate = validatedDate.data;
     finalDeliveryDate.setHours(11, 0, 0, 0);
 
-    const orderData = {
+    const orderData: Omit<Order, 'id'> = {
         userId: session.userId,
         customerName: session.name,
         createdAt: new Date().toISOString(),
-        type: 'grocery_list' as const,
+        type: 'grocery_list',
         rawList: validatedNotes.data,
         deliveryAddress: validatedAddress.data,
         deliveryDate: finalDeliveryDate.toISOString(),
         total: 0, // Set initial total to 0, it will be calculated later.
-        status: 'new' as const,
+        status: 'new',
     };
     
     await adminDb.collection('orders').add(orderData);
 
-    revalidatePath('/admin/orders');
-    revalidatePath('/admin/dashboard');
-    revalidatePath('/employee/scanner');
-    revalidatePath('/dashboard/orders');
+    revalidatePath('/admin/orders', 'page');
+    revalidatePath('/admin/dashboard', 'page');
+    revalidatePath('/dashboard/orders', 'page');
+    revalidatePath('/dashboard', 'page');
 }
 
-export async function updateOrderStatus(orderId: string, status: 'new' | 'picking' | 'ready' | 'collected' | 'ready_for_delivery' | 'delivered' | 'paid' | 'cancelled') {
+export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   await requireRole(['admin', 'employee']);
 
   const validatedOrderId = z.string().min(1).parse(orderId);
-  const validatedStatus = z.enum(['new', 'picking', 'ready', 'collected', 'ready_for_delivery', 'delivered', 'paid', 'cancelled']).parse(status);
+  const validatedStatus = z.nativeEnum(OrderStatus).parse(status);
 
   await adminDb.collection('orders').doc(validatedOrderId).update({ status: validatedStatus });
 
-  revalidatePath('/admin/orders');
-  revalidatePath('/admin/dashboard');
-  revalidatePath('/employee/scanner');
-  revalidatePath('/dashboard/orders');
+  revalidatePath('/admin/orders', 'page');
+  revalidatePath('/admin/dashboard', 'page');
+  revalidatePath('/dashboard/orders', 'page');
+  revalidatePath('/dashboard', 'page');
 }
 
 const ChecklistItemSchema = z.object({
@@ -144,10 +145,12 @@ export async function setGroceryOrderTotal(orderId: string, total: number, check
         processedBy: session.userId,
     });
 
-    revalidatePath('/admin/orders');
-    revalidatePath('/admin/dashboard');
-    revalidatePath('/employee/scanner');
-    revalidatePath('/dashboard/orders');
+    revalidatePath('/admin/orders', 'page');
+    revalidatePath('/admin/dashboard', 'page');
+    revalidatePath('/employee/picker', 'page');
+    revalidatePath('/employee/scanner', 'page');
+    revalidatePath('/dashboard/orders', 'page');
+    revalidatePath('/dashboard', 'page');
 }
 
 
@@ -192,34 +195,6 @@ export async function getCustomerOrders() {
     }
 }
 
-export async function deleteMyOrder(orderId: string) {
-    const session = await requireRole(['customer']);
-    const validatedOrderId = z.string().min(1).parse(orderId);
-  
-    const orderRef = adminDb.collection('orders').doc(validatedOrderId);
-    const orderDoc = await orderRef.get();
-  
-    if (!orderDoc.exists) {
-      throw new Error('Bestellung nicht gefunden.');
-    }
-  
-    const order = orderDoc.data() as Order;
-  
-    if (order.userId !== session.userId) {
-      throw new Error('Nicht autorisiert.');
-    }
-  
-    const deletableStatuses = ['collected', 'delivered', 'paid', 'cancelled'];
-    if (!deletableStatuses.includes(order.status)) {
-      throw new Error('Aktive Bestellungen können nicht gelöscht werden.');
-    }
-  
-    await orderRef.delete();
-  
-    revalidatePath('/dashboard/orders');
-  
-    return { success: true };
-}
 
 export async function deleteMyOrders(orderIds: string[]): Promise<{ success: boolean, count: number, error?: string }> {
     const session = await requireRole(['customer']);
@@ -249,7 +224,7 @@ export async function deleteMyOrders(orderIds: string[]): Promise<{ success: boo
 
     if (deletedCount > 0) {
         await batch.commit();
-        revalidatePath('/dashboard/orders');
+        revalidatePath('/dashboard/orders', 'page');
     }
 
     return { success: true, count: deletedCount };

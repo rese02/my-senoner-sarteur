@@ -1,4 +1,6 @@
 
+'use server';
+
 import { getDashboardData } from '@/app/actions/product.actions';
 import { ProductsClient } from './_components/ProductsClient';
 import { Suspense } from 'react';

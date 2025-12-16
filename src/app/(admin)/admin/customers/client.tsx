@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Wand2, Send, RotateCw, Trophy, Filter, Loader2, FileWarning } from "lucide-react";
-import { useState, useMemo, useEffect, useTransition } from "react";
+import { useState, useMemo, useTransition } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { improveTextWithAI } from "@/app/actions/ai.actions";
 import { sendNewsletter } from "@/app/actions/email.actions";
@@ -84,10 +84,10 @@ interface CustomersClientProps {
 }
 
 export function CustomersClient({ initialCustomers, initialOrders, initialProducts, initialCategories }: CustomersClientProps) {
-    const [customers, setCustomers] = useState<User[]>(initialCustomers);
-    const [orders, setOrders] = useState<Order[]>(initialOrders);
-    const [products, setProducts] = useState<Product[]>(initialProducts);
-    const [categories, setCategories] = useState<Category[]>(initialCategories);
+    const [customers] = useState<User[]>(initialCustomers);
+    const [orders] = useState<Order[]>(initialOrders);
+    const [products] = useState<Product[]>(initialProducts);
+    const [categories] = useState<Category[]>(initialCategories);
 
     const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
     const [open, setOpen] = useState(false);
