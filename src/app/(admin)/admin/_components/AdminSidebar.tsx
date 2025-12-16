@@ -101,6 +101,11 @@ export function AdminSidebar() {
             </Button>
             </form>
         </div>
+        <Separator className="bg-border/50" />
+         <div className="flex justify-center gap-4 text-xs text-muted-foreground p-4">
+            <Link href="/impressum" className="hover:text-primary">Impressum</Link>
+            <Link href="/datenschutz" className="hover:text-primary">Datenschutz</Link>
+        </div>
       </div>
     </aside>
   );

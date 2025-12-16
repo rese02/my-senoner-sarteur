@@ -76,6 +76,11 @@ export function CustomerSidebar() {
             Abmelden
           </Button>
         </form>
+        <Separator className="my-2"/>
+        <div className="flex justify-center gap-4 text-xs text-muted-foreground">
+            <Link href="/impressum" className="hover:text-primary">Impressum</Link>
+            <Link href="/datenschutz" className="hover:text-primary">Datenschutz</Link>
+        </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { logout } from "@/app/actions/auth.actions";
 import { LogOut } from "lucide-react";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export default async function EmployeeLayout({
   children,
@@ -41,6 +42,12 @@ export default async function EmployeeLayout({
             {children}
         </div>
       </main>
+      <footer className="p-4 text-center text-xs text-muted-foreground border-t">
+         <div className="flex justify-center gap-4">
+            <Link href="/impressum" className="hover:text-primary">Impressum</Link>
+            <Link href="/datenschutz" className="hover:text-primary">Datenschutz</Link>
+        </div>
+      </footer>
     </div>
   );
 }
