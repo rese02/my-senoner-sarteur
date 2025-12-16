@@ -1,3 +1,4 @@
+
 'use server';
 
 import 'server-only';
@@ -7,13 +8,25 @@ import { toPlainObject } from '@/lib/utils';
 import type { User, Order, Product, Category } from '@/lib/types';
 import { z } from 'zod';
 
+// Helper for strict role checks
+async function requireRole(roles: Array<'customer' | 'employee' | 'admin'>) {
+    const session = await getSession();
+    if (!session || !roles.includes(session.role)) {
+        throw new Error('Unauthorized');
+    }
+    return session;
+}
+
 // Strikte Berechtigungsprüfung: Nur Admins dürfen diese Aktionen ausführen.
 async function requireAdmin() {
-  const session = await getSession();
-  if (session?.role !== 'admin') {
-    throw new Error('Unauthorized: Admin access required.');
-  }
+    return requireRole(['admin']);
 }
+
+// NEU: Berechtigungsprüfung für Mitarbeiter oder Admins
+async function requireEmployeeOrAdmin() {
+    return requireRole(['employee', 'admin']);
+}
+
 
 export async function getCustomersPageData() {
   await requireAdmin();
@@ -39,7 +52,8 @@ export async function getCustomersPageData() {
 
 
 export async function getCustomerDetails(customerId: string) {
-    await requireAdmin();
+    // KORREKTUR: Mitarbeiter dürfen dies ebenfalls tun.
+    await requireEmployeeOrAdmin();
 
     // Strikte Eingabevalidierung mit Zod
     const validatedCustomerId = z.string().min(1).safeParse(customerId);
