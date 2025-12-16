@@ -65,7 +65,7 @@ export default async function LoyaltyPage() {
                 </div>
 
                 <div className="lg:col-span-2 space-y-6">
-                     <Card className="shadow-lg">
+                     <Card className="shadow-none border-none">
                         <CardHeader>
                             <CardTitle>Stempelkarte</CardTitle>
                             <CardDescription>
