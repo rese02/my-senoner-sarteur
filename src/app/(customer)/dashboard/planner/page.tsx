@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -103,13 +104,15 @@ export default function PartyPlannerPage() {
         const product = products.find(p => p.id === ingredient.productId);
         if (product) {
             const totalAmount = ingredient.baseAmount * people;
-            const pricePerGram = product.unit === 'kg' ? product.price / 1000 : product.price;
-            const price = ingredient.unit === 'g' ? totalAmount * pricePerGram : totalAmount * product.price;
+            // Assuming price is per base unit (e.g. per kg or per piece)
+            // A more complex logic might be needed if units vary widely
+            const pricePerSmallestUnit = product.unit === 'kg' ? product.price / 1000 : product.price;
+            const price = ingredient.unit === 'g' ? totalAmount * pricePerSmallestUnit : totalAmount * product.price;
 
             addToCart({ 
-                productId: `${product.id}-${people}`,
+                productId: `${product.id}-${people}`, // Create a unique ID for this dynamic product
                 name: `${product.name} (für ${people} Pers.)`, 
-                quantity: 1,
+                quantity: 1, // We add it as a single package
                 price: price
             });
         }
@@ -138,7 +141,7 @@ export default function PartyPlannerPage() {
 
             {/* Rechte Spalte: Rechner */}
             {selectedEvent && (
-                <div className="space-y-4 sticky top-8">
+                <div className="space-y-4 lg:sticky lg:top-8">
                     <h2 className="text-xl font-bold font-headline">2. Gästeanzahl festlegen</h2>
                     <Card className="shadow-xl animate-in fade-in-50 overflow-hidden">
                         <CardHeader className="p-4">

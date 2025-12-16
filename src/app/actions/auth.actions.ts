@@ -181,16 +181,21 @@ export async function updateUserProfile(formData: FormData) {
 
   const { name, phone, street, city, zip, province } = validation.data;
 
-  const dataToUpdate = {
+  const dataToUpdate: any = {
     name,
     phone,
-    deliveryAddress: {
-      street,
-      city,
-      zip,
-      province,
-    },
   };
+
+  // Only update deliveryAddress if at least one address field is present
+  if (street || city || zip || province) {
+      dataToUpdate.deliveryAddress = {
+        street,
+        city,
+        zip,
+        province,
+      };
+  }
+
 
   try {
     await adminDb.collection('users').doc(session.userId).update(toPlainObject(dataToUpdate));
