@@ -1,17 +1,12 @@
-
 'use client';
 
 import { QRCodeSVG } from 'qrcode.react';
 
 export function QrCodeDisplay({ userId }: { userId: string }) {
-    if (!userId) {
-        return (
-             <div className="bg-gray-200 animate-pulse p-4 rounded-lg shadow-inner w-full aspect-square">
-                 <p className="text-center text-sm text-muted-foreground">Lade QR Code...</p>
-            </div>
-        )
-    }
+    // Die Lade-Logik wird entfernt, da die userId vom Server immer vorhanden ist.
+    // Der QR-Code wird jetzt direkt und ohne Verzögerung gerendert.
     const qrData = `senoner-user:${userId}`;
+    
     return (
         <div className="bg-white p-4 rounded-lg shadow-inner">
              <QRCodeSVG value={qrData} size={256} className="w-full h-full" />
