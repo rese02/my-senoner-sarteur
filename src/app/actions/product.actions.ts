@@ -1,4 +1,3 @@
-
 'use server';
 
 import 'server-only';
@@ -51,16 +50,20 @@ export async function getDashboardData() {
     const session = await getSession();
     let openOrder: Order | null = null;
     if (session?.userId) {
-        // Query simplified to avoid needing a composite index.
-        // We fetch the most recent orders and filter in code.
+        // RADICAL SIMPLIFICATION: Remove all ordering from the query to avoid needing any index.
+        // We will sort in the code, which is fast enough for a small number of documents.
         const userOrdersSnap = await adminDb.collection('orders')
             .where('userId', '==', session.userId)
-            .orderBy('createdAt', 'desc')
-            .limit(5) // Get latest 5, should be enough to find an open one.
+            .limit(5) // Get latest 5 orders to find an open one.
             .get();
             
         const openStatuses = ['new', 'picking', 'ready_for_delivery'];
-        const userOrders = userOrdersSnap.docs.map(doc => toPlainObject({id: doc.id, ...doc.data()} as Order));
+        
+        // Map and sort in the code.
+        const userOrders = userOrdersSnap.docs
+            .map(doc => toPlainObject({id: doc.id, ...doc.data()} as Order))
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            
         const foundOpenOrder = userOrders.find(order => openStatuses.includes(order.status));
 
         if (foundOpenOrder) {
