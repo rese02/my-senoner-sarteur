@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -76,17 +77,17 @@ export function Cart() {
                     </div>
                 ) : (
                     <ScrollArea className="flex-grow">
-                        <div className="space-y-1 p-2">
+                        <div className="space-y-2 p-4">
                             {items.map(item => (
-                                <div key={item.productId} className="flex justify-between items-center gap-2 py-2 px-2 rounded-md">
+                                <div key={item.productId} className="flex justify-between items-center gap-2 py-2 rounded-md">
                                     <div>
-                                        <p className="font-semibold text-sm leading-tight">{item.name}</p>
-                                        <p className="text-xs text-muted-foreground">
+                                        <p className="font-semibold text-base leading-tight">{item.name}</p>
+                                        <p className="text-sm text-muted-foreground">
                                             {item.quantity} x €{item.price.toFixed(2)}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                        <p className="font-semibold text-sm text-right">€{(item.price * item.quantity).toFixed(2)}</p>
+                                        <p className="font-semibold text-base text-right">€{(item.price * item.quantity).toFixed(2)}</p>
                                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0 active:scale-95" onClick={() => removeFromCart(item.productId)}>
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
@@ -104,11 +105,11 @@ export function Cart() {
                         <DatePicker date={pickupDate} setDate={setPickupDate} />
                      </div>
                      <Separator />
-                    <div className="flex justify-between font-bold text-base">
+                    <div className="flex justify-between font-bold text-lg">
                         <span>Gesamt</span>
                         <span>€{total.toFixed(2)}</span>
                     </div>
-                    <Button onClick={handleOrder} disabled={isPending}>
+                    <Button onClick={handleOrder} disabled={isPending} size="lg">
                         {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Jetzt vorbestellen
                     </Button>
