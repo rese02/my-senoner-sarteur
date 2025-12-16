@@ -59,17 +59,15 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
     const cartItems = useCartStore(state => state.items);
 
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:gap-8 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] lg:grid-cols-[1fr_380px] md:gap-8 items-start">
         {/* Main Content */}
-        <div className="flex flex-col gap-8 pb-28 lg:pb-8">
+        <div className="flex flex-col gap-8 pb-28 md:pb-8">
 
             <Stories stories={stories} />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
                 {wheelData && <WheelOfFortuneCard settings={wheelData} />}
-                <div className={cn(!wheelData && "md:col-span-2")}>
-                  <RecipeCard recipe={recipe} />
-                </div>
+                <RecipeCard recipe={recipe} />
             </div>
 
             {openOrder && <OpenOrderStatus order={openOrder} />}
@@ -85,7 +83,7 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
                   <h2 className="text-2xl font-bold font-headline mb-4 text-foreground">{category.name}</h2>
                   
                   {categoryPackages.length > 0 && (
-                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
                           {categoryPackages.map((product) => (
                               <PackageCard key={product.id} product={product} />
                           ))}
@@ -110,7 +108,7 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
 
                   {/* Desktop: Grid Layout */}
                    {categoryProducts.length > 0 && (
-                        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                             {categoryProducts.map(product => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
@@ -121,8 +119,8 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
             })}
         </div>
         
-        {/* Desktop Cart Sidebar */}
-        <div className="hidden lg:block lg:sticky lg:top-8 h-auto">
+        {/* Tablet & Desktop Cart Sidebar */}
+        <div className="hidden md:block md:sticky md:top-8 h-auto">
              <div className="h-full">
                 <Cart />
              </div>
