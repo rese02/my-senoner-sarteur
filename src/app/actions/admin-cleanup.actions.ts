@@ -108,20 +108,16 @@ export async function deleteOldOrders(months: number) {
 }
 
 
-export async function deleteInactiveUsers(months: number) {
+export async function deleteInactiveUsers() {
     await requireAdmin();
 
-    const validatedMonths = z.number().int().positive().safeParse(months);
-    if (!validatedMonths.success) {
-        return { success: false, error: "Ungültiger Zeitraum." };
-    }
+    const months = 12; // Festgelegt auf 1 Jahr Inaktivität
 
     const cutoffDate = new Date();
-    cutoffDate.setMonth(cutoffDate.getMonth() - validatedMonths.data);
+    cutoffDate.setMonth(cutoffDate.getMonth() - months);
 
     // Query for users who have not logged in since the cutoff date
     // Note: Firestore might require an index for this query.
-    // The query targets users whose lastLogin is either older than the cutoff or does not exist.
     const inactiveUsersQuery = adminDb.collection('users')
         .where('lastLogin', '<', cutoffDate.toISOString());
 
@@ -132,20 +128,35 @@ export async function deleteInactiveUsers(months: number) {
     }
 
     const uidsToDelete = snapshot.docs.map(doc => doc.id);
+    let deletedOrdersCount = 0;
 
-    // Delete from Firebase Authentication
-    // Batch delete users from Auth (max 1000 per call)
+    // Batch-Löschung aus Firestore
+    const firestoreBatch = adminDb.batch();
+    
+    for (const uid of uidsToDelete) {
+        // 1. Alle Bestellungen des Benutzers zum Batch hinzufügen
+        const ordersQuery = adminDb.collection('orders').where('userId', '==', uid);
+        const ordersSnapshot = await ordersQuery.get();
+        ordersSnapshot.forEach(doc => {
+            firestoreBatch.delete(doc.ref);
+            deletedOrdersCount++;
+        });
+
+        // 2. Das Benutzerdokument selbst zum Batch hinzufügen
+        const userRef = adminDb.collection('users').doc(uid);
+        firestoreBatch.delete(userRef);
+    }
+    
+    // 3. Alle Firestore-Dokumente löschen
+    await firestoreBatch.commit();
+    
+    // 4. Benutzer aus Firebase Authentication löschen (kann in Batches bis zu 1000)
     await adminAuth.deleteUsers(uidsToDelete);
 
-    // Delete from Firestore
-    const batch = adminDb.batch();
-    snapshot.docs.forEach(doc => {
-        batch.delete(doc.ref);
-    });
-    await batch.commit();
 
     revalidatePath('/admin/customers');
     revalidatePath('/admin/settings');
+    revalidatePath('/admin/dashboard');
 
     return { count: snapshot.size, success: true };
 }

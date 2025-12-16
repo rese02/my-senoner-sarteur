@@ -14,7 +14,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 export default function AdminSettingsPage() {
   const [months, setMonths] = useState("12");
-  const [userMonths, setUserMonths] = useState("12");
 
   const [isOrderPending, startOrderTransition] = useTransition();
   const [isUserPending, startUserTransition] = useTransition();
@@ -38,7 +37,7 @@ export default function AdminSettingsPage() {
   const handleUserDelete = () => {
       startUserTransition(async () => {
           try {
-              const result = await deleteInactiveUsers(parseInt(userMonths));
+              const result = await deleteInactiveUsers();
               toast({ 
                   title: "Aufräumen erfolgreich", 
                   description: `${result.count} inaktive Benutzerkonten wurden gelöscht.`,
@@ -118,23 +117,14 @@ export default function AdminSettingsPage() {
                     Inaktive Benutzer löschen
                 </CardTitle>
                 <CardDescription>
-                    Entfernen Sie Benutzerkonten, die seit langer Zeit nicht mehr aktiv waren, um die DSGVO-Anforderung der Speicherbegrenzung zu erfüllen.
+                    Entfernen Sie Benutzerkonten, die seit über einem Jahr nicht mehr aktiv waren, um die DSGVO-Anforderung der Speicherbegrenzung zu erfüllen.
                 </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="p-4 bg-secondary border rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="space-y-1.5 flex-1">
                             <label className="text-sm font-medium text-foreground">Benutzer löschen, die inaktiv sind seit:</label>
-                            <Select value={userMonths} onValueChange={setUserMonths} disabled={isUserPending}>
-                                <SelectTrigger className="bg-background">
-                                    <SelectValue placeholder="Zeitraum wählen" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="12">12 Monate (1 Jahr)</SelectItem>
-                                    <SelectItem value="24">24 Monate (2 Jahre)</SelectItem>
-                                    <SelectItem value="36">36 Monate (3 Jahre)</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <Input value="12 Monaten (1 Jahr)" disabled className="bg-background" />
                         </div>
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
@@ -147,7 +137,7 @@ export default function AdminSettingsPage() {
                                 <AlertDialogHeader>
                                     <AlertDialogTitle>Sind Sie absolut sicher?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        Diese Aktion löscht alle Benutzerkonten (und deren zugehörige Daten), die sich seit mehr als <strong>{userMonths} Monaten</strong> nicht mehr angemeldet haben. <br/><br/>
+                                        Diese Aktion löscht alle Benutzerkonten (und deren zugehörige Bestelldaten), die sich seit mehr als <strong>12 Monaten</strong> nicht mehr angemeldet haben. <br/><br/>
                                         Diese Aktion kann nicht rückgängig gemacht werden.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
@@ -164,7 +154,7 @@ export default function AdminSettingsPage() {
                 </CardContent>
                 <CardFooter>
                     <p className="text-xs text-muted-foreground">
-                        Ein Benutzer gilt als inaktiv, wenn sein letzter Login länger als der ausgewählte Zeitraum zurückliegt.
+                        Ein Benutzer gilt als inaktiv, wenn sein letzter Login länger als der ausgewählte Zeitraum zurückliegt. Die Löschung umfasst den Auth-Account und alle zugehörigen Firestore-Daten wie Bestellungen.
                     </p>
                 </CardFooter>
             </Card>
