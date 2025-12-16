@@ -12,9 +12,10 @@ import { ProductCard } from '@/components/custom/ProductCard';
 import { PackageCard } from '@/components/custom/PackageCard';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Truck, CheckCircle, Info, ShoppingBag, XCircle, Calendar } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Truck, Info, ShoppingBag, CheckCircle, XCircle, Calendar } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 const statusMap: Record<OrderStatus, { label: string; icon: React.ElementType }> = {
     new: { label: 'In Bearbeitung', icon: Info },
@@ -30,29 +31,18 @@ const statusMap: Record<OrderStatus, { label: string; icon: React.ElementType }>
 function OpenOrderStatus({ order }: { order: Order }) {
     const StatusIcon = statusMap[order.status]?.icon || Info;
     return (
-        <Card className="mb-8 border-primary/20 border-2 shadow-lg animate-in fade-in-50">
-            <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        {order.type === 'grocery_list' ? <Truck className="w-5 h-5 text-primary"/> : <FileText className="w-5 h-5 text-primary"/>}
-                    </div>
-                     Status Ihrer Bestellung
-                </CardTitle>
-                 <CardDescription>Ihre Bestellung #{order.id.slice(-6)}</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="flex items-center gap-3 text-lg font-bold text-primary">
-                    <StatusIcon className="w-6 h-6" />
-                    <p>{statusMap[order.status]?.label || 'Unbekannt'}</p>
-                </div>
-                <p className="text-sm text-muted-foreground mt-2">
-                    {order.type === 'grocery_list' ? "Voraussichtliche Lieferung:" : "Bereit zur Abholung:"} <span className="font-medium">{order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString('de-DE', {weekday: 'long'}) : 'Bald'}</span>
-                </p>
-                <Link href="/dashboard/orders" className="text-sm text-primary font-bold mt-4 inline-block">
-                    Alle Bestellungen ansehen &rarr;
-                </Link>
-            </CardContent>
-        </Card>
+        <Alert className="mb-8 bg-secondary border-primary/20 animate-in fade-in-50">
+            <Truck className="h-5 w-5 text-primary" />
+            <AlertTitle className="font-bold text-primary">Ihre Bestellung #{order.id.slice(-6)} ist unterwegs!</AlertTitle>
+            <AlertDescription className="text-muted-foreground flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <span>Status: <strong className="text-foreground">{statusMap[order.status]?.label || 'Unbekannt'}</strong></span>
+                <Button variant="link" asChild className="p-0 h-auto mt-2 sm:mt-0">
+                    <Link href="/dashboard/orders">
+                        Alle Bestellungen ansehen &rarr;
+                    </Link>
+                </Button>
+            </AlertDescription>
+        </Alert>
     )
 }
 
@@ -72,7 +62,6 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:gap-8 items-start">
         {/* Main Content */}
         <div className="flex flex-col gap-8 pb-28 lg:pb-8">
-            {openOrder && <OpenOrderStatus order={openOrder} />}
 
             <Stories stories={stories} />
             
@@ -82,6 +71,8 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
                   <RecipeCard recipe={recipe} />
                 </div>
             </div>
+
+            {openOrder && <OpenOrderStatus order={openOrder} />}
             
             {categories.map(category => {
               const categoryProducts = products.filter(p => p.categoryId === category.id && p.type === 'product');
