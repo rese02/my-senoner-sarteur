@@ -51,14 +51,20 @@ export async function getDashboardData() {
     const session = await getSession();
     let openOrder: Order | null = null;
     if (session?.userId) {
-        const openOrdersSnap = await adminDb.collection('orders')
+        // Query simplified to avoid needing a composite index.
+        // We fetch the most recent orders and filter in code.
+        const userOrdersSnap = await adminDb.collection('orders')
             .where('userId', '==', session.userId)
-            .where('status', 'in', ['new', 'picking', 'ready_for_delivery'])
             .orderBy('createdAt', 'desc')
-            .limit(1)
+            .limit(5) // Get latest 5, should be enough to find an open one.
             .get();
-        if (!openOrdersSnap.empty) {
-            openOrder = toPlainObject({id: openOrdersSnap.docs[0].id, ...openOrdersSnap.docs[0].data()} as Order);
+            
+        const openStatuses = ['new', 'picking', 'ready_for_delivery'];
+        const userOrders = userOrdersSnap.docs.map(doc => toPlainObject({id: doc.id, ...doc.data()} as Order));
+        const foundOpenOrder = userOrders.find(order => openStatuses.includes(order.status));
+
+        if (foundOpenOrder) {
+            openOrder = foundOpenOrder;
         }
     }
 
