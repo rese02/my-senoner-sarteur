@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { RegisterForm } from './_components/register-form';
@@ -22,7 +21,7 @@ export default async function RegisterPage() {
                                 <Image src="/logo.png" alt="Senoner Sarteur Logo" width={160} height={40} className="h-full w-auto object-contain brightness-0 invert" />
                             </Link>
                         </div>
-                        <CardTitle className="text-3xl font-headline">Konto erstellen</CardTitle>
+                        <CardTitle className="text-3xl font-headline text-primary-foreground">Konto erstellen</CardTitle>
                         <CardDescription className="text-primary-foreground/80 pt-1">Werden Sie Teil unserer Community.</CardDescription>
                     </div>
 
