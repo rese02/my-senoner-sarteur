@@ -20,80 +20,104 @@ async function requireRole(roles: Array<'customer' | 'employee' | 'admin'>) {
 
 // --- MITARBEITER ACTIONS ---
 
-// Stempel hinzufügen
-export async function addStamp(userId: string) {
+/**
+ * Adds a stamp to a user's account. Resets the stamp card if it's full.
+ * Returns the updated user object.
+ */
+export async function addStamp(userId: string): Promise<User> {
     await requireRole(['employee', 'admin']);
-
     const validatedUserId = z.string().min(1).parse(userId);
-    
     const userRef = adminDb.collection('users').doc(validatedUserId);
+
+    let updatedUser: User | null = null;
 
     await adminDb.runTransaction(async (t) => {
         const doc = await t.get(userRef);
         if (!doc.exists) throw new Error("Kunde nicht gefunden");
         
-        let currentStamps = doc.data()?.loyaltyStamps || 0;
+        const userData = doc.data() as User;
+        let currentStamps = userData.loyaltyStamps || 0;
 
-        // Wenn Stempelkarte voll (10 Stempel), wird sie zurückgesetzt.
+        // If stamp card is full (10 stamps) and they get a new one, it resets.
+        // This happens AFTER they redeem the 10-stamp prize.
         if (currentStamps >= 10) {
             currentStamps = 0;
         }
         
         const newStampCount = currentStamps + 1;
         
-        const updateData: { loyaltyStamps: number; activePrize?: string | FieldValue, lastStampAt?: string } = {
+        const updateData = {
             loyaltyStamps: newStampCount,
             lastStampAt: new Date().toISOString()
         };
-
-        // Belohnung bei 5 oder 10 Stempeln hinzufügen
-        // WICHTIG: Das Glücksrad ist ein separates System. Das hier sind die Stempel-Belohnungen.
-        if (newStampCount === 5) {
-            updateData.activePrize = '3€ Rabatt';
-        } else if (newStampCount === 10) {
-            updateData.activePrize = '7€ Rabatt';
-        }
         
         t.update(userRef, updateData);
+        
+        updatedUser = toPlainObject({ ...userData, id: doc.id, ...updateData });
     });
 
     revalidatePath('/dashboard/loyalty');
-    return { success: true };
+    revalidatePath('/employee/scanner');
+    
+    if (!updatedUser) throw new Error("Failed to update user.");
+    return updatedUser;
 }
 
-// Gewinn einlösen
-export async function redeemPrize(userId: string) {
+/**
+ * Redeems a prize won from the Wheel of Fortune.
+ */
+export async function redeemPrize(userId: string): Promise<{ success: true }> {
     await requireRole(['employee', 'admin']);
     const validatedUserId = z.string().min(1).parse(userId);
     const userRef = adminDb.collection('users').doc(validatedUserId);
     
     const doc = await userRef.get();
-    if (!doc.exists) {
-        throw new Error("Kunde nicht gefunden.");
-    }
-    const userData = doc.data() as User;
-    if (!userData.activePrize) {
-        throw new Error("Kunde hat keinen aktiven Gewinn zum Einlösen.");
-    }
+    if (!doc.exists) throw new Error("Kunde nicht gefunden.");
+    if (!doc.data()?.activePrize) throw new Error("Kunde hat keinen aktiven Gewinn zum Einlösen.");
 
-    const prize = userData.activePrize;
-    const updateData: { activePrize: FieldValue, loyaltyStamps?: number } = {
+    await userRef.update({
         activePrize: FieldValue.delete(),
-    };
-    
-    // Logik für Stempelkarten-Rabatte: Stempel zurücksetzen nach Einlösung
-    if (prize === '3€ Rabatt') {
-        // Hier wird nichts zurückgesetzt, der User kann für die 10er-Marke weitersparen
-    } else if (prize === '7€ Rabatt') {
-        // Bei Einlösung der Hauptbelohnung wird die Karte zurückgesetzt
-        updateData.loyaltyStamps = 0; 
-    }
-
-    await userRef.update(updateData);
+    });
 
     revalidatePath('/dashboard/loyalty');
-    revalidatePath('/employee/scanner'); // Revalidate scanner to show updated user state
+    revalidatePath('/employee/scanner');
 
-    return { success: true, prize };
+    return { success: true };
 }
+
+
+/**
+ * Redeems a stamp-based reward (3€ or 7€) and resets the stamp count.
+ * Returns the updated user object.
+ */
+export async function redeemStampReward(userId: string, stampsToRedeem: 5 | 10): Promise<User> {
+    await requireRole(['employee', 'admin']);
+
+    const validatedUserId = z.string().min(1).parse(userId);
+    const userRef = adminDb.collection('users').doc(validatedUserId);
     
+    let updatedUser: User | null = null;
+
+    await adminDb.runTransaction(async (t) => {
+        const doc = await t.get(userRef);
+        if (!doc.exists) throw new Error("Kunde nicht gefunden");
+
+        const userData = doc.data() as User;
+        const currentStamps = userData.loyaltyStamps || 0;
+
+        if (currentStamps < stampsToRedeem) {
+            throw new Error(`Nicht genügend Stempel. Benötigt: ${stampsToRedeem}, vorhanden: ${currentStamps}.`);
+        }
+
+        // Reset stamps to 0
+        const updateData = { loyaltyStamps: 0 };
+        t.update(userRef, updateData);
+        updatedUser = toPlainObject({ ...userData, id: doc.id, ...updateData });
+    });
+    
+    revalidatePath('/dashboard/loyalty');
+    revalidatePath('/employee/scanner');
+
+    if (!updatedUser) throw new Error("Failed to update user after redeeming stamp reward.");
+    return updatedUser;
+}

@@ -4,19 +4,19 @@
 import { PageHeader } from "@/components/common/PageHeader";
 import { getSession } from "@/lib/session";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Gift, Sparkles, Star } from "lucide-react";
+import { Gift, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { QrCodeDisplay } from "./_components/QrCodeDisplay";
 
 function Stamp({ filled, index }: { filled: boolean, index: number }) {
     return (
         <div className={cn(
-            "w-full aspect-square rounded-full flex items-center justify-center transition-all",
-            filled ? "bg-accent/20 border-2 border-dashed border-accent" : "bg-secondary"
+            "w-full aspect-square rounded-full flex items-center justify-center transition-all border-2 border-dashed",
+            filled ? "bg-accent/20 border-accent" : "bg-secondary border-border"
         )}
         style={{ animationDelay: `${index * 50}ms`}}
         >
-            {filled && <Sparkles className="w-1/2 h-1/2 text-accent animate-in fade-in-50 zoom-in-75" />}
+            {filled && <span className="font-headline font-bold text-2xl text-accent animate-in fade-in-50 zoom-in-75">S</span>}
         </div>
     );
 }
@@ -53,12 +53,12 @@ export default async function LoyaltyPage() {
                         <Card className="shadow-lg bg-gradient-to-br from-accent/80 to-blue-400 border-accent animate-in fade-in-50">
                              <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-accent-foreground">
-                                    <Star className="w-5 h-5"/> Aktiver Gewinn
+                                    <Star className="w-5 h-5"/> Aktiver Gewinn (Glücksrad)
                                 </CardTitle>
+                                <CardDescription className="text-accent-foreground/80">Zeigen Sie dies an der Kasse!</CardDescription>
                             </CardHeader>
                             <CardContent className="text-center">
                                 <p className="text-2xl font-bold text-accent-foreground">{activePrize}</p>
-                                <p className="text-sm text-accent-foreground/80 mt-1">An der Kasse einlösbar!</p>
                             </CardContent>
                         </Card>
                     )}
@@ -68,6 +68,9 @@ export default async function LoyaltyPage() {
                      <Card className="shadow-lg">
                         <CardHeader>
                             <CardTitle>Stempelkarte</CardTitle>
+                            <CardDescription>
+                                Jeder Stempel ist ein Schritt näher an Ihrer nächsten Belohnung.
+                            </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-5 gap-2">
@@ -122,7 +125,7 @@ export default async function LoyaltyPage() {
                                 </div>
                                 {stamps >= 10 && (
                                     <p className="text-xs text-accent-foreground mt-2 font-bold text-center">
-                                    Maximale Belohnung erreicht!
+                                    Maximale Belohnung erreicht! An der Kasse einlösbar.
                                     </p>
                                 )}
                             </div>

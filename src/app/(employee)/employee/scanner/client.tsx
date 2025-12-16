@@ -2,11 +2,11 @@
 'use client';
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Gift, Plus, Loader2 } from "lucide-react";
-import { redeemPrize, addStamp } from "@/app/actions/loyalty.actions";
+import { redeemPrize, addStamp, redeemStampReward } from "@/app/actions/loyalty.actions";
 import { getCustomerDetails } from '@/app/actions/customer.actions';
 import type { User } from '@/lib/types';
 import { useRouter } from 'next/navigation';
@@ -42,15 +42,28 @@ export function EmployeeScannerClient({ userId }: { userId: string }) {
     }, [userId, handleScan]);
 
 
-    const handleRedeem = async () => {
-        if (!scannedUser) return;
+    const handleRedeemWheelPrize = async () => {
+        if (!scannedUser?.activePrize) return;
         startActionTransition(async () => {
              try {
                 await redeemPrize(scannedUser.id);
                 setScannedUser({ ...scannedUser, activePrize: undefined });
-                toast({ title: "Gewinn eingelöst!", className: "bg-green-600 text-white" });
+                toast({ title: "Glücksrad-Gewinn eingelöst!", className: "bg-green-600 text-white" });
             } catch (e: any) {
                 toast({ variant: "destructive", title: "Fehler beim Einlösen", description: e.message });
+            }
+        });
+    };
+    
+    const handleRedeemStampReward = async (stampsToRedeem: 5 | 10) => {
+        if (!scannedUser) return;
+        startActionTransition(async () => {
+             try {
+                const updatedUser = await redeemStampReward(scannedUser.id, stampsToRedeem);
+                setScannedUser(updatedUser);
+                toast({ title: "Stempel-Rabatt eingelöst!", description: `${stampsToRedeem === 5 ? '3€' : '7€'} Rabatt angewendet.` });
+            } catch (e: any) {
+                toast({ variant: "destructive", title: "Fehler beim Einlösen des Stempel-Rabatts", description: e.message });
             }
         });
     };
@@ -59,9 +72,9 @@ export function EmployeeScannerClient({ userId }: { userId: string }) {
         if (!scannedUser) return;
         startActionTransition(async () => {
             try {
-                await addStamp(scannedUser.id);
-                setScannedUser({ ...scannedUser, loyaltyStamps: (scannedUser.loyaltyStamps || 0) + 1 });
-                toast({ title: "Stempel hinzugefügt" });
+                const updatedUser = await addStamp(scannedUser.id);
+                setScannedUser(updatedUser);
+                toast({ title: "Stempel hinzugefügt", description: `Neuer Stand: ${updatedUser.loyaltyStamps} Stempel.` });
             } catch (e: any) {
                 toast({ variant: "destructive", title: "Fehler", description: e.message });
             }
@@ -82,7 +95,6 @@ export function EmployeeScannerClient({ userId }: { userId: string }) {
     }
     
     if (!scannedUser) {
-        // This case should ideally not be seen if error handling pushes back to menu.
         return (
             <div className="text-center text-red-500 mt-4">
                 <p>Kunde konnte nicht geladen werden. Bitte versuchen Sie es erneut.</p>
@@ -91,33 +103,68 @@ export function EmployeeScannerClient({ userId }: { userId: string }) {
         );
     }
 
+    const stamps = scannedUser.loyaltyStamps || 0;
+
     return (
         <Card className="border-2 border-primary/20 animate-in fade-in slide-in-from-bottom-4 mt-4">
             <CardHeader className="pb-2">
                 <CardTitle>{scannedUser.name || scannedUser.email}</CardTitle>
-                <p className="text-sm text-muted-foreground">Stempel: {scannedUser.loyaltyStamps || 0}</p>
+                <p className="text-sm text-muted-foreground">Aktueller Stand: <span className="font-bold">{stamps}</span> Stempel</p>
             </CardHeader>
             <CardContent className="space-y-4">
                 
+                {/* 1. Glücksrad-Gewinn */}
                 {scannedUser.activePrize ? (
                     <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg flex flex-col gap-3">
                         <div className="flex items-center gap-2 text-yellow-800 font-bold">
                             <Gift className="h-5 w-5" />
-                            <span>Gewinn verfügbar:</span>
+                            <span>Gewinn (Glücksrad):</span>
                         </div>
                         <div className="text-xl text-center font-black text-yellow-900">
                             {scannedUser.activePrize}
                         </div>
-                        <Button onClick={handleRedeem} className="w-full bg-yellow-500 hover:bg-yellow-600 text-black" disabled={isActionPending}>
+                        <Button onClick={handleRedeemWheelPrize} className="w-full bg-yellow-500 hover:bg-yellow-600 text-black" disabled={isActionPending}>
                             {isActionPending ? <Loader2 className="animate-spin" /> : 'Jetzt anwenden (Einlösen)'}
                         </Button>
                     </div>
                 ) : (
                     <div className="text-center text-sm text-gray-400 py-2 border rounded-lg border-dashed">
-                        Kein offener Gewinn
+                        Kein offener Glücksrad-Gewinn
+                    </div>
+                )}
+                
+                {/* 2. Stempel-Belohnungen */}
+                {stamps === 10 && (
+                     <div className="bg-green-50 border border-green-200 p-4 rounded-lg flex flex-col gap-3">
+                        <div className="flex items-center gap-2 text-green-800 font-bold">
+                            <Gift className="h-5 w-5" />
+                            <span>Stempel-Belohnung:</span>
+                        </div>
+                        <div className="text-xl text-center font-black text-green-900">
+                            7€ Super-Bonus
+                        </div>
+                        <Button onClick={() => handleRedeemStampReward(10)} className="w-full bg-green-500 hover:bg-green-600 text-white" disabled={isActionPending}>
+                            {isActionPending ? <Loader2 className="animate-spin" /> : '7€ Rabatt anwenden'}
+                        </Button>
+                    </div>
+                )}
+                {stamps >= 5 && stamps < 10 && (
+                     <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg flex flex-col gap-3">
+                        <div className="flex items-center gap-2 text-blue-800 font-bold">
+                            <Gift className="h-5 w-5" />
+                            <span>Stempel-Belohnung:</span>
+                        </div>
+                        <div className="text-xl text-center font-black text-blue-900">
+                            3€ Rabatt
+                        </div>
+                        <p className="text-xs text-center text-blue-700">Der Kunde kann auch für 7€ weitersparen.</p>
+                        <Button onClick={() => handleRedeemStampReward(5)} className="w-full bg-blue-500 hover:bg-blue-600 text-white" disabled={isActionPending}>
+                            {isActionPending ? <Loader2 className="animate-spin" /> : '3€ Rabatt jetzt anwenden'}
+                        </Button>
                     </div>
                 )}
 
+                {/* 3. Stempel hinzufügen */}
                 <div className="pt-4 border-t">
                     <Button onClick={handleAddStamp} className="w-full h-12 text-lg" variant="outline" disabled={isActionPending}>
                         {isActionPending ? <Loader2 className="animate-spin" /> : <><Plus className="mr-2 h-5 w-5" /> Stempel für Einkauf geben</>}

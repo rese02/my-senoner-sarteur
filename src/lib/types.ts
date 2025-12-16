@@ -25,7 +25,7 @@ export interface User {
   };
   lastWheelSpin?: string;
   activePrize?: string;
-  lastPointUpdate?: string;
+  lastStampAt?: string;
 }
 
 export interface LoyaltyData {
