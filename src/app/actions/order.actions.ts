@@ -1,4 +1,3 @@
-
 'use server';
 
 import { getSession } from '@/lib/session';
@@ -73,19 +72,21 @@ export async function createPreOrder(
 
 export async function createConciergeOrder(
   notes: string,
-  address: { street: string; city: string }
+  address: { street: string; city: string },
+  deliveryDate: Date
 ) {
     const session = await requireRole(['customer']);
 
     const validatedNotes = z.string().trim().min(1).safeParse(notes);
     const validatedAddress = AddressSchema.safeParse(address);
+    const validatedDate = z.date().min(new Date()).safeParse(deliveryDate);
 
     if (!validatedNotes.success) throw new Error('Notes are empty.');
     if (!validatedAddress.success) throw new Error('Invalid address.');
+    if (!validatedDate.success) throw new Error('Invalid delivery date.');
 
-    const deliveryDate = new Date();
-    deliveryDate.setDate(deliveryDate.getDate() + 1);
-    deliveryDate.setHours(11, 0, 0, 0);
+    const finalDeliveryDate = validatedDate.data;
+    finalDeliveryDate.setHours(11, 0, 0, 0);
 
     const orderData = {
         userId: session.userId,
@@ -94,7 +95,7 @@ export async function createConciergeOrder(
         type: 'grocery_list' as const,
         rawList: validatedNotes.data,
         deliveryAddress: validatedAddress.data,
-        deliveryDate: deliveryDate.toISOString(),
+        deliveryDate: finalDeliveryDate.toISOString(),
         total: 0, // Set initial total to 0, it will be calculated later.
         status: 'new' as const,
     };
