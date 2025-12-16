@@ -8,15 +8,14 @@ import { getWheelOfFortuneDataForCustomer } from '@/app/actions/marketing.action
 
 // Data fetching is now done on the server for speed and security.
 async function getData() {
-  const { products, categories, stories, recipe } = await getDashboardData();
-  const session = await getSession();
+  const { products, categories, stories, recipe, openOrder } = await getDashboardData();
   const wheelData = await getWheelOfFortuneDataForCustomer();
-  return { products, categories, stories, recipe, session, wheelData };
+  return { products, categories, stories, recipe, wheelData, openOrder };
 }
 
 
 export default async function CustomerDashboardPage() {
-    const { products, categories, stories, recipe, session, wheelData } = await getData();
+    const { products, categories, stories, recipe, wheelData, openOrder } = await getData();
 
     return (
         <Suspense fallback={<Loading />}>
@@ -26,6 +25,7 @@ export default async function CustomerDashboardPage() {
                 stories={stories}
                 recipe={recipe}
                 wheelData={wheelData}
+                openOrder={openOrder}
             />
         </Suspense>
     );

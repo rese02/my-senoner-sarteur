@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -12,9 +13,15 @@ export function middleware(request: NextRequest) {
   if (url.pathname.startsWith('/api/test-connection')) {
       return NextResponse.next();
   }
+  
+  // Root page should always redirect to login if no session
+  if (url.pathname === '/' && !hasSession) {
+      url.pathname = '/login';
+      return NextResponse.redirect(url);
+  }
 
   // If trying to access a protected page without a session, redirect to login
-  if (!hasSession && !isPublicPage) {
+  if (!hasSession && !isPublicPage && url.pathname !== '/') {
     url.pathname = '/login';
     url.searchParams.set('callbackUrl', request.nextUrl.pathname);
     return NextResponse.redirect(url);
@@ -22,8 +29,9 @@ export function middleware(request: NextRequest) {
 
   // If already has a session and tries to access login/register, redirect to dashboard
   if (hasSession && (url.pathname.startsWith('/login') || url.pathname.startsWith('/register'))) {
-    url.pathname = '/dashboard';
-    return NextResponse.redirect(url);
+    // Don't redirect immediately. The layout's role check will handle it.
+    // This prevents redirect loops if the session is invalid.
+    return NextResponse.next();
   }
 
   return NextResponse.next();

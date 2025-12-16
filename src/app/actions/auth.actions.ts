@@ -51,7 +51,7 @@ export async function createSession(idToken: string | null) {
       maxAge: expiresIn,
       httpOnly: true,
       secure: true,      // ZWINGEND TRUE für HTTPS/Cloud
-      sameSite: 'none',  // ZWINGEND NONE für Cloud/iFrames
+      sameSite: 'lax',  // 'lax' ist ein sicherer Standard für die meisten Fälle
       path: '/',
     });
 
@@ -83,8 +83,6 @@ const registerFormSchema = z.object({
 export async function registerUser(values: unknown) {
   const validation = registerFormSchema.safeParse(values);
   if (!validation.success) {
-    // This provides a generic error. For more specific field errors,
-    // the client-side validation should be the primary source of feedback.
     return { success: false, error: 'Invalid data provided. Please check all fields.' };
   }
 

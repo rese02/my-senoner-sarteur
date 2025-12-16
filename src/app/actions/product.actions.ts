@@ -47,6 +47,21 @@ export async function getDashboardData() {
     const storiesSnapshot = await adminDb.collection('stories').limit(10).get();
     const recipeDoc = await adminDb.collection('content').doc('recipe_of_the_week').get();
 
+    // Check for user's open orders
+    const session = await getSession();
+    let openOrder: Order | null = null;
+    if (session?.userId) {
+        const openOrdersSnap = await adminDb.collection('orders')
+            .where('userId', '==', session.userId)
+            .where('status', 'in', ['new', 'picking', 'ready_for_delivery'])
+            .orderBy('createdAt', 'desc')
+            .limit(1)
+            .get();
+        if (!openOrdersSnap.empty) {
+            openOrder = toPlainObject({id: openOrdersSnap.docs[0].id, ...openOrdersSnap.docs[0].data()} as Order);
+        }
+    }
+
 
     const products = productsSnapshot.docs.map((doc) =>
       toPlainObject({ id: doc.id, ...doc.data() } as Product)
@@ -60,7 +75,7 @@ export async function getDashboardData() {
     
     const recipe = recipeDoc.exists ? toPlainObject(recipeDoc.data() as Recipe) : getFallbackRecipe();
 
-    return { products, categories, stories, recipe };
+    return { products, categories, stories, recipe, openOrder };
   } catch (error) {
     console.error("Failed to fetch dashboard data:", error);
     // Return empty arrays on failure to prevent crashes
@@ -69,52 +84,88 @@ export async function getDashboardData() {
       categories: [],
       stories: [],
       recipe: getFallbackRecipe(),
+      openOrder: null
     };
   }
 }
 
-// Get data for the admin dashboard
-export async function getDashboardPageData() {
-  await requireAdmin();
-  try {
-    // Perform queries in parallel for efficiency
-    const [ordersSnapshot, usersSnapshot] = await Promise.all([
-      adminDb.collection('orders').get(),
-      adminDb.collection('users').get(),
-    ]);
-    
-    const orders = ordersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
-    const users = usersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as User));
-    
-    // --- Chart Data Logic ---
-    const last7Days = Array.from({ length: 7 }).map((_, i) => {
-        const d = subDays(new Date(), i);
-        return format(startOfDay(d), 'yyyy-MM-dd');
-    }).reverse();
+// Get STATS for the admin dashboard using aggregation queries
+export async function getDashboardStats() {
+    await requireAdmin();
+    try {
+        const ordersCol = adminDb.collection('orders');
+        const usersCol = adminDb.collection('users');
 
-    const ordersByDay: Record<string, number> = last7Days.reduce((acc, dateStr) => {
-        acc[dateStr] = 0;
-        return acc;
-    }, {} as Record<string, number>);
+        const [totalRevenueSnap, totalOrdersSnap, totalCustomersSnap, openOrdersSnap] = await Promise.all([
+            ordersCol.where('status', 'in', ['collected', 'delivered', 'paid']).aggregate({ total: { sum: 'total' } }).get(),
+            ordersCol.count().get(),
+            usersCol.where('role', '==', 'customer').count().get(),
+            ordersCol.where('status', 'in', ['new', 'picking', 'ready', 'ready_for_delivery']).count().get()
+        ]);
+        
+        return {
+            totalRevenue: totalRevenueSnap.data().total || 0,
+            totalOrders: totalOrdersSnap.data().count,
+            totalCustomers: totalCustomersSnap.data().count,
+            openOrders: openOrdersSnap.data().count
+        };
+    } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+        return { totalRevenue: 0, totalOrders: 0, totalCustomers: 0, openOrders: 0 };
+    }
+}
 
-    orders.forEach(order => {
-        if (!order.createdAt) return;
-        const orderDate = format(parseISO(order.createdAt), 'yyyy-MM-dd');
-        if (ordersByDay.hasOwnProperty(orderDate)) {
-            ordersByDay[orderDate]++;
-        }
-    });
+// Get recent orders for the admin dashboard (limited)
+export async function getRecentOrders() {
+    await requireAdmin();
+    try {
+        const recentOrdersSnap = await adminDb.collection('orders')
+            .where('status', 'in', ['new', 'picking', 'ready', 'ready_for_delivery'])
+            .orderBy('createdAt', 'desc')
+            .limit(10)
+            .get();
+        return recentOrdersSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
+    } catch (error) {
+        console.error("Error fetching recent orders:", error);
+        return [];
+    }
+}
 
-    const chartData = last7Days.map(dateStr => ({
-        date: format(parseISO(dateStr), 'EEE'), // Format as "Mon", "Tue", etc.
-        totalOrders: ordersByDay[dateStr]
-    }));
+// Get data for the chart on the admin dashboard
+export async function getOrdersForChart() {
+    await requireAdmin();
+    try {
+        const last7Days = Array.from({ length: 7 }).map((_, i) => {
+            const d = subDays(new Date(), i);
+            return format(startOfDay(d), 'yyyy-MM-dd');
+        }).reverse();
 
-    return { orders, users, chartData };
-  } catch (error) {
-    console.error("Error fetching data for dashboard:", error);
-    return { orders: [], users: [], chartData: [] };
-  }
+        const ordersByDay: Record<string, number> = last7Days.reduce((acc, dateStr) => {
+            acc[dateStr] = 0;
+            return acc;
+        }, {} as Record<string, number>);
+
+        const ordersSnap = await adminDb.collection('orders')
+            .where('createdAt', '>=', startOfDay(subDays(new Date(), 6)).toISOString())
+            .get();
+        
+        ordersSnap.forEach(doc => {
+            const order = doc.data() as Order;
+            if (!order.createdAt) return;
+            const orderDate = format(parseISO(order.createdAt), 'yyyy-MM-dd');
+            if (ordersByDay.hasOwnProperty(orderDate)) {
+                ordersByDay[orderDate]++;
+            }
+        });
+
+        return last7Days.map(dateStr => ({
+            date: format(parseISO(dateStr), 'EEE'),
+            totalOrders: ordersByDay[dateStr]
+        }));
+    } catch (error) {
+        console.error("Error fetching chart data:", error);
+        return [];
+    }
 }
 
 

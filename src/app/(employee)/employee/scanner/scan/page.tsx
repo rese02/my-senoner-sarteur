@@ -3,11 +3,16 @@
 import { Button } from '@/components/ui/button';
 import { X, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useEffect, useRef, useCallback, useState } from 'react';
-import Webcam from 'react-webcam';
+import { useEffect, useRef, useCallback, useState, Suspense } from 'react';
 import jsQR from 'jsqr';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
 
+const Webcam = dynamic(() => import('react-webcam'), {
+    ssr: false,
+    loading: () => <Skeleton className="h-full w-full bg-muted" />
+});
 
 export default function ScanPage() {
     const { toast } = useToast();
@@ -46,8 +51,6 @@ export default function ScanPage() {
                     
                     const userId = code.data.replace('senoner-user:', '');
                     
-                    // Umleiten zur Haupt-Scanner-Seite mit der ID als Query-Parameter.
-                    // Die client.tsx auf dieser Seite wird den Parameter erkennen und verarbeiten.
                     router.push(`/employee/scanner?userId=${userId}`);
                 }
             }
@@ -58,7 +61,10 @@ export default function ScanPage() {
     }, [isScanning, toast, router]);
 
     useEffect(() => {
+        // Start scanning animation frame loop
         requestRef.current = requestAnimationFrame(scanQrCode);
+        
+        // Cleanup function to cancel the animation frame when the component unmounts
         return () => {
             if (requestRef.current) {
                 cancelAnimationFrame(requestRef.current);
@@ -67,6 +73,7 @@ export default function ScanPage() {
     }, [scanQrCode]);
 
      useEffect(() => {
+        // Vibrate on mount to signal camera is ready
         if (typeof window.navigator.vibrate === 'function') {
             window.navigator.vibrate(100);
         }
