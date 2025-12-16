@@ -42,18 +42,16 @@ export function ProductCard({ product }: { product: Product }) {
                     src={product.imageUrl || fallbackImageUrl} 
                     alt={product.name} 
                     fill 
-                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    sizes="(max-width: 768px) 50vw, 20vw"
                     className="object-cover transition-transform duration-300 group-hover:scale-105" 
                     data-ai-hint={product.imageHint} 
                 />
             </div>
             <CardContent className="p-3 flex flex-col flex-grow">
                 <h3 className="text-sm font-bold font-headline leading-tight line-clamp-2 flex-grow whitespace-normal">{product.name}</h3>
-                <div className="mt-1">
-                     <div className="flex items-baseline">
-                        <p className="text-base font-bold text-foreground">€{product.price.toFixed(2)}</p>
-                        <span className="text-xs text-muted-foreground font-normal ml-1">/ {product.unit}</span>
-                    </div>
+                <div className="flex items-baseline mt-1">
+                    <p className="text-lg font-bold text-primary">€{product.price.toFixed(2)}</p>
+                    <p className="text-xs text-muted-foreground ml-1">/ {product.unit}</p>
                 </div>
 
                 <div className="flex items-center justify-center gap-2 mt-4">
