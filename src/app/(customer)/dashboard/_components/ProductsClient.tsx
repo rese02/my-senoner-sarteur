@@ -32,7 +32,7 @@ const statusMap: Record<OrderStatus, { label: string; icon: React.ElementType }>
 function OpenOrderStatus({ order }: { order: Order }) {
     const StatusIcon = statusMap[order.status]?.icon || Info;
     return (
-         <Card className="mb-8 p-4 border-l-4 border-primary animate-in fade-in-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm">
+         <Card className="p-4 border-primary/20 animate-in fade-in-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm border">
             <div className="flex items-center gap-3">
                 <StatusIcon className="h-6 w-6 text-primary flex-shrink-0" />
                 <div className="flex-grow">
@@ -71,11 +71,11 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
             <Stories stories={stories} />
             
             <div className="grid grid-cols-1 gap-6">
-                {openOrder && <OpenOrderStatus order={openOrder} />}
                 {wheelData && <WheelOfFortuneCard settings={wheelData} />}
                 <RecipeCard recipe={recipe} />
             </div>
 
+            {openOrder && <OpenOrderStatus order={openOrder} />}
             
             {categories.map(category => {
               const categoryProducts = products.filter(p => p.categoryId === category.id && p.type === 'product');
