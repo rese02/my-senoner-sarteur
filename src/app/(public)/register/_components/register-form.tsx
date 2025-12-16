@@ -26,9 +26,10 @@ const formSchema = z.object({
   zip: z.string().min(4, { message: 'Bitte geben Sie eine PLZ ein.' }),
   province: z.string().min(2, { message: 'Bitte geben Sie eine Provinz ein.' }),
   privacyPolicy: z.boolean().refine((val) => val === true, {
-    message: 'Sie müssen die Datenschutzbestimmungen akzeptieren.',
+    message: 'Sie müssen die AGB und Datenschutzerklärung akzeptieren.',
   }),
   marketingConsent: z.boolean().optional(),
+  profilingConsent: z.boolean().optional(),
 });
 
 export function RegisterForm() {
@@ -49,6 +50,7 @@ export function RegisterForm() {
       province: 'BZ',
       privacyPolicy: false,
       marketingConsent: false,
+      profilingConsent: false,
     },
   });
 
@@ -229,7 +231,7 @@ export function RegisterForm() {
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel>
-                      Ich habe die <Link href="/datenschutz" target="_blank" className="font-semibold text-white underline hover:no-underline">Datenschutzerklärung</Link> gelesen und akzeptiere sie.
+                      Ich habe die <Link href="/datenschutz" target="_blank" className="font-semibold text-white underline hover:no-underline">Datenschutzerklärung</Link> und AGB gelesen und akzeptiere diese.
                     </FormLabel>
                     <FormMessage className="text-accent/80" />
                   </div>
@@ -250,9 +252,30 @@ export function RegisterForm() {
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel>
-                     Ich möchte den Newsletter und personalisierte Angebote erhalten.
+                     Ich möchte den Newsletter und Angebote per E-Mail erhalten.
                     </FormLabel>
                      <p className="text-xs text-primary-foreground/60">Diese Einwilligung kann jederzeit im Profil widerrufen werden.</p>
+                    <FormMessage className="text-accent/80" />
+                  </div>
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="profilingConsent"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md">
+                  <FormControl>
+                    <Checkbox 
+                      checked={field.value} 
+                      onCheckedChange={field.onChange} 
+                      className="border-primary-foreground/50 data-[state=checked]:bg-white data-[state=checked]:text-primary"
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>
+                     Ich stimme zu, dass meine Einkäufe analysiert werden, um mir persönliche Angebote und Weinempfehlungen anzuzeigen.
+                    </FormLabel>
                     <FormMessage className="text-accent/80" />
                   </div>
                 </FormItem>

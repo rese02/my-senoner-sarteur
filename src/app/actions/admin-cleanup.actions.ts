@@ -3,7 +3,7 @@
 import 'server-only';
 
 import { getSession } from '@/lib/session';
-import { adminDb } from '@/lib/firebase-admin';
+import { adminDb, adminAuth } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import { toPlainObject } from '@/lib/utils';
 import type { Order } from '@/lib/types';
@@ -105,4 +105,47 @@ export async function deleteOldOrders(months: number) {
   revalidatePath('/admin/dashboard');
   
   return { count: snapshot.size, success: true };
+}
+
+
+export async function deleteInactiveUsers(months: number) {
+    await requireAdmin();
+
+    const validatedMonths = z.number().int().positive().safeParse(months);
+    if (!validatedMonths.success) {
+        return { success: false, error: "Ungültiger Zeitraum." };
+    }
+
+    const cutoffDate = new Date();
+    cutoffDate.setMonth(cutoffDate.getMonth() - validatedMonths.data);
+
+    // Query for users who have not logged in since the cutoff date
+    // Note: Firestore might require an index for this query.
+    // The query targets users whose lastLogin is either older than the cutoff or does not exist.
+    const inactiveUsersQuery = adminDb.collection('users')
+        .where('lastLogin', '<', cutoffDate.toISOString());
+
+    const snapshot = await inactiveUsersQuery.get();
+
+    if (snapshot.empty) {
+        return { count: 0, success: true };
+    }
+
+    const uidsToDelete = snapshot.docs.map(doc => doc.id);
+
+    // Delete from Firebase Authentication
+    // Batch delete users from Auth (max 1000 per call)
+    await adminAuth.deleteUsers(uidsToDelete);
+
+    // Delete from Firestore
+    const batch = adminDb.batch();
+    snapshot.docs.forEach(doc => {
+        batch.delete(doc.ref);
+    });
+    await batch.commit();
+
+    revalidatePath('/admin/customers');
+    revalidatePath('/admin/settings');
+
+    return { count: snapshot.size, success: true };
 }

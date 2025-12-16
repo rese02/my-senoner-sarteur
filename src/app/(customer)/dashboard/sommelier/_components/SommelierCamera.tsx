@@ -4,12 +4,13 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { Button } from '@/components/ui/button';
-import { Camera, X, Loader2, Sparkles, FileWarning } from 'lucide-react';
+import { Camera, X, Loader2, Sparkles, FileWarning, Info } from 'lucide-react';
 import { suggestWinePairing } from '@/app/actions/sommelier.actions';
 import { ProductCard } from '@/components/custom/ProductCard';
 import type { Product } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export function SommelierCamera() {
   const webcamRef = useRef<Webcam>(null);
@@ -115,7 +116,14 @@ export function SommelierCamera() {
                 <ProductCard key={wine.id} product={wine} />
               ))}
             </div>
-             <Button onClick={reset} className="mt-8 w-full">
+             <Alert variant="default" className="mt-6 text-xs text-muted-foreground">
+                <Info className="h-4 w-4" />
+                <AlertTitle className="font-bold">KI-Vorschlag</AlertTitle>
+                <AlertDescription>
+                   Kann Fehler enthalten. Bitte prüfen Sie Allergene stets auf der Verpackung.
+                </AlertDescription>
+            </Alert>
+             <Button onClick={reset} className="mt-4 w-full">
                 Neuen Scan starten
             </Button>
           </div>
