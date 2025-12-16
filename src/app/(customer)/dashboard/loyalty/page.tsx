@@ -40,7 +40,7 @@ export default async function LoyaltyPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1 space-y-6">
-                    <Card className="shadow-lg">
+                    <Card className="shadow-none border-none">
                         <CardHeader>
                             <CardTitle>Ihr QR-Code</CardTitle>
                         </CardHeader>
