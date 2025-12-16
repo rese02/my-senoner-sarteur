@@ -1,3 +1,4 @@
+
 'use client';
 
 import { getCustomerOrders, deleteMyOrders } from "@/app/actions/order.actions";
@@ -120,7 +121,7 @@ function OrderHistoryCard({
                             <Separator/>
                             <div className="flex justify-between items-baseline">
                                 <span className="text-sm font-bold">Gesamt</span>
-                                <span className="text-lg font-semibold text-primary">€{order.total.toFixed(2)}</span>
+                                <span className="text-base font-semibold text-primary">€{order.total.toFixed(2)}</span>
                             </div>
                         </>
                     ) : (

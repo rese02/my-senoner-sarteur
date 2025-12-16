@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { CartItem } from '@/lib/types';
@@ -42,13 +43,17 @@ export const useCartStore = create<CartState>()(
         getItem: (name) => {
           try {
             const str = localStorage.getItem(name);
+            // If the stored value is null or an empty string, it's not valid JSON.
+            // Return a valid initial state to prevent a parsing error.
             if (!str) {
-              // If the stored value is null or an empty string, return a valid initial state.
               return JSON.stringify({ state: { items: [] }, version: 0 });
             }
+            // If there's content, proceed to parse it. 
+            // The library will handle parsing internally.
             return str;
           } catch (e) {
-            // If any other error occurs during parsing, fall back to a safe initial state.
+            // If any other error occurs during reading (e.g., security restrictions),
+            // fall back to a safe initial state.
              console.error("Failed to read from localStorage for cart:", e);
              return JSON.stringify({ state: { items: [] }, version: 0 });
           }
