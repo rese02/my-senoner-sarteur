@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useState } from 'react';
-import { jsQR } from 'jsqr';
-import { addPointsToUser } from '@/app/actions/loyalty.actions';
+import jsQR from 'jsqr';
+import { addStamp } from '@/app/actions/loyalty.actions';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,14 +69,14 @@ export default function EmployeeScannerPage() {
         }
     }, [scanResult, scanQrCode]);
 
-    const handleGivePoints = async (points: number) => {
+    const handleGivePoints = async (purchaseAmount: number) => {
         if (!scanResult) return;
         setLoading(true);
         try {
-            await addPointsToUser(scanResult, points);
+            await addStamp(scanResult, purchaseAmount);
             toast({ 
                 title: "Erfolg", 
-                description: `${points} Punkte gutgeschrieben!`,
+                description: `Stempel gutgeschrieben!`,
                 className: "bg-green-600 text-white" 
             });
             resetScanner();
@@ -131,11 +130,11 @@ export default function EmployeeScannerPage() {
                             <p className="text-sm font-mono text-green-700 mt-1">{scanResult}</p>
                         </div>
                         
-                        <div className="grid grid-cols-3 gap-3">
-                            <Button onClick={() => handleGivePoints(10)} disabled={loading} className="h-16 text-lg font-bold" variant="outline">+10</Button>
-                            <Button onClick={() => handleGivePoints(50)} disabled={loading} className="h-16 text-lg font-bold" variant="outline">+50</Button>
-                            <Button onClick={() => handleGivePoints(100)} disabled={loading} className="h-16 text-lg font-bold">+100</Button>
+                         <div className="space-y-2">
+                            <Button onClick={() => handleGivePoints(10)} disabled={loading} className="w-full h-14" variant="outline">Stempel für Einkauf geben</Button>
+                             <p className="text-xs text-muted-foreground">Fügt einen Stempel für den heutigen Einkauf hinzu.</p>
                         </div>
+                        
 
                         <Button variant="ghost" onClick={resetScanner} className="text-muted-foreground">
                             Abbrechen / Neuer Scan
@@ -146,4 +145,3 @@ export default function EmployeeScannerPage() {
         </div>
     );
 }
-

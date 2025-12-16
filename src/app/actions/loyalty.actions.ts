@@ -17,14 +17,11 @@ async function requireRole(roles: Array<'customer' | 'employee' | 'admin'>) {
     return session;
 }
 
-// 1. Mitarbeiter gibt Punkte (Scan)
-export async function addPointsToUser(userId: string, points: number) {
+export async function addStamp(userId: string, purchaseAmount: number) {
     await requireRole(['employee', 'admin']);
 
     const validatedUserId = z.string().min(1).parse(userId);
-    const validatedPoints = z.number().positive().parse(points);
-
-    if (validatedPoints <= 0) throw new Error("Ungültige Punktzahl");
+    // const validatedAmount = z.number().positive().parse(purchaseAmount);
 
     const userRef = adminDb.collection('users').doc(validatedUserId);
 
@@ -32,95 +29,77 @@ export async function addPointsToUser(userId: string, points: number) {
         const doc = await t.get(userRef);
         if (!doc.exists) throw new Error("Kunde nicht gefunden");
         
+        const currentStamps = doc.data()?.loyaltyStamps || 0;
+        
+        if (currentStamps >= 10) {
+            // Optional: prevent adding more stamps if card is full
+            // throw new Error("Stempelkarte ist bereits voll.");
+            // Or just do nothing. For now, we allow it.
+        }
+
         t.update(userRef, { 
-            loyaltyPoints: FieldValue.increment(validatedPoints),
+            loyaltyStamps: FieldValue.increment(1),
             lastPointUpdate: new Date().toISOString()
         });
     });
 
     revalidatePath('/dashboard/loyalty');
-    return { success: true, addedPoints: validatedPoints };
+    return { success: true };
 }
 
-
-// 2. Glücksrad drehen (Kunde)
-const PRIZES = [
-    { id: 'lose', label: 'Niete', chance: 50 },
-    { id: 'small', label: '10% Rabatt', chance: 30 },
-    { id: 'medium', label: 'Gratis Kaffee', chance: 15 },
-    { id: 'jackpot', label: 'Geschenkkorb', chance: 5 },
-];
-const WHEEL_SPIN_COST = 50;
-
-export async function spinWheelAndGetPrize() {
-    const session = await requireRole(['customer']);
+export async function redeemReward(userId: string, tier: 'small' | 'big') {
+    await requireRole(['employee', 'admin']);
     
-    const userRef = adminDb.collection('users').doc(session.userId);
+    const validatedUserId = z.string().min(1).parse(userId);
+    
+    const userRef = adminDb.collection('users').doc(validatedUserId);
 
-    const result = await adminDb.runTransaction(async (t) => {
+    await adminDb.runTransaction(async (t) => {
         const doc = await t.get(userRef);
-        if (!doc.exists) throw new Error("Benutzer nicht gefunden.");
+        if (!doc.exists) throw new Error("Kunde nicht gefunden");
+
+        const currentStamps = doc.data()?.loyaltyStamps || 0;
+        const requiredStamps = tier === 'small' ? 5 : 10;
         
-        const currentPoints = doc.data()?.loyaltyPoints || 0;
-
-        if (currentPoints < WHEEL_SPIN_COST) {
-            throw new Error(`Nicht genug Punkte! Du brauchst ${WHEEL_SPIN_COST}.`);
+        if (currentStamps < requiredStamps) {
+            throw new Error(`Nicht genug Stempel für diese Prämie. Benötigt: ${requiredStamps}, vorhanden: ${currentStamps}`);
         }
 
-        // Punkte abziehen
-        t.update(userRef, { loyaltyPoints: FieldValue.increment(-WHEEL_SPIN_COST) });
-
-        // Gewinn ermitteln (Weighted Random)
-        const random = Math.random() * 100;
-        let cumulative = 0;
-        let wonPrize = PRIZES[0]; // Default to 'lose'
-
-        for (const prize of PRIZES) {
-            cumulative += prize.chance;
-            if (random <= cumulative) {
-                wonPrize = prize;
-                break;
-            }
-        }
-        
-        // Gewinn in einer Unterkollektion speichern
-        if (wonPrize.id !== 'lose') {
-             const rewardRef = userRef.collection('rewards').doc();
-             t.set(rewardRef, {
-                 prizeId: wonPrize.id,
-                 label: wonPrize.label,
-                 createdAt: new Date().toISOString(),
-                 redeemed: false,
-             });
-        }
-
-        return { 
-            prize: wonPrize, 
-            remainingPoints: currentPoints - WHEEL_SPIN_COST 
-        };
+        t.update(userRef, { loyaltyStamps: FieldValue.increment(-requiredStamps) });
     });
 
     revalidatePath('/dashboard/loyalty');
-    return result;
+    return { success: true, redeemedTier: tier };
 }
 
-// Stempel-Funktionen sind jetzt veraltet und werden entfernt oder angepasst.
-// Die bestehende `redeemPrize` und `redeemReward` Logik muss überarbeitet werden,
-// um mit der neuen `rewards` Unterkollektion zu arbeiten, falls das gewünscht ist.
-// Fürs Erste entfernen wir sie, um Konflikte zu vermeiden.
 
+// This action is now only used for the Wheel of Fortune
 export async function redeemPrize(userId: string) {
     await requireRole(['employee', 'admin']);
-    // Diese Funktion muss neu implementiert werden, um aus der `rewards` Collection zu lesen und zu löschen.
-    console.log("redeemPrize needs reimplementation for new points system");
-    return { success: false, message: "Funktion nicht implementiert."};
+    const validatedUserId = z.string().min(1).parse(userId);
+    const userRef = adminDb.collection('users').doc(validatedUserId);
+    
+    const doc = await userRef.get();
+    if (!doc.exists || !doc.data()?.activePrize) {
+        throw new Error("Kunde hat keinen aktiven Gewinn zum Einlösen.");
+    }
+    
+    await userRef.update({ activePrize: null });
+
+    revalidatePath('/dashboard/loyalty');
+    revalidatePath('/admin/customers');
+
+    return { success: true, prize: doc.data()?.activePrize };
 }
 
-export async function addStamp(userId: string, purchaseAmount: number) {
-    console.log("addStamp is deprecated, use addPointsToUser");
+
+
+// Deprecated functions, kept for reference but should not be used.
+export async function addPointsToUser(userId: string, points: number) {
+    console.warn("addPointsToUser is deprecated, use addStamp instead");
     return { success: false, message: "Veraltete Funktion."};
 }
-export async function redeemReward(userId: string, tier: 'small' | 'big') {
-    console.log("redeemReward is deprecated");
+export async function spinWheelAndGetPrize() {
+    console.warn("spinWheelAndGetPrize is deprecated");
      return { success: false, message: "Veraltete Funktion."};
 }
