@@ -163,7 +163,7 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
                             </div>
                         )}
                         {!result && (
-                            <Button onClick={handleSpin} disabled={isSpinning} className="w-full mt-2" size="lg">
+                            <Button onClick={handleSpin} disabled={isSpinning} className="w-full mt-2">
                                 {isSpinning ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                                 {isSpinning ? 'Wird gedreht...' : 'Drehen!'}
                             </Button>
