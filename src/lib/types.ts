@@ -9,7 +9,6 @@ export interface User {
   password?: string; // Only for mock data, not in real DB
   customerSince?: string;
   loyaltyStamps?: number; // New stamp system
-  loyaltyPoints?: number; // This can be removed or kept for other purposes.
   phone?: string;
   deliveryAddress?: {
     street: string;

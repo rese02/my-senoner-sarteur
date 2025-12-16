@@ -28,7 +28,7 @@ export async function getCustomerDetails(userId: string): Promise<User> {
     const doc = await adminDb.collection('users').doc(validatedId).get();
     if (!doc.exists) throw new Error("Kunde nicht gefunden");
     
-    // Wir geben alles zurück: Name, Punkte UND den aktiven Gewinn
+    // Wir geben alles zurück: Name, Stempel UND den aktiven Gewinn
     return toPlainObject({ id: doc.id, ...doc.data() } as User);
 }
 
@@ -44,14 +44,42 @@ export async function addStamp(userId: string) {
         const doc = await t.get(userRef);
         if (!doc.exists) throw new Error("Kunde nicht gefunden");
         
-        t.update(userRef, { 
-            loyaltyStamps: FieldValue.increment(1),
+        let currentStamps = doc.data()?.loyaltyStamps || 0;
+
+        // Wenn Stempelkarte voll (10 Stempel), wird sie zurückgesetzt.
+        if (currentStamps >= 10) {
+            currentStamps = 0;
+        }
+        
+        const newStampCount = currentStamps + 1;
+
+        // Wenn die 5er oder 10er Marke erreicht wird, generiere den Rabatt als "activePrize"
+        let newPrize: string | null = null;
+        if (newStampCount === 5) {
+            newPrize = '3€ Rabatt';
+        } else if (newStampCount === 10) {
+            newPrize = '7€ Rabatt';
+        }
+        
+        const updateData: { loyaltyStamps: number; activePrize?: string | FieldValue, lastPointUpdate: string } = {
+            loyaltyStamps: newStampCount,
             lastPointUpdate: new Date().toISOString()
-        });
+        };
+
+        if (newPrize) {
+            // Wenn schon ein Preis da ist, nicht überschreiben. An der Kasse entscheiden.
+            // In einer echten App würde man das komplexer handhaben (z.B. Array von Preisen).
+            // Fürs Erste: Der neue Gewinn wird nur gesetzt, wenn keiner da ist.
+            const existingPrize = doc.data()?.activePrize;
+            if (!existingPrize) {
+                updateData.activePrize = newPrize;
+            }
+        }
+        
+        t.update(userRef, updateData);
     });
 
     revalidatePath('/dashboard/loyalty');
-    // Kein Revalidate für Scanner nötig, da die Daten eh neu gefetched werden
     return { success: true };
 }
 
@@ -67,7 +95,17 @@ export async function redeemPrize(userId: string) {
     }
     const prize = doc.data()?.activePrize;
     
-    await userRef.update({ activePrize: FieldValue.delete() });
+    // Logik für Stempelkarten-Rabatte
+    if (prize === '3€ Rabatt' || prize === '7€ Rabatt') {
+         await userRef.update({ 
+            activePrize: FieldValue.delete(),
+            // Stempel werden NICHT zurückgesetzt. Das passiert beim nächsten Stempel, wenn die Karte voll ist.
+        });
+    } else {
+        // Logik für andere Gewinne (z.B. vom Glücksrad)
+        await userRef.update({ activePrize: FieldValue.delete() });
+    }
+
 
     revalidatePath('/dashboard/loyalty');
 

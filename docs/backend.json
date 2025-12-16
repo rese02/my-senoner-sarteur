@@ -20,9 +20,9 @@
           "description": "The user's role.",
           "enum": ["customer", "employee", "admin"]
         },
-        "loyaltyPoints": {
+        "loyaltyStamps": {
             "type": "number",
-            "description": "The current number of loyalty points the user has collected."
+            "description": "The current number of loyalty stamps the user has collected."
         },
         "lastWheelSpin": {
           "type": "string",

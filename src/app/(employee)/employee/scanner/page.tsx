@@ -5,8 +5,9 @@ import { Suspense } from 'react';
 import { getScannerPageData } from '@/app/actions/scanner.actions';
 import { EmployeeScannerClient } from './client'; 
 import { Loader2 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { QrCode, ClipboardList, ChevronRight } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { QrCode, ClipboardList } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 
 function ScannerFallback() {
@@ -42,7 +43,7 @@ export default async function EmployeeMenuPage() {
                             <CardDescription>Offene Listen bearbeiten.</CardDescription>
                         </div>
                         <div className="flex items-center gap-2">
-                             <Badge variant="destructive">{groceryLists.length}</Badge>
+                             {groceryLists.length > 0 && <Badge variant="destructive">{groceryLists.length}</Badge>}
                              <ClipboardList className="w-8 h-8 text-muted-foreground" />
                         </div>
                     </CardHeader>
