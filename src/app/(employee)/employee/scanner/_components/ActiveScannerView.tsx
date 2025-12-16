@@ -2,8 +2,9 @@
 import { Button } from '@/components/ui/button';
 import { X, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import Webcam from 'react-webcam';
+import jsQR from 'jsqr';
 
 interface ActiveScannerViewProps {
     onScanSuccess: (data: string) => void;
@@ -13,25 +14,68 @@ interface ActiveScannerViewProps {
 export function ActiveScannerView({ onScanSuccess, onCancel }: ActiveScannerViewProps) {
     const { toast } = useToast();
     const webcamRef = useRef<Webcam>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const requestRef = useRef<number>();
+    const [isScanning, setIsScanning] = useState(true);
+
+    const scanQrCode = useCallback(() => {
+        if (
+            !isScanning ||
+            !webcamRef.current ||
+            !webcamRef.current.video ||
+            !canvasRef.current
+        ) {
+            return;
+        }
+
+        const video = webcamRef.current.video;
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            const canvas = canvasRef.current;
+            const context = canvas.getContext('2d');
+
+            if (context) {
+                canvas.height = video.videoHeight;
+                canvas.width = video.videoWidth;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: 'dontInvert',
+                });
+
+                if (code && code.data.startsWith('senoner-user:')) {
+                    setIsScanning(false); // Stop scanning on success
+                    if (typeof window.navigator.vibrate === 'function') {
+                        window.navigator.vibrate([100, 50, 100]);
+                    }
+                    toast({ title: 'QR Code erkannt', description: 'Daten werden verarbeitet...' });
+                    onScanSuccess(code.data);
+                }
+            }
+        }
+        // Continue scanning if no code was found
+        if (isScanning) {
+            requestRef.current = requestAnimationFrame(scanQrCode);
+        }
+    }, [isScanning, onScanSuccess, toast]);
+
+    useEffect(() => {
+        // Start the scanning loop
+        requestRef.current = requestAnimationFrame(scanQrCode);
+
+        // Cleanup function to stop the loop when the component unmounts
+        return () => {
+            if (requestRef.current) {
+                cancelAnimationFrame(requestRef.current);
+            }
+        };
+    }, [scanQrCode]);
 
      useEffect(() => {
         if (typeof window.navigator.vibrate === 'function') {
             window.navigator.vibrate(100);
         }
     }, []);
-
-    // Simuliert einen erfolgreichen Scan für Entwicklungszwecke
-    const simulateScan = () => {
-        // HINWEIS: Ersetzen Sie dies durch eine echte User-ID aus Ihrer Datenbank für Tests
-        const testUserId = "cus_MOCK_ID_001"; 
-        const scanData = `senoner-user:${testUserId}`;
-        
-        if (typeof window.navigator.vibrate === 'function') {
-            window.navigator.vibrate([100, 50, 100]);
-        }
-        toast({ title: 'QR Code (Simuliert) erkannt', description: 'Daten werden verarbeitet...' });
-        onScanSuccess(scanData);
-    };
     
     return (
         <div className="fixed inset-0 z-50 bg-black flex flex-col text-white">
@@ -53,13 +97,8 @@ export function ActiveScannerView({ onScanSuccess, onCancel }: ActiveScannerView
                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                     <div className="w-60 h-60 border-4 border-white/50 rounded-2xl animate-pulse" />
                 </div>
+                <canvas ref={canvasRef} style={{ display: 'none' }} />
             </main>
-            {/* DEV-ONLY SIMULATION BUTTON */}
-            <div className="absolute bottom-4 left-4 right-4 z-20">
-                <Button onClick={simulateScan} variant="secondary" className="w-full">
-                    Scan Simulieren (DEV)
-                </Button>
-            </div>
         </div>
     );
 }
