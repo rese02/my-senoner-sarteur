@@ -60,7 +60,7 @@ npm install
 npm run dev
 ```
 
-Die Anwendung ist nun unter `http://localhost:9002` erreichbar.
+Die Anwendung ist nun unter `http://localhost:9003` erreichbar.
 
 ## 4. Architektur & Schlüsselkonzepte
 
