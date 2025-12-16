@@ -14,6 +14,7 @@ import { SubmitButton } from '@/components/custom/SubmitButton';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Bitte geben Sie eine gültige E-Mail ein.' }),
@@ -73,7 +74,7 @@ export function LoginForm() {
               <FormLabel className="sr-only">Email</FormLabel>
               <FormControl>
                 <div className="relative">
-                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary-foreground/50" />
+                   <Mail className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", field.value ? 'text-primary-foreground' : 'text-primary-foreground/50')} />
                    <Input placeholder="Email" {...field} className="pl-10 bg-primary-foreground/5 text-primary-foreground placeholder:text-primary-foreground/50 border-primary-foreground/20 focus-visible:ring-offset-primary" />
                 </div>
               </FormControl>
@@ -89,7 +90,7 @@ export function LoginForm() {
               <FormLabel className="sr-only">Passwort</FormLabel>
               <FormControl>
                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary-foreground/50" />
+                    <Lock className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", field.value ? 'text-primary-foreground' : 'text-primary-foreground/50')} />
                     <Input 
                       type={showPassword ? 'text' : 'password'} 
                       placeholder="Passwort" 
