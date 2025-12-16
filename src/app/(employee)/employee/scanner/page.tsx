@@ -12,13 +12,31 @@ import Link from 'next/link';
 
 function ScannerFallback() {
     return (
-        <div className="flex justify-center items-center p-8">
+        <div className="flex justify-center items-center p-8 mt-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="ml-4">Lade Kundendaten...</p>
         </div>
     )
 }
 
-export default async function EmployeeMenuPage() {
+// This page now acts as a router.
+// If a userId is in the search params, it shows the client to process it.
+// Otherwise, it shows the main menu.
+export default async function EmployeeMenuPage({ searchParams }: { searchParams: { userId?: string }}) {
+    const userId = searchParams.userId;
+
+    // If a user has been scanned, render the client to display the results.
+    if (userId) {
+        return (
+             <div className="w-full space-y-4">
+                <Suspense fallback={<ScannerFallback />}>
+                    <EmployeeScannerClient userId={userId} />
+                </Suspense>
+            </div>
+        )
+    }
+    
+    // Otherwise, show the main menu.
     const { groceryLists } = await getScannerPageData();
 
     return (
@@ -49,11 +67,6 @@ export default async function EmployeeMenuPage() {
                     </CardHeader>
                 </Card>
             </Link>
-
-            {/* Diese Komponente wird nur noch für die Anzeige nach dem Scan benötigt */}
-            <Suspense fallback={<ScannerFallback />}>
-                <EmployeeScannerClient />
-            </Suspense>
         </div>
     );
 }
