@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -85,46 +86,44 @@ export function PackageCard({ product }: { product: Product }) {
       </Card>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-md rounded-xl">
-          <DialogHeader>
-            <DialogTitle>{product.name}</DialogTitle>
-            <DialogDescription>
-              Dieses Paket enthält die folgenden Artikel.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="mt-4">
-            <div className="relative h-40 w-full rounded-lg overflow-hidden mb-6">
-               <Image src={product.imageUrl || fallbackImageUrl} fill sizes="400px" className="object-cover" alt={product.name} data-ai-hint={product.imageHint} />
-            </div>
-
-            <h4 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-3">
-              Dieses Paket enthält:
-            </h4>
-            
-            <div className="bg-secondary rounded-lg border p-1 max-h-[300px] overflow-y-auto">
-              {product.packageContent?.map((content, index) => (
-                <div 
-                  key={index} 
-                  className="flex justify-between items-center p-3 border-b last:border-0"
-                >
-                  <span className="text-card-foreground font-medium">{content.item}</span>
-                  <span className="text-muted-foreground text-sm bg-background px-2 py-1 rounded border">
-                    {content.amount}
-                  </span>
+        <DialogContent className="max-w-md p-0 overflow-hidden">
+            <div className="flex flex-col">
+                 <div className="relative h-48 w-full">
+                   <Image src={product.imageUrl || fallbackImageUrl} fill sizes="400px" className="object-cover" alt={product.name} data-ai-hint={product.imageHint} />
                 </div>
-              ))}
-            </div>
+                
+                <div className="p-6 space-y-4">
+                     <div>
+                        <DialogTitle>{product.name}</DialogTitle>
+                        <DialogDescription>
+                          Dieses Paket enthält die folgenden Artikel.
+                        </DialogDescription>
+                    </div>
 
-            <div className="mt-6 flex items-center justify-between bg-primary/5 p-4 rounded-lg border border-primary/10">
-              <div className="text-primary font-bold text-2xl">
-                {product.price.toFixed(2)} €
-              </div>
-              <Button className="px-8" onClick={handleModalAddToCart}>
-                In den Warenkorb
-              </Button>
+                    <div className="bg-secondary rounded-lg border p-1 max-h-[200px] overflow-y-auto">
+                      {product.packageContent?.map((content, index) => (
+                        <div 
+                          key={index} 
+                          className="flex justify-between items-center p-3 border-b last:border-0"
+                        >
+                          <span className="text-card-foreground font-medium">{content.item}</span>
+                          <span className="text-muted-foreground text-sm bg-background px-2 py-1 rounded border">
+                            {content.amount}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                </div>
+
+                <div className="mt-auto flex items-center justify-between bg-secondary p-4">
+                  <div className="text-primary font-bold text-2xl">
+                    {product.price.toFixed(2)} €
+                  </div>
+                  <Button className="px-8" onClick={handleModalAddToCart}>
+                    In den Warenkorb
+                  </Button>
+                </div>
             </div>
-          </div>
         </DialogContent>
       </Dialog>
     </>
