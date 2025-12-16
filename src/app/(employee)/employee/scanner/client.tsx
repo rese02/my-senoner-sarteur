@@ -1,38 +1,25 @@
+
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useState, useTransition, useEffect, useCallback } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { QrCode, ClipboardList, Gift, Plus, Loader2 } from "lucide-react";
+import { Gift, Plus, Loader2 } from "lucide-react";
 import { getCustomerDetails, redeemPrize, addStamp } from "@/app/actions/loyalty.actions";
-import Link from 'next/link';
-import type { Order, User } from '@/lib/types';
+import type { User } from '@/lib/types';
 import { useSearchParams, useRouter } from 'next/navigation';
 
-export function EmployeeScannerClient({ initialOrders }: { initialOrders: Order[] }) {
+// Diese Komponente wird jetzt nur noch getriggert, wenn ein Scan erfolgt ist.
+export function EmployeeScannerClient() {
     const [scannedUser, setScannedUser] = useState<User | null>(null);
-    const [manualId, setManualId] = useState("");
     const [isSearching, startSearchTransition] = useTransition();
     const [isActionPending, startActionTransition] = useTransition();
     const { toast } = useToast();
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    useEffect(() => {
-        const scannedUserId = searchParams.get('userId');
-        if (scannedUserId) {
-            handleScan(scannedUserId);
-            // Clean the URL after processing
-            router.replace('/employee/scanner', { scroll: false });
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams]);
-
-    // 1. Kunde suchen (via Scan oder Hand-Eingabe)
-    const handleScan = async (userId: string) => {
+    const handleScan = useCallback(async (userId: string) => {
         if (!userId) return;
         startSearchTransition(async () => {
             try {
@@ -44,7 +31,18 @@ export function EmployeeScannerClient({ initialOrders }: { initialOrders: Order[
                 setScannedUser(null);
             }
         });
-    };
+    // Wir übergeben router, damit der ESLint zufrieden ist
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [toast]);
+
+    useEffect(() => {
+        const scannedUserId = searchParams.get('userId');
+        if (scannedUserId) {
+            handleScan(scannedUserId);
+            // URL bereinigen, nachdem der Scan verarbeitet wurde, um Loops zu vermeiden
+            router.replace('/employee/scanner', { scroll: false });
+        }
+    }, [searchParams, handleScan, router]);
 
     // 2. Gewinn einlösen
     const handleRedeem = async () => {
@@ -78,112 +76,62 @@ export function EmployeeScannerClient({ initialOrders }: { initialOrders: Order[
 
     const resetAll = () => {
         setScannedUser(null);
-        setManualId("");
+        // Zurück zum Menü, da die Scan-Seite jetzt separat ist
+        router.push('/employee/scanner');
+    }
+    
+    if (isSearching) {
+         return (
+            <div className="flex justify-center items-center p-8 mt-4">
+                <Loader2 className="animate-spin h-8 w-8 text-primary"/>
+            </div>
+        );
+    }
+    
+    if (!scannedUser) {
+        // Nichts anzeigen, wenn kein User gescannt wurde. Die Hauptseite zeigt die Menü-Optionen.
+        return null;
     }
 
     return (
-        <div className="w-full">
-            <Tabs defaultValue="scanner">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="scanner"><QrCode className="mr-2 h-4 w-4"/> Scanner</TabsTrigger>
-                    <TabsTrigger value="lists"><ClipboardList className="mr-2 h-4 w-4"/> Listen ({initialOrders.length})</TabsTrigger>
-                </TabsList>
-
-                {/* --- TAB 1: SCANNER & KUNDEN --- */}
-                <TabsContent value="scanner" className="space-y-4 mt-4">
-                    
-                     {!scannedUser ? (
-                        <>
-                            <Link href="/employee/scanner/scan" className="w-full">
-                                <Button className="w-full h-20 text-lg">
-                                <QrCode className="mr-4 h-8 w-8"/> Echten Code Scannen
-                                </Button>
-                            </Link>
-
-                            <div className="flex gap-2">
-                                <Input 
-                                    placeholder="Kunden-ID manuell eingeben..." 
-                                    value={manualId}
-                                    onChange={e => setManualId(e.target.value)}
-                                />
-                                <Button onClick={() => handleScan(manualId)} disabled={isSearching || !manualId}>
-                                    {isSearching ? <Loader2 className="animate-spin" /> : "Suchen" }
-                                </Button>
-                            </div>
-                        </>
-                     ) : null}
-
-                    {/* KUNDEN ANSICHT (Wenn gefunden) */}
-                    {isSearching ? (
-                        <div className="flex justify-center items-center p-8">
-                            <Loader2 className="animate-spin h-8 w-8 text-primary"/>
+        <Card className="border-2 border-primary/20 animate-in fade-in slide-in-from-bottom-4 mt-4">
+            <CardHeader className="pb-2">
+                <CardTitle>{scannedUser.name || scannedUser.email}</CardTitle>
+                <p className="text-sm text-muted-foreground">Stempel: {scannedUser.loyaltyStamps || 0}</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                
+                {/* A. GEWINN ANZEIGE */}
+                {scannedUser.activePrize ? (
+                    <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg flex flex-col gap-3">
+                        <div className="flex items-center gap-2 text-yellow-800 font-bold">
+                            <Gift className="h-5 w-5" />
+                            <span>Gewinn verfügbar:</span>
                         </div>
-                    ) : scannedUser && (
-                        <Card className="border-2 border-primary/20 animate-in fade-in slide-in-from-bottom-4">
-                            <CardHeader className="pb-2">
-                                <CardTitle>{scannedUser.name || scannedUser.email}</CardTitle>
-                                <CardDescription>Stempel: {scannedUser.loyaltyStamps || 0}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                
-                                {/* A. GEWINN ANZEIGE (Nur wenn einer da ist!) */}
-                                {scannedUser.activePrize ? (
-                                    <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg flex flex-col gap-3">
-                                        <div className="flex items-center gap-2 text-yellow-800 font-bold">
-                                            <Gift className="h-5 w-5" />
-                                            <span>Gewinn verfügbar:</span>
-                                        </div>
-                                        <div className="text-xl text-center font-black text-yellow-900">
-                                            {scannedUser.activePrize}
-                                        </div>
-                                        <Button onClick={handleRedeem} className="w-full bg-yellow-500 hover:bg-yellow-600 text-black" disabled={isActionPending}>
-                                            {isActionPending ? <Loader2 className="animate-spin" /> : 'Jetzt anwenden (Einlösen)'}
-                                        </Button>
-                                    </div>
-                                ) : (
-                                    <div className="text-center text-sm text-gray-400 py-2 border rounded-lg border-dashed">
-                                        Kein offener Gewinn
-                                    </div>
-                                )}
-
-                                {/* B. AKTIONEN */}
-                                <div className="pt-4 border-t">
-                                    <Button onClick={handleAddStamp} className="w-full h-12 text-lg" variant="outline" disabled={isActionPending}>
-                                        {isActionPending ? <Loader2 className="animate-spin" /> : <><Plus className="mr-2 h-5 w-5" /> 1 Stempel geben</>}
-                                    </Button>
-                                </div>
-                                
-                                <Button variant="ghost" onClick={resetAll} className="w-full text-muted-foreground">
-                                    Nächster Kunde
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    )}
-                </TabsContent>
-
-
-                {/* --- TAB 2: EINKAUFSLISTEN --- */}
-                <TabsContent value="lists" className="mt-4">
-                    {initialOrders.length === 0 ? (
-                        <p className="text-center text-gray-500 py-8">Keine offenen Listen.</p>
-                    ) : (
-                         <div className="space-y-2">
-                            {initialOrders.map(order => (
-                                <Link key={order.id} href="/employee/picker">
-                                    <button className="w-full text-left p-3 rounded-xl border bg-card hover:bg-secondary transition-colors flex justify-between items-center">
-                                        <div>
-                                            <p className="font-bold text-sm">{order.customerName}</p>
-                                            <p className="text-xs text-muted-foreground">{order.rawList?.split('\n').length} Artikel</p>
-                                        </div>
-                                        <ClipboardList className="text-primary"/>
-                                    </button>
-                                </Link>
-                            ))}
+                        <div className="text-xl text-center font-black text-yellow-900">
+                            {scannedUser.activePrize}
                         </div>
-                    )}
-                </TabsContent>
-            </Tabs>
-        </div>
+                        <Button onClick={handleRedeem} className="w-full bg-yellow-500 hover:bg-yellow-600 text-black" disabled={isActionPending}>
+                            {isActionPending ? <Loader2 className="animate-spin" /> : 'Jetzt anwenden (Einlösen)'}
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="text-center text-sm text-gray-400 py-2 border rounded-lg border-dashed">
+                        Kein offener Gewinn
+                    </div>
+                )}
+
+                {/* B. AKTIONEN */}
+                <div className="pt-4 border-t">
+                    <Button onClick={handleAddStamp} className="w-full h-12 text-lg" variant="outline" disabled={isActionPending}>
+                        {isActionPending ? <Loader2 className="animate-spin" /> : <><Plus className="mr-2 h-5 w-5" /> 1 Stempel geben</>}
+                    </Button>
+                </div>
+                
+                <Button variant="ghost" onClick={resetAll} className="w-full text-muted-foreground">
+                    Zurück zum Menü
+                </Button>
+            </CardContent>
+        </Card>
     );
 }
-    

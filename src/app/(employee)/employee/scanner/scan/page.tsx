@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import { X, QrCode } from 'lucide-react';
@@ -6,7 +7,6 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import Webcam from 'react-webcam';
 import jsQR from 'jsqr';
 import { useRouter } from 'next/navigation';
-import { getCustomerDetails } from '@/app/actions/loyalty.actions';
 
 
 export default function ScanPage() {
@@ -46,10 +46,8 @@ export default function ScanPage() {
                     
                     const userId = code.data.replace('senoner-user:', '');
                     
-                    // We can't pass the user object directly, so we'll have to re-fetch on the result page.
-                    // A better approach for larger apps might be to store this in a client-side state manager.
-                    // For now, redirecting with a query param is simple and effective.
-                    // The client component on the scanner page will need to read this.
+                    // Umleiten zur Haupt-Scanner-Seite mit der ID als Query-Parameter.
+                    // Die client.tsx auf dieser Seite wird den Parameter erkennen und verarbeiten.
                     router.push(`/employee/scanner?userId=${userId}`);
                 }
             }
@@ -78,7 +76,7 @@ export default function ScanPage() {
         <div className="fixed inset-0 z-50 bg-black flex flex-col text-white">
             <header className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center bg-gradient-to-b from-black/50 to-transparent z-20">
                  <h2 className="font-bold text-lg drop-shadow-md flex items-center gap-2"><QrCode className="w-5 h-5"/> Kundenkarte scannen</h2>
-                <Button variant="ghost" size="icon" onClick={() => router.back()} className="text-white hover:bg-white/20 hover:text-white rounded-full">
+                <Button variant="ghost" size="icon" onClick={() => router.push('/employee/scanner')} className="text-white hover:bg-white/20 hover:text-white rounded-full">
                     <X />
                     <span className="sr-only">Schließen</span>
                 </Button>

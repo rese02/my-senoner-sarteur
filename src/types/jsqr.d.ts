@@ -1,3 +1,4 @@
+
 // Since @types/jsqr doesn't exist, we create a minimal module declaration
 // to satisfy TypeScript and provide basic type safety for the 'jsqr' library.
 
@@ -23,7 +24,6 @@ declare module 'jsqr' {
   }
 
   // Declare the main function exported by the library
-  function jsQR(data: Uint8ClampedArray, width: number, height: number, options?: Options): QRCode | null;
-
-  export default jsQR;
+  // The 'default' export is the key to fixing the runtime error
+  export default function jsQR(data: Uint8ClampedArray, width: number, height: number, options?: Options): QRCode | null;
 }

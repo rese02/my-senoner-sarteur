@@ -1,3 +1,4 @@
+
 'use server';
 
 import { adminDb } from '@/lib/firebase-admin';
@@ -17,6 +18,21 @@ async function requireRole(roles: Array<'customer' | 'employee' | 'admin'>) {
     return session;
 }
 
+// --- MITARBEITER ACTIONS ---
+
+// 1. Kunde scannen und Daten holen
+export async function getCustomerDetails(userId: string): Promise<User> {
+    await requireRole(['employee', 'admin']);
+    const validatedId = z.string().min(1).parse(userId);
+
+    const doc = await adminDb.collection('users').doc(validatedId).get();
+    if (!doc.exists) throw new Error("Kunde nicht gefunden");
+    
+    // Wir geben alles zurück: Name, Punkte UND den aktiven Gewinn
+    return toPlainObject({ id: doc.id, ...doc.data() } as User);
+}
+
+// 2. Stempel hinzufügen
 export async function addStamp(userId: string) {
     await requireRole(['employee', 'admin']);
 
@@ -35,11 +51,11 @@ export async function addStamp(userId: string) {
     });
 
     revalidatePath('/dashboard/loyalty');
-    revalidatePath('/employee/scanner');
+    // Kein Revalidate für Scanner nötig, da die Daten eh neu gefetched werden
     return { success: true };
 }
 
-
+// 3. Gewinn einlösen (Löscht ihn aus dem Profil)
 export async function redeemPrize(userId: string) {
     await requireRole(['employee', 'admin']);
     const validatedUserId = z.string().min(1).parse(userId);
@@ -54,21 +70,7 @@ export async function redeemPrize(userId: string) {
     await userRef.update({ activePrize: FieldValue.delete() });
 
     revalidatePath('/dashboard/loyalty');
-    revalidatePath('/admin/customers');
-    revalidatePath('/employee/scanner');
 
     return { success: true, prize: prize };
-}
-
-// 1. Kunde scannen und Daten holen
-export async function getCustomerDetails(userId: string): Promise<User> {
-    await requireRole(['employee', 'admin']);
-    const validatedId = z.string().min(1).parse(userId);
-
-    const doc = await adminDb.collection('users').doc(validatedId).get();
-    if (!doc.exists) throw new Error("Kunde nicht gefunden");
-    
-    // Wir geben alles zurück: Name, Punkte UND den aktiven Gewinn
-    return toPlainObject({ id: doc.id, ...doc.data() } as User);
 }
     
