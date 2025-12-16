@@ -1,3 +1,4 @@
+
 'use server';
 import 'server-only';
 
@@ -107,7 +108,8 @@ const suggestWinePairingFlow = ai.defineFlow(
         Antworte NUR im JSON-Format: { "foodDetected": "Name des Essens", "recommendedWineIds": ["id1", "id2", "id3"] }`,
         input: {
             schema: z.object({
-                foodPhoto: z.string(),
+                // The prompt doesn't need to know about the food photo directly in its schema,
+                // as we will pass it via the 'media' parameter in the prompt execution.
             }),
         },
         output: {
@@ -123,14 +125,18 @@ const suggestWinePairingFlow = ai.defineFlow(
 
     // 3. Execute the prompt with the user's image
     const { output } = await prompt({
-        foodPhoto: input.foodPhoto
+        // We don't need to pass any text input here as the prompt is self-contained.
     }, {
-        // Pass the image as media to the model
+        // CORRECT WAY to pass the image to the model
         media: [{ url: input.foodPhoto }]
     });
-
+    
+    // Fallback if AI fails to respond with a valid object.
     if (!output || !output.recommendedWineIds) {
-        throw new Error('AI did not return valid recommendations.');
+        return {
+            foodDetected: "Unbekanntes Gericht",
+            recommendedWines: [],
+        };
     }
 
     // 4. Retrieve the full product details for the recommended wine IDs
