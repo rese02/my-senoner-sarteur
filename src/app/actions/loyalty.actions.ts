@@ -51,7 +51,7 @@ export async function redeemPrize(userId: string) {
     }
     const prize = doc.data()?.activePrize;
     
-    await userRef.update({ activePrize: null });
+    await userRef.update({ activePrize: FieldValue.delete() });
 
     revalidatePath('/dashboard/loyalty');
     revalidatePath('/admin/customers');
@@ -61,7 +61,7 @@ export async function redeemPrize(userId: string) {
 }
 
 // 1. Kunde scannen und Daten holen
-export async function getCustomerDetails(userId: string) {
+export async function getCustomerDetails(userId: string): Promise<User> {
     await requireRole(['employee', 'admin']);
     const validatedId = z.string().min(1).parse(userId);
 
@@ -71,3 +71,4 @@ export async function getCustomerDetails(userId: string) {
     // Wir geben alles zurück: Name, Punkte UND den aktiven Gewinn
     return toPlainObject({ id: doc.id, ...doc.data() } as User);
 }
+    

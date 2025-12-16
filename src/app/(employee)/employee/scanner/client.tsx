@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { QrCode, ClipboardList, Gift, Plus, Loader2 } from "lucide-react";
 import { getCustomerDetails, redeemPrize, addStamp } from "@/app/actions/loyalty.actions";
 import Link from 'next/link';
 import type { Order, User } from '@/lib/types';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 export function EmployeeScannerClient({ initialOrders }: { initialOrders: Order[] }) {
     const [scannedUser, setScannedUser] = useState<User | null>(null);
@@ -17,6 +18,18 @@ export function EmployeeScannerClient({ initialOrders }: { initialOrders: Order[
     const [isSearching, startSearchTransition] = useTransition();
     const [isActionPending, startActionTransition] = useTransition();
     const { toast } = useToast();
+    const searchParams = useSearchParams();
+    const router = useRouter();
+
+    useEffect(() => {
+        const scannedUserId = searchParams.get('userId');
+        if (scannedUserId) {
+            handleScan(scannedUserId);
+            // Clean the URL after processing
+            router.replace('/employee/scanner', { scroll: false });
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]);
 
     // 1. Kunde suchen (via Scan oder Hand-Eingabe)
     const handleScan = async (userId: string) => {
@@ -70,8 +83,6 @@ export function EmployeeScannerClient({ initialOrders }: { initialOrders: Order[
 
     return (
         <div className="w-full">
-            <h1 className="text-xl font-bold mb-4">Mitarbeiter Cockpit</h1>
-
             <Tabs defaultValue="scanner">
                 <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="scanner"><QrCode className="mr-2 h-4 w-4"/> Scanner</TabsTrigger>
@@ -81,26 +92,33 @@ export function EmployeeScannerClient({ initialOrders }: { initialOrders: Order[
                 {/* --- TAB 1: SCANNER & KUNDEN --- */}
                 <TabsContent value="scanner" className="space-y-4 mt-4">
                     
-                     <Link href="/employee/scanner/scan" className="w-full">
-                        <Button className="w-full h-20 text-lg">
-                           <QrCode className="mr-4 h-8 w-8"/> Echten Code Scannen
-                        </Button>
-                     </Link>
+                     {!scannedUser ? (
+                        <>
+                            <Link href="/employee/scanner/scan" className="w-full">
+                                <Button className="w-full h-20 text-lg">
+                                <QrCode className="mr-4 h-8 w-8"/> Echten Code Scannen
+                                </Button>
+                            </Link>
 
-                    {/* Manuelle Eingabe */}
-                    <div className="flex gap-2">
-                        <Input 
-                            placeholder="Kunden-ID manuell eingeben..." 
-                            value={manualId}
-                            onChange={e => setManualId(e.target.value)}
-                        />
-                        <Button onClick={() => handleScan(manualId)} disabled={isSearching || !manualId}>
-                            {isSearching ? <Loader2 className="animate-spin" /> : "Suchen" }
-                        </Button>
-                    </div>
+                            <div className="flex gap-2">
+                                <Input 
+                                    placeholder="Kunden-ID manuell eingeben..." 
+                                    value={manualId}
+                                    onChange={e => setManualId(e.target.value)}
+                                />
+                                <Button onClick={() => handleScan(manualId)} disabled={isSearching || !manualId}>
+                                    {isSearching ? <Loader2 className="animate-spin" /> : "Suchen" }
+                                </Button>
+                            </div>
+                        </>
+                     ) : null}
 
                     {/* KUNDEN ANSICHT (Wenn gefunden) */}
-                    {scannedUser && (
+                    {isSearching ? (
+                        <div className="flex justify-center items-center p-8">
+                            <Loader2 className="animate-spin h-8 w-8 text-primary"/>
+                        </div>
+                    ) : scannedUser && (
                         <Card className="border-2 border-primary/20 animate-in fade-in slide-in-from-bottom-4">
                             <CardHeader className="pb-2">
                                 <CardTitle>{scannedUser.name || scannedUser.email}</CardTitle>
@@ -168,3 +186,4 @@ export function EmployeeScannerClient({ initialOrders }: { initialOrders: Order[
         </div>
     );
 }
+    
