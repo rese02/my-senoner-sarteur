@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { Button } from '@/components/ui/button';
 import { Camera, X, Loader2, Sparkles, FileWarning } from 'lucide-react';
-import { getWineSuggestion } from '@/app/actions/sommelier.actions';
+import { suggestWinePairing } from '@/app/actions/sommelier.actions';
 import { ProductCard } from '@/components/custom/ProductCard';
 import type { Product } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -41,25 +42,29 @@ export function SommelierCamera() {
     setSuggestions([]);
     setFood('');
     try {
-      // Calling the new, safe server action instead of the flow directly
-      const results = await getWineSuggestion({ foodPhoto: imgSrc });
-      if (results && results.recommendedWines.length > 0) {
+      const results = await suggestWinePairing({ foodPhoto: imgSrc });
+      
+      // SICHERHEITS-CHECK: Verhindert den Absturz, wenn "results" oder "recommendedWines" undefined ist.
+      if (results && results.recommendedWines && results.recommendedWines.length > 0) {
         setSuggestions(results.recommendedWines);
         setFood(results.foodDetected);
       } else {
         toast({
             variant: 'destructive',
             title: "Keine Empfehlungen",
-            description: "Die KI konnte keine passenden Weine finden."
+            description: "Die KI konnte keine passenden Weine in unserem Katalog finden."
         });
+        // Reset nach kurzer Verzögerung, damit der Benutzer die Nachricht lesen kann
+        setTimeout(() => reset(), 2000);
       }
     } catch (error: any) {
-      console.error("AI Error", error);
+      console.error("AI Sommelier Error:", error);
        toast({
             variant: 'destructive',
             title: "Analyse fehlgeschlagen",
             description: error.message || "Die KI konnte das Bild nicht analysieren. Bitte versuchen Sie es erneut."
         });
+      reset();
     } finally {
       setLoading(false);
     }

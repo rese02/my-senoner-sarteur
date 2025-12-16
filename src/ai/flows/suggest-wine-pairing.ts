@@ -131,7 +131,7 @@ const suggestWinePairingFlow = ai.defineFlow(
         media: [{ url: input.foodPhoto }]
     });
     
-    // Fallback if AI fails to respond with a valid object.
+    // KORREKTUR: Fallback, wenn AI versagt, gibt ein leeres, aber gültiges Objekt zurück.
     if (!output || !output.recommendedWineIds) {
         return {
             foodDetected: "Unbekanntes Gericht",

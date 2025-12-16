@@ -74,6 +74,8 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   useEffect(() => {
+    // Wenn das Laden abgeschlossen ist und keine Session vorhanden ist,
+    // leiten wir den Benutzer zur Login-Seite weiter.
     if (!loading && !session) {
       redirect(`/login?callbackUrl=${pathname}`);
     }
@@ -84,16 +86,20 @@ export default function AdminLayout({
       return <AdminLoadingSkeleton />;
   }
   
-  // SICHERHEITS-CHECK: Nur Admins dürfen hier rein.
-  // Führen Sie die Umleitung durch, wenn die Daten geladen wurden und der Benutzer kein Admin ist.
-  if (!loading && session && session.role !== 'admin') {
+  // SICHERHEITS-CHECK: Wenn eine Session existiert, aber die Rolle nicht 'admin' ist,
+  // leite den Benutzer basierend auf seiner Rolle um.
+  if (session && session.role !== 'admin') {
     const homePage = session.role === 'employee' ? '/employee/scanner' : '/dashboard';
     redirect(homePage);
-    return null; // Geben Sie null zurück, während die Umleitung stattfindet
+    // Gib null zurück, während die Umleitung stattfindet, um ein Rendern der Admin-UI zu verhindern.
+    return null; 
   }
 
-  // Fallback, wenn die Session noch nicht geladen ist, aber nicht mehr "loading" ist
+  // Fallback, wenn die Session aus irgendeinem Grund noch nicht geladen ist, obwohl loading=false ist,
+  // oder wenn der Benutzer kein Admin ist.
   if (!session) {
+    // Zeige das Lade-Skelett an, anstatt zu versuchen, das Layout zu rendern,
+    // was den Fehler auslösen könnte.
     return <AdminLoadingSkeleton />;
   }
 

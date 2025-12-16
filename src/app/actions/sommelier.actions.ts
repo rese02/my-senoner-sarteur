@@ -1,3 +1,4 @@
+
 'use server';
 
 import 'server-only';
@@ -20,5 +21,6 @@ export async function getWineSuggestion(input: SuggestWinePairingInput): Promise
   
   // This function is now the only one that calls the flow from the server-side.
   // It provides a layer of abstraction and security.
+  // KORREKTUR: Das Ergebnis des Flows wird explizit zurückgegeben.
   return suggestWinePairing(input);
 }
