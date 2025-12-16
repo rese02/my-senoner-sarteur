@@ -118,19 +118,19 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
 
     return (
         <>
-            <Card className="shadow-lg bg-gradient-to-tr from-accent/90 to-primary/80 text-primary-foreground border-none overflow-hidden relative">
-                <div className="absolute -right-10 -top-10 w-32 h-32 opacity-20">
-                    <Sparkles className="w-full h-full" />
+            <Card className="shadow-lg bg-gradient-to-tr from-accent/90 to-primary/80 text-primary-foreground border-none overflow-hidden relative flex flex-col justify-center min-h-[150px]">
+                <div className="absolute -right-10 -top-10 w-32 h-32 text-primary-foreground/10">
+                    <Gift className="w-full h-full" />
                 </div>
-                <CardHeader>
+                <CardHeader className="pt-6">
                     <CardTitle className="flex items-center gap-2">
                         <Gift /> Ihr tägliches Glücksrad
                     </CardTitle>
                     <CardDescription className="text-primary-foreground/80">
-                        Drehen Sie einmal pro Tag und gewinnen Sie tolle Preise!
+                        Drehen und gewinnen Sie tolle Preise – jeden Tag eine neue Chance!
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-0">
                     <Button onClick={() => setIsOpen(true)} className="w-full bg-white text-primary hover:bg-white/90">
                         Jetzt drehen & gewinnen!
                     </Button>
