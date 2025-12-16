@@ -52,7 +52,7 @@ export default async function LoyaltyPage() {
                     {activePrize && (
                         <Card className="shadow-lg bg-primary text-primary-foreground border-none animate-in fade-in-50">
                              <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
+                                <CardTitle className="flex items-center gap-2 text-primary-foreground">
                                     <Star className="w-5 h-5"/> Aktiver Gewinn (Glücksrad)
                                 </CardTitle>
                                 <CardDescription className="text-primary-foreground/80">Zeigen Sie dies an der Kasse!</CardDescription>
@@ -102,7 +102,7 @@ export default async function LoyaltyPage() {
                                     />
                                 </div>
                                  {stamps >= 5 && stamps < 10 && (
-                                    <p className="text-xs text-primary-foreground mt-2 font-bold animate-pulse text-center">
+                                    <p className="text-xs text-primary mt-2 font-bold animate-pulse text-center">
                                     Bereit zum Einlösen! (Oder weiter sparen für 7€)
                                     </p>
                                 )}
@@ -124,7 +124,7 @@ export default async function LoyaltyPage() {
                                     />
                                 </div>
                                 {stamps >= 10 && (
-                                    <p className="text-xs text-primary-foreground mt-2 font-bold text-center">
+                                    <p className="text-xs text-primary mt-2 font-bold text-center">
                                     Maximale Belohnung erreicht! An der Kasse einlösbar.
                                     </p>
                                 )}
