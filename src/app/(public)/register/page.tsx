@@ -12,8 +12,8 @@ export default async function RegisterPage() {
       
         <div className="absolute inset-0 z-0 opacity-5 bg-repeat" style={{ backgroundImage: "url('/background-pattern.svg')" }}></div>
 
-        <div className="relative z-10 max-w-md w-full my-8 md:my-0">
-             <Card className="flex flex-col justify-center shadow-2xl border-none rounded-none md:rounded-2xl w-full bg-primary text-primary-foreground">
+        <div className="relative z-10 max-w-md w-full my-0 md:my-8">
+             <Card className="flex flex-col justify-center shadow-2xl border-none rounded-none md:rounded-2xl w-full bg-primary text-primary-foreground min-h-[100dvh] md:min-h-0">
                 <CardContent className="p-8 md:p-10 space-y-6">
                     <div className="text-center items-center">
                         <div className="h-12 mb-4 inline-block">
