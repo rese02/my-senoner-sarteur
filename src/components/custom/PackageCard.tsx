@@ -11,6 +11,7 @@ import type { Product } from '@/lib/types';
 import { useCartStore } from '@/hooks/use-cart-store';
 import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 export function PackageCard({ product }: { product: Product }) {
@@ -100,19 +101,21 @@ export function PackageCard({ product }: { product: Product }) {
                         </DialogDescription>
                     </div>
 
-                    <div className="bg-secondary rounded-lg border p-1 max-h-[200px] overflow-y-auto">
-                      {product.packageContent?.map((content, index) => (
-                        <div 
-                          key={index} 
-                          className="flex justify-between items-center p-3 border-b last:border-0"
-                        >
-                          <span className="text-card-foreground font-medium">{content.item}</span>
-                          <span className="text-muted-foreground text-sm bg-background px-2 py-1 rounded border">
-                            {content.amount}
-                          </span>
+                    <ScrollArea className="max-h-[200px] rounded-lg border bg-secondary/50">
+                        <div className="p-1">
+                            {product.packageContent?.map((content, index) => (
+                                <div 
+                                key={index} 
+                                className="flex justify-between items-center p-3 border-b last:border-0"
+                                >
+                                <span className="text-card-foreground font-medium">{content.item}</span>
+                                <span className="text-muted-foreground text-sm bg-background px-2 py-1 rounded border">
+                                    {content.amount}
+                                </span>
+                                </div>
+                            ))}
                         </div>
-                      ))}
-                    </div>
+                    </ScrollArea>
                 </div>
 
                 <div className="mt-auto flex items-center justify-between bg-secondary p-4">
