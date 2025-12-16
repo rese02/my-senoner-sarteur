@@ -152,12 +152,12 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
 
 function LoadingSkeleton() {
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
              <div className="space-y-2">
                 <Skeleton className="h-8 w-64" />
                 <Skeleton className="h-5 w-full max-w-md" />
             </div>
-            <Card>
+            <Card className="w-full">
                 <CardHeader>
                     <Skeleton className="h-6 w-48" />
                     <Skeleton className="h-4 w-72" />

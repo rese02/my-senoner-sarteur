@@ -9,12 +9,14 @@ import { addStamp, redeemPrize } from '@/app/actions/loyalty.actions';
 import { getScannerPageData } from '@/app/actions/scanner.actions';
 import type { User as UserType } from '@/lib/types';
 import { ActiveScannerView } from './_components/ActiveScannerView';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 type ViewState = 'main' | 'scanning' | 'result';
 
 function MainView({ onStartScan }: { onStartScan: () => void }) {
+    const router = useRouter();
     return (
         <div className="space-y-6">
              <Card className="shadow-lg">
@@ -26,7 +28,7 @@ function MainView({ onStartScan }: { onStartScan: () => void }) {
                         <QrCode className="mr-4 h-8 w-8"/>
                         Kundenkarte scannen
                     </Button>
-                     <Button asChild className="h-20 text-lg" variant="secondary">
+                     <Button asChild className="h-20 text-lg" variant="secondary" onClick={() => router.push('/employee/picker')}>
                         <Link href="/employee/picker">
                             <ListTodo className="mr-4 h-8 w-8"/>
                             Einkaufszettel packen
@@ -45,7 +47,8 @@ function ResultView({ user, onReset }: { user: UserType, onReset: () => void }) 
     const handleAddStamp = () => {
         startTransition(async () => {
             try {
-                await addStamp(user.id, 10); // purchaseAmount is currently symbolic
+                // Der Kaufbetrag ist hier symbolisch, da die Aufgabe nur "einen Stempel geben" ist.
+                await addStamp(user.id, 10); 
                 toast({ title: "Stempel gutgeschrieben!", description: `Ein Stempel wurde für ${user.name} hinzugefügt.` });
                 onReset();
             } catch (error: any) {
@@ -55,31 +58,29 @@ function ResultView({ user, onReset }: { user: UserType, onReset: () => void }) 
     };
     
     const handleRedeemPrize = () => {
+        if (!user.activePrize) return;
         startTransition(async () => {
              try {
                 const result = await redeemPrize(user.id);
-                toast({ title: "Gewinn eingelöst!", description: `Gewinn "${result.prize}" für ${user.name} eingelöst.` });
+                toast({ title: "Gewinn eingelöst!", description: `Gewinn "${result.prize}" für ${user.name} wurde erfolgreich eingelöst.` });
                 onReset();
             } catch (error: any) {
-                toast({ variant: 'destructive', title: 'Fehler', description: error.message });
+                toast({ variant: 'destructive', title: 'Fehler beim Einlösen', description: error.message });
             }
         });
     }
 
     return (
         <Card className="animate-in fade-in-50">
-            <CardHeader className="items-center text-center">
-                <div className="p-4 bg-green-100 rounded-full mb-2">
+            <CardHeader className="items-center text-center p-6">
+                <div className="p-3 bg-green-100 rounded-full mb-2">
                     <User className="w-8 h-8 text-green-700"/>
                 </div>
                 <CardTitle>{user.name}</CardTitle>
+                <CardDescription>ID: {user.id.slice(0, 8)}...</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-                <Button onClick={handleAddStamp} disabled={isPending} className="w-full h-14 text-base">
-                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Stempel für heutigen Einkauf geben
-                </Button>
-
+            <CardContent className="space-y-4 px-6 pb-6">
+                
                 {user.activePrize && (
                     <div className="p-4 border-2 border-dashed border-accent rounded-xl text-center space-y-3 bg-accent/10">
                         <div className="flex items-center justify-center gap-2 font-bold text-accent">
@@ -87,17 +88,22 @@ function ResultView({ user, onReset }: { user: UserType, onReset: () => void }) 
                             <span>Aktiver Gewinn</span>
                         </div>
                         <p className="text-xl font-bold text-foreground">{user.activePrize}</p>
-                         <Button onClick={handleRedeemPrize} disabled={isPending} className="w-full" variant="secondary">
-                            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                         <Button onClick={handleRedeemPrize} disabled={isPending} className="w-full" variant="default" size="sm">
+                            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             Gewinn jetzt einlösen
                         </Button>
                     </div>
                 )}
+                
+                <Button onClick={handleAddStamp} disabled={isPending} className="w-full h-14 text-base" variant="secondary">
+                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Stempel für Einkauf geben
+                </Button>
 
             </CardContent>
-            <CardFooter>
+            <CardFooter className="px-6 pb-6 border-t pt-4">
                  <Button variant="ghost" onClick={onReset} className="w-full text-muted-foreground">
-                    Zurück / Nächster Scan
+                    Abbrechen / Nächster Scan
                 </Button>
             </CardFooter>
         </Card>
@@ -110,11 +116,19 @@ export default function EmployeeScannerPage() {
     const [scannedUser, setScannedUser] = useState<UserType | null>(null);
     const [users, setUsers] = useState<UserType[]>([]);
     const { toast } = useToast();
+    
+    const refreshData = useCallback(async () => {
+        try {
+            const data = await getScannerPageData();
+            setUsers(data.users);
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Fehler', description: 'Benutzerdaten konnten nicht geladen werden.' });
+        }
+    }, [toast]);
 
-    // Load users initially
     useEffect(() => {
-        getScannerPageData().then(data => setUsers(data.users));
-    }, []);
+        refreshData();
+    }, [refreshData]);
 
     const handleScanSuccess = (scannedData: string) => {
         const userId = scannedData.replace('senoner-user:', '');
@@ -124,16 +138,17 @@ export default function EmployeeScannerPage() {
             setScannedUser(foundUser);
             setView('result');
         } else {
-            toast({ variant: 'destructive', title: 'Fehler', description: 'Kunde nicht gefunden. Bitte stellen Sie sicher, dass die App auf dem neuesten Stand ist.' });
+            toast({ variant: 'destructive', title: 'Fehler', description: 'Kunde nicht gefunden. Daten werden aktualisiert, bitte erneut versuchen.' });
+            refreshData(); // Lade die neusten User Daten
             setView('main');
         }
     };
     
     const resetView = () => {
-        // Refresh user data in the background for the next scan
-        getScannerPageData().then(data => setUsers(data.users));
         setScannedUser(null);
         setView('main');
+        // Daten für den nächsten Scan im Hintergrund neu laden
+        refreshData();
     };
 
     if (view === 'scanning') {
