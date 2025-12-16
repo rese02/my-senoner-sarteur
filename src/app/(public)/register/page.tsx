@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { RegisterForm } from './_components/register-form';
@@ -23,10 +24,10 @@ export default async function RegisterPage() {
                     <CardTitle className="text-3xl font-headline">Konto erstellen</CardTitle>
                     <CardDescription className="text-primary-foreground/80">Werden Sie Teil unserer Community.</CardDescription>
                 </CardHeader>
-                <CardContent className="p-8 pt-0 rounded-b-2xl bg-card text-card-foreground">
+                <CardContent className="p-8 pt-0 rounded-b-2xl bg-primary text-primary-foreground">
                   <RegisterForm />
                 </CardContent>
-                 <CardFooter className="flex-col items-center gap-4 px-8 pb-10 pt-6 bg-primary text-primary-foreground/80 rounded-b-none md:rounded-b-2xl">
+                 <CardFooter className="flex-col items-center gap-4 px-8 pb-10 pt-6 bg-primary text-primary-foreground/80 rounded-b-none md:rounded-b-2xl border-t border-primary-foreground/10">
                     <p className="text-sm">
                         Haben Sie bereits ein Konto?{' '}
                         <Link href="/login" className="font-semibold text-white hover:underline">

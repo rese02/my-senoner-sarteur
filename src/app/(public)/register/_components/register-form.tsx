@@ -13,6 +13,7 @@ import { registerUser } from '@/app/actions/auth.actions';
 import { Mail, Lock, User as UserIcon, Phone, Home, Building, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name muss mindestens 2 Zeichen lang sein.' }),
@@ -66,6 +67,8 @@ export function RegisterForm() {
     }
   }
 
+  const inputStyles = "bg-primary-foreground/5 text-primary-foreground placeholder:text-primary-foreground/50 border-primary-foreground/20 focus-visible:ring-offset-primary";
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -77,11 +80,11 @@ export function RegisterForm() {
               <FormLabel className="sr-only">Vollständiger Name</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input placeholder="Vollständiger Name" {...field} className="pl-10" />
+                  <UserIcon className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", field.value ? 'text-primary-foreground' : 'text-primary-foreground/50')} />
+                  <Input placeholder="Vollständiger Name" {...field} className={cn("pl-10", inputStyles)} />
                 </div>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-accent/80" />
             </FormItem>
           )}
         />
@@ -93,11 +96,11 @@ export function RegisterForm() {
               <FormLabel className="sr-only">Email</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input placeholder="E-Mail" {...field} className="pl-10" />
+                  <Mail className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", field.value ? 'text-primary-foreground' : 'text-primary-foreground/50')} />
+                  <Input placeholder="E-Mail" {...field} className={cn("pl-10", inputStyles)} />
                 </div>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-accent/80" />
             </FormItem>
           )}
         />
@@ -109,23 +112,23 @@ export function RegisterForm() {
               <FormLabel className="sr-only">Passwort</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Lock className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", field.value ? 'text-primary-foreground' : 'text-primary-foreground/50')} />
                   <Input
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Passwort (min. 8 Zeichen)"
                     {...field}
-                    className="pl-10 pr-10"
+                    className={cn("pl-10 pr-10", inputStyles)}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-foreground/50 hover:text-primary-foreground"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-accent/80" />
             </FormItem>
           )}
         />
@@ -137,15 +140,15 @@ export function RegisterForm() {
               <FormLabel className="sr-only">Telefonnummer</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input placeholder="Telefonnummer" {...field} className="pl-10" />
+                  <Phone className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", field.value ? 'text-primary-foreground' : 'text-primary-foreground/50')} />
+                  <Input placeholder="Telefonnummer" {...field} className={cn("pl-10", inputStyles)} />
                 </div>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-accent/80" />
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-1 gap-4 pt-4 border-t">
+        <div className="grid grid-cols-1 gap-4 pt-4 border-t border-primary-foreground/10">
           <FormField
             control={form.control}
             name="street"
@@ -154,11 +157,11 @@ export function RegisterForm() {
                 <FormLabel className="sr-only">Straße &amp; Nr.</FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <Home className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input placeholder="Straße &amp; Nr." {...field} className="pl-10" />
+                    <Home className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", field.value ? 'text-primary-foreground' : 'text-primary-foreground/50')} />
+                    <Input placeholder="Straße &amp; Nr." {...field} className={cn("pl-10", inputStyles)} />
                   </div>
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-accent/80" />
               </FormItem>
             )}
           />
@@ -170,9 +173,9 @@ export function RegisterForm() {
                 <FormItem>
                   <FormLabel className="sr-only">PLZ</FormLabel>
                   <FormControl>
-                    <Input placeholder="PLZ" {...field} />
+                    <Input placeholder="PLZ" {...field} className={inputStyles} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-accent/80" />
                 </FormItem>
               )}
             />
@@ -183,9 +186,9 @@ export function RegisterForm() {
                 <FormItem className="col-span-2">
                   <FormLabel className="sr-only">Ort</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ort" {...field} />
+                    <Input placeholder="Ort" {...field} className={inputStyles} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-accent/80" />
                 </FormItem>
               )}
             />
@@ -198,11 +201,11 @@ export function RegisterForm() {
                 <FormLabel className="sr-only">Provinz</FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input placeholder="Provinz (z.B. BZ)" {...field} className="pl-10" />
+                    <Building className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", field.value ? 'text-primary-foreground' : 'text-primary-foreground/50')} />
+                    <Input placeholder="Provinz (z.B. BZ)" {...field} className={cn("pl-10", inputStyles)} />
                   </div>
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-accent/80" />
               </FormItem>
             )}
           />
@@ -212,21 +215,27 @@ export function RegisterForm() {
           control={form.control}
           name="privacyPolicy"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm bg-secondary/50">
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-primary-foreground/20 p-4 bg-primary-foreground/5">
               <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                <Checkbox 
+                  checked={field.value} 
+                  onCheckedChange={field.onChange} 
+                  className="border-primary-foreground/50 data-[state=checked]:bg-white data-[state=checked]:text-primary"
+                />
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel>
-                  Ich habe die <Link href="/datenschutz" target="_blank" className="text-primary underline hover:no-underline">Datenschutzerklärung</Link> gelesen und akzeptiere sie.
+                  Ich habe die <Link href="/datenschutz" target="_blank" className="font-semibold text-white underline hover:no-underline">Datenschutzerklärung</Link> gelesen und akzeptiere sie.
                 </FormLabel>
-                <FormMessage />
+                <FormMessage className="text-accent/80" />
               </div>
             </FormItem>
           )}
         />
 
-        <SubmitButton>Konto erstellen</SubmitButton>
+        <SubmitButton variant="secondary" className="w-full bg-white text-primary hover:bg-white/90">
+            Konto erstellen
+        </SubmitButton>
       </form>
     </Form>
   );
