@@ -8,7 +8,8 @@ export interface User {
   role: UserRole;
   password?: string; // Only for mock data, not in real DB
   customerSince?: string;
-  loyaltyStamps?: number; // New stamp system
+  loyaltyPoints?: number; // New points system
+  loyaltyStamps?: number; // Old, can be deprecated
   phone?: string;
   deliveryAddress?: {
     street: string;
@@ -25,6 +26,7 @@ export interface User {
   };
   lastWheelSpin?: string;
   activePrize?: string;
+  lastPointUpdate?: string;
 }
 
 export interface LoyaltyData {

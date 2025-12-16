@@ -1,21 +1,16 @@
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/common/PageHeader";
 
 export default function Loading() {
     return (
-        <div className="space-y-6">
-            <PageHeader title="Fidelity" description="Zeigen Sie Ihren QR-Code an der Kasse, um Stempel zu sammeln und Belohnungen einzulösen." />
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1 space-y-6">
-                    <Skeleton className="h-96 w-full" />
-                    <Skeleton className="h-64 w-full" />
-                </div>
-                <div className="lg:col-span-2 space-y-6">
-                    <Skeleton className="h-32 w-full" />
-                    <Skeleton className="h-[400px] w-full" />
-                </div>
+        <div className="p-4 space-y-8 flex flex-col items-center max-w-md mx-auto">
+             <div className="text-center space-y-2 w-full">
+                <Skeleton className="h-8 w-48 mx-auto" />
+                <Skeleton className="h-10 w-32 mx-auto" />
             </div>
+            <Skeleton className="w-full h-80" />
+            <Skeleton className="w-full h-96" />
         </div>
     )
 }

@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "user": {
@@ -19,9 +20,9 @@
           "description": "The user's role.",
           "enum": ["customer", "employee", "admin"]
         },
-        "loyaltyStamps": {
+        "loyaltyPoints": {
             "type": "number",
-            "description": "The current number of loyalty stamps the user has collected."
+            "description": "The current number of loyalty points the user has collected."
         },
         "lastWheelSpin": {
           "type": "string",

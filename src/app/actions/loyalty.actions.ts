@@ -1,124 +1,126 @@
+
 'use server';
 
-import { getSession } from '@/lib/session';
 import { adminDb } from '@/lib/firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { getSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
+import type { User } from '@/lib/types';
+import { FieldValue } from 'firebase-admin/firestore';
 import { z } from 'zod';
 
-// Strikte Berechtigungsprüfung: Nur Mitarbeiter oder Admins dürfen diese Aktionen ausführen.
-async function requireEmployeeOrAdmin() {
-  const session = await getSession();
-  if (!session || !['employee', 'admin'].includes(session.role)) {
-    throw new Error("Unauthorized: Employee or Admin access required.");
-  }
-}
-
-const RULES = {
-  MIN_PURCHASE: 15,
-  REWARD_SMALL: { cost: 5, value: 3 },
-  REWARD_BIG: { cost: 10, value: 7 }
-};
-
-// 1. Stempel vergeben (Nur Employee/Admin)
-export async function addStamp(userId: string, purchaseAmount: number) {
-  await requireEmployeeOrAdmin();
-  
-  // Strikte Eingabevalidierung mit Zod
-  const schema = z.object({
-    userId: z.string().min(1),
-    purchaseAmount: z.number().positive(),
-  });
-  const validation = schema.safeParse({ userId, purchaseAmount });
-  if (!validation.success) {
-    throw new Error("Ungültige Eingabedaten.");
-  }
-  const data = validation.data;
-
-
-  if (data.purchaseAmount < RULES.MIN_PURCHASE) {
-    throw new Error(`Einkauf muss mindestens ${RULES.MIN_PURCHASE}€ betragen.`);
-  }
-
-  const userRef = adminDb.collection('users').doc(data.userId);
-  const userDoc = await userRef.get();
-
-  if (!userDoc.exists) {
-    throw new Error("Benutzer nicht gefunden.");
-  }
-  
-  await userRef.update({
-    loyaltyStamps: FieldValue.increment(1)
-  });
-
-  revalidatePath('/employee/scanner');
-  revalidatePath('/dashboard/loyalty');
-  
-  return { success: true, message: "Stempel hinzugefügt" };
-}
-
-// 2. Belohnung einlösen (Nur Employee/Admin)
-export async function redeemReward(userId: string, tier: 'small' | 'big') {
-  await requireEmployeeOrAdmin();
-
-  // Strikte Eingabevalidierung mit Zod
-  const schema = z.object({
-    userId: z.string().min(1),
-    tier: z.enum(['small', 'big']),
-  });
-  const validation = schema.safeParse({ userId, tier });
-  if (!validation.success) {
-    throw new Error("Ungültige Eingabedaten.");
-  }
-  const data = validation.data;
-
-  const cost = data.tier === 'big' ? RULES.REWARD_BIG.cost : RULES.REWARD_SMALL.cost;
-  const discount = data.tier === 'big' ? RULES.REWARD_BIG.value : RULES.REWARD_SMALL.value;
-
-  const userRef = adminDb.collection('users').doc(data.userId);
-
-  // Atomare Transaktion, um Race Conditions zu verhindern
-  await adminDb.runTransaction(async (transaction) => {
-    const userDoc = await transaction.get(userRef);
-    if (!userDoc.exists) {
-      throw new Error("Benutzer nicht gefunden.");
+// Helper for strict role checks
+async function requireRole(roles: Array<'customer' | 'employee' | 'admin'>) {
+    const session = await getSession();
+    if (!session || !roles.includes(session.role)) {
+        throw new Error('Unauthorized');
     }
-
-    const currentStamps = userDoc.data()?.loyaltyStamps || 0;
-    if (currentStamps < cost) {
-      throw new Error("Nicht genügend Stempel!");
-    }
-    
-    transaction.update(userRef, {
-      loyaltyStamps: FieldValue.increment(-cost)
-    });
-  });
-
-  revalidatePath('/employee/scanner');
-  revalidatePath('/dashboard/loyalty');
-  
-  return { success: true, discountAmount: discount };
+    return session;
 }
 
-
-// 3. Gewinn vom Glücksrad einlösen (Nur Employee/Admin)
-export async function redeemPrize(userId: string) {
-    await requireEmployeeOrAdmin();
+// 1. Mitarbeiter gibt Punkte (Scan)
+export async function addPointsToUser(userId: string, points: number) {
+    await requireRole(['employee', 'admin']);
 
     const validatedUserId = z.string().min(1).parse(userId);
-    const userRef = adminDb.collection('users').doc(validatedUserId);
-    
-    const userDoc = await userRef.get();
-    if (!userDoc.exists || !userDoc.data()?.activePrize) {
-        throw new Error("Kein aktiver Gewinn für diesen Benutzer gefunden.");
-    }
+    const validatedPoints = z.number().positive().parse(points);
 
-    await userRef.update({
-        activePrize: FieldValue.delete() // Löscht das Feld aus dem Dokument
+    if (validatedPoints <= 0) throw new Error("Ungültige Punktzahl");
+
+    const userRef = adminDb.collection('users').doc(validatedUserId);
+
+    await adminDb.runTransaction(async (t) => {
+        const doc = await t.get(userRef);
+        if (!doc.exists) throw new Error("Kunde nicht gefunden");
+        
+        t.update(userRef, { 
+            loyaltyPoints: FieldValue.increment(validatedPoints),
+            lastPointUpdate: new Date().toISOString()
+        });
     });
 
-    revalidatePath('/employee/scanner');
     revalidatePath('/dashboard/loyalty');
+    return { success: true, addedPoints: validatedPoints };
+}
 
-    return { success: true, message: "Gewinn eingelöst." };
+
+// 2. Glücksrad drehen (Kunde)
+const PRIZES = [
+    { id: 'lose', label: 'Niete', chance: 50 },
+    { id: 'small', label: '10% Rabatt', chance: 30 },
+    { id: 'medium', label: 'Gratis Kaffee', chance: 15 },
+    { id: 'jackpot', label: 'Geschenkkorb', chance: 5 },
+];
+const WHEEL_SPIN_COST = 50;
+
+export async function spinWheelAndGetPrize() {
+    const session = await requireRole(['customer']);
+    
+    const userRef = adminDb.collection('users').doc(session.userId);
+
+    const result = await adminDb.runTransaction(async (t) => {
+        const doc = await t.get(userRef);
+        if (!doc.exists) throw new Error("Benutzer nicht gefunden.");
+        
+        const currentPoints = doc.data()?.loyaltyPoints || 0;
+
+        if (currentPoints < WHEEL_SPIN_COST) {
+            throw new Error(`Nicht genug Punkte! Du brauchst ${WHEEL_SPIN_COST}.`);
+        }
+
+        // Punkte abziehen
+        t.update(userRef, { loyaltyPoints: FieldValue.increment(-WHEEL_SPIN_COST) });
+
+        // Gewinn ermitteln (Weighted Random)
+        const random = Math.random() * 100;
+        let cumulative = 0;
+        let wonPrize = PRIZES[0]; // Default to 'lose'
+
+        for (const prize of PRIZES) {
+            cumulative += prize.chance;
+            if (random <= cumulative) {
+                wonPrize = prize;
+                break;
+            }
+        }
+        
+        // Gewinn in einer Unterkollektion speichern
+        if (wonPrize.id !== 'lose') {
+             const rewardRef = userRef.collection('rewards').doc();
+             t.set(rewardRef, {
+                 prizeId: wonPrize.id,
+                 label: wonPrize.label,
+                 createdAt: new Date().toISOString(),
+                 redeemed: false,
+             });
+        }
+
+        return { 
+            prize: wonPrize, 
+            remainingPoints: currentPoints - WHEEL_SPIN_COST 
+        };
+    });
+
+    revalidatePath('/dashboard/loyalty');
+    return result;
+}
+
+// Stempel-Funktionen sind jetzt veraltet und werden entfernt oder angepasst.
+// Die bestehende `redeemPrize` und `redeemReward` Logik muss überarbeitet werden,
+// um mit der neuen `rewards` Unterkollektion zu arbeiten, falls das gewünscht ist.
+// Fürs Erste entfernen wir sie, um Konflikte zu vermeiden.
+
+export async function redeemPrize(userId: string) {
+    await requireRole(['employee', 'admin']);
+    // Diese Funktion muss neu implementiert werden, um aus der `rewards` Collection zu lesen und zu löschen.
+    console.log("redeemPrize needs reimplementation for new points system");
+    return { success: false, message: "Funktion nicht implementiert."};
+}
+
+export async function addStamp(userId: string, purchaseAmount: number) {
+    console.log("addStamp is deprecated, use addPointsToUser");
+    return { success: false, message: "Veraltete Funktion."};
+}
+export async function redeemReward(userId: string, tier: 'small' | 'big') {
+    console.log("redeemReward is deprecated");
+     return { success: false, message: "Veraltete Funktion."};
 }
