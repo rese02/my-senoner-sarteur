@@ -1,3 +1,4 @@
+
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,23 +7,28 @@ import { updateUserProfile } from "@/app/actions/auth.actions";
 import type { User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { SubmitButton } from "@/components/custom/SubmitButton";
+import { Switch } from "@/components/ui/switch";
+import { useTransition } from "react";
 
 
 export function ProfileUpdateForm({ user }: { user: User }) {
     const { toast } = useToast();
+    const [isPending, startTransition] = useTransition();
    
     const handleUpdate = async (formData: FormData) => {
-        const result = await updateUserProfile(formData);
-        if (result.success) {
-            toast({ title: 'Gespeichert', description: result.message });
-        } else {
-            toast({ variant: 'destructive', title: 'Fehler', description: result.message });
-        }
+        startTransition(async () => {
+            const result = await updateUserProfile(formData);
+            if (result.success) {
+                toast({ title: 'Gespeichert', description: result.message });
+            } else {
+                toast({ variant: 'destructive', title: 'Fehler', description: result.message });
+            }
+        });
     }
     
     return (
         <form action={handleUpdate}>
-            <Card>
+             <Card>
                 <CardHeader>
                     <CardTitle>Persönliche Informationen</CardTitle>
                     <CardDescription>Die E-Mail-Adresse kann nicht geändert werden.</CardDescription>
@@ -61,7 +67,7 @@ export function ProfileUpdateForm({ user }: { user: User }) {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <SubmitButton>Änderungen speichern</SubmitButton>
+                    <SubmitButton isSubmitting={isPending}>Änderungen speichern</SubmitButton>
                 </CardFooter>
             </Card>
         </form>

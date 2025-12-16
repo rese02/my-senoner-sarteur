@@ -9,6 +9,7 @@ import { toPlainObject } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/session';
 import { z } from 'zod';
+import { FieldValue } from 'firebase-admin/firestore';
 
 export async function createSession(idToken: string | null) {
   // SICHERHEITS-HÄRTUNG: Wenn kein Token vorhanden ist, sofort abbrechen.
@@ -78,6 +79,7 @@ const registerFormSchema = z.object({
   privacyPolicy: z.boolean().refine((val) => val === true, {
     message: "You must accept the privacy policy.",
   }),
+  marketingConsent: z.boolean().optional(),
 });
 
 export async function registerUser(values: unknown) {
@@ -86,7 +88,7 @@ export async function registerUser(values: unknown) {
     return { success: false, error: 'Invalid data provided. Please check all fields.' };
   }
 
-  const { name, email, password, phone, street, city, zip, province, privacyPolicy } = validation.data;
+  const { name, email, password, phone, street, city, zip, province, privacyPolicy, marketingConsent } = validation.data;
   
   let userRecord;
   try {
@@ -100,20 +102,29 @@ export async function registerUser(values: unknown) {
 
     // 2. Firestore-Dokument erstellen
     const userRef = adminDb.collection('users').doc(userRecord.uid);
+    const now = new Date().toISOString();
     const newUser: Omit<User, 'id'> = {
       name: name,
       email: email,
       role: 'customer', // Standard-Rolle für neue Benutzer
-      customerSince: new Date().toISOString(),
-      lastLogin: new Date().toISOString(),
+      customerSince: now,
+      lastLogin: now,
       loyaltyStamps: 0,
       phone: phone,
       deliveryAddress: { street, city, zip, province },
       consent: {
         privacyPolicy: {
           accepted: privacyPolicy,
-          timestamp: new Date().toISOString(),
+          timestamp: now,
         },
+        marketing: {
+          accepted: marketingConsent ?? false,
+          timestamp: now,
+        },
+         profiling: { // Default consent for profiling
+          accepted: marketingConsent ?? false,
+          timestamp: now,
+        }
       },
     };
     await userRef.set(toPlainObject(newUser));
@@ -150,6 +161,8 @@ const profileUpdateSchema = z.object({
   city: z.string().optional(),
   zip: z.string().optional(),
   province: z.string().optional(),
+  marketingConsent: z.string().optional(),
+  profilingConsent: z.string().optional(),
 });
 
 export async function updateUserProfile(formData: FormData) {
@@ -158,48 +171,53 @@ export async function updateUserProfile(formData: FormData) {
     return { success: false, message: 'Not authenticated' };
   }
 
-  const rawData = {
-    name: formData.get('name'),
-    phone: formData.get('phone'),
-    street: formData.get('street'),
-    city: formData.get('city'),
-    zip: formData.get('zip'),
-    province: formData.get('province'),
-  };
-
+  const rawData = Object.fromEntries(formData.entries());
+  
   const validation = profileUpdateSchema.safeParse(rawData);
 
   if (!validation.success) {
     return {
       success: false,
-      message: 'Invalid data.',
-      errors: validation.error.flatten().fieldErrors,
+      message: 'Invalid data: ' + validation.error.flatten().fieldErrors,
     };
   }
 
-  const { name, phone, street, city, zip, province } = validation.data;
+  const { name, phone, street, city, zip, province, marketingConsent, profilingConsent } = validation.data;
 
-  const dataToUpdate: any = {
-    name,
-    phone,
-  };
+  const dataToUpdate: any = {};
+  const now = new Date().toISOString();
 
-  // Only update deliveryAddress if at least one address field is present
-  if (street || city || zip || province) {
-      dataToUpdate.deliveryAddress = {
-        street,
-        city,
-        zip,
-        province,
-      };
+  // Only add fields if they are actually being updated
+  if (name) dataToUpdate.name = name;
+  if (phone !== undefined) dataToUpdate.phone = phone;
+
+  if (street !== undefined || city !== undefined || zip !== undefined || province !== undefined) {
+      dataToUpdate['deliveryAddress.street'] = street || '';
+      dataToUpdate['deliveryAddress.city'] = city || '';
+      dataToUpdate['deliveryAddress.zip'] = zip || '';
+      dataToUpdate['deliveryAddress.province'] = province || '';
+  }
+
+  if (marketingConsent !== undefined) {
+    dataToUpdate['consent.marketing'] = {
+        accepted: marketingConsent === 'on',
+        timestamp: now,
+    };
+  }
+   if (profilingConsent !== undefined) {
+    dataToUpdate['consent.profiling'] = {
+        accepted: profilingConsent === 'on',
+        timestamp: now,
+    };
   }
 
 
   try {
-    await adminDb.collection('users').doc(session.userId).update(toPlainObject(dataToUpdate));
+    await adminDb.collection('users').doc(session.userId).update(dataToUpdate);
     revalidatePath('/dashboard/profile');
     return { success: true, message: 'Profil erfolgreich aktualisiert.' };
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Profile update failed:", error.message);
     return { success: false, message: 'Aktualisierung fehlgeschlagen.' };
   }
 }

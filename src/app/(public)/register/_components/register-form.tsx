@@ -28,6 +28,7 @@ const formSchema = z.object({
   privacyPolicy: z.boolean().refine((val) => val === true, {
     message: 'Sie müssen die Datenschutzbestimmungen akzeptieren.',
   }),
+  marketingConsent: z.boolean().optional(),
 });
 
 export function RegisterForm() {
@@ -47,6 +48,7 @@ export function RegisterForm() {
       zip: '39046',
       province: 'BZ',
       privacyPolicy: false,
+      marketingConsent: false,
     },
   });
 
@@ -211,28 +213,53 @@ export function RegisterForm() {
             )}
           />
         </div>
+        
+        <div className="space-y-4 pt-4 border-t border-primary-foreground/10">
+            <FormField
+              control={form.control}
+              name="privacyPolicy"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md">
+                  <FormControl>
+                    <Checkbox 
+                      checked={field.value} 
+                      onCheckedChange={field.onChange} 
+                      className="border-primary-foreground/50 data-[state=checked]:bg-white data-[state=checked]:text-primary"
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>
+                      Ich habe die <Link href="/datenschutz" target="_blank" className="font-semibold text-white underline hover:no-underline">Datenschutzerklärung</Link> gelesen und akzeptiere sie.
+                    </FormLabel>
+                    <FormMessage className="text-accent/80" />
+                  </div>
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="marketingConsent"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md">
+                  <FormControl>
+                    <Checkbox 
+                      checked={field.value} 
+                      onCheckedChange={field.onChange} 
+                      className="border-primary-foreground/50 data-[state=checked]:bg-white data-[state=checked]:text-primary"
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>
+                     Ich möchte den Newsletter und personalisierte Angebote erhalten.
+                    </FormLabel>
+                     <p className="text-xs text-primary-foreground/60">Diese Einwilligung kann jederzeit im Profil widerrufen werden.</p>
+                    <FormMessage className="text-accent/80" />
+                  </div>
+                </FormItem>
+              )}
+            />
+        </div>
 
-        <FormField
-          control={form.control}
-          name="privacyPolicy"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-primary-foreground/20 p-4 bg-primary-foreground/5">
-              <FormControl>
-                <Checkbox 
-                  checked={field.value} 
-                  onCheckedChange={field.onChange} 
-                  className="border-primary-foreground/50 data-[state=checked]:bg-white data-[state=checked]:text-primary"
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>
-                  Ich habe die <Link href="/datenschutz" target="_blank" className="font-semibold text-white underline hover:no-underline">Datenschutzerklärung</Link> gelesen und akzeptiere sie.
-                </FormLabel>
-                <FormMessage className="text-accent/80" />
-              </div>
-            </FormItem>
-          )}
-        />
 
         <SubmitButton variant="secondary" className="w-full bg-white text-primary hover:bg-white/90">
             Konto erstellen

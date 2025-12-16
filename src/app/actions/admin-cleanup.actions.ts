@@ -1,3 +1,4 @@
+
 'use server';
 import 'server-only';
 
@@ -79,6 +80,7 @@ export async function deleteOldOrders(months: number) {
   const cutoffDate = new Date();
   cutoffDate.setMonth(cutoffDate.getMonth() - validatedMonths.data);
 
+  // WICHTIGE ANPASSUNG: Nur abgeschlossene Bestellungen löschen
   const completedStatuses = ['collected', 'cancelled', 'delivered', 'paid'];
   
   const oldOrdersQuery = adminDb.collection('orders')

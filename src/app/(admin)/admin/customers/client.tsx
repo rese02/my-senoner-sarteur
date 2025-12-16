@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Wand2, Send, RotateCw, Trophy, Filter, Loader2 } from "lucide-react";
+import { Wand2, Send, RotateCw, Trophy, Filter, Loader2, FileWarning } from "lucide-react";
 import { useState, useMemo, useEffect, useTransition } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { improveTextWithAI } from "@/app/actions/ai.actions";
@@ -128,8 +128,8 @@ export function CustomersClient({ initialCustomers, initialOrders, initialProduc
     };
     
     const handleImproveText = async () => {
-        if (!message) {
-            toast({ variant: 'destructive', title: 'Die Nachricht ist leer.' });
+        if (!message || !subject) {
+            toast({ variant: 'destructive', title: 'Betreff und Nachricht sind erforderlich.' });
             return;
         }
         setIsImproving(true);
@@ -291,20 +291,23 @@ export function CustomersClient({ initialCustomers, initialOrders, initialProduc
                     <Input placeholder="Betreff des Newsletters" value={subject} onChange={e => setSubject(e.target.value)} />
                     <Textarea placeholder="Schreiben Sie hier Ihre Newsletter-Nachricht..." className="min-h-[160px]" value={message} onChange={e => setMessage(e.target.value)} />
                      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t">
-                        <Button variant="outline" onClick={handleImproveText} disabled={isImproving} className="w-full sm:w-auto">
-                            {isImproving ? <RotateCw className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                            Mit KI verbessern
-                        </Button>
-                        <Button onClick={handleSendNewsletter} disabled={selectedCustomers.length === 0 || isSending} className="w-full sm:w-auto">
-                            {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-                            Senden an {selectedCustomers.length} Kunde(n)
-                        </Button>
+                        <p className="text-xs text-muted-foreground flex items-start gap-2">
+                            <FileWarning className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                            <span>Ihre Nachricht wird von einem KI-Dienst zur Verbesserung verarbeitet. Geben Sie keine sensiblen Daten ein.</span>
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <Button variant="outline" onClick={handleImproveText} disabled={isImproving} className="w-full sm:w-auto">
+                                {isImproving ? <RotateCw className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+                                Mit KI verbessern
+                            </Button>
+                            <Button onClick={handleSendNewsletter} disabled={selectedCustomers.length === 0 || isSending} className="w-full sm:w-auto">
+                                {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                                Senden an {selectedCustomers.length} Kunde(n)
+                            </Button>
+                        </div>
                     </div>
-                    <p className="text-xs text-muted-foreground pt-2">Ihre Nachricht wird von einem KI-Dienst zur Verbesserung verarbeitet. Bitte geben Sie keine sensiblen Daten ein.</p>
                 </CardContent>
             </Card>
       </div>
   );
 }
-
-    

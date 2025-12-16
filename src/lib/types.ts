@@ -21,11 +21,20 @@ export interface User {
     privacyPolicy: {
       accepted: boolean;
       timestamp: string;
+    },
+    marketing?: {
+      accepted: boolean;
+      timestamp: string;
+    },
+    profiling?: {
+      accepted: boolean;
+      timestamp: string;
     }
   };
   lastWheelSpin?: string;
   activePrize?: string;
   lastStampAt?: string;
+  lastLogin?: string;
 }
 
 export interface LoyaltyData {

@@ -5,10 +5,57 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { getSession } from "@/lib/session";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { logout, deleteUserAccount } from "@/app/actions/auth.actions";
-import Link from "next/link";
 import { ProfileUpdateForm } from "./_components/ProfileUpdateForm";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { updateUserProfile } from "@/app/actions/auth.actions";
+import { SubmitButton } from "@/components/custom/SubmitButton";
+
+function PrivacySettingsForm({ user }: { user: { id: string, consent?: any }}) {
+    // This is a Server Action form
+    const updateConsentAction = updateUserProfile.bind(null);
+
+    return (
+        <form action={updateConsentAction}>
+             <input type="hidden" name="name" value={user.name} />
+            <Card>
+                <CardHeader>
+                    <CardTitle>Datenschutzeinstellungen</CardTitle>
+                    <CardDescription>Verwalten Sie hier Ihre Einwilligungen.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between p-4 border rounded-xl">
+                        <div>
+                            <Label htmlFor="marketingConsent" className="font-medium">Newsletter & Angebote</Label>
+                            <p className="text-xs text-muted-foreground">Erhalten Sie E-Mails über Neuigkeiten und Aktionen.</p>
+                        </div>
+                        <Switch
+                            id="marketingConsent"
+                            name="marketingConsent"
+                            defaultChecked={user.consent?.marketing?.accepted ?? false}
+                        />
+                    </div>
+                    <div className="flex items-center justify-between p-4 border rounded-xl">
+                        <div>
+                            <Label htmlFor="profilingConsent" className="font-medium">Personalisierte Empfehlungen</Label>
+                            <p className="text-xs text-muted-foreground">Erlauben Sie uns, Ihre Einkäufe für bessere Vorschläge zu analysieren.</p>
+                        </div>
+                        <Switch
+                            id="profilingConsent"
+                            name="profilingConsent"
+                            defaultChecked={user.consent?.profiling?.accepted ?? false}
+                        />
+                    </div>
+                </CardContent>
+                 <CardFooter>
+                    <SubmitButton>Einwilligungen speichern</SubmitButton>
+                </CardFooter>
+            </Card>
+        </form>
+    );
+}
 
 
 export default async function ProfilePage() {
@@ -20,11 +67,12 @@ export default async function ProfilePage() {
 
     return (
         <div className="space-y-6">
-            <PageHeader title="Mein Profil" description="Verwalten Sie hier Ihre Kontodetails." />
+            <PageHeader title="Mein Profil" description="Verwalten Sie hier Ihre Kontodetails und Datenschutzeinstellungen." />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-2 space-y-6">
                     <ProfileUpdateForm user={user} />
+                    <PrivacySettingsForm user={user} />
                 </div>
 
                 <div className="space-y-6 lg:col-span-1">
