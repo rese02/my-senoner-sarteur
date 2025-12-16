@@ -15,6 +15,7 @@ import { getScannerPageData } from '@/app/actions/scanner.actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/common/PageHeader';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 // =================================================================
 // Main View to show open lists
@@ -144,7 +145,7 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
                 </CardFooter>
             </Card>
              <Button variant="outline" onClick={onFinish} className="w-full">
-                Abbrechen und zurück
+                Abbrechen und zurück zum Menü
             </Button>
         </div>
     )
@@ -226,7 +227,9 @@ export default function EmployeePickerPage() {
 
     return (
         <div className="space-y-6 w-full">
-             <Button variant="outline" onClick={() => router.push('/employee/scanner')} className="mb-4">Zurück zum Menü</Button>
+             <Button asChild variant="outline" className="mb-4">
+                <Link href="/employee/scanner">Zurück zum Menü</Link>
+            </Button>
             <div>
                 <GroceryListsView onStartPicking={handleStartPicking} groceryLists={groceryLists} />
             </div>

@@ -20,19 +20,7 @@ async function requireRole(roles: Array<'customer' | 'employee' | 'admin'>) {
 
 // --- MITARBEITER ACTIONS ---
 
-// 1. Kunde scannen und Daten holen
-export async function getCustomerDetails(userId: string): Promise<User> {
-    await requireRole(['employee', 'admin']);
-    const validatedId = z.string().min(1).parse(userId);
-
-    const doc = await adminDb.collection('users').doc(validatedId).get();
-    if (!doc.exists) throw new Error("Kunde nicht gefunden");
-    
-    // Wir geben alles zurück: Name, Stempel UND den aktiven Gewinn
-    return toPlainObject({ id: doc.id, ...doc.data() } as User);
-}
-
-// 2. Stempel hinzufügen
+// Stempel hinzufügen
 export async function addStamp(userId: string) {
     await requireRole(['employee', 'admin']);
 
@@ -52,28 +40,18 @@ export async function addStamp(userId: string) {
         }
         
         const newStampCount = currentStamps + 1;
-
-        // Wenn die 5er oder 10er Marke erreicht wird, generiere den Rabatt als "activePrize"
-        let newPrize: string | null = null;
-        if (newStampCount === 5) {
-            newPrize = '3€ Rabatt';
-        } else if (newStampCount === 10) {
-            newPrize = '7€ Rabatt';
-        }
         
-        const updateData: { loyaltyStamps: number; activePrize?: string | FieldValue, lastPointUpdate: string } = {
+        const updateData: { loyaltyStamps: number; activePrize?: string | FieldValue, lastStampAt?: string } = {
             loyaltyStamps: newStampCount,
-            lastPointUpdate: new Date().toISOString()
+            lastStampAt: new Date().toISOString()
         };
 
-        if (newPrize) {
-            // Wenn schon ein Preis da ist, nicht überschreiben. An der Kasse entscheiden.
-            // In einer echten App würde man das komplexer handhaben (z.B. Array von Preisen).
-            // Fürs Erste: Der neue Gewinn wird nur gesetzt, wenn keiner da ist.
-            const existingPrize = doc.data()?.activePrize;
-            if (!existingPrize) {
-                updateData.activePrize = newPrize;
-            }
+        // Belohnung bei 5 oder 10 Stempeln hinzufügen
+        // WICHTIG: Das Glücksrad ist ein separates System. Das hier sind die Stempel-Belohnungen.
+        if (newStampCount === 5) {
+            updateData.activePrize = '3€ Rabatt';
+        } else if (newStampCount === 10) {
+            updateData.activePrize = '7€ Rabatt';
         }
         
         t.update(userRef, updateData);
@@ -83,32 +61,39 @@ export async function addStamp(userId: string) {
     return { success: true };
 }
 
-// 3. Gewinn einlösen (Löscht ihn aus dem Profil)
+// Gewinn einlösen
 export async function redeemPrize(userId: string) {
     await requireRole(['employee', 'admin']);
     const validatedUserId = z.string().min(1).parse(userId);
     const userRef = adminDb.collection('users').doc(validatedUserId);
     
     const doc = await userRef.get();
-    if (!doc.exists || !doc.data()?.activePrize) {
+    if (!doc.exists) {
+        throw new Error("Kunde nicht gefunden.");
+    }
+    const userData = doc.data() as User;
+    if (!userData.activePrize) {
         throw new Error("Kunde hat keinen aktiven Gewinn zum Einlösen.");
     }
-    const prize = doc.data()?.activePrize;
+
+    const prize = userData.activePrize;
+    const updateData: { activePrize: FieldValue, loyaltyStamps?: number } = {
+        activePrize: FieldValue.delete(),
+    };
     
-    // Logik für Stempelkarten-Rabatte
-    if (prize === '3€ Rabatt' || prize === '7€ Rabatt') {
-         await userRef.update({ 
-            activePrize: FieldValue.delete(),
-            // Stempel werden NICHT zurückgesetzt. Das passiert beim nächsten Stempel, wenn die Karte voll ist.
-        });
-    } else {
-        // Logik für andere Gewinne (z.B. vom Glücksrad)
-        await userRef.update({ activePrize: FieldValue.delete() });
+    // Logik für Stempelkarten-Rabatte: Stempel zurücksetzen nach Einlösung
+    if (prize === '3€ Rabatt') {
+        // Hier wird nichts zurückgesetzt, der User kann für die 10er-Marke weitersparen
+    } else if (prize === '7€ Rabatt') {
+        // Bei Einlösung der Hauptbelohnung wird die Karte zurückgesetzt
+        updateData.loyaltyStamps = 0; 
     }
 
+    await userRef.update(updateData);
 
     revalidatePath('/dashboard/loyalty');
+    revalidatePath('/employee/scanner'); // Revalidate scanner to show updated user state
 
-    return { success: true, prize: prize };
+    return { success: true, prize };
 }
     

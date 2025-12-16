@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Gift, Plus, Loader2 } from "lucide-react";
-import { getCustomerDetails, redeemPrize, addStamp } from "@/app/actions/loyalty.actions";
+import { redeemPrize, addStamp } from "@/app/actions/loyalty.actions";
+import { getCustomerDetails } from '@/app/actions/customer.actions';
 import type { User } from '@/lib/types';
 import { useSearchParams, useRouter } from 'next/navigation';
 
@@ -22,25 +23,31 @@ export function EmployeeScannerClient() {
     const handleScan = useCallback(async (userId: string) => {
         if (!userId) return;
         startSearchTransition(async () => {
+            setScannedUser(null); // Reset previous user
             try {
-                const user = await getCustomerDetails(userId);
-                setScannedUser(user);
-                toast({ title: "Kunde gefunden!", description: user.name || user.email });
+                // We use the centralized customer action now
+                const { customer } = await getCustomerDetails(userId);
+                if (!customer) throw new Error("Kunde nicht gefunden");
+                setScannedUser(customer);
+                toast({ title: "Kunde gefunden!", description: customer.name || customer.email });
             } catch (e) {
                 toast({ variant: "destructive", title: "Nicht gefunden", description: "Falsche ID oder kein Kunde." });
                 setScannedUser(null);
+                 // On error, go back to main menu to avoid confusion
+                router.push('/employee/scanner');
             }
         });
-    // Wir übergeben router, damit der ESLint zufrieden ist
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [toast]);
+    }, [toast, router]);
 
     useEffect(() => {
         const scannedUserId = searchParams.get('userId');
         if (scannedUserId) {
             handleScan(scannedUserId);
-            // URL bereinigen, nachdem der Scan verarbeitet wurde, um Loops zu vermeiden
+            // URL bereinigen, damit der Effekt nicht erneut triggert, wenn der Nutzer zurück navigiert
             router.replace('/employee/scanner', { scroll: false });
+        } else {
+            // Wenn keine userId in der URL ist, darf kein User angezeigt werden
+            setScannedUser(null);
         }
     }, [searchParams, handleScan, router]);
 
@@ -53,8 +60,8 @@ export function EmployeeScannerClient() {
                 // Lokal updaten damit der Button verschwindet
                 setScannedUser({ ...scannedUser, activePrize: undefined });
                 toast({ title: "Gewinn eingelöst!", className: "bg-green-600 text-white" });
-            } catch (e) {
-                toast({ variant: "destructive", title: "Fehler beim Einlösen" });
+            } catch (e: any) {
+                toast({ variant: "destructive", title: "Fehler beim Einlösen", description: e.message });
             }
         });
     };
@@ -68,15 +75,14 @@ export function EmployeeScannerClient() {
                 // Lokal updaten
                 setScannedUser({ ...scannedUser, loyaltyStamps: (scannedUser.loyaltyStamps || 0) + 1 });
                 toast({ title: "Stempel hinzugefügt" });
-            } catch (e) {
-                toast({ variant: "destructive", title: "Fehler" });
+            } catch (e: any) {
+                toast({ variant: "destructive", title: "Fehler", description: e.message });
             }
         });
     };
 
-    const resetAll = () => {
+    const resetAndGoToMenu = () => {
         setScannedUser(null);
-        // Zurück zum Menü, da die Scan-Seite jetzt separat ist
         router.push('/employee/scanner');
     }
     
@@ -84,12 +90,13 @@ export function EmployeeScannerClient() {
          return (
             <div className="flex justify-center items-center p-8 mt-4">
                 <Loader2 className="animate-spin h-8 w-8 text-primary"/>
+                <p className="ml-4">Suche Kunde...</p>
             </div>
         );
     }
     
+    // Wenn kein User aktiv gescannt wurde, nichts anzeigen. Das Menü ist auf der page.tsx.
     if (!scannedUser) {
-        // Nichts anzeigen, wenn kein User gescannt wurde. Die Hauptseite zeigt die Menü-Optionen.
         return null;
     }
 
@@ -124,11 +131,11 @@ export function EmployeeScannerClient() {
                 {/* B. AKTIONEN */}
                 <div className="pt-4 border-t">
                     <Button onClick={handleAddStamp} className="w-full h-12 text-lg" variant="outline" disabled={isActionPending}>
-                        {isActionPending ? <Loader2 className="animate-spin" /> : <><Plus className="mr-2 h-5 w-5" /> 1 Stempel geben</>}
+                        {isActionPending ? <Loader2 className="animate-spin" /> : <><Plus className="mr-2 h-5 w-5" /> Stempel für Einkauf geben</>}
                     </Button>
                 </div>
                 
-                <Button variant="ghost" onClick={resetAll} className="w-full text-muted-foreground">
+                <Button variant="ghost" onClick={resetAndGoToMenu} className="w-full text-muted-foreground">
                     Zurück zum Menü
                 </Button>
             </CardContent>
