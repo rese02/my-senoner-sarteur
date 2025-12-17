@@ -8,6 +8,8 @@ import { getSession } from '@/lib/session';
 import type { Story, PlannerEvent, Product, Recipe, WheelOfFortuneSettings, User } from '@/lib/types';
 import { toPlainObject } from '@/lib/utils';
 import { z } from 'zod';
+import { v4 as uuidv4 } from 'uuid';
+
 
 // Helper for strict role checks
 async function requireRole(roles: Array<'customer' | 'admin'>) {
@@ -81,12 +83,13 @@ export async function saveStory(storyData: Partial<Story>): Promise<Story> {
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     }
 
-    if (id && storyData.id) { // Check if ID exists for updating
+    if (id) {
         await adminDb.collection('stories').doc(id).update(toPlainObject(storyToSave));
         revalidatePaths();
         return { ...storyToSave, id: id } as Story;
-    } else { // No ID, so create new
-        const newDocRef = await adminDb.collection('stories').add(toPlainObject(storyToSave));
+    } else {
+        const newDocRef = await adminDb.collection('stories').doc(uuidv4());
+        await newDocRef.set(toPlainObject(storyToSave));
         revalidatePaths();
         return { ...storyToSave, id: newDocRef.id } as Story;
     }
@@ -109,12 +112,13 @@ export async function savePlannerEvent(eventData: Partial<PlannerEvent>): Promis
     }
     const { id, ...data } = validation.data;
 
-    if (id && eventData.id) { // Check if ID exists for updating
+    if (id) {
         await adminDb.collection('plannerEvents').doc(id).update(toPlainObject(data));
         revalidatePaths();
         return { ...data, id: id } as PlannerEvent;
-    } else { // No ID, so create new
-        const newDocRef = await adminDb.collection('plannerEvents').add(toPlainObject(data));
+    } else {
+        const newDocRef = await adminDb.collection('plannerEvents').doc(uuidv4());
+        await newDocRef.set(toPlainObject(data));
         revalidatePaths();
         return { ...data, id: newDocRef.id } as PlannerEvent;
     }

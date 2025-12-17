@@ -14,6 +14,7 @@ import { Loader2, Trash2, Edit } from "lucide-react";
 import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { v4 as uuidv4 } from 'uuid';
 
 function StoryForm({ story, onSave, isPending, onCancel }: { story: Partial<Story> | null, onSave: (story: Partial<Story>) => void, isPending: boolean, onCancel: () => void }) {
     const [currentStory, setCurrentStory] = useState(story);
@@ -93,7 +94,17 @@ export function StoriesManager({ initialStories, onUpdate }: { initialStories: S
     }, [initialStories, onUpdate]);
 
     const handleOpenStoryModal = (story: Story | null) => {
-        setEditingStory(story ? { ...story } : { label: '', author: '', imageUrl: '', imageHint: '' });
+        if (story) {
+            setEditingStory({ ...story });
+        } else {
+            setEditingStory({
+                id: undefined, // Explicitly set id to undefined for new stories
+                label: '',
+                author: '',
+                imageUrl: '',
+                imageHint: ''
+            });
+        }
         setIsStoryModalOpen(true);
     };
 
@@ -112,8 +123,8 @@ export function StoriesManager({ initialStories, onUpdate }: { initialStories: S
                 toast({ title: "Story gespeichert!" });
                 setIsStoryModalOpen(false);
                 setEditingStory(null);
-            } catch (error) {
-                toast({ variant: 'destructive', title: 'Fehler', description: 'Story konnte nicht gespeichert werden.'});
+            } catch (error: any) {
+                toast({ variant: 'destructive', title: 'Fehler', description: error.message || 'Story konnte nicht gespeichert werden.'});
             }
         });
     };
@@ -139,7 +150,7 @@ export function StoriesManager({ initialStories, onUpdate }: { initialStories: S
                     {stories.map(story => (
                         <div key={story.id} className="group relative">
                             <div className="relative aspect-square w-full rounded-lg overflow-hidden shadow-md">
-                                <Image src={story.imageUrl} alt={story.label} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover" />
+                                <Image src={story.imageUrl} alt={story.label} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover" data-ai-hint={story.imageHint} />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                                 <div className="absolute bottom-2 left-2 text-white">
                                     <p className="font-bold text-sm leading-tight">{story.label}</p>

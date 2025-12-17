@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Trash2, Edit, Plus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { v4 as uuidv4 } from 'uuid';
 
 function PlannerEventForm({ event: initialEvent, onSave, isPending, availableProducts, onCancel }: { event: Partial<PlannerEvent> | null, onSave: (event: Partial<PlannerEvent>) => void, isPending: boolean, availableProducts: Product[], onCancel: () => void }) {
     const [event, setEvent] = useState(initialEvent);
@@ -150,7 +151,18 @@ export function PlannerManager({ initialPlannerEvents, availableProducts, onUpda
     }, [initialPlannerEvents, onUpdate]);
     
     const handleOpenPlannerModal = (event: PlannerEvent | null) => {
-        setEditingPlannerEvent(event ? { ...event } : { title: '', description: '', imageUrl: '', imageHint: '', ingredients: [] });
+        if (event) {
+            setEditingPlannerEvent({ ...event });
+        } else {
+            setEditingPlannerEvent({
+                id: undefined, // Explicitly set id to undefined for new events
+                title: '',
+                description: '',
+                imageUrl: '',
+                imageHint: '',
+                ingredients: []
+            });
+        }
         setIsPlannerModalOpen(true);
     };
 
@@ -169,8 +181,8 @@ export function PlannerManager({ initialPlannerEvents, availableProducts, onUpda
                 toast({ title: "Planer Event gespeichert!" });
                 setIsPlannerModalOpen(false);
                 setEditingPlannerEvent(null);
-            } catch(error) {
-                toast({ variant: 'destructive', title: 'Fehler', description: 'Event konnte nicht gespeichert werden.'});
+            } catch(error: any) {
+                toast({ variant: 'destructive', title: 'Fehler', description: error.message || 'Event konnte nicht gespeichert werden.'});
             }
         });
     };
