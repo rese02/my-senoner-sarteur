@@ -63,8 +63,7 @@ export async function processOrderStatusUpdates() {
       // Revalidate paths to reflect status changes everywhere
       revalidatePath('/admin/dashboard', 'page');
       revalidatePath('/admin/orders', 'page');
-      revalidatePath('/dashboard/orders', 'page');
-      revalidatePath('/dashboard', 'page');
+      revalidatePath('/dashboard', 'page'); // This covers the customer dashboard and its sub-pages
     }
 
     return { success: true, updated: updatedCount };

@@ -64,10 +64,8 @@ export async function createPreOrder(
 
   await adminDb.collection('orders').add(orderData);
 
-  revalidatePath('/admin/orders', 'page');
-  revalidatePath('/admin/dashboard', 'page');
-  revalidatePath('/dashboard/orders', 'page');
-  revalidatePath('/dashboard', 'page');
+  revalidatePath('/admin', 'layout'); // Revalidate the whole admin layout
+  revalidatePath('/dashboard', 'layout'); // Revalidate the whole customer layout
 }
 
 
@@ -103,10 +101,8 @@ export async function createConciergeOrder(
     
     await adminDb.collection('orders').add(orderData);
 
-    revalidatePath('/admin/orders', 'page');
-    revalidatePath('/admin/dashboard', 'page');
-    revalidatePath('/dashboard/orders', 'page');
-    revalidatePath('/dashboard', 'page');
+    revalidatePath('/admin', 'layout');
+    revalidatePath('/dashboard', 'layout');
 }
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus) {
@@ -117,10 +113,9 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
 
   await adminDb.collection('orders').doc(validatedOrderId).update({ status: validatedStatus });
 
-  revalidatePath('/admin/orders', 'page');
-  revalidatePath('/admin/dashboard', 'page');
-  revalidatePath('/dashboard/orders', 'page');
-  revalidatePath('/dashboard', 'page');
+  revalidatePath('/admin', 'layout');
+  revalidatePath('/employee', 'layout');
+  revalidatePath('/dashboard', 'layout');
 }
 
 const ChecklistItemSchema = z.object({
@@ -144,13 +139,10 @@ export async function setGroceryOrderTotal(orderId: string, total: number, check
         status: 'ready_for_delivery',
         processedBy: session.userId,
     });
-
-    revalidatePath('/admin/orders', 'page');
-    revalidatePath('/admin/dashboard', 'page');
-    revalidatePath('/employee/picker', 'page');
-    revalidatePath('/employee/scanner', 'page');
-    revalidatePath('/dashboard/orders', 'page');
-    revalidatePath('/dashboard', 'page');
+    
+    revalidatePath('/admin', 'layout');
+    revalidatePath('/employee', 'layout');
+    revalidatePath('/dashboard', 'layout');
 }
 
 

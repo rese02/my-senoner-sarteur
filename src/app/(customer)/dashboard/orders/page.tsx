@@ -10,7 +10,7 @@ import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Package, FileText, Calendar, Info, CheckCircle, Truck, ShoppingBag, XCircle, Trash2, Loader2, ListChecks, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState, useTransition, useEffect, useMemo } from "react";
+import { useState, useTransition, useEffect, useMemo, useCallback } from "react";
 import Loading from './loading';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -145,13 +145,17 @@ export default function OrdersPage() {
     const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
     const [isDeleting, startDeleteTransition] = useTransition();
 
-    useEffect(() => {
+    const fetchOrders = useCallback(() => {
         setIsLoading(true);
         getCustomerOrders()
             .then(setOrders)
             .catch(() => toast({ variant: 'destructive', title: 'Fehler', description: 'Bestellungen konnten nicht geladen werden.' }))
             .finally(() => setIsLoading(false));
     }, [toast]);
+
+    useEffect(() => {
+        fetchOrders();
+    }, [fetchOrders]);
     
     const deletableOrderIds = useMemo(() => {
         return orders.filter(o => deletableStatuses.includes(o.status)).map(o => o.id);
@@ -178,8 +182,8 @@ export default function OrdersPage() {
         startDeleteTransition(async () => {
             try {
                 const result = await deleteMyOrders(selectedOrderIds);
-                setOrders(prev => prev.filter(o => !selectedOrderIds.includes(o.id)));
                 toast({ title: 'Erfolg', description: `${result.count} Bestellung(en) gelöscht.` });
+                fetchOrders(); // Re-fetch orders after deletion
             } catch (e: any) {
                 toast({ variant: 'destructive', title: 'Fehler', description: e.message });
             } finally {
