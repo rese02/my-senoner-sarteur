@@ -19,9 +19,9 @@ type NavItem = {
 const allNavItems: NavItem[] = [
   { id: 'home', href: '/dashboard', icon: Home, label: 'Home' },
   { id: 'concierge', href: '/dashboard/concierge', icon: NotebookPen, label: 'Concierge' },
-  { id: 'sommelier', href: '/dashboard/sommelier', icon: Sparkles, label: 'AI Scan' },
   { id: 'loyalty', href: '/dashboard/loyalty', icon: CreditCard, label: 'Fidelity', isCentral: true },
   { id: 'orders', href: '/dashboard/orders', icon: ShoppingBag, label: 'Bestell.' },
+  { id: 'sommelier', href: '/dashboard/sommelier', icon: Sparkles, label: 'AI Scan' },
 ];
 
 export function MobileNav({ showSommelier }: { showSommelier: boolean }) {
@@ -34,33 +34,19 @@ export function MobileNav({ showSommelier }: { showSommelier: boolean }) {
       return true;
   });
 
-  // Adjust grid columns based on number of items
-  const gridColsClass = `grid-cols-${navItems.length + 1}`; // +1 for the cart
+  // Dynamically calculate grid columns based on the number of items.
+  // The cart is always one item.
+  const totalItems = navItems.length + 1;
+  const gridColsClass = `grid-cols-${totalItems}`;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t border-border/50 shadow-t-lg lg:hidden z-40">
-      <nav className={cn("grid h-full items-center px-1", gridColsClass)}>
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          if (item.isCentral) {
-            return (
-              <div key={item.href} className="flex justify-center">
-                <Link 
-                  href={item.href}
-                  className={cn(
-                    "relative -mt-6 flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-full shadow-lg transition-all duration-300 p-2 border-4 border-background",
-                    isActive ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-secondary"
-                  )}
-                >
-                  <item.icon className="h-6 w-6" />
-                  <span className="text-[10px] font-bold">{item.label}</span>
-                </Link>
-              </div>
-            )
-          }
-
-          return (
-            <Link 
+      <nav className={cn("grid h-full items-center", gridColsClass)}>
+        {/* Re-ordering for correct visual layout: Home, Concierge, CENTRAL BUTTON, Orders, (Sommelier), Cart */}
+        {navItems.filter(item => !item.isCentral && ['home', 'concierge'].includes(item.id)).map((item) => {
+           const isActive = pathname === item.href;
+           return (
+             <Link 
               key={item.href} 
               href={item.href} 
               className={cn(
@@ -72,15 +58,56 @@ export function MobileNav({ showSommelier }: { showSommelier: boolean }) {
               <item.icon className="h-5 w-5" />
               <span className="text-[10px] font-medium">{item.label}</span>
             </Link>
-          );
+           )
         })}
+        
+        {/* Central Button */}
+        {navItems.find(item => item.isCentral) && (() => {
+            const centralItem = navItems.find(item => item.isCentral)!;
+            const isActive = pathname === centralItem.href;
+            return (
+                 <div className="flex justify-center">
+                    <Link 
+                    href={centralItem.href}
+                    className={cn(
+                        "relative -mt-6 flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-full shadow-lg transition-all duration-300 p-2 border-4 border-background",
+                        isActive ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-secondary"
+                    )}
+                    >
+                    <centralItem.icon className="h-6 w-6" />
+                    <span className="text-[10px] font-bold">{centralItem.label}</span>
+                    </Link>
+                </div>
+            )
+        })()}
+
+
+        {/* Right-side Icons */}
+        {navItems.filter(item => !item.isCentral && !['home', 'concierge'].includes(item.id)).map((item) => {
+           const isActive = pathname === item.href;
+           return (
+             <Link 
+              key={item.href} 
+              href={item.href} 
+              className={cn(
+                'flex h-full flex-col items-center justify-center gap-1 p-1 transition-colors rounded-lg',
+                isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'
+              )}
+               aria-current={isActive ? 'page' : undefined}
+            >
+              <item.icon className="h-5 w-5" />
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </Link>
+           )
+        })}
+
         
         {/* Cart Trigger */}
         <Sheet>
             <SheetTrigger asChild>
               <button className="flex h-full flex-col items-center justify-center gap-1 p-1 text-muted-foreground hover:text-primary transition-colors relative rounded-lg" aria-label="Warenkorb öffnen">
                  {cartItems.length > 0 && (
-                  <span className="absolute top-1 right-3 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-accent-foreground text-[10px] font-bold" aria-hidden="true">
+                  <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-accent-foreground text-[10px] font-bold" aria-hidden="true">
                     {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
                   </span>
                 )}
