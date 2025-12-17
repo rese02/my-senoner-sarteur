@@ -98,7 +98,7 @@ export function StoriesManager({ initialStories, onUpdate }: { initialStories: S
             setEditingStory({ ...story });
         } else {
             setEditingStory({
-                id: undefined, // Explicitly set id to undefined for new stories
+                id: uuidv4(), // Generate ID on client for new story
                 label: '',
                 author: '',
                 imageUrl: '',
@@ -193,7 +193,7 @@ export function StoriesManager({ initialStories, onUpdate }: { initialStories: S
             <Sheet open={isStoryModalOpen} onOpenChange={setIsStoryModalOpen}>
                 <SheetContent className="sm:max-w-md p-0">
                     <SheetHeader className="p-6 pb-0">
-                        <SheetTitle>{editingStory?.id ? 'Story bearbeiten' : 'Neue Story erstellen'}</SheetTitle>
+                        <SheetTitle>{editingStory?.id && stories.some(s => s.id === editingStory.id) ? 'Story bearbeiten' : 'Neue Story erstellen'}</SheetTitle>
                         <SheetDescription>
                             Fügen Sie ein Bild hinzu und geben Sie einen Titel und Autor an.
                         </SheetDescription>

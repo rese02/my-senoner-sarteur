@@ -36,20 +36,15 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
     setIsUploading(true);
     setError(null);
     setProgress(0);
-    // Do not clear finalImageUrl immediately, looks better to keep old one until new is ready
-    // setFinalImageUrl(null);
 
-    // 1. Compression
     const options = {
-      maxSizeMB: 1, // Max size 1MB
-      maxWidthOrHeight: 1920, // Max dimensions
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
       useWebWorker: true,
     };
 
     try {
       const compressedFile = await imageCompression(file, options);
-
-      // 2. Upload to Firebase Storage
       const storageRef = ref(storage, `images/${folder}/${Date.now()}_${compressedFile.name}`);
       const uploadTask = uploadBytesResumable(storageRef, compressedFile);
 
@@ -64,7 +59,6 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
           setIsUploading(false);
         },
         async () => {
-          // 3. Get download URL and send to parent component
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           onUploadComplete(downloadURL);
           setFinalImageUrl(downloadURL);
@@ -82,10 +76,9 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
   };
 
   return (
-    <div className="w-full p-4 border-2 border-dashed border-border rounded-xl text-center bg-secondary/30">
-      {/* Hidden input field */}
+    <div className="w-full">
       <Input
-        id="image-upload"
+        id={`image-upload-${folder}`}
         type="file"
         accept="image/png, image/jpeg"
         className="hidden"
@@ -93,42 +86,34 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
         disabled={isUploading}
       />
 
+      {finalImageUrl && !isUploading && (
+        <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-2 border">
+          <Image src={finalImageUrl} alt="Hochgeladenes Bild" fill sizes="(max-width: 640px) 90vw, 500px" className="object-cover" />
+        </div>
+      )}
+
       {isUploading && (
-        <div className="flex flex-col items-center gap-2 text-sm">
+        <div className="flex flex-col items-center gap-2 text-sm p-4 bg-secondary rounded-lg">
           <p className="font-medium">Lade hoch...</p>
           <Progress value={progress} className="w-full" />
         </div>
       )}
 
       {error && (
-        <div className="text-destructive flex items-center justify-center gap-2">
+        <div className="text-destructive flex items-center justify-center gap-2 p-4 bg-destructive/10 rounded-lg">
           <AlertTriangle className="w-4 h-4" />
           <span>{error}</span>
         </div>
       )}
 
-      {!isUploading && !error && finalImageUrl && (
-        <div className="flex flex-col items-center gap-4">
-            <div className="relative w-32 h-32 rounded-xl overflow-hidden">
-                 <Image src={finalImageUrl} alt="Hochgeladenes Bild" fill sizes="128px" className="object-cover" />
-            </div>
-             <p className="text-sm text-muted-foreground flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                Upload erfolgreich!
-            </p>
-        </div>
-      )}
-      
-       {!isUploading && (
-         <label htmlFor="image-upload" className="mt-4 inline-block">
-             <Button asChild variant={finalImageUrl ? "link" : "outline"} className="cursor-pointer">
-                <span>
-                 {!finalImageUrl && <UploadCloud className="mr-2" />}
-                  {finalImageUrl ? 'Anderes Bild wählen' : 'Bild hochladen'}
-                </span>
-            </Button>
-          </label>
-       )}
+      <label htmlFor={`image-upload-${folder}`} className="mt-2 w-full">
+         <Button asChild variant={finalImageUrl ? "outline" : "default"} className="cursor-pointer w-full">
+            <span>
+             {!finalImageUrl && <UploadCloud className="mr-2 h-4 w-4" />}
+              {finalImageUrl ? 'Anderes Bild wählen' : 'Bild hochladen'}
+            </span>
+        </Button>
+      </label>
     </div>
   );
 }

@@ -82,17 +82,13 @@ export async function saveStory(storyData: Partial<Story>): Promise<Story> {
       ...data,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     }
+    
+    const docId = id || uuidv4();
+    const docRef = adminDb.collection('stories').doc(docId);
+    await docRef.set(toPlainObject(storyToSave), { merge: true });
 
-    if (id) {
-        await adminDb.collection('stories').doc(id).update(toPlainObject(storyToSave));
-        revalidatePaths();
-        return { ...storyToSave, id: id } as Story;
-    } else {
-        const newDocRef = await adminDb.collection('stories').doc(uuidv4());
-        await newDocRef.set(toPlainObject(storyToSave));
-        revalidatePaths();
-        return { ...storyToSave, id: newDocRef.id } as Story;
-    }
+    revalidatePaths();
+    return { ...storyToSave, id: docId } as Story;
 }
 
 export async function deleteStory(storyId: string) {
@@ -111,17 +107,13 @@ export async function savePlannerEvent(eventData: Partial<PlannerEvent>): Promis
         throw new Error("Invalid event data: " + JSON.stringify(validation.error.flatten().fieldErrors));
     }
     const { id, ...data } = validation.data;
+    
+    const docId = id || uuidv4();
+    const docRef = adminDb.collection('plannerEvents').doc(docId);
+    await docRef.set(toPlainObject(data), { merge: true });
 
-    if (id) {
-        await adminDb.collection('plannerEvents').doc(id).update(toPlainObject(data));
-        revalidatePaths();
-        return { ...data, id: id } as PlannerEvent;
-    } else {
-        const newDocRef = await adminDb.collection('plannerEvents').doc(uuidv4());
-        await newDocRef.set(toPlainObject(data));
-        revalidatePaths();
-        return { ...data, id: newDocRef.id } as PlannerEvent;
-    }
+    revalidatePaths();
+    return { ...data, id: docId } as PlannerEvent;
 }
 
 export async function deletePlannerEvent(eventId: string) {
@@ -283,14 +275,15 @@ async function canUserPlay(userId: string, settings: WheelOfFortuneSettings): Pr
 
 export async function getPlannerPageData() {
     // This function can be called by customers.
-    await requireRole(['customer']);
+    const plannerEventsSnap = await adminDb.collection('plannerEvents').limit(1).get();
+    if (plannerEventsSnap.empty) {
+        return { plannerEvents: [], products: [] };
+    }
+    
     try {
-        const plannerEventsSnap = await adminDb.collection('plannerEvents').get();
         const productsSnap = await adminDb.collection('products').where('isAvailable', '==', true).get();
-        
         const plannerEvents = plannerEventsSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as PlannerEvent));
         const products = productsSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Product));
-
         return { plannerEvents, products };
     } catch(e) {
         console.error("Failed to get planner page data", e);
