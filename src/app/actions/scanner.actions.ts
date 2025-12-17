@@ -19,22 +19,19 @@ export async function getScannerPageData() {
   await requireEmployeeOrAdmin();
 
   try {
-    // Abfragen parallel ausführen für bessere Performance
-    const [usersSnapshot, groceryListsSnapshot, allOrdersSnapshot] = await Promise.all([
-      adminDb.collection('users').get(),
-      adminDb.collection('orders').where('type', '==', 'grocery_list').where('status', '==', 'new').get(),
-      adminDb.collection('orders').get(),
-    ]);
+    // Es werden nur offene Einkaufszettel geladen, anstatt aller Bestellungen
+    const groceryListsSnapshot = await adminDb.collection('orders')
+        .where('type', '==', 'grocery_list')
+        .where('status', '==', 'new')
+        .get();
       
-    const users = usersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as User));
     const groceryLists = groceryListsSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
-    const allOrders = allOrdersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
     
-    // Geben Sie alle relevanten Daten zurück
-    return { users, groceryLists, allOrders };
+    // Wir geben nur die Daten zurück, die wirklich gebraucht werden.
+    return { groceryLists };
   } catch (error) {
     console.error("Error fetching data for scanner page:", error);
     // Stabile Rückgabe im Fehlerfall
-    return { users: [], groceryLists: [], allOrders: [] };
+    return { groceryLists: [] };
   }
 }

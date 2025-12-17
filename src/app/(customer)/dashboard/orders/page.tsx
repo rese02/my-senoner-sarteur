@@ -103,7 +103,7 @@ function OrderHistoryCard({
                             <div className="space-y-2">
                                 {order.items.map(item => (
                                     <div key={item.productId} className="flex justify-between items-center py-1 border-b last:border-0">
-                                        <span className="text-base font-semibold">{item.quantity}x {item.productName}</span>
+                                        <span className="text-sm font-medium">{item.quantity}x {item.productName}</span>
                                         <span className="font-mono text-muted-foreground text-sm">€{(item.price * item.quantity).toFixed(2)}</span>
                                     </div>
                                 ))}

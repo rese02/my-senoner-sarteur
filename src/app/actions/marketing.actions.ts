@@ -236,6 +236,7 @@ export async function getWheelOfFortuneDataForCustomer() {
     if (!session?.id) return null;
 
     const userDoc = await adminDb.collection('users').doc(session.id).get();
+    if (!userDoc.exists) return null; // User not found in DB
     const user = userDoc.data() as User;
 
     if (user.activePrize) return null; // If they have a prize, don't show the wheel

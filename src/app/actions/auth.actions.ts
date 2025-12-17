@@ -42,6 +42,8 @@ export async function createSession(idToken: string | null) {
     const userSnap = await userRef.get();
 
     if (!userSnap.exists) {
+      // WICHTIGE ABSICHERUNG: Verhindert Absturz, wenn Auth-User aber kein DB-Eintrag existiert
+      console.error(`User with UID ${uid} authenticated but has no Firestore document.`);
       throw new Error('User profile not found in database. Please contact support.');
     }
 

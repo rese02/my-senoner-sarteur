@@ -62,8 +62,8 @@ interface PlannerClientProps {
 }
 
 export function PlannerClient({ initialEvents, initialProducts }: PlannerClientProps) {
-  const [events, setEvents] = useState<PlannerEvent[]>(initialEvents);
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [events] = useState<PlannerEvent[]>(initialEvents);
+  const [products] = useState<Product[]>(initialProducts);
   const [selectedEvent, setSelectedEvent] = useState<PlannerEvent | null>(initialEvents[0] || null);
   const [people, setPeople] = useState(4);
   const { toast } = useToast();

@@ -52,7 +52,7 @@ export async function getCustomersPageData() {
 
 
 export async function getCustomerDetails(customerId: string) {
-    // KORREKTUR: Mitarbeiter dürfen dies ebenfalls tun.
+    // Mitarbeiter dürfen Kundendetails für den Scanner abrufen
     await requireEmployeeOrAdmin();
 
     // Strikte Eingabevalidierung mit Zod

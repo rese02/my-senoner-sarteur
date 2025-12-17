@@ -103,17 +103,13 @@ export function MarketingClient({ initialStories, initialPlannerEvents, availabl
                 )}>
                     {activeSection && (
                          <>
-                            <SheetHeader className="p-6">
+                            <SheetHeader className="p-6 pb-0">
                                 <SheetTitle>{activeSection.title}</SheetTitle>
                                 <SheetDescription>{activeSection.description}</SheetDescription>
                             </SheetHeader>
                             {activeSection.component}
                         </>
                     )}
-                     <SheetClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-secondary">
-                        <X className="h-4 w-4" />
-                        <span className="sr-only">Close</span>
-                    </SheetClose>
                 </SheetContent>
             </Sheet>
         </div>

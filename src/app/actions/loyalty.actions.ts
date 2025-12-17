@@ -22,6 +22,7 @@ async function requireRole(roles: Array<'customer' | 'employee' | 'admin'>) {
 
 /**
  * Adds a stamp to a user's account. Resets the stamp card if it's full.
+ * Uses a Firestore transaction for atomicity.
  * Returns the updated user object.
  */
 export async function addStamp(userId: string): Promise<User> {
@@ -65,18 +66,21 @@ export async function addStamp(userId: string): Promise<User> {
 
 /**
  * Redeems a prize won from the Wheel of Fortune.
+ * Uses a Firestore transaction for atomicity.
  */
 export async function redeemPrize(userId: string): Promise<{ success: true }> {
     await requireRole(['employee', 'admin']);
     const validatedUserId = z.string().min(1).parse(userId);
     const userRef = adminDb.collection('users').doc(validatedUserId);
     
-    const doc = await userRef.get();
-    if (!doc.exists) throw new Error("Kunde nicht gefunden.");
-    if (!doc.data()?.activePrize) throw new Error("Kunde hat keinen aktiven Gewinn zum Einlösen.");
+    await adminDb.runTransaction(async (t) => {
+        const doc = await t.get(userRef);
+        if (!doc.exists) throw new Error("Kunde nicht gefunden.");
+        if (!doc.data()?.activePrize) throw new Error("Kunde hat keinen aktiven Gewinn zum Einlösen.");
 
-    await userRef.update({
-        activePrize: FieldValue.delete(),
+        t.update(userRef, {
+            activePrize: FieldValue.delete(),
+        });
     });
 
     revalidatePath('/dashboard/loyalty');
@@ -88,6 +92,7 @@ export async function redeemPrize(userId: string): Promise<{ success: true }> {
 
 /**
  * Redeems a stamp-based reward (3€ or 7€) and resets the stamp count.
+ * Uses a Firestore transaction for atomicity.
  * Returns the updated user object.
  */
 export async function redeemStampReward(userId: string, stampsToRedeem: 5 | 10): Promise<User> {
@@ -109,7 +114,6 @@ export async function redeemStampReward(userId: string, stampsToRedeem: 5 | 10):
             throw new Error(`Nicht genügend Stempel. Benötigt: ${stampsToRedeem}, vorhanden: ${currentStamps}.`);
         }
 
-        // Reset stamps to 0
         const newStampCount = currentStamps - stampsToRedeem;
         const updateData = { loyaltyStamps: newStampCount };
         t.update(userRef, updateData);
