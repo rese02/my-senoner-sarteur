@@ -6,9 +6,9 @@ import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
-  title: 'My Senoner Sarteur | Ihr Supermarkt in Südtirol für Feinkost & Wein',
-  description: 'Entdecken Sie Senoner Sarteur in Wolkenstein, Gröden. Ihr Supermarkt in Südtirol für exklusive Feinkost, erlesenen Wein und digitale Services wie Click & Collect.',
-  keywords: ['Supermarkt', 'Südtirol', 'Wein', 'Feinkost', 'Wolkenstein', 'Gröden', 'Val Gardena', 'Lebensmittel', 'Click & Collect', 'Senoner Sarteur'],
+  title: 'My Senoner Sarteur - Premium Supermarkt & Feinkost in Wolkenstein/Selva',
+  description: 'Ihr digitaler Begleiter für Lebensmittel in Gröden. Bestellen Sie Südtiroler Spezialitäten, Wein und Feinkost bequem per App. Despar Senoner Sarteur.',
+  keywords: ['Supermarkt Wolkenstein', 'Supermercato Selva Val Gardena', 'Grocery store Val Gardena', 'Despar Selva', 'Despar Wolkenstein', 'Senoner Sarteur', 'Lebensmittelgeschäft Gröden', 'Alimentari Val Gardena', 'Supermarket Dolomites', 'Südtiroler Speck kaufen', 'Feinkost Südtirol', 'Prodotti tipici Alto Adige', 'Weinhandlung Wolkenstein', 'Enoteca Selva', 'Lieferservice Lebensmittel Gröden', 'Spesa a domicilio Selva', 'Grocery delivery Val Gardena', 'Online Supermarkt Südtirol'],
   authors: [{ name: 'Senoner Sarteur' }],
   creator: 'Senoner Sarteur',
   publisher: 'Senoner Sarteur',
@@ -32,7 +32,7 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Supermarket',
   name: 'Senoner Sarteur',
-  description: 'Exklusive Feinkost, Wein und Lebensmittel in Wolkenstein, Gröden (Südtirol).',
+  description: 'Ihr Premium Supermarkt & Feinkost-Geschäft in Wolkenstein, Gröden. Bestellen Sie online Südtiroler Spezialitäten, Wein, Speck und mehr.',
   address: {
     '@type': 'PostalAddress',
     streetAddress: 'Meisulesstraße 111',
@@ -43,8 +43,9 @@ const jsonLd = {
   },
   telephone: '+39-0471-795128',
   url: 'https://www.senoner-sarteur.it', // Replace with the actual production URL when live
-  image: '/logo.png', // A representative image
-  openingHours: 'Mo-Sa 07:30-12:30, 15:30-19:00', // Example, adjust as needed
+  image: '/logo.png',
+  openingHours: 'Mo-Sa 07:30-12:30, 15:30-19:00',
+  keywords: 'Supermarkt, Supermercato, Wolkenstein, Selva Val Gardena, Feinkost, Wein, Speck, Lieferservice, spesa a domicilio, Despar'
 };
 
 export default function RootLayout({
