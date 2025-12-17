@@ -171,7 +171,7 @@ export function EmployeeScannerClient({ userId }: { userId: string }) {
                     </Button>
                 </div>
                 
-                <Button onClick={resetAndGoToMenu} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+                <Button onClick={resetAndGoToMenu} variant="default" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
                     Zurück zum Menü
                 </Button>
             </CardContent>

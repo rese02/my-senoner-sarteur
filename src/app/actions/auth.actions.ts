@@ -72,10 +72,10 @@ const registerFormSchema = z.object({
   email: z.string().email("Invalid email address."),
   password: z.string().min(8, "Password must be at least 8 characters."),
   phone: z.string().min(5, "Invalid phone number."),
-  street: z.string().min(3, "Invalid street."),
-  city: z.string().min(2, "Invalid city."),
-  zip: z.string().min(4, "Invalid ZIP code."),
-  province: z.string().min(2, "Invalid province."),
+  street: z.string().min(3, "Invalid street.").optional(),
+  city: z.string().min(2, "Invalid city.").optional(),
+  zip: z.string().min(4, "Invalid ZIP code.").optional(),
+  province: z.string().min(2, "Invalid province.").optional(),
   privacyPolicy: z.boolean().refine((val) => val === true, {
     message: "Sie müssen die AGB und Datenschutzerklärung akzeptieren.",
   }),
@@ -104,6 +104,11 @@ export async function registerUser(values: unknown) {
     // 2. Firestore-Dokument erstellen
     const userRef = adminDb.collection('users').doc(userRecord.uid);
     const now = new Date().toISOString();
+    
+    const deliveryAddress = (street && city && zip && province) 
+      ? { street, city, zip, province }
+      : undefined;
+
     const newUser: Omit<User, 'id'> = {
       name: name,
       email: email,
@@ -112,7 +117,7 @@ export async function registerUser(values: unknown) {
       lastLogin: now,
       loyaltyStamps: 0,
       phone: phone,
-      deliveryAddress: { street, city, zip, province },
+      deliveryAddress: deliveryAddress,
       consent: {
         privacyPolicy: {
           accepted: privacyPolicy,

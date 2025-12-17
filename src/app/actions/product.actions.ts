@@ -1,3 +1,4 @@
+
 'use server';
 
 import 'server-only';
@@ -105,15 +106,19 @@ export async function getDashboardStats() {
         const ordersCol = adminDb.collection('orders');
         const usersCol = adminDb.collection('users');
 
-        const [totalRevenueSnap, totalOrdersSnap, totalCustomersSnap, openOrdersSnap] = await Promise.all([
-            ordersCol.where('status', 'in', ['collected', 'delivered', 'paid']).aggregate({ total: { sum: 'total' } }).get(),
+        // Fetch completed orders to calculate revenue manually
+        const revenueQuery = ordersCol.where('status', 'in', ['collected', 'delivered', 'paid']);
+        const revenueSnap = await revenueQuery.get();
+        const totalRevenue = revenueSnap.docs.reduce((sum, doc) => sum + (doc.data().total || 0), 0);
+        
+        const [totalOrdersSnap, totalCustomersSnap, openOrdersSnap] = await Promise.all([
             ordersCol.count().get(),
             usersCol.where('role', '==', 'customer').count().get(),
             ordersCol.where('status', 'in', ['new', 'picking', 'ready', 'ready_for_delivery']).count().get()
         ]);
         
         return {
-            totalRevenue: totalRevenueSnap.data().total || 0,
+            totalRevenue: totalRevenue,
             totalOrders: totalOrdersSnap.data().count,
             totalCustomers: totalCustomersSnap.data().count,
             openOrders: openOrdersSnap.data().count
@@ -130,10 +135,15 @@ export async function getRecentOrders() {
     try {
         const recentOrdersSnap = await adminDb.collection('orders')
             .where('status', 'in', ['new', 'picking', 'ready', 'ready_for_delivery'])
-            .orderBy('createdAt', 'desc')
             .limit(10)
             .get();
-        return recentOrdersSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
+
+        const orders = recentOrdersSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
+        
+        // Sort in code instead of in the query
+        orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            
+        return orders;
     } catch (error) {
         console.error("Error fetching recent orders:", error);
         return [];

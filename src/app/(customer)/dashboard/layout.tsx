@@ -12,11 +12,17 @@ import type { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { adminDb } from "@/lib/firebase-admin";
 
-function DesktopSidebar() {
+async function checkPlannerEventsExist() {
+    const plannerEventsSnap = await adminDb.collection('plannerEvents').limit(1).get();
+    return !plannerEventsSnap.empty;
+}
+
+function DesktopSidebar({ showPlanner }: { showPlanner: boolean }) {
   return (
     <aside className="hidden lg:flex flex-col w-64 bg-card border-r">
-        <CustomerSidebar />
+        <CustomerSidebar showPlanner={showPlanner} />
     </aside>
   );
 }
@@ -40,10 +46,12 @@ export default async function CustomerLayout({
     if (session.role === 'employee') {
       redirect('/employee/scanner');
     }
+
+    const showPlanner = await checkPlannerEventsExist();
     
   return (
     <div className="flex min-h-[100dvh] bg-background text-foreground">
-      <DesktopSidebar />
+      <DesktopSidebar showPlanner={showPlanner} />
       <div className="flex-1 flex flex-col">
         <header className={cn("lg:hidden flex-none flex h-16 items-center justify-between px-4 sticky top-0 z-30 bg-primary text-primary-foreground backdrop-blur-sm border-b")}>
             <Sheet>
@@ -58,7 +66,7 @@ export default async function CustomerLayout({
                     <SheetTitle>Hauptmenü</SheetTitle>
                     <SheetDescription>Navigation für den Kundenbereich</SheetDescription>
                 </SheetHeader>
-                <CustomerSidebar />
+                <CustomerSidebar showPlanner={showPlanner} />
               </SheetContent>
             </Sheet>
 
@@ -69,7 +77,7 @@ export default async function CustomerLayout({
         <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-28 lg:pb-8">
             {children}
         </main>
-         <MobileNav />
+         <MobileNav showPlanner={showPlanner} />
       </div>
     </div>
   );

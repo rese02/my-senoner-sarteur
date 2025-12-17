@@ -11,7 +11,7 @@ import {
   ShoppingCart,
   Sparkles,
   NotebookPen,
-  Calculator,
+  PartyPopper,
   History,
 } from 'lucide-react';
 import { logout } from '@/app/actions/auth.actions';
@@ -20,16 +20,17 @@ import { cn } from '@/lib/utils';
 import { Logo } from '@/components/common/Logo';
 
 const navItems = [
-  { href: '/dashboard', icon: ShoppingCart, label: 'Entdecken' },
-  { href: '/dashboard/orders', icon: History, label: 'Meine Bestellungen'},
-  { href: '/dashboard/concierge', icon: NotebookPen, label: 'Concierge' },
-  { href: '/dashboard/planner', icon: Calculator, label: 'Party Planer' },
-  { href: '/dashboard/loyalty', icon: CreditCard, label: 'Fidelity' },
-  { href: '/dashboard/sommelier', icon: Sparkles, label: 'AI Sommelier'},
+  { href: '/dashboard', icon: ShoppingCart, label: 'Entdecken', id: 'discover' },
+  { href: '/dashboard/orders', icon: History, label: 'Meine Bestellungen', id: 'orders' },
+  { href: '/dashboard/concierge', icon: NotebookPen, label: 'Concierge', id: 'concierge' },
+  { href: '/dashboard/planner', icon: PartyPopper, label: 'Party Planer', id: 'planner' },
+  { href: '/dashboard/loyalty', icon: CreditCard, label: 'Fidelity', id: 'loyalty' },
+  { href: '/dashboard/sommelier', icon: Sparkles, label: 'AI Sommelier', id: 'sommelier' },
 ];
 
-export function CustomerSidebar() {
+export function CustomerSidebar({ showPlanner }: { showPlanner: boolean }) {
   const pathname = usePathname();
+  const visibleNavItems = navItems.filter(item => item.id !== 'planner' || showPlanner);
 
   return (
     <div className="h-full flex flex-col">
@@ -37,7 +38,7 @@ export function CustomerSidebar() {
             <Logo />
         </div>
       <nav className="flex-1 p-4 space-y-1">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
            const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
            return (
             <Link

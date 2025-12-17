@@ -74,11 +74,11 @@ export function LoginForm() {
               <FormLabel className="sr-only">Email</FormLabel>
               <FormControl>
                 <div className="relative">
-                   <Mail className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", field.value ? 'text-primary-foreground' : 'text-primary-foreground/50')} />
-                   <Input placeholder="Email" {...field} className="pl-10 bg-primary-foreground/5 text-primary-foreground placeholder:text-primary-foreground/50 border-primary-foreground/20 focus-visible:ring-offset-primary" />
+                   <Mail className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", field.value ? 'text-primary' : 'text-muted-foreground')} />
+                   <Input placeholder="Email" {...field} className="pl-10" />
                 </div>
               </FormControl>
-              <FormMessage className="text-accent/80"/>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -90,28 +90,28 @@ export function LoginForm() {
               <FormLabel className="sr-only">Passwort</FormLabel>
               <FormControl>
                  <div className="relative">
-                    <Lock className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", field.value ? 'text-primary-foreground' : 'text-primary-foreground/50')} />
+                    <Lock className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", field.value ? 'text-primary' : 'text-muted-foreground')} />
                     <Input 
                       type={showPassword ? 'text' : 'password'} 
                       placeholder="Passwort" 
                       {...field} 
-                      className="pl-10 pr-10 bg-primary-foreground/5 text-primary-foreground placeholder:text-primary-foreground/50 border-primary-foreground/20 focus-visible:ring-offset-primary"
+                      className="pl-10 pr-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-foreground/50 hover:text-primary-foreground"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}
                     >
                       {showPassword ? <EyeOff className="h-5 w-5"/> : <Eye className="h-5 w-5" />}
                     </button>
                  </div>
               </FormControl>
-              <FormMessage className="text-accent/80" />
+              <FormMessage />
             </FormItem>
           )}
         />
-        <SubmitButton variant="secondary" className="w-full bg-white text-primary hover:bg-white/90" isSubmitting={isSubmitting}>
+        <SubmitButton className="w-full" isSubmitting={isSubmitting}>
           {isSubmitting ? 'Anmelden...' : 'Anmelden'}
         </SubmitButton>
       </form>

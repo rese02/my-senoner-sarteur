@@ -109,7 +109,7 @@ export function PackageCard({ product }: { product: Product }) {
                                 className="flex justify-between items-center py-3 border-b last:border-0"
                                 >
                                 <span className="text-card-foreground font-medium">{content.item}</span>
-                                <span className="text-muted-foreground text-sm font-semibold">
+                                <span className="text-primary font-semibold">
                                     {content.amount}
                                 </span>
                                 </div>

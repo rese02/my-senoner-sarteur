@@ -3,16 +3,18 @@
 import { Button } from '@/components/ui/button';
 import { X, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useEffect, useRef, useCallback, useState, Suspense } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import jsQR from 'jsqr';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
+import Webcam from 'react-webcam';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const Webcam = dynamic(() => import('react-webcam'), {
-    ssr: false,
-    loading: () => <Skeleton className="h-full w-full bg-muted" />
-});
+// Use dynamic import for Webcam to ensure it's client-side only
+// This might be redundant if the whole page is 'use client', but it's a good practice.
+// const Webcam = dynamic(() => import('react-webcam'), {
+//     ssr: false,
+//     loading: () => <Skeleton className="h-full w-full bg-muted" />
+// });
 
 export default function ScanPage() {
     const { toast } = useToast();
