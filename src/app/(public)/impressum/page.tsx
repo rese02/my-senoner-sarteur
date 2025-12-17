@@ -9,7 +9,7 @@ export default function ImpressumPage() {
       <div className="container mx-auto p-4 md:p-8">
         <PageHeader title="Impressum / Note Legali" description="Angaben gemäß gesetzlicher Verpflichtung" />
 
-        <Card className="p-6 md:p-8 space-y-8 text-muted-foreground">
+        <Card className="bg-transparent border-none shadow-none p-6 md:p-8 space-y-8 text-muted-foreground">
             <div className="space-y-4">
               <h2 className="text-2xl font-bold text-foreground font-headline">Senoner Sarteur KG-SAS di Senoner Andreas & C.</h2>
 

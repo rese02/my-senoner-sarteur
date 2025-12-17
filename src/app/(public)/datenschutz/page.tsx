@@ -9,7 +9,7 @@ export default function DatenschutzPage() {
       <div className="container mx-auto p-4 md:p-8">
         <PageHeader title="Datenschutzerklärung 'My Senoner Sarteur'" description="Stand: Dezember 2025" />
 
-        <Card className="p-6 md:p-8 space-y-8 text-muted-foreground">
+        <Card className="bg-transparent border-none shadow-none p-6 md:p-8 space-y-8 text-muted-foreground">
 
           <section>
             <h2 className="text-xl font-bold text-foreground mb-4 font-headline">1. Verantwortlicher</h2>
