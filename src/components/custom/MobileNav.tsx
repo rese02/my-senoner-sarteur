@@ -2,7 +2,7 @@
 'use client'
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, NotebookPen, CreditCard, ShoppingBag, ShoppingCart, Sparkles } from 'lucide-react';
+import { Home, NotebookPen, CreditCard, ShoppingBag, ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { useCartStore } from '@/hooks/use-cart-store';
@@ -13,25 +13,19 @@ type NavItem = {
     icon: React.ElementType;
     label: string;
     isCentral?: boolean;
-    id: 'home' | 'concierge' | 'loyalty' | 'orders' | 'sommelier';
+    id: 'home' | 'concierge' | 'loyalty' | 'orders';
 };
 
-const allNavItems: NavItem[] = [
+const navItems: NavItem[] = [
   { id: 'home', href: '/dashboard', icon: Home, label: 'Home' },
   { id: 'concierge', href: '/dashboard/concierge', icon: NotebookPen, label: 'Concierge' },
   { id: 'loyalty', href: '/dashboard/loyalty', icon: CreditCard, label: 'Fidelity', isCentral: true },
   { id: 'orders', href: '/dashboard/orders', icon: ShoppingBag, label: 'Bestell.' },
-  { id: 'sommelier', href: '/dashboard/sommelier', icon: Sparkles, label: 'AI Scan' },
 ];
 
 export function MobileNav({ showSommelier }: { showSommelier: boolean }) {
   const pathname = usePathname();
   const cartItems = useCartStore(state => state.items);
-
-  const navItems = allNavItems.filter(item => {
-      if (item.id === 'sommelier') return showSommelier;
-      return true;
-  });
 
   // Helper to render a nav item link
   const renderNavItem = (item: NavItem) => {
@@ -54,7 +48,7 @@ export function MobileNav({ showSommelier }: { showSommelier: boolean }) {
   
   const centralItem = navItems.find(item => item.isCentral);
   const leftItems = navItems.filter(item => !item.isCentral && ['home', 'concierge'].includes(item.id));
-  const rightItems = navItems.filter(item => !item.isCentral && ['orders', 'sommelier'].includes(item.id));
+  const rightItems = navItems.filter(item => !item.isCentral && ['orders'].includes(item.id));
 
 
   return (
