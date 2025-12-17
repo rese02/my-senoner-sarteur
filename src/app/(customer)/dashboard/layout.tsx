@@ -13,16 +13,22 @@ import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { adminDb } from "@/lib/firebase-admin";
+import { getSommelierSettings } from "@/app/actions/wine-manager.actions";
 
 async function checkPlannerEventsExist() {
     const plannerEventsSnap = await adminDb.collection('plannerEvents').limit(1).get();
     return !plannerEventsSnap.empty;
 }
 
-function DesktopSidebar({ showPlanner }: { showPlanner: boolean }) {
+async function checkSommelierIsActive() {
+    const settings = await getSommelierSettings();
+    return settings.isActive;
+}
+
+function DesktopSidebar({ showPlanner, showSommelier }: { showPlanner: boolean; showSommelier: boolean; }) {
   return (
     <aside className="hidden lg:flex flex-col w-64 bg-card border-r">
-        <CustomerSidebar showPlanner={showPlanner} />
+        <CustomerSidebar showPlanner={showPlanner} showSommelier={showSommelier} />
     </aside>
   );
 }
@@ -47,11 +53,14 @@ export default async function CustomerLayout({
       redirect('/employee/scanner');
     }
 
-    const showPlanner = await checkPlannerEventsExist();
+    const [showPlanner, showSommelier] = await Promise.all([
+        checkPlannerEventsExist(),
+        checkSommelierIsActive()
+    ]);
     
   return (
     <div className="flex min-h-[100dvh] bg-background text-foreground">
-      <DesktopSidebar showPlanner={showPlanner} />
+      <DesktopSidebar showPlanner={showPlanner} showSommelier={showSommelier} />
       <div className="flex-1 flex flex-col">
         <header className={cn("lg:hidden flex-none flex h-16 items-center justify-between px-4 sticky top-0 z-30 bg-primary text-primary-foreground backdrop-blur-sm border-b")}>
             <Sheet>
@@ -66,7 +75,7 @@ export default async function CustomerLayout({
                     <SheetTitle>Hauptmenü</SheetTitle>
                     <SheetDescription>Navigation für den Kundenbereich</SheetDescription>
                 </SheetHeader>
-                <CustomerSidebar showPlanner={showPlanner} />
+                <CustomerSidebar showPlanner={showPlanner} showSommelier={showSommelier} />
               </SheetContent>
             </Sheet>
 
@@ -77,7 +86,7 @@ export default async function CustomerLayout({
         <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-28 lg:pb-8">
             {children}
         </main>
-         <MobileNav showPlanner={showPlanner} />
+         <MobileNav showSommelier={showSommelier} />
       </div>
     </div>
   );

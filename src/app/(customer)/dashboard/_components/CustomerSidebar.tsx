@@ -28,9 +28,13 @@ const navItems = [
   { href: '/dashboard/sommelier', icon: Sparkles, label: 'AI Sommelier', id: 'sommelier' },
 ];
 
-export function CustomerSidebar({ showPlanner }: { showPlanner: boolean }) {
+export function CustomerSidebar({ showPlanner, showSommelier }: { showPlanner: boolean; showSommelier: boolean; }) {
   const pathname = usePathname();
-  const visibleNavItems = navItems.filter(item => item.id !== 'planner' || showPlanner);
+  const visibleNavItems = navItems.filter(item => {
+    if (item.id === 'planner') return showPlanner;
+    if (item.id === 'sommelier') return showSommelier;
+    return true;
+  });
 
   return (
     <div className="h-full flex flex-col">

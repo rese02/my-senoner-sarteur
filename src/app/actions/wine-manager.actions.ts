@@ -1,3 +1,4 @@
+
 'use server';
 
 import 'server-only';
@@ -23,6 +24,22 @@ const WineSchema = z.object({
     tags: z.array(z.string()),
 });
 
+export async function saveSommelierSettings(isActive: boolean) {
+    await requireAdmin();
+    const validatedIsActive = z.boolean().parse(isActive);
+    await adminDb.collection('content').doc('sommelier_settings').set({ isActive: validatedIsActive }, { merge: true });
+    revalidatePath('/admin/sommelier');
+    revalidatePath('/dashboard');
+    revalidatePath('/dashboard/layout'); // Revalidate layout to show/hide nav links
+}
+
+export async function getSommelierSettings(): Promise<{ isActive: boolean }> {
+    const doc = await adminDb.collection('content').doc('sommelier_settings').get();
+    if (!doc.exists) {
+        return { isActive: false }; // Default to inactive if not set
+    }
+    return doc.data() as { isActive: boolean };
+}
 
 export async function deleteAllWines() {
     await requireAdmin();

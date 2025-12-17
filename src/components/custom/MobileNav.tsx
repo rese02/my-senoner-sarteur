@@ -2,7 +2,7 @@
 'use client'
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, NotebookPen, CreditCard, ShoppingBag, ShoppingCart } from 'lucide-react';
+import { Home, NotebookPen, CreditCard, ShoppingBag, ShoppingCart, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { useCartStore } from '@/hooks/use-cart-store';
@@ -13,25 +13,33 @@ type NavItem = {
     icon: React.ElementType;
     label: string;
     isCentral?: boolean;
-    id: 'home' | 'concierge' | 'loyalty' | 'orders';
+    id: 'home' | 'concierge' | 'loyalty' | 'orders' | 'sommelier';
 };
 
-// Party Planer wurde bewusst aus dieser Liste entfernt, um die untere Leiste sauber zu halten.
-// Er bleibt im seitlichen Hamburger-Menü verfügbar.
-const navItems: NavItem[] = [
+const allNavItems: NavItem[] = [
   { id: 'home', href: '/dashboard', icon: Home, label: 'Home' },
   { id: 'concierge', href: '/dashboard/concierge', icon: NotebookPen, label: 'Concierge' },
+  { id: 'sommelier', href: '/dashboard/sommelier', icon: Sparkles, label: 'AI Scan' },
   { id: 'loyalty', href: '/dashboard/loyalty', icon: CreditCard, label: 'Fidelity', isCentral: true },
   { id: 'orders', href: '/dashboard/orders', icon: ShoppingBag, label: 'Bestell.' },
 ];
 
-export function MobileNav({ showPlanner }: { showPlanner: boolean }) {
+export function MobileNav({ showSommelier }: { showSommelier: boolean }) {
   const pathname = usePathname();
   const cartItems = useCartStore(state => state.items);
 
+  // Filter out sommelier if it's not active
+  const navItems = allNavItems.filter(item => {
+      if (item.id === 'sommelier') return showSommelier;
+      return true;
+  });
+
+  // Adjust grid columns based on number of items
+  const gridColsClass = `grid-cols-${navItems.length + 1}`; // +1 for the cart
+
   return (
     <div className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t border-border/50 shadow-t-lg lg:hidden z-40">
-      <nav className="grid h-full grid-cols-5 items-center px-1">
+      <nav className={cn("grid h-full items-center px-1", gridColsClass)}>
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           if (item.isCentral) {

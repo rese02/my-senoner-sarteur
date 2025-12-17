@@ -1,0 +1,111 @@
+
+{
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "A user of the application.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The user's full name."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "role": {
+          "type": "string",
+          "description": "The user's role.",
+          "enum": ["customer", "employee", "admin"]
+        },
+        "loyaltyStamps": {
+            "type": "number",
+            "description": "The current number of loyalty stamps the user has collected."
+        },
+        "lastWheelSpin": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of the user's last wheel spin."
+        },
+        "activePrize": {
+            "type": "string",
+            "description": "An active prize won from the wheel of fortune, waiting to be redeemed."
+        }
+      },
+      "required": ["name", "email", "role"]
+    },
+    "wheelOfFortune": {
+      "title": "Wheel of Fortune Settings",
+      "description": "Configuration for the customer-facing wheel of fortune game.",
+      "type": "object",
+      "properties": {
+        "isActive": {
+          "type": "boolean",
+          "description": "Whether the wheel of fortune is globally active."
+        },
+        "schedule": {
+          "type": "string",
+          "description": "How often a user can spin the wheel.",
+          "enum": ["daily", "weekly", "monthly"]
+        },
+        "segments": {
+          "type": "array",
+          "description": "The different outcome segments on the wheel.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "description": "The text displayed on the segment (e.g., '5% Rabatt', 'Niete')."
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of segment.",
+                "enum": ["win", "lose"]
+              }
+            },
+            "required": ["text", "type"]
+          }
+        }
+      },
+      "required": ["isActive", "schedule", "segments"]
+    },
+    "sommelierSettings": {
+      "title": "Sommelier Settings",
+      "description": "Configuration for the AI Sommelier feature.",
+      "type": "object",
+      "properties": {
+        "isActive": {
+          "type": "boolean",
+          "description": "Whether the AI Sommelier is globally active for customers."
+        }
+      },
+      "required": ["isActive"]
+    }
+  },
+  "auth": {
+    "providers": ["password"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/user"
+      },
+      "description": "Stores user profile information."
+    },
+    "/content/wheel_of_fortune": {
+        "schema": {
+            "$ref": "#/entities/wheelOfFortune"
+        },
+        "description": "Stores the global settings for the wheel of fortune game."
+    },
+    "/content/sommelier_settings": {
+        "schema": {
+            "$ref": "#/entities/sommelierSettings"
+        },
+        "description": "Stores the global settings for the AI Sommelier feature."
+    }
+  }
+}
