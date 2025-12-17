@@ -31,7 +31,7 @@ const playfair = Playfair_Display({
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Supermarket',
-  name: 'Senoner Sarteur',
+  name: 'My Senoner Sarteur',
   description: 'Ihr Premium Supermarkt & Feinkost-Geschäft in Wolkenstein, Gröden. Bestellen Sie online Südtiroler Spezialitäten, Wein, Speck und mehr.',
   address: {
     '@type': 'PostalAddress',
