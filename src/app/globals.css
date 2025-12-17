@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%; /* Light Cool Gray */
+    --background: 210 40% 98%; /* Very light cool gray */
     --foreground: 215 25% 27%; /* Dark Slate Blue */
 
     --card: 0 0% 100%;
@@ -14,30 +14,30 @@
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 27%;
     
-    --primary: 210 100% 30%; /* The user's desired blue */
-    --primary-foreground: 0 0% 98%;
+    --primary: 210 100% 20%; /* The user's desired deep blue (#003366) */
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 30% 94%; /* Lighter, soft blue-gray */
-    --secondary-foreground: 210 100% 30%;
+    --secondary: 210 40% 94%; /* Lighter, soft blue-gray */
+    --secondary-foreground: 210 100% 20%; /* Deep blue on light background */
 
-    --muted: 210 30% 94%;
+    --muted: 210 40% 94%;
     --muted-foreground: 215 15% 55%;
 
-    --accent: 200 100% 50%; /* A brighter, vibrant blue */
-    --accent-foreground: 0 0% 100%;
+    --accent: 200 100% 50%; /* A brighter, vibrant blue for highlights */
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 210 20% 88%;
-    --input: 210 20% 96%;
+    --input: 210 30% 96%;
     --ring: 210 100% 40%;
 
     --radius: 1rem;
 
-    /* Custom Status Colors */
+    /* Custom Status Colors harmonized with blue theme */
     --status-new-bg: 210 100% 92%;
-    --status-new-fg: 215 100% 35%;
+    --status-new-fg: 210 100% 30%;
     --status-ready-bg: 140 80% 94%;
     --status-ready-fg: 140 70% 30%;
     --status-collected-bg: 220 10% 95%;
