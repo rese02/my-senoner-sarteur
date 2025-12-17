@@ -179,7 +179,7 @@ export async function updateUserProfile(formData: FormData) {
   if (!validation.success) {
     return {
       success: false,
-      message: 'Invalid data: ' + validation.error.flatten().fieldErrors,
+      message: 'Invalid data: ' + JSON.stringify(validation.error.flatten().fieldErrors),
     };
   }
 
@@ -200,15 +200,15 @@ export async function updateUserProfile(formData: FormData) {
   }
 
   // Behandelt Consent-Änderungen als separate Objekte, um Timestamps zu aktualisieren
-  if (marketingConsent !== undefined) {
+  if (rawData.marketingConsent !== undefined) {
     dataToUpdate['consent.marketing'] = {
-        accepted: marketingConsent === 'on',
+        accepted: rawData.marketingConsent === 'on',
         timestamp: now,
     };
   }
-   if (profilingConsent !== undefined) {
+   if (rawData.profilingConsent !== undefined) {
     dataToUpdate['consent.profiling'] = {
-        accepted: profilingConsent === 'on',
+        accepted: rawData.profilingConsent === 'on',
         timestamp: now,
     };
   }
@@ -241,6 +241,10 @@ export async function deleteUserAccount() {
     ordersSnapshot.forEach(doc => {
       batch.delete(doc.ref);
     });
+
+    // NEU: Alle AI-Anfragen des Nutzers zum Löschen finden und zum Batch hinzufügen
+    const aiRequestsRef = adminDb.collection('users').doc(userId).collection('aiRequests').doc('sommelier');
+    batch.delete(aiRequestsRef);
 
     // 2. Das Benutzerdokument zum Löschen zum Batch hinzufügen
     const userRef = adminDb.collection('users').doc(userId);
