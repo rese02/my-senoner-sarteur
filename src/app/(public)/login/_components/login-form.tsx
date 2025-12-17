@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -75,7 +76,7 @@ export function LoginForm() {
               <FormControl>
                 <div className="relative">
                    <Mail className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", field.value ? 'text-primary' : 'text-muted-foreground')} />
-                   <Input placeholder="Email" {...field} className="pl-10" />
+                   <Input placeholder="Email" {...field} className="pl-10 text-card-foreground" />
                 </div>
               </FormControl>
               <FormMessage />
@@ -95,7 +96,7 @@ export function LoginForm() {
                       type={showPassword ? 'text' : 'password'} 
                       placeholder="Passwort" 
                       {...field} 
-                      className="pl-10 pr-10"
+                      className="pl-10 pr-10 text-card-foreground"
                     />
                     <button
                       type="button"
@@ -111,7 +112,7 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <SubmitButton className="w-full" isSubmitting={isSubmitting}>
+        <SubmitButton variant="secondary" className="w-full" isSubmitting={isSubmitting}>
           {isSubmitting ? 'Anmelden...' : 'Anmelden'}
         </SubmitButton>
       </form>
