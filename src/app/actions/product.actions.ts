@@ -51,24 +51,16 @@ export async function getDashboardData() {
     const session = await getSession();
     let openOrder: Order | null = null;
     if (session?.userId) {
-        // RADICAL SIMPLIFICATION: Remove all ordering from the query to avoid needing any index.
-        // We will sort in the code, which is fast enough for a small number of documents.
+        const openStatuses = ['new', 'picking', 'ready', 'ready_for_delivery'];
         const userOrdersSnap = await adminDb.collection('orders')
             .where('userId', '==', session.userId)
-            .limit(5) // Get latest 5 orders to find an open one.
+            .where('status', 'in', openStatuses)
+            .orderBy('createdAt', 'desc')
+            .limit(1)
             .get();
             
-        const openStatuses = ['new', 'picking', 'ready_for_delivery'];
-        
-        // Map and sort in the code.
-        const userOrders = userOrdersSnap.docs
-            .map(doc => toPlainObject({id: doc.id, ...doc.data()} as Order))
-            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-            
-        const foundOpenOrder = userOrders.find(order => openStatuses.includes(order.status));
-
-        if (foundOpenOrder) {
-            openOrder = foundOpenOrder;
+        if (!userOrdersSnap.empty) {
+            openOrder = toPlainObject({id: userOrdersSnap.docs[0].id, ...userOrdersSnap.docs[0].data()} as Order);
         }
     }
 
@@ -135,13 +127,11 @@ export async function getRecentOrders() {
     try {
         const recentOrdersSnap = await adminDb.collection('orders')
             .where('status', 'in', ['new', 'picking', 'ready', 'ready_for_delivery'])
+            .orderBy('createdAt', 'desc')
             .limit(10)
             .get();
 
         const orders = recentOrdersSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
-        
-        // Sort in code instead of in the query
-        orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             
         return orders;
     } catch (error) {

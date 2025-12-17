@@ -14,7 +14,6 @@ import { Loader2, Trash2, Edit } from "lucide-react";
 import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet";
-import { v4 as uuidv4 } from 'uuid';
 
 function StoryForm({ story, onSave, isPending, onCancel }: { story: Partial<Story> | null, onSave: (story: Partial<Story>) => void, isPending: boolean, onCancel: () => void }) {
     const [currentStory, setCurrentStory] = useState(story);
@@ -98,7 +97,8 @@ export function StoriesManager({ initialStories, onUpdate }: { initialStories: S
             setEditingStory({ ...story });
         } else {
             setEditingStory({
-                id: uuidv4(), // Generate ID on client for new story
+                // ID wird jetzt serverseitig generiert, daher hier leer lassen
+                id: undefined,
                 label: '',
                 author: '',
                 imageUrl: '',

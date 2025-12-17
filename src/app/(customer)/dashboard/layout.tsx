@@ -3,7 +3,6 @@
 
 import { getSession } from "@/lib/session";
 import { UserProfileDropdown } from "@/components/custom/UserProfileDropdown";
-import { Logo } from "@/components/common/Logo";
 import { MobileNav } from "@/components/custom/MobileNav";
 import { CustomerSidebar } from "./_components/CustomerSidebar";
 import { Menu } from "lucide-react";
@@ -21,8 +20,13 @@ async function checkPlannerEventsExist() {
 }
 
 async function checkSommelierIsActive() {
-    const settings = await getSommelierSettings();
-    return settings.isActive;
+    try {
+        const settings = await getSommelierSettings();
+        return settings.isActive;
+    } catch (error) {
+        console.error("Could not check sommelier settings:", error);
+        return false;
+    }
 }
 
 function DesktopSidebar({ showPlanner, showSommelier }: { showPlanner: boolean; showSommelier: boolean; }) {
@@ -42,15 +46,18 @@ export default async function CustomerLayout({
     
     // SICHERHEITS-CHECK: Wenn keine Session existiert, sofort zum Login umleiten.
     if (!session) {
-      redirect('/login');
+      redirect('/login?callbackUrl=/dashboard');
+      return null;
     }
 
     // Rollen-Sicherheitsnetz: Verhindert, dass Admins/Mitarbeiter auf das Kundendashboard kommen.
     if (session.role === 'admin') {
       redirect('/admin/dashboard');
+      return null;
     }
     if (session.role === 'employee') {
       redirect('/employee/scanner');
+      return null;
     }
 
     const [showPlanner, showSommelier] = await Promise.all([
@@ -80,7 +87,7 @@ export default async function CustomerLayout({
             </Sheet>
 
             <div className="flex items-center gap-2">
-              {session && <UserProfileDropdown user={session as User} />}
+              <UserProfileDropdown user={session as User} />
             </div>
         </header>
         <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-28 lg:pb-8">

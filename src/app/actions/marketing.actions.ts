@@ -150,34 +150,43 @@ export async function saveWheelSettings(settings: WheelOfFortuneSettings) {
 
 export async function spinWheel(): Promise<{ winningSegment: number; prize: string; }> {
     const session = await requireRole(['customer']);
-    const userRef = adminDb.collection('users').doc(session.userId);
-    const userSnap = await userRef.get();
-    const user = userSnap.data() as User;
-
-    if (user.activePrize) {
-        throw new Error("Sie haben bereits einen aktiven Gewinn. Lösen Sie ihn zuerst ein!");
-    }
-
-    const wheelSettings = await getWheelSettings();
-    const canPlay = await canUserPlay(session.userId, wheelSettings);
-
-    if (!wheelSettings.isActive || !canPlay) {
-        throw new Error("Not eligible to play right now.");
-    }
-
-    const winningSegmentIndex = Math.floor(Math.random() * wheelSettings.segments.length);
-    const winningSegment = wheelSettings.segments[winningSegmentIndex];
-    const prize = winningSegment.text;
-
-    const updates: { lastWheelSpin: string, activePrize?: string } = {
-        lastWheelSpin: new Date().toISOString(),
-    };
+    const userRef = adminDb.collection('users').doc(session.id); // Corrected from session.userId to session.id
     
-    if (winningSegment.type === 'win') {
-        updates.activePrize = prize;
-    }
+    let prize = 'Niete';
+    let winningSegmentIndex = -1;
 
-    await userRef.update(updates);
+    await adminDb.runTransaction(async (transaction) => {
+        const userSnap = await transaction.get(userRef);
+        if (!userSnap.exists) {
+            throw new Error("User not found.");
+        }
+        const user = userSnap.data() as User;
+
+        if (user.activePrize) {
+            throw new Error("Sie haben bereits einen aktiven Gewinn. Lösen Sie ihn zuerst ein!");
+        }
+
+        const wheelSettings = await getWheelSettings();
+        const canPlay = await canUserPlay(user, wheelSettings);
+
+        if (!wheelSettings.isActive || !canPlay) {
+            throw new Error("Not eligible to play right now.");
+        }
+
+        winningSegmentIndex = Math.floor(Math.random() * wheelSettings.segments.length);
+        const winningSegment = wheelSettings.segments[winningSegmentIndex];
+        prize = winningSegment.text;
+
+        const updates: { lastWheelSpin: string, activePrize?: string } = {
+            lastWheelSpin: new Date().toISOString(),
+        };
+        
+        if (winningSegment.type === 'win') {
+            updates.activePrize = prize;
+        }
+
+        transaction.update(userRef, updates);
+    });
 
     revalidatePath('/dashboard');
     revalidatePath('/dashboard/loyalty');
@@ -224,9 +233,9 @@ async function getWheelSettings(): Promise<WheelOfFortuneSettings> {
 
 export async function getWheelOfFortuneDataForCustomer() {
     const session = await getSession();
-    if (!session?.userId) return null;
+    if (!session?.id) return null;
 
-    const userDoc = await adminDb.collection('users').doc(session.userId).get();
+    const userDoc = await adminDb.collection('users').doc(session.id).get();
     const user = userDoc.data() as User;
 
     if (user.activePrize) return null; // If they have a prize, don't show the wheel
@@ -234,7 +243,7 @@ export async function getWheelOfFortuneDataForCustomer() {
     const settings = await getWheelSettings();
     if (!settings.isActive) return null;
 
-    const canPlay = await canUserPlay(session.userId, settings);
+    const canPlay = await canUserPlay(user, settings);
 
     if (canPlay) {
         return settings;
@@ -243,14 +252,11 @@ export async function getWheelOfFortuneDataForCustomer() {
     return null;
 }
 
-async function canUserPlay(userId: string, settings: WheelOfFortuneSettings): Promise<boolean> {
+async function canUserPlay(user: User, settings: WheelOfFortuneSettings): Promise<boolean> {
     // If developer mode is on, user can always play.
     if (settings.developerMode) {
         return true;
     }
-
-    const userDoc = await adminDb.collection('users').doc(userId).get();
-    const user = userDoc.data() as User;
 
     if (!user.lastWheelSpin) return true; // Never played before
 
@@ -274,16 +280,14 @@ async function canUserPlay(userId: string, settings: WheelOfFortuneSettings): Pr
 
 
 export async function getPlannerPageData() {
-    // This function can be called by customers.
-    const plannerEventsSnap = await adminDb.collection('plannerEvents').limit(1).get();
-    if (plannerEventsSnap.empty) {
-        return { plannerEvents: [], products: [] };
-    }
-    
+    await requireRole(['customer']);
     try {
+        const plannerEventsSnap = await adminDb.collection('plannerEvents').get();
         const productsSnap = await adminDb.collection('products').where('isAvailable', '==', true).get();
+        
         const plannerEvents = plannerEventsSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as PlannerEvent));
         const products = productsSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Product));
+
         return { plannerEvents, products };
     } catch(e) {
         console.error("Failed to get planner page data", e);

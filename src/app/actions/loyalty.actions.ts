@@ -110,7 +110,8 @@ export async function redeemStampReward(userId: string, stampsToRedeem: 5 | 10):
         }
 
         // Reset stamps to 0
-        const updateData = { loyaltyStamps: 0 };
+        const newStampCount = currentStamps - stampsToRedeem;
+        const updateData = { loyaltyStamps: newStampCount };
         t.update(userRef, updateData);
         updatedUser = toPlainObject({ ...userData, id: doc.id, ...updateData });
     });

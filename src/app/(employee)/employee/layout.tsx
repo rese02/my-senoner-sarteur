@@ -1,4 +1,6 @@
 
+'use server'; // Make this a full Server Component
+
 import { Logo } from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth.actions";
@@ -14,14 +16,16 @@ export default async function EmployeeLayout({
 }) {
   const session = await getSession();
 
-  // SICHERHEITS-CHECK: Wenn keine Session existiert, sofort zum Login umleiten.
+  // Primary security check on the server.
   if (!session) {
-    redirect('/login');
+    redirect('/login?callbackUrl=/employee/scanner');
+    return null;
   }
   
-  // SICHERHEITS-CHECK: Nur Mitarbeiter und Admins dürfen hier rein.
+  // Role check: Only employees and admins can access this area.
   if (!['employee', 'admin'].includes(session.role)) {
-    redirect('/dashboard');
+    redirect('/dashboard'); // Redirect other roles to their default page
+    return null;
   }
 
   return (

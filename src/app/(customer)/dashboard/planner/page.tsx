@@ -1,18 +1,16 @@
 
 'use server';
-import { adminDb } from '@/lib/firebase-admin';
-import { redirect } from 'next/navigation';
 import { getPlannerPageData } from '@/app/actions/marketing.actions';
 import { PlannerClient } from './client';
+import { redirect } from 'next/navigation';
 
 export default async function PartyPlannerPage() {
-    const plannerEventsSnap = await adminDb.collection('plannerEvents').limit(1).get();
-    if (plannerEventsSnap.empty) {
+    // Server-side check if feature is available
+    const { plannerEvents, products } = await getPlannerPageData();
+    if (!plannerEvents || plannerEvents.length === 0) {
         redirect('/dashboard');
     }
     
-    const { plannerEvents, products } = await getPlannerPageData();
-
     return (
         <PlannerClient 
             initialEvents={plannerEvents} 

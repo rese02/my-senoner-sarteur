@@ -12,8 +12,9 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { updateUserProfile } from "@/app/actions/auth.actions";
 import { SubmitButton } from "@/components/custom/SubmitButton";
+import type { User } from "@/lib/types";
 
-function PrivacySettingsForm({ user }: { user: { id: string, consent?: any }}) {
+function PrivacySettingsForm({ user }: { user: User }) {
     // This is a Server Action form
     const updateConsentAction = updateUserProfile.bind(null);
 
@@ -62,6 +63,8 @@ export default async function ProfilePage() {
     const user = await getSession();
 
     if (!user) {
+        // This should theoretically not be reached due to layout protection,
+        // but it's good practice for robustness.
         return <PageHeader title="Nicht angemeldet" description="Bitte melden Sie sich an, um Ihr Profil zu sehen." />;
     }
 
