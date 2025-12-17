@@ -2,7 +2,7 @@
 'use client'
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, NotebookPen, CreditCard, ShoppingBag, ShoppingCart, Calculator, PartyPopper } from 'lucide-react';
+import { Home, NotebookPen, CreditCard, ShoppingBag, ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { useCartStore } from '@/hooks/use-cart-store';
@@ -13,23 +13,21 @@ type NavItem = {
     icon: React.ElementType;
     label: string;
     isCentral?: boolean;
-    id: 'home' | 'concierge' | 'loyalty' | 'orders' | 'planner';
+    id: 'home' | 'concierge' | 'loyalty' | 'orders';
 };
 
-const allNavItems: NavItem[] = [
+// Party Planer wurde bewusst aus dieser Liste entfernt, um die untere Leiste sauber zu halten.
+// Er bleibt im seitlichen Hamburger-Menü verfügbar.
+const navItems: NavItem[] = [
   { id: 'home', href: '/dashboard', icon: Home, label: 'Home' },
   { id: 'concierge', href: '/dashboard/concierge', icon: NotebookPen, label: 'Concierge' },
   { id: 'loyalty', href: '/dashboard/loyalty', icon: CreditCard, label: 'Fidelity', isCentral: true },
-  { id: 'planner', href: '/dashboard/planner', icon: PartyPopper, label: 'Planer'},
   { id: 'orders', href: '/dashboard/orders', icon: ShoppingBag, label: 'Bestell.' },
 ];
 
 export function MobileNav({ showPlanner }: { showPlanner: boolean }) {
   const pathname = usePathname();
   const cartItems = useCartStore(state => state.items);
-
-  // Filter out planner if it's not supposed to be shown
-  const navItems = allNavItems.filter(item => item.id !== 'planner' || showPlanner);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t border-border/50 shadow-t-lg lg:hidden z-40">
