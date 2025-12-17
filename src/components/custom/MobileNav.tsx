@@ -28,46 +28,47 @@ export function MobileNav({ showSommelier }: { showSommelier: boolean }) {
   const pathname = usePathname();
   const cartItems = useCartStore(state => state.items);
 
-  // Filter out sommelier if it's not active
   const navItems = allNavItems.filter(item => {
       if (item.id === 'sommelier') return showSommelier;
       return true;
   });
 
-  // Dynamically calculate grid columns based on the number of items.
-  // The cart is always one item.
-  const totalItems = navItems.length + 1;
-  const gridColsClass = `grid-cols-${totalItems}`;
+  // Helper to render a nav item link
+  const renderNavItem = (item: NavItem) => {
+    const isActive = pathname === item.href;
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        className={cn(
+          'flex h-full flex-col items-center justify-center gap-1 p-1 transition-colors rounded-lg',
+          isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'
+        )}
+        aria-current={isActive ? 'page' : undefined}
+      >
+        <item.icon className="h-5 w-5" />
+        <span className="text-[10px] font-medium">{item.label}</span>
+      </Link>
+    );
+  };
+  
+  const centralItem = navItems.find(item => item.isCentral);
+  const leftItems = navItems.filter(item => !item.isCentral && ['home', 'concierge'].includes(item.id));
+  const rightItems = navItems.filter(item => !item.isCentral && ['orders', 'sommelier'].includes(item.id));
+
 
   return (
     <div className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t border-border/50 shadow-t-lg lg:hidden z-40">
-      <nav className={cn("grid h-full items-center", gridColsClass)}>
-        {/* Re-ordering for correct visual layout: Home, Concierge, CENTRAL BUTTON, Orders, (Sommelier), Cart */}
-        {navItems.filter(item => !item.isCentral && ['home', 'concierge'].includes(item.id)).map((item) => {
-           const isActive = pathname === item.href;
-           return (
-             <Link 
-              key={item.href} 
-              href={item.href} 
-              className={cn(
-                'flex h-full flex-col items-center justify-center gap-1 p-1 transition-colors rounded-lg',
-                isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'
-              )}
-               aria-current={isActive ? 'page' : undefined}
-            >
-              <item.icon className="h-5 w-5" />
-              <span className="text-[10px] font-medium">{item.label}</span>
-            </Link>
-           )
-        })}
-        
+      <nav className="grid h-full grid-cols-5 items-center">
+        {/* Left items */}
+        {leftItems.map(item => renderNavItem(item))}
+
         {/* Central Button */}
-        {navItems.find(item => item.isCentral) && (() => {
-            const centralItem = navItems.find(item => item.isCentral)!;
+        {centralItem && (() => {
             const isActive = pathname === centralItem.href;
             return (
                  <div className="flex justify-center">
-                    <Link 
+                    <Link
                     href={centralItem.href}
                     className={cn(
                         "relative -mt-6 flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-full shadow-lg transition-all duration-300 p-2 border-4 border-background",
@@ -81,27 +82,9 @@ export function MobileNav({ showSommelier }: { showSommelier: boolean }) {
             )
         })()}
 
+        {/* Right items */}
+        {rightItems.map(item => renderNavItem(item))}
 
-        {/* Right-side Icons */}
-        {navItems.filter(item => !item.isCentral && !['home', 'concierge'].includes(item.id)).map((item) => {
-           const isActive = pathname === item.href;
-           return (
-             <Link 
-              key={item.href} 
-              href={item.href} 
-              className={cn(
-                'flex h-full flex-col items-center justify-center gap-1 p-1 transition-colors rounded-lg',
-                isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'
-              )}
-               aria-current={isActive ? 'page' : undefined}
-            >
-              <item.icon className="h-5 w-5" />
-              <span className="text-[10px] font-medium">{item.label}</span>
-            </Link>
-           )
-        })}
-
-        
         {/* Cart Trigger */}
         <Sheet>
             <SheetTrigger asChild>
