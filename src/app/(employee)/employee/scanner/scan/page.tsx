@@ -30,7 +30,7 @@ export default function ScanPage() {
         const video = webcamRef.current.video;
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
             const canvas = canvasRef.current;
-            const context = canvas.getContext('2d');
+            const context = canvas.getContext('2d', { willReadFrequently: true });
 
             if (context) {
                 canvas.height = video.videoHeight;
