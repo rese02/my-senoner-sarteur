@@ -6,6 +6,9 @@ import Image from 'next/image';
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -59,6 +62,10 @@ export function Stories({ stories }: { stories: Story[] }) {
         {selectedStory && (
            <Dialog open={open} onOpenChange={handleOpenChange}>
               <DialogContent className="p-0 m-0 bg-black border-none max-w-lg w-full h-[90vh] max-h-[90vh] rounded-xl overflow-hidden">
+                   <DialogHeader className="sr-only">
+                      <DialogTitle>Story: {selectedStory.label}</DialogTitle>
+                      <DialogDescription>Vollbildansicht der Story von {selectedStory.author}.</DialogDescription>
+                    </DialogHeader>
                   <div className="relative h-full w-full">
                       <Image
                           src={selectedStory.imageUrl}
