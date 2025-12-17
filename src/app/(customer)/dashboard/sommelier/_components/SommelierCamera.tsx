@@ -141,7 +141,7 @@ export function SommelierCamera() {
 
       {/* Auslöser Button (nur sichtbar wenn kein Bild) */}
       {!image && (
-        <div className="absolute bottom-0 left-0 right-0 flex justify-center p-6 bg-gradient-to-t from-black/60 to-transparent">
+        <div className="absolute bottom-24 left-0 right-0 flex justify-center p-6 bg-gradient-to-t from-black/60 to-transparent">
           <button
             onClick={capture}
             className="w-20 h-20 rounded-full border-4 border-white bg-white/30 backdrop-blur-sm flex items-center justify-center shadow-lg active:scale-95 transition-transform"
