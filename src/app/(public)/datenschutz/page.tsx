@@ -1,6 +1,7 @@
 
 import { PageHeader } from "@/components/common/PageHeader";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import Link from "next/link";
 
 export default function DatenschutzPage() {
@@ -72,8 +73,10 @@ export default function DatenschutzPage() {
             <p>Sie haben gemäß DSGVO das Recht auf Auskunft, Berichtigung, Löschung und Datenübertragbarkeit. Kontaktieren Sie uns dazu einfach unter <a href="mailto:info@senoner-sarteur.it" className="text-primary hover:underline">info@senoner-sarteur.it</a>.</p>
           </section>
 
-          <div className="text-center mt-8">
-            <Link href="/login" className="text-sm font-medium text-primary hover:underline">Zurück zur App</Link>
+          <div className="mt-8">
+            <Button asChild>
+                <Link href="/login">Zurück zur App</Link>
+            </Button>
           </div>
         </Card>
       </div>

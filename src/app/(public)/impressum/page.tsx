@@ -1,5 +1,6 @@
 
 import { PageHeader } from "@/components/common/PageHeader";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 
@@ -61,8 +62,10 @@ export default function ImpressumPage() {
                 <p className="text-sm">Verbraucher haben die Möglichkeit, Beschwerden an die Online-Streitbeilegungsplattform der EU zu richten: <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">https://ec.europa.eu/consumers/odr/</a></p>
               </div>
             </div>
-             <div className="text-center mt-8">
-                <Link href="/login" className="text-sm font-medium text-primary hover:underline">Zurück zur App</Link>
+             <div className="mt-8">
+                <Button asChild>
+                    <Link href="/login">Zurück zur App</Link>
+                </Button>
             </div>
         </Card>
       </div>
