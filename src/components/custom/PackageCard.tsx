@@ -101,15 +101,15 @@ export function PackageCard({ product }: { product: Product }) {
                         </DialogDescription>
                     </div>
 
-                    <ScrollArea className="max-h-[200px] rounded-lg border bg-secondary/50">
+                    <ScrollArea className="max-h-[200px] rounded-lg">
                         <div className="p-1">
                             {product.packageContent?.map((content, index) => (
                                 <div 
                                 key={index} 
-                                className="flex justify-between items-center p-3 border-b last:border-0"
+                                className="flex justify-between items-center py-3 border-b last:border-0"
                                 >
                                 <span className="text-card-foreground font-medium">{content.item}</span>
-                                <span className="text-muted-foreground text-sm bg-background px-2 py-1 rounded border">
+                                <span className="text-muted-foreground text-sm font-semibold">
                                     {content.amount}
                                 </span>
                                 </div>
