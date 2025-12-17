@@ -128,13 +128,15 @@ export async function getRecentOrders() {
     try {
         const recentOrdersSnap = await adminDb.collection('orders')
             .where('status', 'in', ['new', 'picking', 'ready', 'ready_for_delivery'])
-            .orderBy('createdAt', 'desc')
-            .limit(10)
+            .limit(50) // Fetch a bit more to sort in code
             .get();
 
         const orders = recentOrdersSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
             
-        return orders;
+        // Sort in code instead of in the query to avoid needing a composite index
+        orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            
+        return orders.slice(0, 10); // Return only the top 10 most recent
     } catch (error) {
         console.error("Error fetching recent orders:", error);
         return [];
