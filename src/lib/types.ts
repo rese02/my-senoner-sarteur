@@ -21,11 +21,11 @@ export interface User {
     privacyPolicy: {
       accepted: boolean;
       timestamp: string;
-    },
+    };
     marketing: { // Made non-optional
       accepted: boolean;
       timestamp: string;
-    },
+    };
     profiling: { // Made non-optional
       accepted: boolean;
       timestamp: string;
@@ -39,16 +39,7 @@ export interface User {
 
 export type OrderType = 'preorder' | 'grocery_list';
 
-export enum OrderStatus {
-  NEW = 'new',
-  PICKING = 'picking',
-  READY = 'ready',
-  COLLECTED = 'collected',
-  READY_FOR_DELIVERY = 'ready_for_delivery',
-  DELIVERED = 'delivered',
-  PAID = 'paid',
-  CANCELLED = 'cancelled',
-}
+export type OrderStatus = 'new' | 'picking' | 'ready' | 'collected' | 'ready_for_delivery' | 'delivered' | 'paid' | 'cancelled';
 
 export interface OrderItem {
   productId: string;

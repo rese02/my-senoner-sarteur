@@ -150,7 +150,7 @@ export async function saveWheelSettings(settings: WheelOfFortuneSettings) {
 
 export async function spinWheel(): Promise<{ winningSegment: number; prize: string; }> {
     const session = await requireRole(['customer']);
-    const userRef = adminDb.collection('users').doc(session.id); // Corrected from session.userId to session.id
+    const userRef = adminDb.collection('users').doc(session.id);
     
     let prize = 'Niete';
     let winningSegmentIndex = -1;

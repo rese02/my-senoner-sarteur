@@ -4,7 +4,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { Button } from '@/components/ui/button';
-import { Camera, X, Loader2, Sparkles, FileWarning, Info } from 'lucide-react';
+import { Camera, X, Loader2, Sparkles, FileWarning, Info, Wand2 } from 'lucide-react';
 import { suggestWinePairing } from '@/app/actions/sommelier.actions';
 import { ProductCard } from '@/components/custom/ProductCard';
 import type { Product } from '@/lib/types';
@@ -82,7 +82,7 @@ export function SommelierCamera() {
       {/* Header */}
       <div className="absolute top-0 w-full p-4 flex justify-between items-center z-50 bg-gradient-to-b from-black/50 to-transparent">
         <h2 className="text-white font-bold text-lg drop-shadow-md font-headline flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" /> KI Sommelier
+            <Wand2 className="w-5 h-5 text-primary" /> KI Sommelier
         </h2>
         <Button variant="ghost" size="icon" asChild className="text-white hover:bg-white/20 hover:text-white rounded-full">
           <Link href='/dashboard'>
@@ -117,10 +117,10 @@ export function SommelierCamera() {
               ))}
             </div>
              <Alert variant="default" className="mt-6 text-xs text-muted-foreground">
-                <Info className="h-4 w-4" />
+                <FileWarning className="h-4 w-4" />
                 <AlertTitle className="font-bold">KI-Vorschlag</AlertTitle>
                 <AlertDescription>
-                   Kann Fehler enthalten. Bitte prüfen Sie Allergene stets auf der Verpackung.
+                   Kann Fehler enthalten. Prüfen Sie Allergene stets auf der Verpackung. Diese Funktion nutzt KI zur Analyse Ihres Bildes.
                 </AlertDescription>
             </Alert>
              <Button onClick={reset} className="mt-4 w-full">
