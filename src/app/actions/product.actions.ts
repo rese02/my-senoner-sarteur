@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import 'server-only';
@@ -127,11 +128,13 @@ export async function getRecentOrders() {
     try {
         const recentOrdersSnap = await adminDb.collection('orders')
             .where('status', 'in', ['new', 'picking', 'ready', 'ready_for_delivery'])
-            .orderBy('createdAt', 'desc')
             .limit(10)
             .get();
 
         const orders = recentOrdersSnap.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
+        
+        // Sort in code to avoid composite index requirement
+        orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             
         return orders;
     } catch (error) {
