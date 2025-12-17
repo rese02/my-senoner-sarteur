@@ -150,7 +150,7 @@ export function PlannerManager({ initialPlannerEvents, availableProducts, onUpda
     }, [initialPlannerEvents, onUpdate]);
     
     const handleOpenPlannerModal = (event: PlannerEvent | null) => {
-        setEditingPlannerEvent(event ? { ...event } : { id: `plan-${Date.now()}`, title: '', description: '', imageUrl: '', imageHint: '', ingredients: [] });
+        setEditingPlannerEvent(event ? { ...event } : { title: '', description: '', imageUrl: '', imageHint: '', ingredients: [] });
         setIsPlannerModalOpen(true);
     };
 
@@ -231,7 +231,7 @@ export function PlannerManager({ initialPlannerEvents, availableProducts, onUpda
             <Sheet open={isPlannerModalOpen} onOpenChange={setIsPlannerModalOpen}>
                 <SheetContent className="sm:max-w-lg p-0">
                     <SheetHeader className="p-6 pb-0">
-                        <SheetTitle>{editingPlannerEvent?.id?.startsWith('plan-') ? 'Neues Planer Event erstellen' : 'Planer Event bearbeiten'}</SheetTitle>
+                        <SheetTitle>{editingPlannerEvent?.id ? 'Planer Event bearbeiten' : 'Neues Planer Event erstellen'}</SheetTitle>
                         <SheetDescription>
                             Definieren Sie hier die Regeln für den Mengenrechner.
                         </SheetDescription>

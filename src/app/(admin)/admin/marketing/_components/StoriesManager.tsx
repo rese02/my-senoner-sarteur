@@ -93,7 +93,7 @@ export function StoriesManager({ initialStories, onUpdate }: { initialStories: S
     }, [initialStories, onUpdate]);
 
     const handleOpenStoryModal = (story: Story | null) => {
-        setEditingStory(story ? { ...story } : { id: `story-${Date.now()}`, label: '', author: '', imageUrl: '', imageHint: '' });
+        setEditingStory(story ? { ...story } : { label: '', author: '', imageUrl: '', imageHint: '' });
         setIsStoryModalOpen(true);
     };
 
@@ -182,7 +182,7 @@ export function StoriesManager({ initialStories, onUpdate }: { initialStories: S
             <Sheet open={isStoryModalOpen} onOpenChange={setIsStoryModalOpen}>
                 <SheetContent className="sm:max-w-md p-0">
                     <SheetHeader className="p-6 pb-0">
-                        <SheetTitle>{editingStory?.id?.startsWith('story-') ? 'Neue Story erstellen' : 'Story bearbeiten'}</SheetTitle>
+                        <SheetTitle>{editingStory?.id ? 'Story bearbeiten' : 'Neue Story erstellen'}</SheetTitle>
                         <SheetDescription>
                             Fügen Sie ein Bild hinzu und geben Sie einen Titel und Autor an.
                         </SheetDescription>

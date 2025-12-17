@@ -81,11 +81,11 @@ export async function saveStory(storyData: Partial<Story>): Promise<Story> {
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     }
 
-    if (id && storyData.id) { // Eindeutige Prüfung, um sicherzugehen
+    if (id && storyData.id) { // Check if ID exists for updating
         await adminDb.collection('stories').doc(id).update(toPlainObject(storyToSave));
         revalidatePaths();
         return { ...storyToSave, id: id } as Story;
-    } else {
+    } else { // No ID, so create new
         const newDocRef = await adminDb.collection('stories').add(toPlainObject(storyToSave));
         revalidatePaths();
         return { ...storyToSave, id: newDocRef.id } as Story;
@@ -109,11 +109,11 @@ export async function savePlannerEvent(eventData: Partial<PlannerEvent>): Promis
     }
     const { id, ...data } = validation.data;
 
-    if (id && eventData.id) {
+    if (id && eventData.id) { // Check if ID exists for updating
         await adminDb.collection('plannerEvents').doc(id).update(toPlainObject(data));
         revalidatePaths();
         return { ...data, id: id } as PlannerEvent;
-    } else {
+    } else { // No ID, so create new
         const newDocRef = await adminDb.collection('plannerEvents').add(toPlainObject(data));
         revalidatePaths();
         return { ...data, id: newDocRef.id } as PlannerEvent;
