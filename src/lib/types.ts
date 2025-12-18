@@ -63,7 +63,7 @@ export interface Order {
   pickupDate?: string;
   rawList?: string;
   checklist?: ChecklistItem[];
-  deliveryAddress?: { street: string; city: string; zip: string; province: string; };
+  deliveryAddress?: { street: string; city: string; };
   deliveryDate?: string;
   processedBy?: string;
   total?: number;

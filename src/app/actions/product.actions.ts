@@ -110,12 +110,12 @@ export async function getDashboardStats() {
             ordersCol.where('status', 'in', ['new', 'picking', 'ready', 'ready_for_delivery']).count().get()
         ]);
         
-        return {
+        return toPlainObject({
             totalRevenue: totalRevenue,
             totalOrders: totalOrdersSnap.data().count,
             totalCustomers: totalCustomersSnap.data().count,
             openOrders: openOrdersSnap.data().count
-        };
+        });
     } catch (error) {
         console.error("Error fetching dashboard stats:", error);
         return { totalRevenue: 0, totalOrders: 0, totalCustomers: 0, openOrders: 0 };
@@ -170,10 +170,10 @@ export async function getOrdersForChart() {
             }
         });
 
-        return last7Days.map(dateStr => ({
+        return toPlainObject(last7Days.map(dateStr => ({
             date: format(parseISO(dateStr), 'EEE'),
             totalOrders: ordersByDay[dateStr]
-        }));
+        })));
     } catch (error) {
         console.error("Error fetching chart data:", error);
         return [];
