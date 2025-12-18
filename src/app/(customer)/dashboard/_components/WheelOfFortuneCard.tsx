@@ -51,7 +51,7 @@ function Wheel({ segments, rotation, isSpinning }: { segments: {text: string}[],
                             style={{ transform: `rotate(${textRotation}deg)`}}
                         >
                             <span
-                                className="font-bold text-sm"
+                                className="font-medium text-sm"
                                 style={{
                                     color: TEXT_COLORS[index % TEXT_COLORS.length],
                                     transform: `translateY(3.5rem) rotate(-90deg)`,
