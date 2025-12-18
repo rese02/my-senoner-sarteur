@@ -35,7 +35,7 @@ function Wheel({ segments, rotation, isSpinning }: { segments: {text: string}[],
         <div className="relative w-72 h-72 md:w-80 md:h-80 mx-auto transition-transform duration-[6000ms] ease-out" style={{ transform: `rotate(${rotation}deg)`}}>
             <div 
                 className={cn(
-                    "absolute inset-0 rounded-full border-8 border-primary shadow-2xl transition-all flex items-center justify-center", 
+                    "absolute inset-0 rounded-full border-8 border-primary shadow-2xl transition-all flex items-center justify-center overflow-hidden", 
                     isSpinning && "animate-pulse"
                 )}
                 style={{ background: `conic-gradient(${gradientColors})` }}
@@ -43,22 +43,26 @@ function Wheel({ segments, rotation, isSpinning }: { segments: {text: string}[],
                 {segments.map((segment, index) => (
                      <div
                         key={index}
-                        className="absolute h-1/2 w-full origin-bottom flex justify-center"
+                        className="absolute w-full h-1/2 origin-bottom flex justify-center items-start pt-4"
                         style={{
-                            transform: `rotate(${index * segmentAngle + segmentAngle / 2}deg)`,
+                            transform: `rotate(${index * segmentAngle}deg)`,
                         }}
                     >
                         <span
-                            className="font-bold text-xs -translate-y-12 transform"
+                            className="font-bold text-xs"
                             style={{ 
                                 color: TEXT_COLORS[index % TEXT_COLORS.length],
-                                transform: `rotate(-90deg) translateY(3.5rem)`,
+                                transform: `rotate(${segmentAngle / 2}deg) translateY(-0.5rem)`,
+                                textShadow: '0 1px 2px rgba(0,0,0,0.1)'
                             }}
                         >
                             {segment.text}
                         </span>
                     </div>
                 ))}
+            </div>
+             <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-card rounded-full transform -translate-x-1/2 -translate-y-1/2 border-4 border-primary z-10 flex items-center justify-center shadow-inner">
+                <Gift className="text-primary w-8 h-8"/>
             </div>
         </div>
     );
