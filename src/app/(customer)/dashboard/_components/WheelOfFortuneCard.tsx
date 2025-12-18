@@ -44,7 +44,7 @@ function Wheel({ segments, rotation, isSpinning }: { segments: {text: string}[],
                 {segments.map((segment, index) => (
                      <div
                         key={index}
-                        className="absolute w-full h-1/2 origin-bottom flex justify-center items-start pt-4"
+                        className="absolute w-full h-full origin-center flex justify-center items-start pt-4"
                         style={{
                             transform: `rotate(${index * segmentAngle}deg)`,
                         }}
