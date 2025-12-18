@@ -26,7 +26,8 @@ const TEXT_COLORS = [
 ]
 
 function Wheel({ segments, rotation, isSpinning }: { segments: {text: string}[], rotation: number, isSpinning: boolean }) {
-    const segmentAngle = 360 / segments.length;
+    const segmentCount = segments.length;
+    const segmentAngle = 360 / segmentCount;
     const gradientColors = segments.map((_, index) => 
         `${WHEEL_COLORS[index % WHEEL_COLORS.length]} ${index * segmentAngle}deg ${(index + 1) * segmentAngle}deg`
     ).join(', ');
@@ -40,26 +41,27 @@ function Wheel({ segments, rotation, isSpinning }: { segments: {text: string}[],
                 )}
                 style={{ background: `conic-gradient(${gradientColors})` }}
             >
-                {segments.map((segment, index) => (
-                     <div
-                        key={index}
-                        className="absolute w-full h-full origin-center flex justify-center items-start pt-4"
-                        style={{
-                            transform: `rotate(${index * segmentAngle}deg)`,
-                        }}
-                    >
-                        <span
-                            className="font-bold text-xs"
-                            style={{ 
-                                color: TEXT_COLORS[index % TEXT_COLORS.length],
-                                transform: `rotate(${segmentAngle / 2}deg) translateY(-0.5rem)`,
-                                textShadow: '0 1px 2px rgba(0,0,0,0.1)'
-                            }}
+                {segments.map((segment, index) => {
+                    const textRotation = (index * segmentAngle) + (segmentAngle / 2);
+                    return (
+                        <div
+                            key={index}
+                            className="absolute w-full h-full origin-center flex justify-center items-start"
+                            style={{ transform: `rotate(${textRotation}deg)`}}
                         >
-                            {segment.text}
-                        </span>
-                    </div>
-                ))}
+                            <span
+                                className="font-bold text-sm"
+                                style={{
+                                    color: TEXT_COLORS[index % TEXT_COLORS.length],
+                                    transform: `translateY(3.5rem) rotate(-90deg)`,
+                                    textShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                                }}
+                            >
+                                {segment.text}
+                            </span>
+                        </div>
+                    )
+                })}
             </div>
              <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-card rounded-full transform -translate-x-1/2 -translate-y-1/2 border-4 border-primary z-10 flex items-center justify-center shadow-inner">
                 <Gift className="text-primary w-8 h-8"/>
