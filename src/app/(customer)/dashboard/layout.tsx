@@ -13,6 +13,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescri
 import { Button } from "@/components/ui/button";
 import { adminDb } from "@/lib/firebase-admin";
 import { getSommelierSettings } from "@/app/actions/wine-manager.actions";
+import { AppFooter } from "@/components/common/AppFooter";
 
 async function checkPlannerEventsExist() {
     const plannerEventsSnap = await adminDb.collection('plannerEvents').limit(1).get();
@@ -72,7 +73,7 @@ export default async function CustomerLayout({
         <header className={cn("lg:hidden flex-none flex h-16 items-center justify-between px-4 sticky top-0 z-30 bg-primary text-primary-foreground backdrop-blur-sm border-b")}>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10">
+                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Menü öffnen</span>
                 </Button>
@@ -92,8 +93,9 @@ export default async function CustomerLayout({
         </header>
         <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-28 lg:pb-8">
             {children}
+            <AppFooter />
         </main>
-         <MobileNav showSommelier={showSommelier} />
+         <MobileNav />
       </div>
     </div>
   );

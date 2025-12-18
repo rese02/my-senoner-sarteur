@@ -8,6 +8,7 @@ import { LogOut } from "lucide-react";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { AppFooter } from "@/components/common/AppFooter";
 
 export default async function EmployeeLayout({
   children,
@@ -35,7 +36,7 @@ export default async function EmployeeLayout({
             <Logo />
         </div>
         <form action={logout}>
-          <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10">
+          <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
             <LogOut className="mr-2 h-4 w-4" />
             Sign Out
           </Button>
@@ -46,12 +47,7 @@ export default async function EmployeeLayout({
             {children}
         </div>
       </main>
-      <footer className="p-4 text-center text-xs text-muted-foreground border-t">
-         <div className="flex justify-center gap-4">
-            <Link href="/impressum" className="hover:text-primary">Impressum</Link>
-            <Link href="/datenschutz" className="hover:text-primary">Datenschutz</Link>
-        </div>
-      </footer>
+      <AppFooter />
     </div>
   );
 }

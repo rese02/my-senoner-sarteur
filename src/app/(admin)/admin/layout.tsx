@@ -7,6 +7,7 @@ import { getSession } from "@/lib/session";
 import { redirect } from 'next/navigation';
 import { UserProfileDropdown } from "@/components/custom/UserProfileDropdown";
 import type { User } from "@/lib/types";
+import { AppFooter } from "@/components/common/AppFooter";
 
 // This layout is now a Server Component, which is faster and more secure.
 export default async function AdminLayout({
@@ -36,6 +37,7 @@ export default async function AdminLayout({
         </header>
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-24 md:pb-8 bg-background rounded-tl-2xl">
             {children}
+            <AppFooter />
         </main>
         <AdminMobileNav />
       </div>

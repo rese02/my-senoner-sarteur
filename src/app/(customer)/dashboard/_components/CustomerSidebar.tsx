@@ -25,7 +25,7 @@ const navItems = [
   { href: '/dashboard/concierge', icon: NotebookPen, label: 'Concierge', id: 'concierge' },
   { href: '/dashboard/planner', icon: PartyPopper, label: 'Party Planer', id: 'planner' },
   { href: '/dashboard/loyalty', icon: CreditCard, label: 'Fidelity', id: 'loyalty' },
-  { href: '/dashboard/sommelier', icon: Sparkles, label: 'AI Sommelier', id: 'sommelier' },
+  { href: '/dashboard/sommelier', icon: Sparkles, label: 'AI Scan', id: 'sommelier' },
 ];
 
 export function CustomerSidebar({ showPlanner, showSommelier }: { showPlanner: boolean; showSommelier: boolean; }) {
@@ -81,11 +81,6 @@ export function CustomerSidebar({ showPlanner, showSommelier }: { showPlanner: b
             Abmelden
           </Button>
         </form>
-        <Separator className="my-2"/>
-        <div className="flex justify-center gap-4 text-xs text-muted-foreground">
-            <Link href="/impressum" className="hover:text-primary">Impressum</Link>
-            <Link href="/datenschutz" className="hover:text-primary">Datenschutz</Link>
-        </div>
       </div>
     </div>
   );
