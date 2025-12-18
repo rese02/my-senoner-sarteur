@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useTransition } from 'react';
@@ -147,8 +146,8 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
                 <DialogContent onInteractOutside={(e) => {
                     // Prevent closing while spinning
                     if (isSpinning) e.preventDefault();
-                }} className="max-w-sm m-2">
-                    <DialogHeader>
+                }} className="max-w-sm m-2 p-0">
+                    <DialogHeader className="p-6 pb-2">
                         <DialogTitle>Viel Glück!</DialogTitle>
                         <DialogDescription>
                             Klicken Sie auf "Drehen", um Ihr Glück zu versuchen.
@@ -161,7 +160,7 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
                         <Wheel segments={settings.segments} rotation={rotation} isSpinning={isSpinning} />
                     </div>
 
-                    <div className="mt-4 text-center">
+                    <div className="p-6 pt-2 text-center">
                         {result && (
                              <div className="p-4 bg-accent/10 text-accent-foreground rounded-lg animate-in fade-in-50 zoom-in-95 mb-4">
                                 <p className="text-sm text-muted-foreground">Ihr Ergebnis:</p>
@@ -169,7 +168,7 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
                             </div>
                         )}
                         {!result && (
-                            <Button onClick={handleSpin} disabled={isSpinning} className="w-full mt-2" size="lg">
+                            <Button onClick={handleSpin} disabled={isSpinning} className="w-full" size="lg">
                                 {isSpinning ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                                 {isSpinning ? 'Wird gedreht...' : 'Drehen!'}
                             </Button>
