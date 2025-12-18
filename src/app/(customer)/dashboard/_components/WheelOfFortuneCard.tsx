@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition } from 'react';
@@ -91,23 +92,24 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
                 const targetRotation = 360 * 10 - (winningSegment * segmentAngle) - (segmentAngle/2) + randomOffset;
                 
                 setRotation(targetRotation);
+                setResult(prize);
 
+                if (prize !== 'Niete') {
+                    toast({
+                        title: "Glückwunsch!",
+                        description: `Sie haben gewonnen: ${prize}`,
+                    });
+                } else {
+                    toast({
+                        title: "Leider nichts...",
+                        description: "Versuchen Sie es morgen wieder!",
+                    });
+                }
+                
+                // Manually re-fetch server data to update prize display after a delay to allow animation to play out a bit
                 setTimeout(() => {
-                    setResult(prize);
-                    if (prize !== 'Niete') {
-                        toast({
-                            title: "Glückwunsch!",
-                            description: `Sie haben gewonnen: ${prize}`,
-                        });
-                    } else {
-                        toast({
-                            title: "Leider nichts...",
-                            description: "Versuchen Sie es morgen wieder!",
-                        });
-                    }
-                     // Manually re-fetch server data to update prize display
                     router.refresh(); 
-                }, 6500); // Wait for animation to finish
+                }, 1000);
 
             } catch (error: any) {
                 toast({ variant: 'destructive', title: 'Fehler', description: error.message });

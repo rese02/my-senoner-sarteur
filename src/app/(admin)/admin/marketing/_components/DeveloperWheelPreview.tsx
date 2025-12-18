@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
@@ -98,14 +99,11 @@ export function DeveloperWheelPreview({ initialSettings }: { initialSettings: Wh
                 const targetRotation = 360 * 10 - (winningSegment * segmentAngle) - (segmentAngle/2) + randomOffset;
                 
                 setRotation(targetRotation);
-
-                setTimeout(() => {
-                    setResult(prize);
-                    toast({
-                        title: "Test-Gewinn",
-                        description: `Ergebnis: ${prize}`,
-                    });
-                }, 6500); 
+                setResult(prize);
+                toast({
+                    title: "Test-Gewinn",
+                    description: `Ergebnis: ${prize}`,
+                });
 
             } catch (error: any) {
                 toast({ variant: 'destructive', title: 'Fehler', description: error.message });
