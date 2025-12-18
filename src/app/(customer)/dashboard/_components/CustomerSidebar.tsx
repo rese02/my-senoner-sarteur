@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -62,7 +61,7 @@ export function CustomerSidebar({ showPlanner, showSommelier }: { showPlanner: b
         })}
       </nav>
       <div className="mt-auto p-4">
-        <Separator className="mb-2"/>
+        <Separator className="my-2" />
         <Link
           href="/dashboard/profile"
           className={cn(

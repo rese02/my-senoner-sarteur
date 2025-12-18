@@ -1,4 +1,3 @@
-
 'use server';
 import { getDashboardStats, getRecentOrders, getOrdersForChart } from "@/app/actions/product.actions";
 import { Suspense } from "react";

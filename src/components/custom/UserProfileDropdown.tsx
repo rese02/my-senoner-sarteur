@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -21,7 +20,7 @@ export function UserProfileDropdown({ user }: { user: User }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
+        <Button variant="ghost" size="icon" className="rounded-full text-foreground hover:bg-secondary">
           <UserIcon className="h-5 w-5" />
           <span className="sr-only">Benutzermenü öffnen</span>
         </Button>
