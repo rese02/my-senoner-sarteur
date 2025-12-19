@@ -1,9 +1,12 @@
+
 import { LoginForm } from './_components/login-form';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import Image from 'next/image';
 
-export default function LoginPage() {
+// By making this an async component, it becomes a Server Component by default,
+// which helps resolve certain types of hydration errors with nested content.
+export default async function LoginPage() {
   return (
     <div className="w-full min-h-[100dvh] flex items-center justify-center bg-secondary p-0 md:p-4 relative overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-5 bg-repeat"></div>
