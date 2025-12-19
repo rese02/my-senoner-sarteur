@@ -51,15 +51,18 @@ export async function getDashboardData() {
     let openOrder: Order | null = null;
     if (session?.id) {
         const openStatuses = ['new', 'picking', 'ready', 'ready_for_delivery'];
+        // **FIX**: The query was changed to avoid needing a composite index.
+        // 1. Fetch all open orders for the user (without sorting).
         const userOrdersSnap = await adminDb.collection('orders')
             .where('userId', '==', session.id)
             .where('status', 'in', openStatuses)
-            .orderBy('createdAt', 'desc')
-            .limit(1)
             .get();
             
         if (!userOrdersSnap.empty) {
-            openOrder = toPlainObject({id: userOrdersSnap.docs[0].id, ...userOrdersSnap.docs[0].data()} as Order);
+            // 2. Sort the results in the code to find the most recent one.
+            const userOrders = userOrdersSnap.docs.map(doc => toPlainObject({id: doc.id, ...doc.data()}) as Order);
+            userOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            openOrder = userOrders[0];
         }
     }
 
