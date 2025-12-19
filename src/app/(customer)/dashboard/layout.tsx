@@ -78,7 +78,7 @@ export default async function CustomerLayout({
                     <span className="sr-only">Menü öffnen</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="p-0 w-64 bg-primary text-primary-foreground">
+                <SheetContent side="left" className="p-0 w-64 bg-primary text-primary-foreground border-r-0">
                   <SheetHeader className="sr-only">
                       <SheetTitle>Hauptmenü</SheetTitle>
                       <SheetDescription>Navigation für den Kundenbereich</SheetDescription>
