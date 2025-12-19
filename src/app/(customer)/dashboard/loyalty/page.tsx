@@ -1,12 +1,14 @@
 
-'use server';
+'use client';
 
 import { PageHeader } from "@/components/common/PageHeader";
-import { getSession } from "@/lib/session";
+import { useSession } from "@/hooks/use-session"; // Changed to useSession hook for client-side data
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Gift, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { QrCodeDisplay } from "./_components/QrCodeDisplay";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import Loading from "./loading";
 
 function Stamp({ filled, index }: { filled: boolean, index: number }) {
     return (
@@ -21,8 +23,13 @@ function Stamp({ filled, index }: { filled: boolean, index: number }) {
     );
 }
 
-export default async function LoyaltyPage() {
-    const user = await getSession();
+export default function LoyaltyPage() {
+    const { session: user, loading } = useSession();
+    const { t } = useLanguage();
+
+    if (loading) {
+        return <Loading />;
+    }
 
     if (!user) {
         return <PageHeader title="Nicht angemeldet" description="Bitte melden Sie sich an, um Ihre Treuekarte zu sehen." />;
@@ -36,13 +43,13 @@ export default async function LoyaltyPage() {
 
     return (
         <div className="space-y-6">
-            <PageHeader title="Fidelity" description="Zeigen Sie Ihren QR-Code an der Kasse, um Stempel zu sammeln und Belohnungen einzulösen." />
+            <PageHeader title={t.loyalty.title} description={t.loyalty.description} />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1 space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Ihr QR-Code</CardTitle>
+                            <CardTitle>{t.loyalty.qrTitle}</CardTitle>
                         </CardHeader>
                         <CardContent>
                            <QrCodeDisplay userId={user.id} />
@@ -53,9 +60,9 @@ export default async function LoyaltyPage() {
                         <Card className="bg-primary text-primary-foreground border-none animate-in fade-in-50">
                              <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-primary-foreground">
-                                    <Star className="w-5 h-5"/> Aktiver Gewinn (Glücksrad)
+                                    <Star className="w-5 h-5"/> {t.loyalty.activePrize}
                                 </CardTitle>
-                                <CardDescription className="text-primary-foreground/80">Zeigen Sie dies an der Kasse!</CardDescription>
+                                <CardDescription className="text-primary-foreground/80">{t.loyalty.activePrizeDesc}</CardDescription>
                             </CardHeader>
                             <CardContent className="text-center">
                                 <p className="text-2xl font-bold">{activePrize}</p>
@@ -67,9 +74,9 @@ export default async function LoyaltyPage() {
                 <div className="lg:col-span-2 space-y-6">
                      <Card>
                         <CardHeader>
-                            <CardTitle>Stempelkarte</CardTitle>
+                            <CardTitle>{t.loyalty.stampsCard}</CardTitle>
                             <CardDescription>
-                                Jeder Stempel ist ein Schritt näher an Ihrer nächsten Belohnung.
+                                {t.loyalty.stampsCardDesc}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -82,8 +89,8 @@ export default async function LoyaltyPage() {
                     </Card>
                     <Card>
                         <CardHeader>
-                            <CardTitle>Stempel-Belohnungen</CardTitle>
-                            <CardDescription>Sammeln Sie Stempel für tolle Rabatte!</CardDescription>
+                            <CardTitle>{t.loyalty.rewardsTitle}</CardTitle>
+                            <CardDescription>{t.loyalty.rewardsDesc}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             {/* Ziel 1: 5 Stempel */}
@@ -91,9 +98,9 @@ export default async function LoyaltyPage() {
                                 <div className="flex justify-between items-center">
                                     <div className="flex items-center gap-3">
                                         <Gift className={cn("w-6 h-6", stamps >= 5 ? "text-primary" : "text-muted-foreground")} />
-                                        <p className="font-bold text-lg">3€ Rabatt</p>
+                                        <p className="font-bold text-lg">{t.loyalty.reward3Euro}</p>
                                     </div>
-                                    <span className="font-mono text-sm text-muted-foreground">5 Stempel</span>
+                                    <span className="font-mono text-sm text-muted-foreground">{t.loyalty.stamps5}</span>
                                 </div>
                                 <div className="h-2 bg-background rounded-full overflow-hidden mt-3">
                                     <div 
@@ -103,7 +110,7 @@ export default async function LoyaltyPage() {
                                 </div>
                                  {stamps >= 5 && stamps < 10 && (
                                     <p className="text-xs text-primary mt-2 font-bold animate-pulse text-center">
-                                    Bereit zum Einlösen! (Oder weiter sparen für 7€)
+                                    {t.loyalty.readyToRedeem} {t.loyalty.orSaveFor}
                                     </p>
                                 )}
                             </div>
@@ -113,9 +120,9 @@ export default async function LoyaltyPage() {
                                 <div className="flex justify-between items-center">
                                      <div className="flex items-center gap-3">
                                         <Gift className={cn("w-6 h-6", stamps >= 10 ? "text-primary" : "text-muted-foreground")} />
-                                        <p className="font-bold text-lg">7€ Rabatt (Super-Bonus)</p>
+                                        <p className="font-bold text-lg">{t.loyalty.reward7Euro}</p>
                                     </div>
-                                    <span className="font-mono text-sm text-muted-foreground">10 Stempel</span>
+                                    <span className="font-mono text-sm text-muted-foreground">{t.loyalty.stamps10}</span>
                                 </div>
                                 <div className="h-2 bg-background rounded-full overflow-hidden mt-3">
                                     <div 
@@ -125,7 +132,7 @@ export default async function LoyaltyPage() {
                                 </div>
                                 {stamps >= 10 && (
                                     <p className="text-xs text-primary mt-2 font-bold text-center">
-                                    Maximale Belohnung erreicht! An der Kasse einlösbar.
+                                    {t.loyalty.maxReward}
                                     </p>
                                 )}
                             </div>

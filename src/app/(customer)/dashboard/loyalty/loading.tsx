@@ -4,13 +4,22 @@ import { PageHeader } from "@/components/common/PageHeader";
 
 export default function Loading() {
     return (
-        <div className="p-4 space-y-8 flex flex-col items-center max-w-md mx-auto">
-             <div className="text-center space-y-2 w-full">
-                <Skeleton className="h-8 w-48 mx-auto" />
-                <Skeleton className="h-10 w-32 mx-auto" />
+        <div className="space-y-6">
+            <div className="space-y-2">
+                <Skeleton className="h-8 w-32" />
+                <Skeleton className="h-5 w-full max-w-lg" />
             </div>
-            <Skeleton className="w-full h-80" />
-            <Skeleton className="w-full h-96" />
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-1 space-y-6">
+                    <Skeleton className="h-96 w-full" />
+                    <Skeleton className="h-40 w-full" />
+                </div>
+                <div className="lg:col-span-2 space-y-6">
+                    <Skeleton className="h-56 w-full" />
+                    <Skeleton className="h-80 w-full" />
+                </div>
+            </div>
         </div>
     )
 }
