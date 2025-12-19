@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -86,9 +87,11 @@ export function PlannerClient({ initialEvents, initialProducts }: PlannerClientP
             const pricePerSmallestUnit = product.unit === 'kg' ? product.price / 1000 : product.price;
             const price = ingredient.unit === 'g' ? totalAmount * pricePerSmallestUnit : totalAmount * product.price;
 
+            const forPeopleText = t.planner.forPeople.replace('{count}', people.toString());
+            
             addToCart({ 
                 productId: `${product.id}-${people}`, // Create a unique ID for this dynamic product
-                name: `${getLang(product.name, lang)} (für ${people} Pers.)`, 
+                name: `${getLang(product.name, lang)} ${forPeopleText}`, 
                 quantity: 1, // We add it as a single package
                 price: price
             });
@@ -174,3 +177,5 @@ export function PlannerClient({ initialEvents, initialProducts }: PlannerClientP
     </div>
   );
 }
+
+    

@@ -1,5 +1,4 @@
 
-
 export type Language = 'de' | 'it' | 'en';
 
 export const translations = {
@@ -24,6 +23,22 @@ export const translations = {
       active_order: "Offene Bestellung",
       openOrderDescription: "Ihre Bestellung ist",
       viewAllOrders: "Alle Bestellungen ansehen"
+    },
+    wheel: {
+      title: "Ihr tägliches Glücksrad",
+      description: "Drehen und gewinnen Sie tolle Preise – jeden Tag eine neue Chance!",
+      button: "Jetzt drehen & gewinnen!",
+      dialogTitle: "Viel Glück!",
+      dialogDescription: "Klicken Sie auf 'Drehen', um Ihr Glück zu versuchen.",
+      spinning: "Wird gedreht...",
+      spin: "Drehen!",
+      result: "Ihr Ergebnis:",
+      close: "Schließen",
+      toastWin: "Glückwunsch!",
+      toastWinDescription: "Sie haben gewonnen: {prize}",
+      toastLose: "Leider nichts...",
+      toastLoseDescription: "Versuchen Sie es morgen wieder!",
+      toastError: "Fehler"
     },
     cart: {
         title: "Ihre Vorbestellung",
@@ -97,6 +112,7 @@ export const translations = {
         guests: "Wie viele Gäste erwarten Sie?",
         recommendation: "Empfehlung für {count} Personen:",
         addToCart: "Gesamtpaket in den Warenkorb",
+        forPeople: "(für {count} Pers.)",
         toast: {
             addedTitle: "Hinzugefügt!",
             addedDescription: "Zutaten für \"{event}\" für {count} Personen im Warenkorb."
@@ -195,9 +211,9 @@ export const translations = {
     nav: {
       dashboard: "Scopri",
       orders: "Ordini",
-      concierge: "Concierge",
+      concierge: "Lista spesa",
       planner: "Party Planner",
-      loyalty: "Fidelity",
+      loyalty: "Fidelity Card",
       sommelier: "AI Scan",
       profile: "Profilo",
       cart: "Carrello",
@@ -212,6 +228,22 @@ export const translations = {
       active_order: "Ordine attivo",
       openOrderDescription: "Il tuo ordine è",
       viewAllOrders: "Vedi tutti gli ordini"
+    },
+    wheel: {
+        title: "La tua Ruota della Fortuna",
+        description: "Gira e vinci fantastici premi – una nuova chance ogni giorno!",
+        button: "Gira e vinci!",
+        dialogTitle: "Buona fortuna!",
+        dialogDescription: "Clicca su 'Gira' per tentare la fortuna.",
+        spinning: "Gira...",
+        spin: "Gira!",
+        result: "Il tuo risultato:",
+        close: "Chiudi",
+        toastWin: "Congratulazioni!",
+        toastWinDescription: "Hai vinto: {prize}",
+        toastLose: "Peccato...",
+        toastLoseDescription: "Riprova domani!",
+        toastError: "Errore"
     },
     cart: {
         title: "Il tuo pre-ordine",
@@ -285,6 +317,7 @@ export const translations = {
         guests: "Quanti ospiti aspetti?",
         recommendation: "Raccomandazione per {count} persone:",
         addToCart: "Aggiungi pacchetto al carrello",
+        forPeople: "(per {count} pers.)",
         toast: {
             addedTitle: "Aggiunto!",
             addedDescription: "Ingredienti per \"{event}\" per {count} persone nel carrello."
@@ -383,9 +416,9 @@ export const translations = {
     nav: {
       dashboard: "Discover",
       orders: "Orders",
-      concierge: "Concierge",
+      concierge: "Shopping List",
       planner: "Party Planner",
-      loyalty: "Fidelity",
+      loyalty: "Loyalty Card",
       sommelier: "AI Scan",
       profile: "Profile",
       cart: "Cart",
@@ -400,6 +433,22 @@ export const translations = {
       active_order: "Active Order",
       openOrderDescription: "Your order is",
       viewAllOrders: "View all orders"
+    },
+    wheel: {
+        title: "Your Daily Wheel of Fortune",
+        description: "Spin and win great prizes – a new chance every day!",
+        button: "Spin & Win Now!",
+        dialogTitle: "Good Luck!",
+        dialogDescription: "Click 'Spin' to try your luck.",
+        spinning: "Spinning...",
+        spin: "Spin!",
+        result: "Your result:",
+        close: "Close",
+        toastWin: "Congratulations!",
+        toastWinDescription: "You won: {prize}",
+        toastLose: "Too bad...",
+        toastLoseDescription: "Try again tomorrow!",
+        toastError: "Error"
     },
     cart: {
         title: "Your Pre-Order",
@@ -473,6 +522,7 @@ export const translations = {
         guests: "How many guests are you expecting?",
         recommendation: "Recommendation for {count} people:",
         addToCart: "Add Package to Cart",
+        forPeople: "(for {count} people)",
         toast: {
             addedTitle: "Added!",
             addedDescription: "Ingredients for \"{event}\" for {count} people in cart."
@@ -568,3 +618,5 @@ export const translations = {
     }
   }
 };
+
+    

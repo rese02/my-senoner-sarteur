@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState } from 'react';
@@ -112,7 +113,7 @@ export function PackageCard({ product }: { product: Product }) {
                                 key={index} 
                                 className="flex justify-between items-center py-3 border-b last:border-0"
                                 >
-                                <span className="text-card-foreground font-medium">{content.item}</span>
+                                <span className="text-card-foreground font-medium">{getLang(content.item, lang)}</span>
                                 <span className="text-primary font-semibold">
                                     {content.amount}
                                 </span>
@@ -136,3 +137,5 @@ export function PackageCard({ product }: { product: Product }) {
     </>
   );
 }
+
+    

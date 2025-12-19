@@ -46,7 +46,8 @@ function OrderHistoryCard({
     };
 
     const statusLabelKey = STATUS_MAP[order.status]?.label as keyof typeof t.status;
-    const statusLabel = t.status[statusLabelKey] || order.status;
+    const statusLabel = statusLabelKey ? t.status[statusLabelKey] : order.status;
+    const preorderLabel = t.orders.preorder;
 
     return (
         <div className="flex items-start gap-3">
@@ -73,7 +74,7 @@ function OrderHistoryCard({
                         <div>
                             <CardTitle className="text-base font-bold flex items-center gap-2">
                                 {isGroceryList ? <FileText className="w-4 h-4 text-orange-600" /> : <Package className="w-4 h-4 text-primary" />}
-                                <span className="text-card-foreground">{isGroceryList ? t.concierge.title : t.orders.preorder}</span>
+                                <span className="text-card-foreground">{isGroceryList ? t.concierge.title : preorderLabel}</span>
                             </CardTitle>
                             <CardDescription className="text-xs text-muted-foreground">
                                 #{order.id.slice(-6)} - {format(parseISO(order.createdAt), "dd.MM.yyyy, HH:mm")}
@@ -257,3 +258,5 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
         </div>
     );
 }
+
+    

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useTransition } from 'react';
@@ -11,6 +12,7 @@ import { spinWheel } from '@/app/actions/marketing.actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
 const WHEEL_COLORS = [
     'hsl(var(--primary))',
@@ -73,6 +75,7 @@ function Wheel({ segments, rotation, isSpinning }: { segments: {text: string}[],
 
 
 export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSettings }) {
+    const { t } = useLanguage();
     const [isSpinning, startTransition] = useTransition();
     const [isOpen, setIsOpen] = useState(false);
     const [rotation, setRotation] = useState(0);
@@ -96,13 +99,13 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
 
                 if (prize !== 'Niete') {
                     toast({
-                        title: "Glückwunsch!",
-                        description: `Sie haben gewonnen: ${prize}`,
+                        title: t.wheel.toastWin,
+                        description: t.wheel.toastWinDescription.replace('{prize}', prize),
                     });
                 } else {
                     toast({
-                        title: "Leider nichts...",
-                        description: "Versuchen Sie es morgen wieder!",
+                        title: t.wheel.toastLose,
+                        description: t.wheel.toastLoseDescription,
                     });
                 }
                 
@@ -110,7 +113,7 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
                 router.refresh(); 
 
             } catch (error: any) {
-                toast({ variant: 'destructive', title: 'Fehler', description: error.message });
+                toast({ variant: 'destructive', title: t.wheel.toastError, description: error.message });
             }
         });
     };
@@ -129,15 +132,15 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
                 </div>
                 <CardHeader className="pt-6">
                     <CardTitle className="flex items-center gap-2">
-                        <Gift /> Ihr tägliches Glücksrad
+                        <Gift /> {t.wheel.title}
                     </CardTitle>
                     <CardDescription className="text-muted-foreground">
-                        Drehen und gewinnen Sie tolle Preise – jeden Tag eine neue Chance!
+                        {t.wheel.description}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0 mt-auto">
                     <Button onClick={() => setIsOpen(true)} className="w-full">
-                        Jetzt drehen & gewinnen!
+                        {t.wheel.button}
                     </Button>
                 </CardContent>
             </Card>
@@ -148,9 +151,9 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
                     if (isSpinning) e.preventDefault();
                 }} className="max-w-sm m-2 p-0">
                     <DialogHeader className="p-6 pb-2">
-                        <DialogTitle>Viel Glück!</DialogTitle>
+                        <DialogTitle>{t.wheel.dialogTitle}</DialogTitle>
                         <DialogDescription>
-                            Klicken Sie auf "Drehen", um Ihr Glück zu versuchen.
+                            {t.wheel.dialogDescription}
                         </DialogDescription>
                     </DialogHeader>
                     
@@ -163,19 +166,19 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
                     <div className="p-6 pt-2 text-center">
                         {result && (
                              <div className="p-4 bg-secondary text-secondary-foreground rounded-lg animate-in fade-in-50 zoom-in-95 mb-4">
-                                <p className="text-sm text-muted-foreground">Ihr Ergebnis:</p>
+                                <p className="text-sm text-muted-foreground">{t.wheel.result}</p>
                                 <p className="font-bold text-lg">{result}</p>
                             </div>
                         )}
                         {!result && (
                             <Button onClick={handleSpin} disabled={isSpinning} className="w-full" size="lg">
                                 {isSpinning ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                {isSpinning ? 'Wird gedreht...' : 'Drehen!'}
+                                {isSpinning ? t.wheel.spinning : t.wheel.spin}
                             </Button>
                         )}
                          {result && (
                             <Button onClick={handleClose} variant="secondary" className="w-full">
-                                Schließen
+                                {t.wheel.close}
                             </Button>
                         )}
                     </div>
@@ -185,3 +188,5 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
         </>
     );
 }
+
+    
