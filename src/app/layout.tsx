@@ -1,9 +1,9 @@
 
 import type { Metadata } from 'next';
-import { Lato, Merriweather } from 'next/font/google';
+import { Lato } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
-// FirebaseClientProvider wird hier entfernt, da es nur in geschützten Layouts benötigt wird.
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: 'My Senoner Sarteur - Premium Supermarkt & Feinkost in Wolkenstein/Selva',
@@ -21,11 +21,6 @@ const lato = Lato({
   variable: '--font-body',
 });
 
-const merriweather = Merriweather({
-  subsets: ['latin'],
-  weight: ['400', '700', '900'],
-  variable: '--font-headline',
-});
 
 export default function RootLayout({
   children,
@@ -40,11 +35,10 @@ export default function RootLayout({
         className={cn(
           'font-body antialiased',
           lato.variable,
-          merriweather.variable
         )}
       >
-        {/* FirebaseClientProvider wird hier entfernt. Children wird direkt gerendert. */}
         {children}
+        <Toaster />
       </body>
     </html>
   );
