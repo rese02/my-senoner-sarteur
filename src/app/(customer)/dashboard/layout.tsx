@@ -14,8 +14,6 @@ import { Button } from "@/components/ui/button";
 import { adminDb } from "@/lib/firebase-admin";
 import { getSommelierSettings } from "@/app/actions/wine-manager.actions";
 import { AppFooter } from "@/components/common/AppFooter";
-import { FirebaseClientProvider } from "@/firebase/client-provider"; 
-
 
 async function checkPlannerEventsExist() {
     const plannerEventsSnap = await adminDb.collection('plannerEvents').limit(1).get();
@@ -67,7 +65,6 @@ export default async function CustomerLayout({
     ]);
     
   return (
-    <FirebaseClientProvider>
       <div className="flex min-h-[100dvh] bg-background text-foreground">
         <DesktopSidebar showPlanner={showPlanner} showSommelier={showSommelier} />
         <div className="flex-1 flex flex-col">
@@ -99,6 +96,5 @@ export default async function CustomerLayout({
           <MobileNav showSommelier={showSommelier} />
         </div>
       </div>
-    </FirebaseClientProvider>
   );
 }

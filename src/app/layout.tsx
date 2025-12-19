@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { Lato } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
-import { Toaster } from "@/components/ui/toaster";
+import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
   title: 'My Senoner Sarteur - Premium Supermarkt & Feinkost in Wolkenstein/Selva',
@@ -37,8 +37,9 @@ export default function RootLayout({
           lato.variable,
         )}
       >
-        {children}
-        <Toaster />
+        <FirebaseClientProvider>
+          {children}
+        </FirebaseClientProvider>
       </body>
     </html>
   );

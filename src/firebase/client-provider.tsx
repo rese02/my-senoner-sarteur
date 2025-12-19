@@ -22,22 +22,22 @@ export function FirebaseClientProvider({
 }: {
   children: React.ReactNode;
 }) {
-  // Use useMemo to ensure initializeFirebase is called only once
-  const services = useMemo(() => {
-    // This check is important because in React's Strict Mode, effects can run twice in development.
-    // By initializing here and not in an effect, we ensure it's truly a singleton on the client.
-    if (typeof window !== 'undefined') {
-      return initializeFirebase();
-    }
-    return null;
+  const [services, setServices] = useState<FirebaseServices | null>(null);
+
+  useEffect(() => {
+    // This effect runs only on the client after the initial render.
+    // This is the safe place to initialize client-side libraries.
+    const firebaseServices = initializeFirebase();
+    setServices(firebaseServices);
   }, []);
 
+  // While services are being initialized (on the very first client render),
+  // we render nothing. This guarantees no mismatch with the server's render.
   if (!services) {
-    // During server-side rendering, or before the client-side useMemo has run, we can return null
-    // or a loading state. Child components should be prepared for this.
     return null;
   }
 
+  // Once Firebase is initialized on the client, we render the full provider tree.
   return (
     <FirebaseProvider
       app={services.app}
