@@ -13,7 +13,7 @@ export default async function RegisterPage() {
         <div className="absolute inset-0 z-0 opacity-5 bg-repeat" style={{ backgroundImage: "url('/background-pattern.svg')" }}></div>
 
         <div className="relative z-10 max-w-md w-full my-0 md:my-8">
-             <Card className="flex flex-col justify-center shadow-2xl border-none rounded-none md:rounded-2xl w-full bg-card text-card-foreground min-h-[100dvh] md:min-h-0">
+             <Card className="flex flex-col justify-center shadow-2xl border-none rounded-none md:rounded-2xl w-full bg-primary text-primary-foreground min-h-[100dvh] md:min-h-0">
                 <CardContent className="p-8 md:p-10 space-y-6">
                     <div className="text-center items-center">
                         <div className="h-12 mb-4 inline-block">
@@ -21,16 +21,16 @@ export default async function RegisterPage() {
                                 <Image src="/logo.png" alt="Senoner Sarteur Logo" width={160} height={40} className="h-full w-auto object-contain" />
                             </Link>
                         </div>
-                        <CardTitle className="text-3xl font-headline text-primary">Konto erstellen</CardTitle>
-                        <CardDescription className="text-muted-foreground pt-1">Werden Sie Teil unserer Community.</CardDescription>
+                        <CardTitle className="text-3xl font-headline text-primary-foreground">Konto erstellen</CardTitle>
+                        <CardDescription className="text-primary-foreground/80 pt-1">Werden Sie Teil unserer Community.</CardDescription>
                     </div>
 
                     <RegisterForm />
                     
-                    <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground pt-6 border-t border-border">
+                    <div className="flex flex-col items-center gap-4 text-sm text-primary-foreground/80 pt-6 border-t border-primary-foreground/20">
                         <p>
                             Haben Sie bereits ein Konto?{' '}
-                            <Link href="/login" className="font-semibold text-primary hover:underline">
+                            <Link href="/login" className="font-semibold text-white hover:underline">
                                 Hier anmelden
                             </Link>
                         </p>

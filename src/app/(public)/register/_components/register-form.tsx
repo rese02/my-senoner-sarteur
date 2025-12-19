@@ -72,7 +72,9 @@ export function RegisterForm() {
     }
   }
 
-  const getIconColor = (hasValue: boolean) => hasValue ? 'text-primary' : 'text-muted-foreground';
+  const getIconColor = (hasValue: boolean) => hasValue ? 'text-primary-foreground' : 'text-primary-foreground/60';
+  const inputClass = "bg-primary-foreground/10 border-primary-foreground/20 placeholder:text-primary-foreground/60 text-primary-foreground";
+
 
   return (
     <Form {...form}>
@@ -86,7 +88,7 @@ export function RegisterForm() {
               <FormControl>
                 <div className="relative">
                   <UserIcon className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", getIconColor(!!field.value))} />
-                  <Input placeholder="Vollständiger Name" {...field} className="pl-10" />
+                  <Input placeholder="Vollständiger Name" {...field} className={cn("pl-10", inputClass)} />
                 </div>
               </FormControl>
               <FormMessage />
@@ -102,7 +104,7 @@ export function RegisterForm() {
               <FormControl>
                 <div className="relative">
                   <Mail className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", getIconColor(!!field.value))} />
-                  <Input placeholder="E-Mail" {...field} className="pl-10" />
+                  <Input placeholder="E-Mail" {...field} className={cn("pl-10", inputClass)} />
                 </div>
               </FormControl>
               <FormMessage />
@@ -122,12 +124,12 @@ export function RegisterForm() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Passwort (min. 8 Zeichen)"
                     {...field}
-                    className="pl-10 pr-10"
+                    className={cn("pl-10 pr-10", inputClass)}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-foreground/60 hover:text-primary-foreground"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -146,14 +148,14 @@ export function RegisterForm() {
               <FormControl>
                 <div className="relative">
                   <Phone className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", getIconColor(!!field.value))} />
-                  <Input placeholder="Telefonnummer" {...field} className="pl-10" />
+                  <Input placeholder="Telefonnummer" {...field} className={cn("pl-10", inputClass)} />
                 </div>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-1 gap-4 pt-4 border-t border-border">
+        <div className="grid grid-cols-1 gap-4 pt-4 border-t border-primary-foreground/20">
           <FormField
             control={form.control}
             name="street"
@@ -163,7 +165,7 @@ export function RegisterForm() {
                 <FormControl>
                   <div className="relative">
                     <Home className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", getIconColor(!!field.value))} />
-                    <Input placeholder="Straße &amp; Nr." {...field} className="pl-10" />
+                    <Input placeholder="Straße &amp; Nr." {...field} className={cn("pl-10", inputClass)} />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -178,7 +180,7 @@ export function RegisterForm() {
                 <FormItem>
                   <FormLabel className="sr-only">PLZ</FormLabel>
                   <FormControl>
-                    <Input placeholder="PLZ" {...field} />
+                    <Input placeholder="PLZ" {...field} className={inputClass}/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -191,7 +193,7 @@ export function RegisterForm() {
                 <FormItem className="col-span-2">
                   <FormLabel className="sr-only">Ort</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ort" {...field} />
+                    <Input placeholder="Ort" {...field} className={inputClass} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -207,7 +209,7 @@ export function RegisterForm() {
                 <FormControl>
                   <div className="relative">
                     <Building className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", getIconColor(!!field.value))} />
-                    <Input placeholder="Provinz (z.B. BZ)" {...field} className="pl-10" />
+                    <Input placeholder="Provinz (z.B. BZ)" {...field} className={cn("pl-10", inputClass)} />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -216,7 +218,7 @@ export function RegisterForm() {
           />
         </div>
         
-        <div className="space-y-4 pt-4 border-t border-border">
+        <div className="space-y-4 pt-4 border-t border-primary-foreground/20">
             <FormField
               control={form.control}
               name="privacyPolicy"
@@ -226,11 +228,12 @@ export function RegisterForm() {
                     <Checkbox 
                       checked={field.value} 
                       onCheckedChange={field.onChange} 
+                      className="border-primary-foreground/50 data-[state=checked]:bg-white data-[state=checked]:text-primary"
                     />
                   </FormControl>
-                  <div className="space-y-1 leading-none">
+                  <div className="space-y-1 leading-none text-primary-foreground/80">
                     <FormLabel>
-                      Ich habe die <Link href="/datenschutz" target="_blank" className="font-semibold text-primary underline hover:no-underline">Datenschutzerklärung</Link> und AGB gelesen und akzeptiere diese.
+                      Ich habe die <Link href="/datenschutz" target="_blank" className="font-semibold text-white underline hover:no-underline">Datenschutzerklärung</Link> und AGB gelesen und akzeptiere diese.
                     </FormLabel>
                     <FormMessage />
                   </div>
@@ -246,13 +249,14 @@ export function RegisterForm() {
                     <Checkbox 
                       checked={field.value} 
                       onCheckedChange={field.onChange} 
+                      className="border-primary-foreground/50 data-[state=checked]:bg-white data-[state=checked]:text-primary"
                     />
                   </FormControl>
-                  <div className="space-y-1 leading-none">
+                  <div className="space-y-1 leading-none text-primary-foreground/80">
                     <FormLabel>
                      Ich möchte den Newsletter und Angebote per E-Mail erhalten.
                     </FormLabel>
-                     <p className="text-xs text-muted-foreground">Diese Einwilligung kann jederzeit im Profil widerrufen werden.</p>
+                     <p className="text-xs text-primary-foreground/60">Diese Einwilligung kann jederzeit im Profil widerrufen werden.</p>
                     <FormMessage />
                   </div>
                 </FormItem>
@@ -267,9 +271,10 @@ export function RegisterForm() {
                     <Checkbox 
                       checked={field.value} 
                       onCheckedChange={field.onChange} 
+                      className="border-primary-foreground/50 data-[state=checked]:bg-white data-[state=checked]:text-primary"
                     />
                   </FormControl>
-                  <div className="space-y-1 leading-none">
+                  <div className="space-y-1 leading-none text-primary-foreground/80">
                     <FormLabel>
                      Ich stimme zu, dass meine Einkäufe analysiert werden, um mir persönliche Angebote und Weinempfehlungen anzuzeigen.
                     </FormLabel>
@@ -281,7 +286,7 @@ export function RegisterForm() {
         </div>
 
 
-        <SubmitButton className="w-full">
+        <SubmitButton className="w-full" variant="secondary">
             Konto erstellen
         </SubmitButton>
       </form>
