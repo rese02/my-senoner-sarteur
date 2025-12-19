@@ -55,11 +55,11 @@ const suggestWinePairingFlow = ai.defineFlow(
   async (input) => {
     // 0. AUTHENTICATION & RATE LIMITING
     const session = await getSession();
-    if (!session?.userId) {
+    if (!session?.id) {
         throw new Error('Not authenticated.');
     }
     
-    const userRequestsRef = adminDb.collection('users').doc(session.userId).collection('aiRequests').doc('sommelier');
+    const userRequestsRef = adminDb.collection('users').doc(session.id).collection('aiRequests').doc('sommelier');
     
     await adminDb.runTransaction(async (transaction) => {
         const now = Date.now();

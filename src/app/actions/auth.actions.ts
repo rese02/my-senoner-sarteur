@@ -175,7 +175,7 @@ const profileUpdateSchema = z.object({
 
 export async function updateUserProfile(formData: FormData) {
   const session = await getSession();
-  if (!session?.userId) {
+  if (!session?.id) {
     return { success: false, message: 'Not authenticated' };
   }
 
@@ -222,7 +222,7 @@ export async function updateUserProfile(formData: FormData) {
 
 
   try {
-    await adminDb.collection('users').doc(session.userId).update(dataToUpdate);
+    await adminDb.collection('users').doc(session.id).update(dataToUpdate);
     revalidatePath('/dashboard/profile');
     return { success: true, message: 'Profil erfolgreich aktualisiert.' };
   } catch (error: any) {
@@ -233,11 +233,11 @@ export async function updateUserProfile(formData: FormData) {
 
 export async function deleteUserAccount() {
   const session = await getSession();
-  if (!session?.userId) {
+  if (!session?.id) {
     return redirect('/login');
   }
 
-  const userId = session.userId;
+  const userId = session.id;
 
   try {
     const batch = adminDb.batch();
