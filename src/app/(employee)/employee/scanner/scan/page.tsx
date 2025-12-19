@@ -20,7 +20,6 @@ export default function ScanPage() {
     const router = useRouter();
     const webcamRef = useRef<Webcam>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const requestRef = useRef<number>();
     const [isScanning, setIsScanning] = useState(true);
 
     const scanQrCode = useCallback(() => {
@@ -31,7 +30,7 @@ export default function ScanPage() {
         const video = webcamRef.current.video;
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
             const canvas = canvasRef.current;
-            const context = canvas.getContext('2d', { willReadFrequently: true });
+            const context = canvas.getContext('2d');
 
             if (context) {
                 canvas.height = video.videoHeight;
@@ -44,41 +43,36 @@ export default function ScanPage() {
                 });
 
                 if (code && code.data.startsWith('senoner-user:')) {
-                    setIsScanning(false);
+                    setIsScanning(false); // Stop scanning immediately on success
                     if (typeof window.navigator.vibrate === 'function') {
                         window.navigator.vibrate([100, 50, 100]);
                     }
                     toast({ title: 'QR Code erkannt', description: 'Daten werden verarbeitet...' });
                     
                     const userId = code.data.replace('senoner-user:', '');
-                    
                     router.push(`/employee/scanner?userId=${userId}`);
                 }
             }
         }
-        if (isScanning) {
-            requestRef.current = requestAnimationFrame(scanQrCode);
-        }
     }, [isScanning, toast, router]);
 
     useEffect(() => {
-        // Start scanning animation frame loop
-        requestRef.current = requestAnimationFrame(scanQrCode);
-        
-        // Cleanup function to cancel the animation frame when the component unmounts
-        return () => {
-            if (requestRef.current) {
-                cancelAnimationFrame(requestRef.current);
-            }
-        };
-    }, [scanQrCode]);
-
-     useEffect(() => {
         // Vibrate on mount to signal camera is ready
         if (typeof window.navigator.vibrate === 'function') {
             window.navigator.vibrate(100);
         }
-    }, []);
+
+        // Use setInterval for a more controlled, less resource-intensive scan loop
+        const intervalId = setInterval(() => {
+            scanQrCode();
+        }, 300); // Scan every 300ms
+
+        // Cleanup function to stop scanning when the component unmounts
+        return () => {
+            clearInterval(intervalId);
+            setIsScanning(false);
+        };
+    }, [scanQrCode]);
     
     return (
         <div className="fixed inset-0 z-50 bg-black flex flex-col text-white">
@@ -100,7 +94,8 @@ export default function ScanPage() {
                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                     <div className="w-60 h-60 border-4 border-white/50 rounded-2xl animate-pulse" />
                 </div>
-                <canvas ref={canvasRef} style={{ display: 'none' }} />
+                {/* The canvas element is necessary for jsQR to process the image data */}
+                <canvas ref={canvasRef} className="hidden" />
             </main>
         </div>
     );
