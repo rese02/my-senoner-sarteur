@@ -16,9 +16,9 @@ Willkommen im offiziellen Repository der "My Senoner Sarteur" App, einem digital
 
 Diese Anwendung erweitert das Einkaufserlebnis durch digitale Services und optimiert gleichzeitig interne Abläufe.
 
--   **Kunde:** Die Hauptzielgruppe. Kunden nutzen die App, um Produkte vorzubestellen, den persönlichen Concierge-Service zu nutzen, ihre Treuepunkte via QR-Code zu verwalten und auf AI-gestützte Features wie den Party-Planer oder den AI-Sommelier zuzugreifen.
+-   **Kunde:** Die Hauptzielgruppe. Kunden nutzen die App, um Produkte vorzubestellen, den persönlichen Concierge-Service (Einkaufszettel) zu nutzen, ihre Treuepunkte via QR-Code zu verwalten und auf Features wie das Glücksrad, den Party-Planer oder den AI-Sommelier zuzugreifen.
 -   **Mitarbeiter:** Nutzt eine minimalistische Kassen-Schnittstelle, um Kundenkarten zu scannen, Stempel zu vergeben, Gewinne einzulösen und Einkaufszettel-Bestellungen abzuwickeln.
--   **Admin:** Verwaltet das gesamte Ökosystem über ein umfassendes Dashboard (Produkte, Bestellungen, Kunden, Marketing-Inhalte).
+-   **Admin:** Verwaltet das gesamte Ökosystem über ein umfassendes, responsives Dashboard (Produkte, Bestellungen, Kunden, Marketing-Inhalte).
 
 ## 2. Technologie-Stack
 
@@ -26,10 +26,10 @@ Diese Anwendung erweitert das Einkaufserlebnis durch digitale Services und optim
 -   **Sprache:** TypeScript
 -   **Backend-as-a-Service:** Firebase (Authentication, Firestore, Storage)
 -   **AI-Integration:** Google Genkit
--   **UI-Bibliothek:** ShadCN UI
+-   **UI-Bibliothek:** ShadCN UI & Radix UI
 -   **Styling:** Tailwind CSS
 -   **Formular-Management:** React Hook Form & Zod
--   **State Management (Client):** Zustand
+-   **State Management (Client):** Zustand (für den Warenkorb)
 
 ## 3. Einrichtung & Lokaler Start
 
@@ -40,13 +40,30 @@ Diese Anwendung erweitert das Einkaufserlebnis durch digitale Services und optim
 
 ### Schritt 1: Umgebungsvariablen
 
-Erstellen Sie eine `.env`-Datei im Stammverzeichnis des Projekts, indem Sie die `.env.example`-Datei kopieren.
+Erstellen Sie eine `.env`-Datei im Stammverzeichnis des Projekts. Füllen Sie die Datei mit Ihren Firebase-Projekt-Credentials.
 
 ```bash
-cp .env.example .env
-```
+# .env
 
-Füllen Sie die `.env`-Datei mit Ihren Firebase-Projekt-Credentials aus. Sie benötigen ein **Service Account JSON** von Ihrem Firebase-Projekt.
+# Firebase Client SDK Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=AIza...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+NEXT_PUBLIC_FIREBASE_APP_ID=1:...
+
+# Firebase Admin SDK Configuration (for Server Actions)
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-...@...
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEv...=\n-----END PRIVATE KEY-----\n"
+
+# Email Configuration (for Nodemailer)
+EMAIL_SERVER_HOST=smtp.example.com
+EMAIL_SERVER_PORT=465
+EMAIL_SERVER_USER=user@example.com
+EMAIL_SERVER_PASSWORD=your_password
+EMAIL_FROM=noreply@example.com
+```
 
 ### Schritt 2: Abhängigkeiten installieren
 
