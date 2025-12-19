@@ -54,18 +54,20 @@ export function ProductCard({ product }: { product: Product }) {
                     <p className="text-xs text-muted-foreground ml-1">/ {product.unit}</p>
                 </div>
 
-                <div className="flex items-center justify-center gap-2 mt-4">
-                    <Button variant="outline" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))} className="active:scale-95 transition-transform h-8 w-8 rounded-full shrink-0" aria-label="Menge verringern">
-                        <Minus className="h-4 w-4" />
-                    </Button>
-                    <span className="w-8 text-center font-bold text-base">{quantity}</span>
-                    <Button variant="outline" size="icon" onClick={() => setQuantity(q => q + 1)} className="active:scale-95 transition-transform h-8 w-8 rounded-full shrink-0" aria-label="Menge erhöhen">
-                        <Plus className="h-4 w-4" />
+                <div className="flex items-center justify-between gap-2 mt-4">
+                    <div className="flex items-center gap-1 bg-secondary rounded-full p-0.5">
+                        <Button variant="ghost" size="icon" onClick={() => setQuantity(q => Math.max(1, q - 1))} className="active:scale-95 transition-transform h-7 w-7 rounded-full shrink-0" aria-label="Menge verringern">
+                            <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="w-5 text-center font-bold text-base">{quantity}</span>
+                        <Button variant="ghost" size="icon" onClick={() => setQuantity(q => q + 1)} className="active:scale-95 transition-transform h-7 w-7 rounded-full shrink-0" aria-label="Menge erhöhen">
+                            <Plus className="h-4 w-4" />
+                        </Button>
+                    </div>
+                     <Button size="sm" className="rounded-full" onClick={handleAddToCart}>
+                        <ShoppingCart className="mr-2 h-4 w-4" /> Hinzufügen
                     </Button>
                 </div>
-                <Button size="sm" className="w-full mt-3 rounded-full" onClick={handleAddToCart}>
-                    <ShoppingCart className="mr-2 h-4 w-4" /> Hinzufügen
-                </Button>
             </CardContent>
         </Card>
     );

@@ -41,49 +41,49 @@ export function PackageCard({ product }: { product: Product }) {
 
   return (
     <>
-      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 w-full bg-card">
-        <div className="grid grid-cols-[120px_1fr] items-stretch">
-            {/* Left side: Image */}
-            <div className="relative h-full w-full overflow-hidden">
-                <Image 
-                    src={product.imageUrl || fallbackImageUrl} 
-                    alt={product.name} 
-                    fill
-                    sizes="120px"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    data-ai-hint={product.imageHint}
-                />
-            </div>
-            
-            {/* Right side: Content */}
-            <div className="p-4 flex flex-col justify-between h-full gap-2">
-                <div>
-                  <h3 className="font-headline text-lg text-foreground font-bold leading-tight line-clamp-2">
-                    {product.name}
-                  </h3>
-                   <p className="text-xl font-semibold text-primary mt-1">€{product.price.toFixed(2)}</p>
-                  <p className="text-muted-foreground text-sm mt-1 line-clamp-2">
-                    {product.description || 'Das Rundum-Sorglos-Paket für Ihren Start.'}
-                  </p>
-                </div>
+      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg w-full bg-card flex flex-col md:flex-row">
+          {/* Image */}
+          <div className="relative h-48 md:h-auto md:w-48 flex-shrink-0">
+              <Image 
+                  src={product.imageUrl || fallbackImageUrl} 
+                  alt={product.name} 
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  data-ai-hint={product.imageHint}
+              />
+          </div>
+          
+          {/* Content */}
+          <div className="p-4 flex flex-col justify-between flex-grow gap-2">
+              <div>
+                <h3 className="font-headline text-lg text-foreground font-bold leading-tight line-clamp-2">
+                  {product.name}
+                </h3>
+                <p className="text-muted-foreground text-sm mt-1 line-clamp-2">
+                  {product.description || 'Das Rundum-Sorglos-Paket für Ihren Start.'}
+                </p>
+              </div>
 
-                <div className="mt-auto flex items-center justify-end gap-2">
-                     <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => setIsOpen(true)}
-                        className="rounded-full"
-                      >
-                        <ListPlus className="w-4 h-4 mr-2" />
-                        Inhalt
-                      </Button>
-                     <Button size="sm" onClick={handleAddToCart} className="rounded-full">
-                        <ShoppingBag className="w-4 h-4 mr-2" />
-                        Hinzufügen
-                      </Button>
-                </div>
-            </div>
-        </div>
+              <div className="mt-auto flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+                   <p className="text-2xl font-semibold text-primary">€{product.price.toFixed(2)}</p>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                       <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setIsOpen(true)}
+                          className="w-full sm:w-auto"
+                        >
+                          <ListPlus className="w-4 h-4 mr-2" />
+                          Inhalt
+                        </Button>
+                       <Button size="sm" onClick={handleAddToCart} className="w-full sm:w-auto">
+                          <ShoppingBag className="w-4 h-4 mr-2" />
+                          Hinzufügen
+                        </Button>
+                  </div>
+              </div>
+          </div>
       </Card>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>

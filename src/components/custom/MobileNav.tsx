@@ -76,7 +76,7 @@ export function MobileNav({ showSommelier }: { showSommelier: boolean }) {
             <SheetTrigger asChild>
               <button className="flex h-full flex-col items-center justify-center gap-1 p-1 text-muted-foreground hover:text-primary transition-colors relative rounded-lg" aria-label="Warenkorb öffnen">
                  {cartItems.length > 0 && (
-                  <span className="absolute top-2.5 right-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-accent-foreground text-[10px] font-bold" aria-hidden="true">
+                  <span className="absolute top-2.5 right-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold" aria-hidden="true">
                     {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
                   </span>
                 )}

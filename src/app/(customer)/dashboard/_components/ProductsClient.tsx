@@ -11,18 +11,17 @@ import { RecipeCard } from './RecipeCard';
 import { ProductCard } from '@/components/custom/ProductCard';
 import { PackageCard } from '@/components/custom/PackageCard';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { cn } from '@/lib/utils';
 import { Card } from "@/components/ui/card";
-import { Truck, Info, ShoppingBag, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { STATUS_MAP } from '@/lib/types';
 
 
 function OpenOrderStatus({ order }: { order: Order }) {
-    const StatusIcon = STATUS_MAP[order.status]?.icon || Info;
+    const StatusIcon = STATUS_MAP[order.status]?.icon;
     return (
-         <Card className="p-4 border-primary/20 animate-in fade-in-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm border bg-card">
+         <Card className="p-4 border-l-4 border-primary animate-in fade-in-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm bg-card">
             <div className="flex items-center gap-3">
                 <StatusIcon className="h-6 w-6 text-primary flex-shrink-0" />
                 <div className="flex-grow">
@@ -78,7 +77,7 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
                   <h2 className="text-3xl font-bold font-headline mb-4 text-foreground">{category.name}</h2>
                   
                   {categoryPackages.length > 0 && (
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                           {categoryPackages.map((product) => (
                               <PackageCard key={product.id} product={product} />
                           ))}

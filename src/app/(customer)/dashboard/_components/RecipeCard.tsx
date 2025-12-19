@@ -14,15 +14,17 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 export function RecipeCard({ recipe }: { recipe: Recipe }) {
 
     return (
-        <Card className="overflow-hidden w-full bg-card shadow-sm">
-            <div className="grid md:grid-cols-2">
-                <div className="relative aspect-[4/3] md:aspect-auto min-h-[200px]">
+        <Card className="overflow-hidden w-full bg-card shadow-sm h-full flex flex-col">
+            <div className="grid md:grid-cols-1">
+                <div className="relative aspect-[16/9] md:aspect-video min-h-[200px]">
                     <Image src={recipe.image} alt={recipe.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" data-ai-hint={recipe.imageHint} priority />
                 </div>
-                <div className="p-6 flex flex-col justify-center">
+                <div className="p-6 flex flex-col justify-between flex-grow">
+                  <div>
                     <h2 className="text-sm uppercase text-primary font-bold tracking-wider flex items-center gap-2"><ChefHat className="w-4 h-4"/>Rezept der Woche</h2>
                     <p className="mt-2 text-2xl font-bold font-headline">{recipe.title}</p>
-                    <p className="mt-4 text-muted-foreground line-clamp-3">{recipe.description}</p>
+                    <p className="mt-4 text-muted-foreground line-clamp-3 flex-grow">{recipe.description}</p>
+                  </div>
                     
                      <Dialog>
                         <DialogTrigger asChild>
@@ -53,12 +55,12 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
 
                               <div className="space-y-6">
                                 {/* Zutaten Box */}
-                                <div className="bg-secondary p-4 rounded-xl border">
+                                <div className="bg-secondary/50 p-4 rounded-xl border">
                                   <h3 className="font-bold uppercase text-xs tracking-wider text-muted-foreground mb-3">Zutaten</h3>
                                   <ul className="space-y-2">
                                     {recipe.ingredients.map((ing, i) => (
                                       <li key={i} className="flex items-center text-card-foreground font-medium">
-                                        <span className="w-1.5 h-1.5 bg-accent rounded-full mr-3"></span> {ing}
+                                        <span className="w-1.5 h-1.5 bg-primary rounded-full mr-3"></span> {ing}
                                       </li>
                                     ))}
                                   </ul>

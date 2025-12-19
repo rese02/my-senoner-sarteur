@@ -1,6 +1,6 @@
 
 import type { Metadata } from 'next';
-import { PT_Sans, Playfair_Display } from 'next/font/google';
+import { PT_Sans } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
@@ -21,11 +21,12 @@ const ptSans = PT_Sans({
   variable: '--font-body',
 });
 
-const playfair = Playfair_Display({
+// Using a single font for a cleaner, more modern UI
+const fontHeadline = PT_Sans({
   subsets: ['latin'],
-  weight: ['400', '700', '900'],
+  weight: ['700'],
   variable: '--font-headline',
-})
+});
 
 
 export default function RootLayout({
@@ -41,7 +42,7 @@ export default function RootLayout({
         className={cn(
           'font-body antialiased',
           ptSans.variable,
-          playfair.variable
+          fontHeadline.variable
         )}
       >
         <FirebaseClientProvider>

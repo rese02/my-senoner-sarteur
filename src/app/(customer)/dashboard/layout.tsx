@@ -32,7 +32,7 @@ async function checkSommelierIsActive() {
 
 function DesktopSidebar({ showPlanner, showSommelier }: { showPlanner: boolean; showSommelier: boolean; }) {
   return (
-    <aside className="hidden lg:flex flex-col w-64 bg-primary text-primary-foreground">
+    <aside className="hidden lg:flex flex-col w-64 bg-card border-r">
         <CustomerSidebar showPlanner={showPlanner} showSommelier={showSommelier} />
     </aside>
   );
@@ -65,18 +65,18 @@ export default async function CustomerLayout({
     ]);
     
   return (
-      <div className="flex min-h-[100dvh] bg-background text-foreground">
+      <div className="flex min-h-[100dvh] bg-secondary/30 text-foreground">
         <DesktopSidebar showPlanner={showPlanner} showSommelier={showSommelier} />
         <div className="flex-1 flex flex-col">
-          <header className={cn("lg:hidden flex-none flex h-16 items-center justify-between px-4 sticky top-0 z-30 bg-primary text-primary-foreground backdrop-blur-sm border-b")}>
+          <header className={cn("lg:hidden flex-none flex h-16 items-center justify-between px-4 sticky top-0 z-30 bg-card/80 backdrop-blur-sm border-b")}>
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10">
+                  <Button variant="ghost" size="icon">
                     <Menu className="h-6 w-6" />
                     <span className="sr-only">Menü öffnen</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="p-0 w-64 bg-primary text-primary-foreground">
+                <SheetContent side="left" className="p-0 w-64 bg-card">
                   <SheetHeader className="sr-only">
                       <SheetTitle>Hauptmenü</SheetTitle>
                       <SheetDescription>Navigation für den Kundenbereich</SheetDescription>

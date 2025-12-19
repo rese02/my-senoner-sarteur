@@ -5,7 +5,7 @@ import { useState, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Loader2, Sparkles, Gift } from 'lucide-react';
+import { Loader2, Gift } from 'lucide-react';
 import type { WheelOfFortuneSettings } from '@/lib/types';
 import { spinWheel } from '@/app/actions/marketing.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -37,7 +37,7 @@ function Wheel({ segments, rotation, isSpinning }: { segments: {text: string}[],
         <div className="relative w-72 h-72 md:w-80 md:h-80 mx-auto transition-transform duration-[6000ms] ease-out" style={{ transform: `rotate(${rotation}deg)`}}>
             <div 
                 className={cn(
-                    "absolute inset-0 rounded-full border-8 border-primary shadow-2xl transition-all flex items-center justify-center overflow-hidden", 
+                    "absolute inset-0 rounded-full border-8 border-primary/50 shadow-2xl transition-all flex items-center justify-center overflow-hidden", 
                     isSpinning && "animate-pulse"
                 )}
                 style={{ background: `conic-gradient(${gradientColors})` }}
@@ -123,20 +123,20 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
 
     return (
         <>
-            <Card className="shadow-lg bg-gradient-to-tr from-accent/90 to-primary/80 text-primary-foreground border-none overflow-hidden relative flex flex-col justify-center min-h-[150px]">
-                <div className="absolute -right-10 -top-10 w-32 h-32 text-primary-foreground/10">
+            <Card className="shadow-sm bg-card text-card-foreground border-none overflow-hidden relative flex flex-col justify-center min-h-[150px] h-full">
+                <div className="absolute -right-10 -top-10 w-32 h-32 text-primary/10">
                     <Gift className="w-full h-full" />
                 </div>
                 <CardHeader className="pt-6">
                     <CardTitle className="flex items-center gap-2">
                         <Gift /> Ihr tägliches Glücksrad
                     </CardTitle>
-                    <CardDescription className="text-primary-foreground/80">
+                    <CardDescription className="text-muted-foreground">
                         Drehen und gewinnen Sie tolle Preise – jeden Tag eine neue Chance!
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="pt-0">
-                    <Button onClick={() => setIsOpen(true)} className="w-full bg-white text-primary hover:bg-white/90">
+                <CardContent className="pt-0 mt-auto">
+                    <Button onClick={() => setIsOpen(true)} className="w-full">
                         Jetzt drehen & gewinnen!
                     </Button>
                 </CardContent>
@@ -162,7 +162,7 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
 
                     <div className="p-6 pt-2 text-center">
                         {result && (
-                             <div className="p-4 bg-accent/10 text-accent-foreground rounded-lg animate-in fade-in-50 zoom-in-95 mb-4">
+                             <div className="p-4 bg-secondary text-secondary-foreground rounded-lg animate-in fade-in-50 zoom-in-95 mb-4">
                                 <p className="text-sm text-muted-foreground">Ihr Ergebnis:</p>
                                 <p className="font-bold text-lg">{result}</p>
                             </div>
