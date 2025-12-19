@@ -15,7 +15,6 @@ import { adminDb } from "@/lib/firebase-admin";
 import { getSommelierSettings } from "@/app/actions/wine-manager.actions";
 import { AppFooter } from "@/components/common/AppFooter";
 import { FirebaseClientProvider } from "@/firebase/client-provider"; 
-import { Toaster } from "@/components/ui/toaster";
 
 
 async function checkPlannerEventsExist() {

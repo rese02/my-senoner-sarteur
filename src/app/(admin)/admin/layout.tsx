@@ -9,7 +9,6 @@ import { UserProfileDropdown } from "@/components/custom/UserProfileDropdown";
 import type { User } from "@/lib/types";
 import { AppFooter } from "@/components/common/AppFooter";
 import { FirebaseClientProvider } from "@/firebase/client-provider"; 
-import { Toaster } from "@/components/ui/toaster";
 
 
 // This layout is now a Server Component, which is faster and more secure.
@@ -46,7 +45,6 @@ export default async function AdminLayout({
           <AdminMobileNav />
         </div>
       </div>
-      <Toaster />
     </FirebaseClientProvider>
   );
 }
