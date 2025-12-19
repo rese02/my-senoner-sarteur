@@ -21,7 +21,7 @@ import { STATUS_MAP } from '@/lib/types';
 function OpenOrderStatus({ order }: { order: Order }) {
     const StatusIcon = STATUS_MAP[order.status]?.icon;
     return (
-         <Card className="p-4 border-l-4 border-primary animate-in fade-in-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm bg-card">
+         <Card className="p-4 animate-in fade-in-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm bg-card">
             <div className="flex items-center gap-3">
                 {StatusIcon && <StatusIcon className="h-6 w-6 text-primary flex-shrink-0" />}
                 <div className="flex-grow">
@@ -61,7 +61,7 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
             
              {openOrder && <OpenOrderStatus order={openOrder} />}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
                 {wheelData && <WheelOfFortuneCard settings={wheelData} />}
                 <RecipeCard recipe={recipe} />
             </div>
