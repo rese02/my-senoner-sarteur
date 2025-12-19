@@ -8,10 +8,11 @@ import { redirect } from 'next/navigation';
 import { UserProfileDropdown } from "@/components/custom/UserProfileDropdown";
 import type { User } from "@/lib/types";
 import { AppFooter } from "@/components/common/AppFooter";
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
-import { Logo } from "@/components/common/Logo";
+import { Toaster } from "@/components/ui/toaster";
+
 
 // This layout is now a Server Component, which is faster and more secure.
 export default async function AdminLayout({
@@ -42,6 +43,10 @@ export default async function AdminLayout({
                       </Button>
                     </SheetTrigger>
                     <SheetContent side="left" className="p-0 w-64">
+                       <SheetHeader className="sr-only">
+                          <SheetTitle>Admin Hauptmenü</SheetTitle>
+                          <SheetDescription>Navigation für den Admin-Bereich</SheetDescription>
+                       </SheetHeader>
                       <AdminSidebar />
                     </SheetContent>
                   </Sheet>
@@ -58,6 +63,7 @@ export default async function AdminLayout({
               {children}
               <AppFooter />
           </main>
+          <Toaster />
           <AdminMobileNav />
         </div>
       </div>
