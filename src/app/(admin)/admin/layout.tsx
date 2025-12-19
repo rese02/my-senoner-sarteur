@@ -8,7 +8,10 @@ import { redirect } from 'next/navigation';
 import { UserProfileDropdown } from "@/components/custom/UserProfileDropdown";
 import type { User } from "@/lib/types";
 import { AppFooter } from "@/components/common/AppFooter";
-
+import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Menu } from "lucide-react";
+import { Logo } from "@/components/common/Logo";
 
 // This layout is now a Server Component, which is faster and more secure.
 export default async function AdminLayout({
@@ -30,9 +33,24 @@ export default async function AdminLayout({
       <div className="flex h-dvh bg-secondary/50 text-foreground">
         <AdminSidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="flex-none h-16 flex items-center justify-between md:justify-end border-b bg-card px-4 md:px-6 sticky top-0 z-20">
-              <div className="md:hidden font-bold font-headline text-lg text-primary">
-                  Admin
+          <header className="flex-none h-16 flex items-center justify-between border-b bg-card px-4 md:px-6 sticky top-0 z-20">
+              <div className="md:hidden flex items-center gap-4">
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <Menu className="h-6 w-6" />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="p-0 w-64">
+                      <AdminSidebar />
+                    </SheetContent>
+                  </Sheet>
+                  <div className="font-bold font-headline text-lg text-primary">
+                      Admin
+                  </div>
+              </div>
+              <div className="hidden md:block">
+                {/* Platzhalter, damit der User-Button rechts bleibt */}
               </div>
               <UserProfileDropdown user={session as User} />
           </header>

@@ -5,31 +5,26 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
-  Settings,
   LogOut,
 } from 'lucide-react';
 import { logout } from '@/app/actions/auth.actions';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { ADMIN_NAV_ITEMS } from './admin-nav-items';
-
-const secondaryNavItems = [
-    { href: '/admin/settings', label: 'Einstellungen', icon: Settings },
-];
+import { ALL_ADMIN_NAV_ITEMS, SECONDARY_NAV_ITEMS } from './admin-nav-items';
 
 export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-card text-card-foreground border-r">
+    <aside className="h-full hidden md:flex flex-col w-64 bg-card text-card-foreground border-r">
       <div className="p-4 h-16 flex items-center justify-center border-b bg-primary border-primary-foreground/20">
         <Link href="/" className="flex items-center justify-center h-full">
           <Image src="/logo.png" alt="Senoner Sarteur Logo" width={140} height={30} className="object-contain h-full w-auto" />
         </Link>
       </div>
       <nav className="flex-1 p-4 space-y-1">
-        {ADMIN_NAV_ITEMS.map((item) => {
+        {ALL_ADMIN_NAV_ITEMS.map((item) => {
           const isActive = pathname.startsWith(item.href) && (item.href !== '/admin/dashboard' || pathname === '/admin/dashboard');
           return (
             <Link
@@ -55,7 +50,7 @@ export function AdminSidebar() {
       <div className="mt-auto">
         <Separator className="my-2" />
         <div className="p-4 space-y-1">
-            {secondaryNavItems.map((item) => {
+            {SECONDARY_NAV_ITEMS.map((item) => {
                const isActive = pathname.startsWith(item.href);
                return (
                 <Link
