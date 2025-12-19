@@ -1,4 +1,3 @@
-
 'use client';
 import { Button } from '@/components/ui/button';
 import { X, QrCode } from 'lucide-react';
@@ -20,14 +19,18 @@ export default function ScanPage() {
     const router = useRouter();
     const webcamRef = useRef<Webcam>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [isScanning, setIsScanning] = useState(true);
+    const animationFrameId = useRef<number>();
 
     const scanQrCode = useCallback(() => {
-        if (!isScanning || !webcamRef.current || !webcamRef.current.video || !canvasRef.current) {
+        if (!webcamRef.current?.video || !canvasRef.current) {
+            // If refs are not ready, try again on the next frame
+            animationFrameId.current = requestAnimationFrame(scanQrCode);
             return;
         }
 
         const video = webcamRef.current.video;
+
+        // Ensure the video is ready to be processed
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
             const canvas = canvasRef.current;
             const context = canvas.getContext('2d');
@@ -36,25 +39,38 @@ export default function ScanPage() {
                 canvas.height = video.videoHeight;
                 canvas.width = video.videoWidth;
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                 
-                const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                    inversionAttempts: 'dontInvert',
-                });
+                try {
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: 'dontInvert',
+                    });
 
-                if (code && code.data.startsWith('senoner-user:')) {
-                    setIsScanning(false); // Stop scanning immediately on success
-                    if (typeof window.navigator.vibrate === 'function') {
-                        window.navigator.vibrate([100, 50, 100]);
+                    if (code && code.data.startsWith('senoner-user:')) {
+                        // SUCCESS! Stop the loop.
+                        if (animationFrameId.current) {
+                            cancelAnimationFrame(animationFrameId.current);
+                        }
+                        
+                        if (typeof window.navigator.vibrate === 'function') {
+                            window.navigator.vibrate([100, 50, 100]);
+                        }
+                        toast({ title: 'QR Code erkannt', description: 'Daten werden verarbeitet...' });
+                        
+                        const userId = code.data.replace('senoner-user:', '');
+                        router.push(`/employee/scanner?userId=${userId}`);
+                        return; // Exit the function
                     }
-                    toast({ title: 'QR Code erkannt', description: 'Daten werden verarbeitet...' });
-                    
-                    const userId = code.data.replace('senoner-user:', '');
-                    router.push(`/employee/scanner?userId=${userId}`);
+                } catch (e) {
+                    console.error("QR Scan Error:", e);
+                    // Continue scanning even if one frame fails
                 }
             }
         }
-    }, [isScanning, toast, router]);
+        // If no code was found or video not ready, continue to the next frame
+        animationFrameId.current = requestAnimationFrame(scanQrCode);
+    }, [router, toast]);
+
 
     useEffect(() => {
         // Vibrate on mount to signal camera is ready
@@ -62,15 +78,14 @@ export default function ScanPage() {
             window.navigator.vibrate(100);
         }
 
-        // Use setInterval for a more controlled, less resource-intensive scan loop
-        const intervalId = setInterval(() => {
-            scanQrCode();
-        }, 300); // Scan every 300ms
+        // Start the scanning loop
+        animationFrameId.current = requestAnimationFrame(scanQrCode);
 
         // Cleanup function to stop scanning when the component unmounts
         return () => {
-            clearInterval(intervalId);
-            setIsScanning(false);
+            if (animationFrameId.current) {
+                cancelAnimationFrame(animationFrameId.current);
+            }
         };
     }, [scanQrCode]);
     
