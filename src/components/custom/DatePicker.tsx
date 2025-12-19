@@ -1,10 +1,9 @@
+
 "use client"
 
 import * as React from "react"
 import { format, getDay } from "date-fns"
-import { de } from "date-fns/locale"
 import { Calendar as CalendarIcon } from "lucide-react"
-
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/popover"
 import { BUSINESS_HOURS } from "@/lib/constants"
 import { add } from 'date-fns';
+import { useLanguage } from "../providers/LanguageProvider"
 
 interface DatePickerProps {
     date: Date | undefined;
@@ -22,6 +22,7 @@ interface DatePickerProps {
 }
 
 export function DatePicker({ date, setDate }: DatePickerProps) {
+  const { dateLocale, t } = useLanguage();
 
   return (
     <Popover>
@@ -34,7 +35,7 @@ export function DatePicker({ date, setDate }: DatePickerProps) {
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP", { locale: de }) : <span>Wählen Sie ein Datum</span>}
+          {date ? format(date, "PPP", { locale: dateLocale }) : <span>{t.datePicker.placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
@@ -42,7 +43,7 @@ export function DatePicker({ date, setDate }: DatePickerProps) {
           mode="single"
           selected={date}
           onSelect={setDate}
-          locale={de}
+          locale={dateLocale}
           disabled={(day) => {
             const today = new Date();
             today.setHours(0,0,0,0); // Start of today

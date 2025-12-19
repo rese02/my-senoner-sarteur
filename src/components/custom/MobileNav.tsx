@@ -7,35 +7,24 @@ import { cn } from '@/lib/utils';
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { useCartStore } from '@/hooks/use-cart-store';
 import { Cart } from '@/app/(customer)/dashboard/_components/Cart';
-
-type NavItem = {
-    href: string;
-    icon: React.ElementType;
-    label: string;
-    id: 'home' | 'concierge' | 'loyalty' | 'orders' | 'sommelier';
-    isCentral?: boolean;
-};
-
-const navItems: NavItem[] = [
-  { id: 'home', href: '/dashboard', icon: Home, label: 'Home' },
-  { id: 'concierge', href: '/dashboard/concierge', icon: NotebookPen, label: 'Concierge' },
-  { id: 'loyalty', href: '/dashboard/loyalty', icon: CreditCard, label: 'Fidelity', isCentral: true },
-  { id: 'orders', href: '/dashboard/orders', icon: ShoppingBag, label: 'Bestell.' },
-];
+import { useLanguage } from '../providers/LanguageProvider';
 
 export function MobileNav({ showSommelier }: { showSommelier: boolean }) {
   const pathname = usePathname();
   const cartItems = useCartStore(state => state.items);
+  const { t } = useLanguage();
 
-  const visibleNavItems = navItems.filter(item => {
-    if (item.id === 'sommelier') return showSommelier;
-    return true;
-  });
+  const navItems = [
+    { id: 'home', href: '/dashboard', icon: Home, label: t.nav.dashboard },
+    { id: 'concierge', href: '/dashboard/concierge', icon: NotebookPen, label: t.nav.concierge },
+    { id: 'loyalty', href: '/dashboard/loyalty', icon: CreditCard, label: t.nav.loyalty, isCentral: true },
+    { id: 'orders', href: '/dashboard/orders', icon: ShoppingBag, label: t.nav.orders },
+  ];
 
   return (
     <div className="fixed bottom-0 left-0 right-0 h-20 bg-card border-t border-border/50 shadow-t-lg lg:hidden z-40">
       <nav className="grid h-full grid-cols-5 items-center px-2">
-        {visibleNavItems.map((item) => {
+        {navItems.map((item) => {
           const isActive = pathname === item.href;
           if (item.isCentral) {
             return (
@@ -81,12 +70,12 @@ export function MobileNav({ showSommelier }: { showSommelier: boolean }) {
                   </span>
                 )}
                 <ShoppingCart className="h-5 w-5" />
-                <span className="text-[10px] font-medium">Korb</span>
+                <span className="text-[10px] font-medium">{t.nav.cart}</span>
               </button>
             </SheetTrigger>
             <SheetContent side="bottom" className="h-[80vh] flex flex-col rounded-t-2xl p-0 bg-background" aria-describedby="cart-sheet-description">
                <SheetHeader className="sr-only">
-                <SheetTitle>Warenkorb</SheetTitle>
+                <SheetTitle>{t.nav.cart}</SheetTitle>
                 <SheetDescription id="cart-sheet-description">Verwalten Sie hier die Artikel in Ihrem Warenkorb und schließen Sie Ihre Vorbestellung ab.</SheetDescription>
               </SheetHeader>
               <Cart />

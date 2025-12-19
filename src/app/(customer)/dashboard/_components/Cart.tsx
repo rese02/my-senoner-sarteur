@@ -13,9 +13,11 @@ import { DatePicker } from '@/components/custom/DatePicker';
 import { add, isBefore } from 'date-fns';
 import { BUSINESS_HOURS } from '@/lib/constants';
 import { createPreOrder } from '@/app/actions/order.actions';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
 export function Cart() {
     const { items, removeFromCart, clearCart } = useCartStore();
+    const { t } = useLanguage();
     const [pickupDate, setPickupDate] = useState<Date | undefined>(() => {
         return add(new Date(), { days: 1 });
     });
@@ -28,8 +30,8 @@ export function Cart() {
         if (!pickupDate) {
             toast({
                 variant: 'destructive',
-                title: 'Abholdatum fehlt',
-                description: 'Bitte wählen Sie ein gültiges Abholdatum.',
+                title: t.cart.toast.dateMissingTitle,
+                description: t.cart.toast.dateMissingDescription,
             });
             return;
         }
@@ -38,8 +40,8 @@ export function Cart() {
         if (isBefore(pickupDate, earliestPickupTime)) {
             toast({
                 variant: 'destructive',
-                title: 'Zu frühes Abholdatum',
-                description: `Bitte wählen Sie eine Zeit, die mindestens ${BUSINESS_HOURS.minPrepTimeHours} Stunden in der Zukunft liegt.`,
+                title: t.cart.toast.dateTooSoonTitle,
+                description: t.cart.toast.dateTooSoonDescription.replace('{hours}', BUSINESS_HOURS.minPrepTimeHours.toString()),
             });
             return;
         }
@@ -48,16 +50,16 @@ export function Cart() {
             try {
                 await createPreOrder(items, pickupDate);
                 toast({
-                    title: 'Bestellung aufgegeben!',
-                    description: 'Wir haben Ihre Vorbestellung erhalten.',
+                    title: t.cart.toast.successTitle,
+                    description: t.cart.toast.successDescription,
                 })
                 clearCart();
             } catch (error) {
                 console.error(error);
                 toast({
                     variant: 'destructive',
-                    title: 'Fehler',
-                    description: 'Ihre Bestellung konnte nicht aufgegeben werden.',
+                    title: t.cart.toast.errorTitle,
+                    description: t.cart.toast.errorDescription,
                 })
             }
         });
@@ -67,13 +69,13 @@ export function Cart() {
         <Card className="shadow-lg h-full flex flex-col bg-card">
             <CardHeader className="flex-shrink-0 p-4 border-b">
                 <CardTitle className="flex items-center gap-2 text-base">
-                    <ShoppingCart /> Ihre Vorbestellung
+                    <ShoppingCart /> {t.cart.title}
                 </CardTitle>
             </CardHeader>
             <CardContent className="flex-grow overflow-hidden flex flex-col p-0">
                 {items.length === 0 ? (
                     <div className="flex-grow flex items-center justify-center text-center text-muted-foreground p-4">
-                        Ihr Warenkorb ist leer.
+                        {t.cart.empty}
                     </div>
                 ) : (
                     <ScrollArea className="flex-grow">
@@ -101,17 +103,17 @@ export function Cart() {
             {items.length > 0 && (
                 <CardFooter className="flex-shrink-0 flex flex-col items-stretch space-y-3 p-4 border-t bg-secondary/30">
                      <div className="space-y-1.5">
-                        <label htmlFor="pickup-date" className="text-xs font-medium">Abholdatum</label>
+                        <label htmlFor="pickup-date" className="text-xs font-medium">{t.cart.pickupDate}</label>
                         <DatePicker date={pickupDate} setDate={setPickupDate} />
                      </div>
                      <Separator />
                     <div className="flex justify-between font-bold text-lg">
-                        <span>Gesamt</span>
+                        <span>{t.cart.total}</span>
                         <span>€{total.toFixed(2)}</span>
                     </div>
                     <Button onClick={handleOrder} disabled={isPending} size="lg">
                         {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Jetzt vorbestellen
+                        {t.cart.orderButton}
                     </Button>
                 </CardFooter>
             )}

@@ -7,21 +7,21 @@ import { updateUserProfile } from "@/app/actions/auth.actions";
 import type { User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { SubmitButton } from "@/components/custom/SubmitButton";
-import { Switch } from "@/components/ui/switch";
 import { useTransition } from "react";
-
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export function ProfileUpdateForm({ user }: { user: User }) {
     const { toast } = useToast();
+    const { t } = useLanguage();
     const [isPending, startTransition] = useTransition();
    
     const handleUpdate = async (formData: FormData) => {
         startTransition(async () => {
             const result = await updateUserProfile(formData);
             if (result.success) {
-                toast({ title: 'Gespeichert', description: result.message });
+                toast({ title: t.profile.toast.profileSaved, description: result.message });
             } else {
-                toast({ variant: 'destructive', title: 'Fehler', description: result.message });
+                toast({ variant: 'destructive', title: t.profile.toast.error, description: result.message });
             }
         });
     }
@@ -30,44 +30,44 @@ export function ProfileUpdateForm({ user }: { user: User }) {
         <form action={handleUpdate}>
              <Card>
                 <CardHeader>
-                    <CardTitle>Persönliche Informationen</CardTitle>
-                    <CardDescription>Die E-Mail-Adresse kann nicht geändert werden.</CardDescription>
+                    <CardTitle>{t.profile.personalInfo}</CardTitle>
+                    <CardDescription>{t.profile.personalInfoDesc}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-1.5">
-                        <Label htmlFor="name">Vollständiger Name</Label>
+                        <Label htmlFor="name">{t.profile.fullName}</Label>
                         <Input id="name" name="name" defaultValue={user.name} />
                     </div>
                     <div className="space-y-1.5">
-                        <Label htmlFor="email">E-Mail</Label>
+                        <Label htmlFor="email">{t.profile.email}</Label>
                         <Input id="email" name="email" value={user.email} readOnly disabled />
                     </div>
                         <div className="space-y-1.5">
-                        <Label htmlFor="phone">Telefonnummer</Label>
+                        <Label htmlFor="phone">{t.profile.phone}</Label>
                         <Input id="phone" name="phone" defaultValue={user.phone} />
                     </div>
-                    <h3 className="text-base font-semibold pt-4 border-t">Lieferadresse</h3>
+                    <h3 className="text-base font-semibold pt-4 border-t">{t.profile.deliveryAddress}</h3>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="col-span-2 space-y-1.5">
-                            <Label htmlFor="street">Straße & Nr.</Label>
+                            <Label htmlFor="street">{t.profile.street}</Label>
                             <Input id="street" name="street" defaultValue={user.deliveryAddress?.street} />
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor="zip">PLZ</Label>
+                            <Label htmlFor="zip">{t.profile.zip}</Label>
                             <Input id="zip" name="zip" defaultValue={user.deliveryAddress?.zip} />
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor="city">Ort</Label>
+                            <Label htmlFor="city">{t.profile.city}</Label>
                             <Input id="city" name="city" defaultValue={user.deliveryAddress?.city} />
                         </div>
                         <div className="col-span-2 space-y-1.5">
-                            <Label htmlFor="province">Provinz</Label>
+                            <Label htmlFor="province">{t.profile.province}</Label>
                             <Input id="province" name="province" defaultValue={user.deliveryAddress?.province} />
                         </div>
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <SubmitButton isSubmitting={isPending}>Änderungen speichern</SubmitButton>
+                    <SubmitButton isSubmitting={isPending}>{t.profile.saveChanges}</SubmitButton>
                 </CardFooter>
             </Card>
         </form>
