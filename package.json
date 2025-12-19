@@ -1,3 +1,4 @@
+
 {
   "name": "my-senoner-sarteur",
   "version": "0.1.0",
@@ -52,6 +53,7 @@
     "sharp": "^0.33.4",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^9.0.1",
     "zod": "latest",
     "zustand": "^4.5.4"
   },
@@ -60,6 +62,7 @@
     "@types/nodemailer": "^6.4.15",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@types/uuid": "^9.0.8",
     "autoprefixer": "^10.4.20",
     "eslint": "latest",
     "eslint-config-next": "15.1.0",

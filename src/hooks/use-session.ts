@@ -16,6 +16,7 @@ export function useSession() {
   useEffect(() => {
     // We only run this effect if auth and app are initialized from the provider.
     if (!auth || !app) {
+      // Keep loading if Firebase services are not yet available.
       setLoading(true);
       return;
     }
@@ -40,13 +41,16 @@ export function useSession() {
            setLoading(false);
         });
 
+        // Return the unsubscribe function for the document listener.
         return () => unsubDoc();
       } else {
+        // No authenticated user.
         setSession(null);
         setLoading(false);
       }
     });
 
+    // Return the unsubscribe function for the auth state listener.
     return () => unsubscribe();
   }, [auth, app]); 
 

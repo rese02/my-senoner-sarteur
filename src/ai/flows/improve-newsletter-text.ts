@@ -1,10 +1,11 @@
+
 'use server';
 import 'server-only';
 
 /**
  * @fileOverview This file defines a Genkit flow to improve newsletter text using AI, supporting both German and Italian.
  *
- * - improveTextWithAI - An async function that takes newsletter text as input and returns improved text in the same language.
+ * - improveTextWithAI - An async function that takes newsletter text and subject as input and returns improved versions.
  * - ImproveTextWithAIInput - The input type for the improveTextWithAI function.
  * - ImproveTextWithAIOutput - The output type for the improveTextWithAI function.
  */
@@ -13,15 +14,18 @@ import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 
 const ImproveTextWithAIInputSchema = z.object({
-  text: z
+  subject: z
     .string()
-    .min(3, "Text must be at least 3 characters long.")
-    .describe('The newsletter text to improve (in German or Italian).'),
+    .describe('The subject line of the newsletter (in German or Italian).'),
+  message: z
+    .string()
+    .describe('The body text of the newsletter to improve (in German or Italian).'),
 });
 export type ImproveTextWithAIInput = z.infer<typeof ImproveTextWithAIInputSchema>;
 
 const ImproveTextWithAIOutputSchema = z.object({
-  improvedText: z.string().describe('The improved newsletter text in the same language as the input.'),
+  improvedSubject: z.string().describe('The improved subject line in the same language as the input.'),
+  improvedMessage: z.string().describe('The improved body text in the same language as the input.'),
 });
 export type ImproveTextWithAIOutput = z.infer<typeof ImproveTextWithAIOutputSchema>;
 
@@ -29,7 +33,7 @@ export async function improveTextWithAI(input: ImproveTextWithAIInput): Promise<
   const validation = ImproveTextWithAIInputSchema.safeParse(input);
    if (!validation.success) {
     // Return original text if validation fails instead of throwing an error.
-    return { improvedText: input.text };
+    return { improvedSubject: input.subject, improvedMessage: input.message };
   }
   return improveTextWithAIFlow(validation.data);
 }
@@ -41,15 +45,17 @@ const improveTextWithAIPrompt = ai.definePrompt({
   prompt: `Du bist ein professioneller Copywriter für 'Senoner Sarteur', einen Premium-Feinkostladen in Südtirol.
         
     Deine Aufgabe:
-    1. Analysiere den Input. Erkenne automatisch, ob er auf DEUTSCH oder ITALIENISCH ist.
-    2. Optimiere den Text: Mach ihn appetitlicher, eleganter, verkaufsfördernder und korrigiere Rechtschreibfehler.
-    3. WICHTIG: Die Ausgabe muss EXAKT in derselben Sprache sein wie der Input. 
+    1. Analysiere den folgenden Betreff und die Nachricht. Erkenne automatisch, ob sie auf DEUTSCH oder ITALIENISCH sind.
+    2. Optimiere BEIDES: Mach Betreff und Nachricht appetitlicher, eleganter, verkaufsfördernder und korrigiere alle Fehler.
+    3. Der optimierte Betreff und die Nachricht müssen zueinander passen und ein stimmiges Gesamtbild ergeben.
+    4. WICHTIG: Die Ausgabe muss EXAKT in derselben Sprache sein wie der Input. 
        - Wenn Input Deutsch -> Ausgabe Deutsch.
        - Wenn Input Italienisch -> Ausgabe Italienisch.
        - NIEMALS ins Englische übersetzen.
-    4. Halte den Text prägnant und schreibe ihn nicht komplett um, sondern verbessere den bestehenden.
+    5. Halte die Texte prägnant und schreibe sie nicht komplett um, sondern verbessere die bestehenden.
 
-    Original text: {{{text}}}`,
+    Original Betreff: {{{subject}}}
+    Original Nachricht: {{{message}}}`,
 });
 
 const improveTextWithAIFlow = ai.defineFlow(
@@ -63,7 +69,22 @@ const improveTextWithAIFlow = ai.defineFlow(
     }
   },
   async input => {
-    const {output} = await improveTextWithAIPrompt(input);
-    return output!;
+    try {
+        const {output} = await improveTextWithAIPrompt(input);
+        if (!output) {
+          return {
+            improvedSubject: input.subject,
+            improvedMessage: input.message
+          }
+        }
+        return output;
+    } catch(e) {
+        console.error("AI flow failed, returning original text.", e);
+        // Fallback to original input on any error
+        return {
+            improvedSubject: input.subject,
+            improvedMessage: input.message
+        };
+    }
   }
 );

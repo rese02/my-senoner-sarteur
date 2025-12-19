@@ -30,7 +30,12 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file || !storage) {
+        if (!storage) {
+            toast({ variant: 'destructive', title: 'Fehler', description: 'Speicherdienst nicht verfügbar.'});
+        }
+        return;
+    }
 
     // Reset state for new upload
     setIsUploading(true);
@@ -45,7 +50,9 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
     };
 
     try {
+      toast({ title: 'Komprimiere Bild...', description: 'Dies kann einen Moment dauern.'});
       const compressedFile = await imageCompression(file, options);
+      
       const storageRef = ref(storage, `images/${folder}/${Date.now()}_${compressedFile.name}`);
       const uploadTask = uploadBytesResumable(storageRef, compressedFile);
 
@@ -81,6 +88,7 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
       console.error("Image Compression Error:", compressionError);
       setError('Ein Fehler ist bei der Bildkomprimierung aufgetreten.');
       setIsUploading(false);
+      toast({ variant: 'destructive', title: 'Komprimierung fehlgeschlagen', description: 'Das Bild konnte nicht verarbeitet werden.'});
     }
   };
 
@@ -103,7 +111,7 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
 
       {isUploading && (
         <div className="flex flex-col items-center gap-2 text-sm p-4 bg-secondary rounded-lg">
-          <p className="font-medium">Komprimiere & lade hoch...</p>
+          <p className="font-medium">Lade hoch...</p>
           <Progress value={progress} className="w-full" />
         </div>
       )}

@@ -27,10 +27,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // If already has a session and tries to access login/register, redirect to dashboard
-  if (hasSession && (url.pathname.startsWith('/login') || url.pathname.startsWith('/register'))) {
-    // This redirect is safe because a logged-in user will be handled by the layout's role check.
-    // If the session is somehow invalid, the layout will redirect back to login anyway.
+  // If already has a session and tries to access login/register, redirect to the default dashboard.
+  // This prevents logged-in users from seeing the login page again.
+  if (hasSession && isPublicPage) {
     url.pathname = '/dashboard';
     return NextResponse.redirect(url);
   }

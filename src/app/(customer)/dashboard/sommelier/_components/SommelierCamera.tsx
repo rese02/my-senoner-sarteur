@@ -38,7 +38,15 @@ export function SommelierCamera() {
     }
   }, [webcamRef]); // Add webcamRef to dependencies
 
-  const handleAnalysis = async (imgSrc: string) => {
+  const reset = useCallback(() => {
+    // This function clears all client-side state, effectively
+    // "deleting" the image from the user's device memory.
+    setImage(null);
+    setSuggestions([]);
+    setFood('');
+  }, []);
+
+  const handleAnalysis = useCallback(async (imgSrc: string) => {
     setLoading(true);
     setSuggestions([]);
     setFood('');
@@ -70,15 +78,8 @@ export function SommelierCamera() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast, reset]);
 
-  const reset = () => {
-    // This function clears all client-side state, effectively
-    // "deleting" the image from the user's device memory.
-    setImage(null);
-    setSuggestions([]);
-    setFood('');
-  }
 
   return (
     <div className="fixed inset-0 z-40 bg-black flex flex-col">
