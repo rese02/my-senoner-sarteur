@@ -109,7 +109,10 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   await requireRole(['admin', 'employee']);
 
   const validatedOrderId = z.string().min(1).parse(orderId);
-  const validatedStatus = z.nativeEnum(OrderStatus).parse(status);
+  
+  // Use z.enum with all possible OrderStatus values
+  const allStatuses: [OrderStatus, ...OrderStatus[]] = ['new', 'picking', 'ready', 'collected', 'ready_for_delivery', 'delivered', 'paid', 'cancelled'];
+  const validatedStatus = z.enum(allStatuses).parse(status);
 
   await adminDb.collection('orders').doc(validatedOrderId).update({ status: validatedStatus });
 
@@ -196,7 +199,7 @@ export async function deleteMyOrders(orderIds: string[]): Promise<{ success: boo
         return { success: false, count: 0, error: 'Keine gültigen Bestellungen zum Löschen ausgewählt.' };
     }
 
-    const deletableStatuses = ['collected', 'delivered', 'paid', 'cancelled'];
+    const deletableStatuses: OrderStatus[] = ['collected', 'delivered', 'paid', 'cancelled'];
     const batch = adminDb.batch();
     let deletedCount = 0;
 

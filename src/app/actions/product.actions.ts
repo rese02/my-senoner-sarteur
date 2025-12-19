@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import 'server-only';
@@ -50,10 +49,10 @@ export async function getDashboardData() {
     // Check for user's open orders
     const session = await getSession();
     let openOrder: Order | null = null;
-    if (session?.userId) {
+    if (session?.id) {
         const openStatuses = ['new', 'picking', 'ready', 'ready_for_delivery'];
         const userOrdersSnap = await adminDb.collection('orders')
-            .where('userId', '==', session.userId)
+            .where('userId', '==', session.id)
             .where('status', 'in', openStatuses)
             .orderBy('createdAt', 'desc')
             .limit(1)

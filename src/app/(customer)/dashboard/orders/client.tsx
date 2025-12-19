@@ -252,4 +252,3 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
         </div>
     );
 }
-

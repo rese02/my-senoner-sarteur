@@ -106,10 +106,8 @@ export function WheelOfFortuneCard({ settings }: { settings: WheelOfFortuneSetti
                     });
                 }
                 
-                // Manually re-fetch server data to update prize display after a delay to allow animation to play out a bit
-                setTimeout(() => {
-                    router.refresh(); 
-                }, 1000);
+                // Manually re-fetch server data to update prize display
+                router.refresh(); 
 
             } catch (error: any) {
                 toast({ variant: 'destructive', title: 'Fehler', description: error.message });
