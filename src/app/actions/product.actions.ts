@@ -22,12 +22,12 @@ const PackageItemSchema = z.object({
 });
 
 const ProductSchema = z.object({
-  name: z.union([z.string(), MultilingualTextSchema]),
+  name: MultilingualTextSchema,
   price: z.preprocess((val) => Number(val), z.number().positive({ message: "Price must be a positive number."})),
   unit: z.string().min(1, { message: "Unit is required."}),
   imageUrl: z.string().url({ message: "A valid image URL is required."}).or(z.literal('')),
   imageHint: z.string().optional(),
-  description: z.union([z.string(), MultilingualTextSchema]).optional(),
+  description: MultilingualTextSchema.optional(),
   type: z.enum(['product', 'package']),
   packageContent: z.array(PackageItemSchema).optional(),
 });
@@ -48,10 +48,13 @@ export async function getDashboardData() {
       .collection('products')
       .where('isAvailable', '==', true)
       .get();
+      
+    // FIX: Removed server-side ordering to prevent query from failing silently.
+    // Ordering will be done in code.
     const categoriesSnapshot = await adminDb
       .collection('categories')
-      .orderBy('name.de') // Sort by German name
       .get();
+
     const storiesSnapshot = await adminDb.collection('stories').limit(10).get();
     const recipeDoc = await adminDb.collection('content').doc('recipe_of_the_week').get();
 
@@ -60,15 +63,12 @@ export async function getDashboardData() {
     let openOrder: Order | null = null;
     if (session?.id) {
         const openStatuses = ['new', 'picking', 'ready', 'ready_for_delivery'];
-        // **FIX**: The query was changed to avoid needing a composite index.
-        // 1. Fetch all open orders for the user (without sorting).
         const userOrdersSnap = await adminDb.collection('orders')
             .where('userId', '==', session.id)
             .where('status', 'in', openStatuses)
             .get();
             
         if (!userOrdersSnap.empty) {
-            // 2. Sort the results in the code to find the most recent one.
             const userOrders = userOrdersSnap.docs.map(doc => toPlainObject({id: doc.id, ...doc.data()}) as Order);
             userOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             openOrder = userOrders[0];
@@ -82,6 +82,10 @@ export async function getDashboardData() {
     const categories = categoriesSnapshot.docs.map((doc) =>
       toPlainObject({ id: doc.id, ...doc.data() } as Category)
     );
+
+    // Sort categories in the code instead of in the query
+    categories.sort((a, b) => a.name.de.localeCompare(b.name.de));
+    
     const stories = storiesSnapshot.docs.map((doc) =>
       toPlainObject({ id: doc.id, ...doc.data() } as Story)
     ).filter(story => new Date(story.expiresAt || 0) > new Date());
@@ -91,7 +95,6 @@ export async function getDashboardData() {
     return { products, categories, stories, recipe, openOrder };
   } catch (error) {
     console.error("Failed to fetch dashboard data:", error);
-    // Return empty arrays on failure to prevent crashes
     return {
       products: [],
       categories: [],
@@ -122,8 +125,8 @@ export async function getProductsPageData() {
     );
 
      // Sort in code
-    products.sort((a, b) => (typeof a.name === 'string' ? a.name : a.name.de).localeCompare(typeof b.name === 'string' ? b.name : b.name.de));
-    categories.sort((a, b) => (typeof a.name === 'string' ? a.name : a.name.de).localeCompare(typeof b.name === 'string' ? b.name : b.name.de));
+    products.sort((a, b) => a.name.de.localeCompare(b.name.de));
+    categories.sort((a, b) => a.name.de.localeCompare(b.name.de));
 
 
     return { products, categories };
