@@ -38,9 +38,10 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
     setProgress(0);
 
     const options = {
-      maxSizeMB: 1,
-      maxWidthOrHeight: 1920,
+      maxSizeMB: 0.5, // Compress to max 500KB
+      maxWidthOrHeight: 1280, // Resize to max 1280px
       useWebWorker: true,
+      initialQuality: 0.7, // Start with a quality of 70%
     };
 
     try {
@@ -55,22 +56,30 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
           setProgress(progress);
         },
         (error) => {
+          console.error("Firebase Upload Error:", error);
           setError('Upload fehlgeschlagen. Bitte versuchen Sie es erneut.');
           setIsUploading(false);
         },
         async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          onUploadComplete(downloadURL);
-          setFinalImageUrl(downloadURL);
-          setIsUploading(false);
-           toast({
-                title: "Upload erfolgreich!",
-                description: "Das Bild wurde hochgeladen und gespeichert.",
-            });
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            onUploadComplete(downloadURL);
+            setFinalImageUrl(downloadURL);
+            setIsUploading(false);
+            toast({
+                  title: "Upload erfolgreich!",
+                  description: "Das komprimierte Bild wurde gespeichert.",
+              });
+          } catch(downloadError) {
+              console.error("Firebase Get URL Error:", downloadError);
+              setError('Fehler beim Abrufen der Bild-URL.');
+              setIsUploading(false);
+          }
         }
       );
-    } catch (uploadError) {
-      setError('Ein Fehler ist aufgetreten.');
+    } catch (compressionError) {
+      console.error("Image Compression Error:", compressionError);
+      setError('Ein Fehler ist bei der Bildkomprimierung aufgetreten.');
       setIsUploading(false);
     }
   };
@@ -80,7 +89,7 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
       <Input
         id={`image-upload-${folder}`}
         type="file"
-        accept="image/png, image/jpeg"
+        accept="image/png, image/jpeg, image/webp"
         className="hidden"
         onChange={handleImageUpload}
         disabled={isUploading}
@@ -94,7 +103,7 @@ export function ImageUploader({ onUploadComplete, currentImageUrl, folder }: Ima
 
       {isUploading && (
         <div className="flex flex-col items-center gap-2 text-sm p-4 bg-secondary rounded-lg">
-          <p className="font-medium">Lade hoch...</p>
+          <p className="font-medium">Komprimiere & lade hoch...</p>
           <Progress value={progress} className="w-full" />
         </div>
       )}

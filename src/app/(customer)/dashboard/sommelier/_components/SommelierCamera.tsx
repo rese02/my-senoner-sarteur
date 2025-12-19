@@ -36,16 +36,18 @@ export function SommelierCamera() {
       setImage(imageSrc);
       handleAnalysis(imageSrc);
     }
-  }, []);
+  }, [webcamRef]); // Add webcamRef to dependencies
 
   const handleAnalysis = async (imgSrc: string) => {
     setLoading(true);
     setSuggestions([]);
     setFood('');
     try {
+      // The server action handles the AI call. The image data (imgSrc)
+      // is sent to the server, used for the AI analysis, and then discarded.
+      // It is never saved to any database or file storage.
       const results = await suggestWinePairing({ foodPhoto: imgSrc });
       
-      // SICHERHEITS-CHECK: Verhindert den Absturz, wenn "results" oder "recommendedWines" undefined ist.
       if (results && results.recommendedWines && results.recommendedWines.length > 0) {
         setSuggestions(results.recommendedWines);
         setFood(results.foodDetected);
@@ -55,7 +57,6 @@ export function SommelierCamera() {
             title: "Keine Empfehlungen",
             description: "Die KI konnte keine passenden Weine in unserem Katalog finden."
         });
-        // Reset nach kurzer Verzögerung, damit der Benutzer die Nachricht lesen kann
         setTimeout(() => reset(), 2000);
       }
     } catch (error: any) {
@@ -72,6 +73,8 @@ export function SommelierCamera() {
   };
 
   const reset = () => {
+    // This function clears all client-side state, effectively
+    // "deleting" the image from the user's device memory.
     setImage(null);
     setSuggestions([]);
     setFood('');

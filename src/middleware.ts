@@ -29,9 +29,10 @@ export function middleware(request: NextRequest) {
 
   // If already has a session and tries to access login/register, redirect to dashboard
   if (hasSession && (url.pathname.startsWith('/login') || url.pathname.startsWith('/register'))) {
-    // Don't redirect immediately. The layout's role check will handle it.
-    // This prevents redirect loops if the session is invalid.
-    return NextResponse.next();
+    // This redirect is safe because a logged-in user will be handled by the layout's role check.
+    // If the session is somehow invalid, the layout will redirect back to login anyway.
+    url.pathname = '/dashboard';
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
