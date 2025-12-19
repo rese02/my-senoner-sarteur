@@ -23,7 +23,7 @@ function OpenOrderStatus({ order }: { order: Order }) {
     return (
          <Card className="p-4 border-l-4 border-primary animate-in fade-in-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm bg-card">
             <div className="flex items-center gap-3">
-                <StatusIcon className="h-6 w-6 text-primary flex-shrink-0" />
+                {StatusIcon && <StatusIcon className="h-6 w-6 text-primary flex-shrink-0" />}
                 <div className="flex-grow">
                     <h3 className="font-semibold text-foreground">Status Ihrer Bestellung #{order.id.slice(-6)}</h3>
                     <p className="text-sm text-muted-foreground">

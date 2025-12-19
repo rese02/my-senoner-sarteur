@@ -75,7 +75,7 @@ function OrderHistoryCard({
                             </CardDescription>
                         </div>
                         <Badge className={cn("capitalize font-semibold text-xs whitespace-nowrap", STATUS_MAP[order.status]?.className)}>
-                            <StatusIcon className="w-3 h-3 mr-1.5"/>
+                            {StatusIcon && <StatusIcon className="w-3 h-3 mr-1.5"/>}
                             {STATUS_MAP[order.status]?.label}
                         </Badge>
                     </div>

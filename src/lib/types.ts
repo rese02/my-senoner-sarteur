@@ -87,7 +87,7 @@ export interface Order {
 
 
 export interface Session {
-  userId: string;
+  id: string;
   role: UserRole;
   [key: string]: any;
 }
