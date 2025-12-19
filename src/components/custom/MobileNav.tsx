@@ -32,13 +32,13 @@ export function MobileNav({ showSommelier }: { showSommelier: boolean }) {
                 <Link
                   href={item.href}
                   className={cn(
-                    "relative -mt-8 flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-full shadow-lg transition-all duration-300 p-2",
+                    "relative -mt-8 flex h-16 w-16 flex-col items-center justify-center rounded-full shadow-lg transition-all duration-300 p-1 text-center",
                     isActive ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground border hover:bg-secondary"
                   )}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  <item.icon className="h-6 w-6" />
-                  <span className="text-[10px] font-bold">{item.label}</span>
+                  <item.icon className="h-5 w-5 mb-0.5" />
+                  <span className="text-[10px] font-bold leading-tight">{item.label}</span>
                 </Link>
               </div>
             )
