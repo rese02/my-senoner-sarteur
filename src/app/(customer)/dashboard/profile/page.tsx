@@ -91,16 +91,16 @@ export default async function ProfilePage() {
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="border-destructive/50 bg-destructive/5">
                         <CardHeader>
-                            <CardTitle>Gefahrenzone</CardTitle>
-                            <CardDescription>Diese Aktionen können nicht rückgängig gemacht werden.</CardDescription>
+                            <CardTitle className="text-destructive">Gefahrenzone</CardTitle>
+                            <CardDescription className="text-destructive/80">Diese Aktionen können nicht rückgängig gemacht werden.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <form action={deleteUserAccount}>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button variant="outline" className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive">Konto endgültig löschen</Button>
+                                        <Button variant="outline" className="w-full text-destructive border-destructive/50 hover:bg-destructive/10 hover:text-destructive">Konto endgültig löschen</Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                         <AlertDialogHeader>

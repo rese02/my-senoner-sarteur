@@ -34,8 +34,7 @@ export default function RootLayout({
       <body
         className={cn(
           'font-body antialiased',
-          ptSans.variable,
-          ptSans.variable, // Using same font for headline for modern look
+          ptSans.variable
         )}
       >
         <FirebaseClientProvider>

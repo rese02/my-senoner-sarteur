@@ -3,7 +3,6 @@
 
 import {
   Card,
-  CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -14,72 +13,70 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 export function RecipeCard({ recipe }: { recipe: Recipe }) {
 
     return (
-        <Card className="overflow-hidden w-full bg-card shadow-sm h-full flex flex-col">
-            <div className="grid md:grid-cols-1">
-                <div className="relative aspect-[16/9] md:aspect-video min-h-[200px]">
-                    <Image src={recipe.image} alt={recipe.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" data-ai-hint={recipe.imageHint} priority />
-                </div>
-                <div className="p-6 flex flex-col justify-between flex-grow">
-                  <div>
-                    <h2 className="text-sm uppercase text-primary font-bold tracking-wider flex items-center gap-2"><ChefHat className="w-4 h-4"/>Rezept der Woche</h2>
-                    <p className="mt-2 text-2xl font-bold font-headline">{recipe.title}</p>
-                    <p className="mt-4 text-muted-foreground line-clamp-3 flex-grow">{recipe.description}</p>
-                  </div>
-                    
-                     <Dialog>
-                        <DialogTrigger asChild>
-                             <Button variant="outline" className="mt-6 w-fit">Rezept ansehen</Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-4xl w-[95vw] p-0 overflow-hidden rounded-2xl">
-                           <DialogHeader className="sr-only">
-                              <DialogTitle>{recipe.title}</DialogTitle>
-                              <DialogDescription>{recipe.subtitle}</DialogDescription>
-                            </DialogHeader>
-                          <div className="grid md:grid-cols-2 max-h-[90vh]">
-                            {/* LINKS: Bild (Vollflächig) */}
-                            <div className="relative h-64 md:h-full w-full">
-                              <Image src={recipe.image} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" alt={recipe.title} data-ai-hint={recipe.imageHint} />
+        <Card className="overflow-hidden w-full bg-card shadow-sm h-full flex flex-col md:flex-row">
+            <div className="relative aspect-[16/9] md:aspect-auto md:w-1/2 min-h-[200px]">
+                <Image src={recipe.image} alt={recipe.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" data-ai-hint={recipe.imageHint} priority />
+            </div>
+            <div className="p-6 flex flex-col justify-between flex-grow md:w-1/2">
+              <div>
+                <h2 className="text-sm uppercase text-primary font-bold tracking-wider flex items-center gap-2"><ChefHat className="w-4 h-4"/>Rezept der Woche</h2>
+                <p className="mt-2 text-2xl font-bold">{recipe.title}</p>
+                <p className="mt-4 text-muted-foreground line-clamp-3 flex-grow">{recipe.description}</p>
+              </div>
+                
+                 <Dialog>
+                    <DialogTrigger asChild>
+                         <Button variant="outline" className="mt-6 w-fit">Rezept ansehen</Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-4xl w-[95vw] p-0 overflow-hidden rounded-2xl">
+                       <DialogHeader className="sr-only">
+                          <DialogTitle>{recipe.title}</DialogTitle>
+                          <DialogDescription>{recipe.subtitle}</DialogDescription>
+                        </DialogHeader>
+                      <div className="grid md:grid-cols-2 max-h-[90vh]">
+                        {/* LINKS: Bild (Vollflächig) */}
+                        <div className="relative h-64 md:h-full w-full">
+                          <Image src={recipe.image} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" alt={recipe.title} data-ai-hint={recipe.imageHint} />
+                        </div>
+
+                        {/* RECHTS: Scrollbarer Inhalt */}
+                        <div className="p-6 md:p-8 overflow-y-auto bg-card">
+                          <div className="mb-6 text-left">
+                            <h2 className="text-3xl text-primary font-bold">{recipe.title}</h2>
+                            <p className="text-muted-foreground">{recipe.subtitle}</p>
+                          </div>
+                          
+                          <div className="flex items-center gap-4 text-muted-foreground text-sm mb-6">
+                            <span className="flex items-center"><Clock className="w-4 h-4 mr-1.5"/> 20 Min</span>
+                            <span className="flex items-center"><ChefHat className="w-4 h-4 mr-1.5"/> Leicht</span>
+                          </div>
+
+                          <div className="space-y-6">
+                            {/* Zutaten Box */}
+                            <div className="bg-secondary/50 p-4 rounded-xl border">
+                              <h3 className="font-bold uppercase text-xs tracking-wider text-muted-foreground mb-3">Zutaten</h3>
+                              <ul className="space-y-2">
+                                {recipe.ingredients.map((ing, i) => (
+                                  <li key={i} className="flex items-center text-card-foreground font-medium">
+                                    <span className="w-1.5 h-1.5 bg-primary rounded-full mr-3"></span> {ing}
+                                  </li>
+                                ))}
+                              </ul>
                             </div>
 
-                            {/* RECHTS: Scrollbarer Inhalt */}
-                            <div className="p-6 md:p-8 overflow-y-auto bg-card">
-                              <div className="mb-6 text-left">
-                                <h2 className="font-headline text-3xl text-primary">{recipe.title}</h2>
-                                <p className="text-muted-foreground">{recipe.subtitle}</p>
-                              </div>
-                              
-                              <div className="flex items-center gap-4 text-muted-foreground text-sm mb-6">
-                                <span className="flex items-center"><Clock className="w-4 h-4 mr-1.5"/> 20 Min</span>
-                                <span className="flex items-center"><ChefHat className="w-4 h-4 mr-1.5"/> Leicht</span>
-                              </div>
-
-                              <div className="space-y-6">
-                                {/* Zutaten Box */}
-                                <div className="bg-secondary/50 p-4 rounded-xl border">
-                                  <h3 className="font-bold uppercase text-xs tracking-wider text-muted-foreground mb-3">Zutaten</h3>
-                                  <ul className="space-y-2">
-                                    {recipe.ingredients.map((ing, i) => (
-                                      <li key={i} className="flex items-center text-card-foreground font-medium">
-                                        <span className="w-1.5 h-1.5 bg-primary rounded-full mr-3"></span> {ing}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-
-                                {/* Anleitung */}
-                                <div>
-                                  <h3 className="font-bold uppercase text-xs tracking-wider text-muted-foreground mb-3">Zubereitung</h3>
-                                  <div className="prose prose-sm max-w-none text-muted-foreground leading-relaxed whitespace-pre-line">
-                                    {recipe.instructions}
-                                  </div>
-                                </div>
+                            {/* Anleitung */}
+                            <div>
+                              <h3 className="font-bold uppercase text-xs tracking-wider text-muted-foreground mb-3">Zubereitung</h3>
+                              <div className="prose prose-sm max-w-none text-muted-foreground leading-relaxed whitespace-pre-line">
+                                {recipe.instructions}
                               </div>
                             </div>
                           </div>
-                        </DialogContent>
-                    </Dialog>
+                        </div>
+                      </div>
+                    </DialogContent>
+                </Dialog>
 
-                </div>
             </div>
         </Card>
     );

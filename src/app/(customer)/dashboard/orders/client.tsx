@@ -58,7 +58,7 @@ function OrderHistoryCard({
                 onClick={handleCardClick} 
                 className={cn(
                     "overflow-hidden shadow-sm bg-card flex-1 transition-all border-l-4",
-                    STATUS_MAP[order.status]?.className.replace('bg-', 'border-').replace('-100', '-300'),
+                    STATUS_MAP[order.status]?.className.replace('bg-', 'border-').replace('-100', '-300').replace('-800', '-500'),
                     isSelectionMode && isDeletable && "cursor-pointer hover:bg-secondary",
                     isSelected && "ring-2 ring-primary border-primary"
                 )}

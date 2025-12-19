@@ -41,14 +41,14 @@ export function PackageCard({ product }: { product: Product }) {
 
   return (
     <>
-      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg w-full bg-card flex flex-col">
+      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg w-full bg-card flex flex-col sm:flex-row">
           {/* Image */}
-          <div className="relative h-48 w-full flex-shrink-0">
+          <div className="relative h-48 sm:h-auto sm:w-1/3 flex-shrink-0">
               <Image 
                   src={product.imageUrl || fallbackImageUrl} 
                   alt={product.name} 
                   fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                  sizes="(max-width: 640px) 100vw, 33vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   data-ai-hint={product.imageHint}
               />
@@ -57,7 +57,7 @@ export function PackageCard({ product }: { product: Product }) {
           {/* Content */}
           <div className="p-4 flex flex-col justify-between flex-grow gap-4">
               <div className="flex-grow">
-                <h3 className="font-headline text-lg text-foreground font-bold leading-tight line-clamp-2">
+                <h3 className="font-bold text-lg text-foreground leading-tight line-clamp-2">
                   {product.name}
                 </h3>
                 <p className="text-muted-foreground text-sm mt-1 line-clamp-2">
@@ -67,17 +67,18 @@ export function PackageCard({ product }: { product: Product }) {
 
               <div className="mt-auto flex flex-col gap-2">
                    <p className="text-2xl font-bold text-primary">€{product.price.toFixed(2)}</p>
-                  <div className="flex flex-col sm:flex-row items-center gap-2 w-full">
+                   {/* FLEXIBLE BUTTON CONTAINER */}
+                  <div className="flex flex-wrap items-center gap-2 w-full">
                        <Button 
                           variant="outline" 
                           size="sm"
                           onClick={() => setIsOpen(true)}
-                          className="w-full"
+                          className="flex-grow"
                         >
                           <ListPlus className="w-4 h-4 mr-2" />
-                          Inhalt ansehen
+                          Inhalt
                         </Button>
-                       <Button size="sm" onClick={handleAddToCart} className="w-full">
+                       <Button size="sm" onClick={handleAddToCart} className="flex-grow">
                           <ShoppingBag className="w-4 h-4 mr-2" />
                           Hinzufügen
                         </Button>

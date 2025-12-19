@@ -40,7 +40,7 @@ export default async function LoyaltyPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1 space-y-6">
-                    <Card className="shadow-none border-none">
+                    <Card>
                         <CardHeader>
                             <CardTitle>Ihr QR-Code</CardTitle>
                         </CardHeader>
@@ -50,7 +50,7 @@ export default async function LoyaltyPage() {
                     </Card>
 
                     {activePrize && (
-                        <Card className="shadow-lg bg-primary text-primary-foreground border-none animate-in fade-in-50">
+                        <Card className="bg-primary text-primary-foreground border-none animate-in fade-in-50">
                              <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-primary-foreground">
                                     <Star className="w-5 h-5"/> Aktiver Gewinn (Glücksrad)
@@ -65,7 +65,7 @@ export default async function LoyaltyPage() {
                 </div>
 
                 <div className="lg:col-span-2 space-y-6">
-                     <Card className="shadow-none border-none">
+                     <Card>
                         <CardHeader>
                             <CardTitle>Stempelkarte</CardTitle>
                             <CardDescription>
@@ -80,7 +80,7 @@ export default async function LoyaltyPage() {
                             </div>
                         </CardContent>
                     </Card>
-                    <Card className="shadow-lg">
+                    <Card>
                         <CardHeader>
                             <CardTitle>Stempel-Belohnungen</CardTitle>
                             <CardDescription>Sammeln Sie Stempel für tolle Rabatte!</CardDescription>

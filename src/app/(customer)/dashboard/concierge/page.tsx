@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition } from 'react';
@@ -60,7 +61,7 @@ export default function ConciergePage() {
         <div className="space-y-6">
             <PageHeader title="Concierge Service" description="Ihr persönlicher Einkaufszettel & Lieferservice." />
             
-            <Card>
+            <Card className="max-w-2xl mx-auto">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Feather className="w-5 h-5 text-primary"/>

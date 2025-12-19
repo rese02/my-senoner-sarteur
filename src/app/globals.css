@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
     
-    --primary: 221 83% 43%; /* Rich, trustworthy blue from the image */
+    --primary: 212 82% 28%; /* New, slightly darker premium blue */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 220 14% 91%; /* Light Gray for secondary elements */
@@ -78,7 +78,7 @@
     -moz-osx-font-smoothing: grayscale;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-headline text-foreground;
+    @apply font-body text-foreground;
   }
 }
 

@@ -47,7 +47,7 @@ function EventSelectionGrid({ events, onSelect, selectedEvent }: { events: Plann
                         />
                     </div>
                     <div className="absolute z-20 bottom-4 left-4 text-white">
-                        <h3 className="font-headline text-2xl font-bold drop-shadow-md leading-tight">{event.title}</h3>
+                        <h3 className="text-2xl font-bold leading-tight drop-shadow-md">{event.title}</h3>
                         <p className="text-sm opacity-80 drop-shadow">{event.description}</p>
                     </div>
                 </div>
@@ -104,17 +104,17 @@ export function PlannerClient({ initialEvents, initialProducts }: PlannerClientP
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
             {/* Linke Spalte: Event-Auswahl */}
             <div className="space-y-4">
-                <h2 className="text-xl font-bold font-headline">1. Event auswählen</h2>
+                <h2 className="text-xl font-bold">1. Event auswählen</h2>
                 <EventSelectionGrid events={events} onSelect={setSelectedEvent} selectedEvent={selectedEvent} />
             </div>
 
             {/* Rechte Spalte: Rechner */}
             {selectedEvent && (
                 <div className="space-y-4 lg:sticky lg:top-8">
-                    <h2 className="text-xl font-bold font-headline">2. Gästeanzahl festlegen</h2>
+                    <h2 className="text-xl font-bold">2. Gästeanzahl festlegen</h2>
                     <Card className="shadow-lg animate-in fade-in-50 overflow-hidden bg-card">
                         <CardHeader className="p-6">
-                            <CardTitle className="text-2xl font-headline">{selectedEvent.title}</CardTitle>
+                            <CardTitle className="text-2xl">{selectedEvent.title}</CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 space-y-6">
                             <div className="space-y-4">
@@ -122,7 +122,7 @@ export function PlannerClient({ initialEvents, initialProducts }: PlannerClientP
                                 <div className="flex items-center justify-between gap-4 bg-secondary p-4 rounded-xl border">
                                     <div className="flex items-center gap-4">
                                         <Users className="w-8 h-8 text-primary" />
-                                        <span className="text-5xl font-bold font-headline text-primary">{people}</span>
+                                        <span className="text-5xl font-bold text-primary">{people}</span>
                                     </div>
                                     <Slider
                                         defaultValue={[people]}
