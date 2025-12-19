@@ -28,27 +28,6 @@ const merriweather = Merriweather({
   variable: '--font-headline',
 });
 
-// JSON-LD Schema for Local Business SEO
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Supermarket',
-  name: 'My Senoner Sarteur',
-  description: 'Ihr Premium Supermarkt & Feinkost-Geschäft in Wolkenstein, Gröden. Bestellen Sie online Südtiroler Spezialitäten, Wein, Speck und mehr.',
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: 'Meisulesstraße 111',
-    addressLocality: 'Wolkenstein in Gröden',
-    addressRegion: 'BZ',
-    postalCode: '39048',
-    addressCountry: 'IT'
-  },
-  telephone: '+39-0471-795128',
-  url: 'https://www.senoner-sarteur.it', // Replace with the actual production URL when live
-  image: '/logo.png',
-  openingHours: 'Mo-Sa 07:30-12:30, 15:30-19:00',
-  keywords: 'Supermarkt, Supermercato, Wolkenstein, Selva Val Gardena, Feinkost, Wein, Speck, Lieferservice, spesa a domicilio, Despar'
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -57,10 +36,6 @@ export default function RootLayout({
   return (
     <html lang="de" suppressHydrationWarning>
       <head>
-         <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          />
       </head>
       <body
         className={cn(
