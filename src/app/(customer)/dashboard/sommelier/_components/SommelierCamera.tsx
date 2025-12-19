@@ -120,7 +120,7 @@ export function SommelierCamera() {
                 <FileWarning className="h-4 w-4" />
                 <AlertTitle className="font-bold">KI-Vorschlag</AlertTitle>
                 <AlertDescription>
-                   Kann Fehler enthalten. Prüfen Sie Allergene stets auf der Verpackung. Diese Funktion nutzt KI zur Analyse Ihres Bildes.
+                   Dieser Vorschlag basiert auf künstlicher Intelligenz und kann Fehler enthalten. Prüfen Sie Allergene stets auf der Verpackung.
                 </AlertDescription>
             </Alert>
              <Button onClick={reset} className="mt-4 w-full">

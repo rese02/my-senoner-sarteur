@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, ListTodo, Check } from 'lucide-react';
 import type { Order, ChecklistItem } from '@/lib/types';
@@ -16,6 +16,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/common/PageHeader';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
 
 // =================================================================
 // Main View to show open lists
@@ -128,6 +130,11 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
                     </div>
                 </CardContent>
                 <CardFooter className="flex-col items-stretch space-y-3 pt-4 border-t bg-secondary/50">
+                    <Alert variant="destructive" className="bg-destructive/10">
+                        <AlertDescription className="text-destructive font-bold">
+                            ⚠️ Betrag muss separat in die Kasse eingetippt und ein offizieller Kassenbon gedruckt werden!
+                        </AlertDescription>
+                    </Alert>
                      <Label htmlFor="final-price" className="text-sm font-semibold">Endsumme (€)</Label>
                      <div className="flex gap-2">
                         <Input 
@@ -145,7 +152,7 @@ function PickerModeView({ order, onFinish }: { order: Order, onFinish: () => voi
                 </CardFooter>
             </Card>
              <Button variant="outline" onClick={onFinish} className="w-full">
-                Abbrechen und zurück zum Menü
+                Abbrechen und zurück
             </Button>
         </div>
     )
