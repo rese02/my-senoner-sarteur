@@ -44,20 +44,21 @@ function OrderHistoryCard({
     };
 
     return (
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-3">
              {isSelectionMode && (
                 <Checkbox 
                     checked={isSelected} 
                     onCheckedChange={() => onSelect(order.id)}
                     disabled={!isDeletable}
-                    className="h-6 w-6"
+                    className="h-6 w-6 mt-5"
                     aria-label={`Bestellung ${order.id.slice(-6)} auswählen`}
                 />
             )}
             <Card 
                 onClick={handleCardClick} 
                 className={cn(
-                    "overflow-hidden shadow-sm bg-card flex-1 transition-all",
+                    "overflow-hidden shadow-sm bg-card flex-1 transition-all border-l-4",
+                    STATUS_MAP[order.status]?.className.replace('bg-', 'border-').replace('-100', '-300'),
                     isSelectionMode && isDeletable && "cursor-pointer hover:bg-secondary",
                     isSelected && "ring-2 ring-primary border-primary"
                 )}
@@ -180,7 +181,7 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
 
     if (orders.length === 0) {
         return (
-            <Card className="text-center py-16 text-muted-foreground border-dashed shadow-none">
+            <Card className="text-center py-16 text-muted-foreground border-dashed shadow-none bg-card/50">
                 <Package className="mx-auto h-12 w-12 text-gray-300"/>
                 <h3 className="mt-4 text-lg font-medium">Noch keine Bestellungen</h3>
                 <p className="mt-1 text-sm">Ihre Bestellungen werden hier angezeigt.</p>

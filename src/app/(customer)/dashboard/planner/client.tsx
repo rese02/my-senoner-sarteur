@@ -18,7 +18,7 @@ import { Slider } from '@/components/ui/slider';
 function EventSelectionGrid({ events, onSelect, selectedEvent }: { events: PlannerEvent[], onSelect: (event: PlannerEvent) => void, selectedEvent: PlannerEvent | null }) {
     if (events.length === 0) {
         return (
-            <Card className="text-center py-12 text-muted-foreground border-dashed">
+            <Card className="text-center py-12 text-muted-foreground border-dashed bg-card/50">
                 <p>Keine Planer-Events verfügbar.</p>
             </Card>
         );
@@ -31,8 +31,8 @@ function EventSelectionGrid({ events, onSelect, selectedEvent }: { events: Plann
                     key={event.id}
                     onClick={() => onSelect(event)}
                     className={cn(
-                        "rounded-2xl overflow-hidden cursor-pointer group relative transition-all duration-300 ease-in-out border-4 shadow-sm hover:shadow-lg",
-                        selectedEvent?.id === event.id ? "border-primary shadow-xl scale-105" : "border-transparent"
+                        "rounded-2xl overflow-hidden cursor-pointer group relative transition-all duration-300 ease-in-out border-4 shadow-sm hover:shadow-xl",
+                        selectedEvent?.id === event.id ? "border-primary shadow-xl scale-105" : "border-transparent hover:border-primary/50"
                     )}
                 >
                     <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors z-10"></div>
@@ -47,8 +47,8 @@ function EventSelectionGrid({ events, onSelect, selectedEvent }: { events: Plann
                         />
                     </div>
                     <div className="absolute z-20 bottom-4 left-4 text-white">
-                        <h3 className="font-headline text-xl font-bold drop-shadow-md leading-tight">{event.title}</h3>
-                        <p className="text-xs opacity-80 drop-shadow">{event.description}</p>
+                        <h3 className="font-headline text-2xl font-bold drop-shadow-md leading-tight">{event.title}</h3>
+                        <p className="text-sm opacity-80 drop-shadow">{event.description}</p>
                     </div>
                 </div>
             ))}
@@ -112,17 +112,17 @@ export function PlannerClient({ initialEvents, initialProducts }: PlannerClientP
             {selectedEvent && (
                 <div className="space-y-4 lg:sticky lg:top-8">
                     <h2 className="text-xl font-bold font-headline">2. Gästeanzahl festlegen</h2>
-                    <Card className="shadow-xl animate-in fade-in-50 overflow-hidden">
-                        <CardHeader className="p-4">
-                            <CardTitle className="text-xl font-headline">Mengenrechner für "{selectedEvent.title}"</CardTitle>
+                    <Card className="shadow-lg animate-in fade-in-50 overflow-hidden bg-card">
+                        <CardHeader className="p-6">
+                            <CardTitle className="text-2xl font-headline">{selectedEvent.title}</CardTitle>
                         </CardHeader>
-                        <CardContent className="p-4 space-y-6">
-                            <div className="space-y-2">
-                                <Label>Wie viele Gäste erwarten Sie?</Label>
-                                <div className="flex items-center justify-between gap-4 bg-secondary p-2 rounded-xl border">
-                                    <div className="flex items-center gap-2">
-                                        <Users className="w-6 h-6 text-primary" />
-                                        <span className="text-3xl font-bold font-headline text-primary">{people}</span>
+                        <CardContent className="p-6 space-y-6">
+                            <div className="space-y-4">
+                                <Label className="text-base">Wie viele Gäste erwarten Sie?</Label>
+                                <div className="flex items-center justify-between gap-4 bg-secondary p-4 rounded-xl border">
+                                    <div className="flex items-center gap-4">
+                                        <Users className="w-8 h-8 text-primary" />
+                                        <span className="text-5xl font-bold font-headline text-primary">{people}</span>
                                     </div>
                                     <Slider
                                         defaultValue={[people]}
@@ -137,7 +137,7 @@ export function PlannerClient({ initialEvents, initialProducts }: PlannerClientP
                         
                         
                             <div className="bg-secondary/50 p-4 rounded-xl border w-full max-w-full overflow-hidden">
-                                <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-bold mb-3 flex items-center gap-2">
+                                <h3 className="text-sm uppercase tracking-wider text-muted-foreground font-bold mb-3 flex items-center gap-2">
                                     <Info size={14}/> Empfehlung für {people} Personen:
                                 </h3>
                                 <ul className="space-y-3 w-full">
@@ -157,7 +157,7 @@ export function PlannerClient({ initialEvents, initialProducts }: PlannerClientP
                                 </ul>
                             </div>
                         </CardContent>
-                        <CardFooter className="p-4 bg-secondary/50 border-t">
+                        <CardFooter className="p-6 bg-secondary/30 border-t">
                             <Button onClick={handleAddToCart} className="w-full h-12 text-base" size="lg">
                                 <ShoppingCart className="mr-2 w-5 h-5" />
                                 Gesamtpaket in den Warenkorb

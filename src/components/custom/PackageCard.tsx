@@ -41,9 +41,9 @@ export function PackageCard({ product }: { product: Product }) {
 
   return (
     <>
-      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg w-full bg-card flex flex-col md:flex-row">
+      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg w-full bg-card flex flex-col">
           {/* Image */}
-          <div className="relative h-48 md:h-auto md:w-48 flex-shrink-0">
+          <div className="relative h-48 w-full flex-shrink-0">
               <Image 
                   src={product.imageUrl || fallbackImageUrl} 
                   alt={product.name} 
@@ -55,9 +55,9 @@ export function PackageCard({ product }: { product: Product }) {
           </div>
           
           {/* Content */}
-          <div className="p-4 flex flex-col justify-between flex-grow gap-2">
-              <div>
-                <h3 className="font-headline text-lg text-foreground font-bold leading-tight line-clamp-2">
+          <div className="p-4 flex flex-col justify-between flex-grow gap-4">
+              <div className="flex-grow">
+                <h3 className="font-headline text-xl text-foreground font-bold leading-tight line-clamp-2">
                   {product.name}
                 </h3>
                 <p className="text-muted-foreground text-sm mt-1 line-clamp-2">
@@ -65,19 +65,19 @@ export function PackageCard({ product }: { product: Product }) {
                 </p>
               </div>
 
-              <div className="mt-auto flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-                   <p className="text-2xl font-semibold text-primary">€{product.price.toFixed(2)}</p>
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="mt-auto flex flex-col gap-2">
+                   <p className="text-2xl font-bold text-primary">€{product.price.toFixed(2)}</p>
+                  <div className="flex items-center gap-2 w-full">
                        <Button 
                           variant="outline" 
                           size="sm"
                           onClick={() => setIsOpen(true)}
-                          className="w-full sm:w-auto"
+                          className="w-full"
                         >
                           <ListPlus className="w-4 h-4 mr-2" />
-                          Inhalt
+                          Inhalt ansehen
                         </Button>
-                       <Button size="sm" onClick={handleAddToCart} className="w-full sm:w-auto">
+                       <Button size="sm" onClick={handleAddToCart} className="w-full">
                           <ShoppingBag className="w-4 h-4 mr-2" />
                           Hinzufügen
                         </Button>
@@ -118,9 +118,9 @@ export function PackageCard({ product }: { product: Product }) {
                     </ScrollArea>
                 </div>
 
-                <div className="mt-auto flex items-center justify-between bg-secondary p-4">
+                <div className="mt-auto flex items-center justify-between bg-secondary/50 p-4 border-t">
                   <div className="text-primary font-bold text-2xl">
-                    {product.price.toFixed(2)} €
+                    €{product.price.toFixed(2)}
                   </div>
                   <Button className="px-8" onClick={handleModalAddToCart}>
                     In den Warenkorb

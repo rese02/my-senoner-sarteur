@@ -1,10 +1,11 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 220 20% 96%; /* Light Cool Gray */
+    --background: 220 20% 97%; /* Very Light Cool Gray */
     --foreground: 222 47% 11%; /* Dark Slate Blue */
 
     --card: 0 0% 100%;
@@ -13,17 +14,17 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
     
-    --primary: 217 91% 60%; /* Bright Blue */
+    --primary: 221 83% 53%; /* Rich, Confident Blue */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 220 14% 91%; /* Lighter Gray for secondary elements */
+    --secondary: 220 14% 91%; /* Light Gray for secondary elements */
     --secondary-foreground: 222 47% 11%;
 
     --muted: 220 9% 80%;
     --muted-foreground: 220 9% 45%;
 
-    --accent: 217 91% 60%; /* Same as primary for a monolithic blue theme */
-    --accent-foreground: 210 40% 98%;
+    --accent: 217 91% 65%; /* A slightly brighter blue for accents */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;

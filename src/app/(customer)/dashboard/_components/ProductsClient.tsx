@@ -61,7 +61,7 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
             
              {openOrder && <OpenOrderStatus order={openOrder} />}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
                 {wheelData && <WheelOfFortuneCard settings={wheelData} />}
                 <RecipeCard recipe={recipe} />
             </div>
@@ -77,7 +77,7 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
                   <h2 className="text-3xl font-bold font-headline mb-4 text-foreground">{category.name}</h2>
                   
                   {categoryPackages.length > 0 && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
                           {categoryPackages.map((product) => (
                               <PackageCard key={product.id} product={product} />
                           ))}
