@@ -1,25 +1,15 @@
+
 'use client';
 import type { Order, OrderStatus } from "@/lib/types";
 import { format, isToday, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { ChevronRight, FileText, ShoppingCart } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-
-const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg' },
-  picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
-  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg' },
-  ready_for_delivery: { label: 'Bereit Zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg' },
-  delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg' },
-  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg' },
-  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' },
-  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg' }
-};
+import { STATUS_MAP } from "@/lib/types";
 
 const StatusBadge = ({ status }: { status: OrderStatus }) => {
-  const statusInfo = statusMap[status];
+  const statusInfo = STATUS_MAP[status];
   return (
     <Badge className={cn("capitalize font-semibold text-xs", statusInfo.className)}>
       {statusInfo.label}
@@ -68,7 +58,7 @@ export function OrderCard({ order, onShowDetails }: OrderCardProps) {
 
       {/* Price & Status */}
       <div className="sm:text-right flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto shrink-0">
-        {order.total ? 
+        {order.total && order.total > 0 ? 
           <p className="font-bold text-lg text-foreground">€{order.total.toFixed(2)}</p>
           : <p className="font-bold text-lg text-muted-foreground">-</p>
         }

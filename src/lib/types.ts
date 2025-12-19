@@ -1,4 +1,6 @@
 
+import type { LucideIcon } from "lucide-react";
+
 export type UserRole = 'customer' | 'employee' | 'admin';
 
 export interface User {
@@ -17,16 +19,16 @@ export interface User {
     province: string;
   };
   currentDebt?: number;
-  consent: { // Made non-optional
+  consent: {
     privacyPolicy: {
       accepted: boolean;
       timestamp: string;
     };
-    marketing: { // Made non-optional
+    marketing: {
       accepted: boolean;
       timestamp: string;
     };
-    profiling: { // Made non-optional
+    profiling: {
       accepted: boolean;
       timestamp: string;
     }
@@ -40,6 +42,19 @@ export interface User {
 export type OrderType = 'preorder' | 'grocery_list';
 
 export type OrderStatus = 'new' | 'picking' | 'ready' | 'collected' | 'ready_for_delivery' | 'delivered' | 'paid' | 'cancelled';
+
+// Centralized Status Map
+export const STATUS_MAP: Record<OrderStatus, { label: string; className: string; icon: LucideIcon }> = {
+    new: { label: 'Neu', className: 'bg-blue-100 text-blue-800', icon: require('lucide-react').Info },
+    picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800', icon: require('lucide-react').PackageSearch },
+    ready: { label: 'Abholbereit', className: 'bg-green-100 text-green-800', icon: require('lucide-react').CheckCircle },
+    ready_for_delivery: { label: 'Auf dem Weg', className: 'bg-cyan-100 text-cyan-800', icon: require('lucide-react').Truck },
+    delivered: { label: 'Geliefert', className: 'bg-purple-100 text-purple-800', icon: require('lucide-react').Home },
+    collected: { label: 'Abgeholt', className: 'bg-purple-100 text-purple-800', icon: require('lucide-react').CheckCircle },
+    paid: { label: 'Bezahlt', className: 'bg-emerald-100 text-emerald-800', icon: require('lucide-react').Euro },
+    cancelled: { label: 'Storniert', className: 'bg-red-100 text-red-800', icon: require('lucide-react').XCircle }
+};
+
 
 export interface OrderItem {
   productId: string;

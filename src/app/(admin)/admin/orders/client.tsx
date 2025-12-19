@@ -9,7 +9,7 @@ import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Search, FileText, ShoppingCart, Trash2, Loader2, ListChecks, X, Home } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState, useMemo, useTransition, useEffect } from "react";
+import { useState, useMemo, useTransition } from "react";
 import type { Order, OrderStatus, User } from "@/lib/types";
 import { 
   Select, 
@@ -27,18 +27,8 @@ import { deleteOrder, deleteMultipleOrders } from "@/app/actions/admin-cleanup.a
 import { updateOrderStatus } from "@/app/actions/order.actions";
 import { useRouter } from "next/navigation";
 import { Checkbox } from "@/components/ui/checkbox";
+import { STATUS_MAP } from "@/lib/types";
 
-
-const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg' },
-  picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
-  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg' },
-  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg' },
-  delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg' },
-  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg' },
-  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' },
-  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg' }
-};
 
 function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onClose: () => void }) {
     const { toast } = useToast();
@@ -121,7 +111,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
             ));
             toast({
                 title: "Status aktualisiert",
-                description: `Bestellung #${orderId.slice(-6)} ist jetzt "${statusMap[newStatus].label}".`
+                description: `Bestellung #${orderId.slice(-6)} ist jetzt "${STATUS_MAP[newStatus].label}".`
             });
         } catch (error) {
             toast({
@@ -211,8 +201,8 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">Alle Status</SelectItem>
-                        {Object.keys(statusMap).map(s => (
-                              <SelectItem key={s} value={s} className="capitalize text-xs">{statusMap[s as OrderStatus].label}</SelectItem>
+                        {Object.keys(STATUS_MAP).map(s => (
+                              <SelectItem key={s} value={s} className="capitalize text-xs">{STATUS_MAP[s as OrderStatus].label}</SelectItem>
                           ))}
                     </SelectContent>
                 </Select>
@@ -327,8 +317,8 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.keys(statusMap).map(s => (
-                              <SelectItem key={s} value={s} className="capitalize text-xs">{statusMap[s as OrderStatus].label}</SelectItem>
+                          {Object.keys(STATUS_MAP).map(s => (
+                              <SelectItem key={s} value={s} className="capitalize text-xs">{STATUS_MAP[s as OrderStatus].label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -396,7 +386,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                         <p className="text-muted-foreground">{selectedOrder.type === 'grocery_list' ? 'Lieferung:' : 'Abholung:'}</p>
                         <p className="font-medium">{format(parseISO(selectedOrder.pickupDate || selectedOrder.deliveryDate || selectedOrder.createdAt), "EEEE, dd.MM.yyyy", { locale: de })}</p>
                         <p className="text-muted-foreground">Status:</p>
-                        <div><Badge className={cn("capitalize font-semibold", statusMap[selectedOrder.status]?.className)}>{statusMap[selectedOrder.status]?.label}</Badge></div>
+                        <div><Badge className={cn("capitalize font-semibold", STATUS_MAP[selectedOrder.status]?.className)}>{STATUS_MAP[selectedOrder.status]?.label}</Badge></div>
                    </div>
 
                   {selectedOrder.type === 'grocery_list' && selectedOrder.deliveryAddress && (
@@ -459,5 +449,3 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
     </>
   );
 }
-
-    

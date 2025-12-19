@@ -5,30 +5,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Users,
-  Megaphone,
-  Sparkles,
   Settings,
   LogOut,
-  ListTodo,
 } from 'lucide-react';
 import { logout } from '@/app/actions/auth.actions';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-
-const navItems = [
-  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/orders', label: 'Bestellungen', icon: ShoppingCart },
-  { href: '/admin/products', label: 'Produkte', icon: Package },
-  { href: '/admin/customers', label: 'Kunden', icon: Users },
-  { href: '/admin/marketing', label: 'Marketing', icon: Megaphone },
-  { href: '/admin/sommelier', label: 'AI Sommelier', icon: Sparkles },
-  { href: '/admin/picker', label: 'Picker', icon: ListTodo },
-];
+import { ADMIN_NAV_ITEMS } from './admin-nav-items';
 
 const secondaryNavItems = [
     { href: '/admin/settings', label: 'Einstellungen', icon: Settings },
@@ -45,7 +29,7 @@ export function AdminSidebar() {
         </Link>
       </div>
       <nav className="flex-1 p-4 space-y-1">
-        {navItems.map((item) => {
+        {ADMIN_NAV_ITEMS.map((item) => {
           const isActive = pathname.startsWith(item.href) && (item.href !== '/admin/dashboard' || pathname === '/admin/dashboard');
           return (
             <Link

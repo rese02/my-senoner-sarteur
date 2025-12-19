@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -16,20 +17,11 @@ import { Truck, Info, ShoppingBag, CheckCircle, XCircle, ArrowRight } from 'luci
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { STATUS_MAP } from '@/lib/types';
 
-const statusMap: Record<OrderStatus, { label: string; icon: React.ElementType }> = {
-    new: { label: 'In Bearbeitung', icon: Info },
-    picking: { label: 'Wird gepackt', icon: ShoppingBag },
-    ready: { label: 'Abholbereit', icon: CheckCircle },
-    ready_for_delivery: { label: 'Auf dem Weg', icon: Truck },
-    delivered: { label: 'Geliefert', icon: CheckCircle },
-    collected: { label: 'Abgeholt', icon: CheckCircle },
-    paid: { label: 'Bezahlt', icon: CheckCircle },
-    cancelled: { label: 'Storniert', icon: XCircle }
-};
 
 function OpenOrderStatus({ order }: { order: Order }) {
-    const StatusIcon = statusMap[order.status]?.icon || Info;
+    const StatusIcon = STATUS_MAP[order.status]?.icon || Info;
     return (
          <Card className="p-4 border-primary/20 animate-in fade-in-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm border">
             <div className="flex items-center gap-3">
@@ -37,7 +29,7 @@ function OpenOrderStatus({ order }: { order: Order }) {
                 <div className="flex-grow">
                     <h3 className="font-semibold text-foreground">Status Ihrer Bestellung #{order.id.slice(-6)}</h3>
                     <p className="text-sm text-muted-foreground">
-                        Ihre Bestellung ist <strong className="text-primary">{statusMap[order.status]?.label || 'in Bearbeitung'}</strong>.
+                        Ihre Bestellung ist <strong className="text-primary">{STATUS_MAP[order.status]?.label || 'in Bearbeitung'}</strong>.
                     </p>
                 </div>
             </div>

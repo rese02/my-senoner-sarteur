@@ -3,26 +3,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, ShoppingCart, Package, Users, Megaphone, Sparkles, ListTodo } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ADMIN_NAV_ITEMS } from './admin-nav-items';
 
-// Unified nav items with AdminSidebar
-const navItems = [
-  { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/admin/orders', icon: ShoppingCart, label: 'Bestellungen' },
-  { href: '/admin/products', icon: Package, label: 'Produkte' },
-  { href: '/admin/customers', icon: Users, label: 'Kunden' },
-  { href: '/admin/marketing', icon: Megaphone, label: 'Marketing' },
-  { href: '/admin/sommelier', icon: Sparkles, label: 'Sommelier' },
-  { href: '/admin/picker', icon: ListTodo, label: 'Picker' },
-];
 
 export function AdminMobileNav() {
   const pathname = usePathname();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t border-border grid grid-cols-7 items-center md:hidden z-30">
-      {navItems.map((item) => {
+      {ADMIN_NAV_ITEMS.map((item) => {
         const isActive = pathname.startsWith(item.href) && (item.href !== '/admin/dashboard' || pathname === '/admin/dashboard');
         return (
           <Link

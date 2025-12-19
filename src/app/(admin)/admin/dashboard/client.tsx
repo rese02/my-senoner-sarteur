@@ -1,7 +1,8 @@
+
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Users, ShoppingCart, Trash2, Loader2, CheckCircle, Euro, Package, Home } from "lucide-react";
+import { Users, ShoppingCart, Trash2, Loader2, CheckCircle, Euro, Home } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -17,18 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { OrdersByDayChart } from "./_components/OrdersByDayChart";
 import { useRouter } from "next/navigation";
-
-
-const statusMap: Record<OrderStatus, {label: string, className: string}> = {
-  new: { label: 'Neu', className: 'bg-status-new-bg text-status-new-fg' },
-  picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800' },
-  ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg' },
-  ready_for_delivery: { label: 'Bereit zur Lieferung', className: 'bg-status-ready-bg text-status-ready-fg' },
-  delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg' },
-  collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg' },
-  paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700' },
-  cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg' }
-};
+import { STATUS_MAP } from "@/lib/types";
 
 function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onClose: () => void }) {
     const { toast } = useToast();
@@ -168,7 +158,7 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                                         <div className="text-xs text-muted-foreground font-mono">#{order.id.slice(-6)}</div>
                                     </TableCell>
                                     <TableCell>{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEE, dd.MM.", { locale: de })}</TableCell>
-                                    <TableCell><Badge className={cn("capitalize font-semibold", statusMap[order.status]?.className)}>{statusMap[order.status]?.label}</Badge></TableCell>
+                                    <TableCell><Badge className={cn("capitalize font-semibold", STATUS_MAP[order.status]?.className)}>{STATUS_MAP[order.status]?.label}</Badge></TableCell>
                                     <TableCell className="text-right font-medium">€{order.total?.toFixed(2) || '-'}</TableCell>
                                 </TableRow>
                             ))}
@@ -206,7 +196,7 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                         <p className="text-muted-foreground">{selectedOrder.type === 'grocery_list' ? 'Lieferung:' : 'Abholung:'}</p>
                         <p className="font-medium">{format(parseISO(selectedOrder.pickupDate || selectedOrder.deliveryDate || selectedOrder.createdAt), "EEEE, dd.MM.yyyy", { locale: de })}</p>
                         <p className="text-muted-foreground">Status:</p>
-                        <div><Badge className={cn("capitalize font-semibold", statusMap[selectedOrder.status]?.className)}>{statusMap[selectedOrder.status]?.label}</Badge></div>
+                        <div><Badge className={cn("capitalize font-semibold", STATUS_MAP[selectedOrder.status]?.className)}>{STATUS_MAP[selectedOrder.status]?.label}</Badge></div>
                    </div>
                   
                   {selectedOrder.type === 'grocery_list' && selectedOrder.deliveryAddress && (

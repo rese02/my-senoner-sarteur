@@ -1,5 +1,6 @@
+
 import type { Metadata } from 'next';
-import { PT_Sans, Playfair_Display } from 'next/font/google';
+import { Lato, Merriweather } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
@@ -15,15 +16,15 @@ export const metadata: Metadata = {
   robots: 'index, follow',
 };
 
-const ptSans = PT_Sans({
+const lato = Lato({
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: ['400', '700', '900'],
   variable: '--font-body',
 });
 
-const playfair = Playfair_Display({
+const merriweather = Merriweather({
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: ['400', '700', '900'],
   variable: '--font-headline',
 });
 
@@ -64,8 +65,8 @@ export default function RootLayout({
       <body
         className={cn(
           'font-body antialiased',
-          ptSans.variable,
-          playfair.variable
+          lato.variable,
+          merriweather.variable
         )}
       >
         <FirebaseClientProvider>

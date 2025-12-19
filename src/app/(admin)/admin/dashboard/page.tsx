@@ -1,5 +1,6 @@
+
 'use server';
-import { getDashboardStats, getRecentOrders, getOrdersForChart } from "@/app/actions/product.actions";
+import { getDashboardStats, getRecentOrders, getOrdersForChart } from "@/app/actions/dashboard.actions";
 import { Suspense } from "react";
 import AdminDashboardLoading from "./loading";
 import { DashboardClient } from "./client";

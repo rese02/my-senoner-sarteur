@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import type { Order, OrderStatus } from "@/lib/types";
 import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Package, FileText, Calendar, Info, CheckCircle, Truck, ShoppingBag, XCircle, Trash2, Loader2, ListChecks, X } from "lucide-react";
+import { Package, FileText, Calendar, Trash2, Loader2, ListChecks, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useTransition, useEffect, useMemo, useCallback } from "react";
 import Loading from './loading';
@@ -17,17 +17,8 @@ import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
+import { STATUS_MAP } from "@/lib/types";
 
-const statusMap: Record<OrderStatus, { label: string; className: string; icon: React.ElementType }> = {
-    new: { label: 'In Bearbeitung', className: 'bg-status-new-bg text-status-new-fg', icon: Info },
-    picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800', icon: ShoppingBag },
-    ready: { label: 'Abholbereit', className: 'bg-status-ready-bg text-status-ready-fg', icon: CheckCircle },
-    ready_for_delivery: { label: 'Auf dem Weg', className: 'bg-status-ready-bg text-status-ready-fg', icon: Truck },
-    delivered: { label: 'Geliefert', className: 'bg-status-collected-bg text-status-collected-fg', icon: CheckCircle },
-    collected: { label: 'Abgeholt', className: 'bg-status-collected-bg text-status-collected-fg', icon: CheckCircle },
-    paid: { label: 'Bezahlt', className: 'bg-green-100 text-green-700', icon: CheckCircle },
-    cancelled: { label: 'Storniert', className: 'bg-status-cancelled-bg text-status-cancelled-fg', icon: XCircle }
-};
 
 const deletableStatuses: OrderStatus[] = ['collected', 'delivered', 'paid', 'cancelled'];
 
@@ -44,7 +35,7 @@ function OrderHistoryCard({
 }) {
     const isGroceryList = order.type === 'grocery_list';
     const relevantDate = order.pickupDate || order.deliveryDate || order.createdAt;
-    const StatusIcon = statusMap[order.status]?.icon || Info;
+    const StatusIcon = STATUS_MAP[order.status]?.icon;
     const isDeletable = deletableStatuses.includes(order.status);
     
     const handleCardClick = () => {
@@ -83,9 +74,9 @@ function OrderHistoryCard({
                                 #{order.id.slice(-6)} - {format(parseISO(order.createdAt), "dd.MM.yyyy, HH:mm")}
                             </CardDescription>
                         </div>
-                        <Badge className={cn("capitalize font-semibold text-xs whitespace-nowrap", statusMap[order.status]?.className)}>
+                        <Badge className={cn("capitalize font-semibold text-xs whitespace-nowrap", STATUS_MAP[order.status]?.className)}>
                             <StatusIcon className="w-3 h-3 mr-1.5"/>
-                            {statusMap[order.status]?.label}
+                            {STATUS_MAP[order.status]?.label}
                         </Badge>
                     </div>
                 </CardHeader>

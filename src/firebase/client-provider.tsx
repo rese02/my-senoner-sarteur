@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { initializeFirebase } from '.';
 import { FirebaseProvider } from './provider';
 import type { FirebaseApp } from 'firebase/app';
@@ -20,19 +21,19 @@ export function FirebaseClientProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [services, setServices] = useState<FirebaseServices | null>(null);
-
-  useEffect(() => {
-    // This effect runs only once on the client after initial mount.
-    // It ensures Firebase is initialized only on the client side.
-    const firebaseServices = initializeFirebase();
-    setServices(firebaseServices);
+  // Use useMemo to ensure initializeFirebase is called only once
+  const services = useMemo(() => {
+    // This check is important because in React's Strict Mode, effects can run twice in development.
+    // By initializing here and not in an effect, we ensure it's truly a singleton on the client.
+    if (typeof window !== 'undefined') {
+      return initializeFirebase();
+    }
+    return null;
   }, []);
 
   if (!services) {
-    // By returning null here, we ensure that child components that depend on the Firebase context
-    // (like LoginForm) will not be rendered until Firebase has been initialized.
-    // This prevents the race condition and the "Firebase has not been initialized correctly" error.
+    // During server-side rendering, or before the client-side useMemo has run, we can return null
+    // or a loading state. Child components should be prepared for this.
     return null;
   }
 
