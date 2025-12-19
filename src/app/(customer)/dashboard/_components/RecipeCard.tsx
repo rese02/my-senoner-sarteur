@@ -15,9 +15,9 @@ import { getLang } from "@/lib/utils";
 export function RecipeCard({ recipe }: { recipe: Recipe }) {
     const { t, lang } = useLanguage();
 
-    // Ensure ingredients are always an array
     const ingredients = getLang(recipe.ingredients, lang);
-    const safeIngredients = Array.isArray(ingredients) ? ingredients : [];
+    const safeIngredients = Array.isArray(ingredients) ? ingredients : (typeof ingredients === 'string' ? ingredients.split('\n') : []);
+
 
     return (
         <Card className="overflow-hidden w-full bg-card shadow-sm h-full flex flex-col md:flex-row">

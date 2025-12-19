@@ -46,11 +46,7 @@ export function CustomerSidebar({ showPlanner, showSommelier }: { showPlanner: b
             <Logo />
         </div>
 
-        <div className="p-4">
-          <LanguageSwitcher />
-        </div>
-        
-      <nav className="flex-1 p-4 pt-0 space-y-1">
+      <nav className="flex-1 p-4 pt-4 space-y-1">
         {visibleNavItems.map((item) => {
            const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
            return (
@@ -72,6 +68,13 @@ export function CustomerSidebar({ showPlanner, showSommelier }: { showPlanner: b
       </nav>
       <div className="mt-auto p-4">
         <Separator className="my-2 bg-primary-foreground/20" />
+        
+        <div className="p-2">
+            <LanguageSwitcher />
+        </div>
+
+        <Separator className="my-2 bg-primary-foreground/20" />
+        
         <Link
           href="/dashboard/profile"
           className={cn(
