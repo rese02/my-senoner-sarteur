@@ -61,20 +61,33 @@ export function toPlainObject<T>(data: T): T {
 }
 
 /**
- * Retrieves the correct string from a multilingual object based on the current language.
+ * Retrieves the correct string or array of strings from a multilingual object based on the current language.
  * @param field The object containing language keys (e.g., { de: "Apfel", it: "Mela" }) or a simple string.
  * @param lang The current language ('de', 'it', or 'en').
- * @returns The translated string or a fallback.
+ * @returns The translated string/array or a fallback.
  */
-export function getLang(field: any, lang: Language): string {
+export function getLang(field: any, lang: Language): any {
   if (!field) {
-    return "";
+    // Return empty string for falsy fields, or an empty array if it's an array context
+    return Array.isArray(field) ? [] : "";
   }
-  // If the field is just a string (for legacy data), return it directly.
+
+  // Handle arrays of multilingual objects or simple strings
+  if (Array.isArray(field)) {
+    return field.map(item => getLang(item, lang));
+  }
+
+  // Handle simple strings (for legacy data or non-translatable fields)
   if (typeof field === 'string') {
     return field;
   }
-  // If it's an object, try to get the string for the current language.
-  // Fallback chain: Current Lang -> German -> English -> first available -> empty string.
-  return field[lang] || field['de'] || field['en'] || Object.values(field)[0] as string || "";
+
+  // Handle multilingual objects
+  if (typeof field === 'object') {
+    // Fallback chain: Current Lang -> German -> English -> first available -> empty string.
+    return field[lang] || field['de'] || field['en'] || Object.values(field)[0] as string || "";
+  }
+  
+  // Default fallback
+  return "";
 }

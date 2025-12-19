@@ -15,6 +15,10 @@ import { getLang } from "@/lib/utils";
 export function RecipeCard({ recipe }: { recipe: Recipe }) {
     const { t, lang } = useLanguage();
 
+    // Ensure ingredients are always an array
+    const ingredients = getLang(recipe.ingredients, lang);
+    const safeIngredients = Array.isArray(ingredients) ? ingredients : [];
+
     return (
         <Card className="overflow-hidden w-full bg-card shadow-sm h-full flex flex-col md:flex-row">
             <div className="relative aspect-[16/9] md:aspect-auto md:w-1/2 min-h-[200px]">
@@ -59,7 +63,7 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
                             <div className="bg-secondary/50 p-4 rounded-xl border">
                               <h3 className="font-bold uppercase text-xs tracking-wider text-muted-foreground mb-3">{t.dashboard.recipe_ingredients}</h3>
                               <ul className="space-y-2">
-                                {getLang(recipe.ingredients, lang).map((ing: string, i: number) => (
+                                {safeIngredients.map((ing: string, i: number) => (
                                   <li key={i} className="flex items-center text-card-foreground font-medium">
                                     <span className="w-1.5 h-1.5 bg-primary rounded-full mr-3"></span> {ing}
                                   </li>
