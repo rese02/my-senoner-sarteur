@@ -9,41 +9,44 @@ import Image from "next/image";
 import { ChefHat, Clock } from "lucide-react";
 import type { Recipe } from "@/lib/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { getLang } from "@/lib/utils";
 
 export function RecipeCard({ recipe }: { recipe: Recipe }) {
+    const { t, lang } = useLanguage();
 
     return (
         <Card className="overflow-hidden w-full bg-card shadow-sm h-full flex flex-col md:flex-row">
             <div className="relative aspect-[16/9] md:aspect-auto md:w-1/2 min-h-[200px]">
-                <Image src={recipe.image} alt={recipe.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" data-ai-hint={recipe.imageHint} priority />
+                <Image src={recipe.image} alt={getLang(recipe.title, lang)} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" data-ai-hint={recipe.imageHint} priority />
             </div>
             <div className="p-6 flex flex-col justify-between flex-grow md:w-1/2">
               <div>
-                <h2 className="text-sm uppercase text-primary font-bold tracking-wider flex items-center gap-2"><ChefHat className="w-4 h-4"/>Rezept der Woche</h2>
-                <p className="mt-2 text-2xl font-bold">{recipe.title}</p>
-                <p className="mt-4 text-muted-foreground line-clamp-3 flex-grow">{recipe.description}</p>
+                <h2 className="text-sm uppercase text-primary font-bold tracking-wider flex items-center gap-2"><ChefHat className="w-4 h-4"/>{t.dashboard.recipe_title}</h2>
+                <p className="mt-2 text-2xl font-bold">{getLang(recipe.title, lang)}</p>
+                <p className="mt-4 text-muted-foreground line-clamp-3 flex-grow">{getLang(recipe.description, lang)}</p>
               </div>
                 
                  <Dialog>
                     <DialogTrigger asChild>
-                         <Button variant="outline" className="mt-6 w-fit">Rezept ansehen</Button>
+                         <Button variant="outline" className="mt-6 w-fit">{t.dashboard.btn_view_recipe}</Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-4xl w-[95vw] p-0 overflow-hidden rounded-2xl">
                        <DialogHeader className="sr-only">
-                          <DialogTitle>{recipe.title}</DialogTitle>
-                          <DialogDescription>{recipe.subtitle}</DialogDescription>
+                          <DialogTitle>{getLang(recipe.title, lang)}</DialogTitle>
+                          <DialogDescription>{getLang(recipe.subtitle, lang)}</DialogDescription>
                         </DialogHeader>
                       <div className="grid md:grid-cols-2 max-h-[90vh]">
                         {/* LINKS: Bild (Vollflächig) */}
                         <div className="relative h-64 md:h-full w-full">
-                          <Image src={recipe.image} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" alt={recipe.title} data-ai-hint={recipe.imageHint} />
+                          <Image src={recipe.image} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" alt={getLang(recipe.title, lang)} data-ai-hint={recipe.imageHint} />
                         </div>
 
                         {/* RECHTS: Scrollbarer Inhalt */}
                         <div className="p-6 md:p-8 overflow-y-auto bg-card">
                           <div className="mb-6 text-left">
-                            <h2 className="text-3xl text-primary font-bold">{recipe.title}</h2>
-                            <p className="text-muted-foreground">{recipe.subtitle}</p>
+                            <h2 className="text-3xl text-primary font-bold">{getLang(recipe.title, lang)}</h2>
+                            <p className="text-muted-foreground">{getLang(recipe.subtitle, lang)}</p>
                           </div>
                           
                           <div className="flex items-center gap-4 text-muted-foreground text-sm mb-6">
@@ -54,9 +57,9 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
                           <div className="space-y-6">
                             {/* Zutaten Box */}
                             <div className="bg-secondary/50 p-4 rounded-xl border">
-                              <h3 className="font-bold uppercase text-xs tracking-wider text-muted-foreground mb-3">Zutaten</h3>
+                              <h3 className="font-bold uppercase text-xs tracking-wider text-muted-foreground mb-3">{t.dashboard.recipe_ingredients}</h3>
                               <ul className="space-y-2">
-                                {recipe.ingredients.map((ing, i) => (
+                                {getLang(recipe.ingredients, lang).map((ing: string, i: number) => (
                                   <li key={i} className="flex items-center text-card-foreground font-medium">
                                     <span className="w-1.5 h-1.5 bg-primary rounded-full mr-3"></span> {ing}
                                   </li>
@@ -66,9 +69,9 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
 
                             {/* Anleitung */}
                             <div>
-                              <h3 className="font-bold uppercase text-xs tracking-wider text-muted-foreground mb-3">Zubereitung</h3>
+                              <h3 className="font-bold uppercase text-xs tracking-wider text-muted-foreground mb-3">{t.dashboard.recipe_prep}</h3>
                               <div className="prose prose-sm max-w-none text-muted-foreground leading-relaxed whitespace-pre-line">
-                                {recipe.instructions}
+                                {getLang(recipe.instructions, lang)}
                               </div>
                             </div>
                           </div>

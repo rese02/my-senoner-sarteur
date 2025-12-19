@@ -10,8 +10,11 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useCartStore } from '@/hooks/use-cart-store';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useLanguage } from '../providers/LanguageProvider';
+import { getLang } from '@/lib/utils';
 
 export function ProductCard({ product }: { product: Product }) {
+    const { t, lang } = useLanguage();
     const [quantity, setQuantity] = useState(1);
     const { toast } = useToast();
     const addToCart = useCartStore(state => state.addToCart);
@@ -20,13 +23,13 @@ export function ProductCard({ product }: { product: Product }) {
     const handleAddToCart = () => {
         addToCart({
             productId: product.id,
-            name: product.name,
+            name: getLang(product.name, lang),
             price: product.price,
             quantity: quantity,
         });
         toast({
-            title: "Zum Warenkorb hinzugefügt",
-            description: `${quantity}x ${product.name}`,
+            title: t.product.toast.addedTitle,
+            description: `${quantity}x ${getLang(product.name, lang)}`,
         });
 
         if (typeof window.navigator.vibrate === 'function') {
@@ -40,7 +43,7 @@ export function ProductCard({ product }: { product: Product }) {
            <div className="relative aspect-[4/3] w-full bg-muted">
                 <Image 
                     src={product.imageUrl || fallbackImageUrl} 
-                    alt={product.name} 
+                    alt={getLang(product.name, lang)} 
                     fill 
                     sizes="(max-width: 768px) 50vw, 20vw"
                     className="object-cover transition-transform duration-300 group-hover:scale-105" 
@@ -48,7 +51,7 @@ export function ProductCard({ product }: { product: Product }) {
                 />
             </div>
             <CardContent className="p-3 flex flex-col flex-grow">
-                <h3 className="text-base font-bold leading-tight line-clamp-2 flex-grow whitespace-normal">{product.name}</h3>
+                <h3 className="text-base font-bold leading-tight line-clamp-2 flex-grow whitespace-normal">{getLang(product.name, lang)}</h3>
                 <div className="flex items-baseline mt-1">
                     <p className="text-lg font-semibold text-primary">€{product.price.toFixed(2)}</p>
                     <p className="text-xs text-muted-foreground ml-1">/ {product.unit}</p>
@@ -64,7 +67,7 @@ export function ProductCard({ product }: { product: Product }) {
                             <Plus className="h-4 w-4" />
                         </Button>
                     </div>
-                     <Button size="icon" className="rounded-full h-9 w-9 shrink-0" onClick={handleAddToCart} aria-label="In den Warenkorb">
+                     <Button size="icon" className="rounded-full h-9 w-9 shrink-0" onClick={handleAddToCart} aria-label={t.product.addToCart}>
                         <ShoppingCart className="h-4 w-4" />
                     </Button>
                 </div>

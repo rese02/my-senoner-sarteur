@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { Order, OrderStatus } from "@/lib/types";
 import { format, parseISO } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { de, it, enUS } from 'date-fns/locale';
 import { Package, FileText, Calendar, Trash2, Loader2, ListChecks, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useTransition, useMemo, useCallback } from "react";
@@ -17,6 +17,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { STATUS_MAP } from "@/lib/types";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { getLang } from "@/lib/utils";
 
 
 const deletableStatuses: OrderStatus[] = ['collected', 'delivered', 'paid', 'cancelled'];
@@ -32,6 +34,7 @@ function OrderHistoryCard({
     isSelected: boolean;
     onSelect: (orderId: string) => void;
 }) {
+    const { t, dateLocale } = useLanguage();
     const isGroceryList = order.type === 'grocery_list';
     const relevantDate = order.pickupDate || order.deliveryDate || order.createdAt;
     const StatusIcon = STATUS_MAP[order.status]?.icon;
@@ -68,7 +71,7 @@ function OrderHistoryCard({
                         <div>
                             <CardTitle className="text-base font-bold flex items-center gap-2">
                                 {isGroceryList ? <FileText className="w-4 h-4 text-orange-600" /> : <Package className="w-4 h-4 text-primary" />}
-                                <span className="text-card-foreground">{isGroceryList ? 'Concierge Bestellung' : 'Vorbestellung'}</span>
+                                <span className="text-card-foreground">{isGroceryList ? t.concierge.title : 'Vorbestellung'}</span>
                             </CardTitle>
                             <CardDescription className="text-xs text-muted-foreground">
                                 #{order.id.slice(-6)} - {format(parseISO(order.createdAt), "dd.MM.yyyy, HH:mm")}
@@ -84,9 +87,9 @@ function OrderHistoryCard({
                     <div className="flex items-center justify-between text-sm bg-secondary p-3 rounded-md">
                         <div className="flex items-center gap-2 text-muted-foreground">
                             <Calendar className="w-4 h-4"/>
-                            <span>{isGroceryList ? 'Lieferung am' : 'Abholung am'}</span>
+                            <span>{isGroceryList ? t.concierge.deliveryDate : t.cart.pickupDate}</span>
                         </div>
-                        <span className="font-bold">{format(parseISO(relevantDate), "EEEE, dd.MM.yyyy", { locale: de })}</span>
+                        <span className="font-bold">{format(parseISO(relevantDate), "EEEE, dd.MM.yyyy", { locale: dateLocale })}</span>
                     </div>
 
                     <div>
@@ -94,7 +97,7 @@ function OrderHistoryCard({
                             <div className="space-y-2">
                                 {order.items.map(item => (
                                     <div key={item.productId} className="flex justify-between items-center py-1 border-b last:border-0">
-                                        <span className="text-sm font-medium">{item.quantity}x {item.productName}</span>
+                                        <span className="text-sm font-medium">{item.quantity}x {getLang(item.productName, t.lang)}</span>
                                         <span className="font-mono text-muted-foreground text-sm">€{(item.price * item.quantity).toFixed(2)}</span>
                                     </div>
                                 ))}
@@ -111,7 +114,7 @@ function OrderHistoryCard({
                         <>
                             <Separator/>
                             <div className="flex justify-between items-baseline">
-                                <span className="text-sm font-bold">Gesamt</span>
+                                <span className="text-sm font-bold">{t.common.total}</span>
                                 <span className="text-base font-semibold text-primary">€{order.total.toFixed(2)}</span>
                             </div>
                         </>
@@ -129,6 +132,7 @@ function OrderHistoryCard({
 }
 
 export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
+    const { t } = useLanguage();
     const [orders, setOrders] = useState<Order[]>(initialOrders);
     const { toast } = useToast();
     const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -136,7 +140,6 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
     const [isDeleting, startDeleteTransition] = useTransition();
 
     const refreshOrders = useCallback(() => {
-        // This can be used to re-fetch if needed, though not required with server-side props
         getCustomerOrders()
             .then(setOrders)
             .catch(() => toast({ variant: 'destructive', title: 'Fehler', description: 'Bestellungen konnten nicht neu geladen werden.' }));
@@ -168,7 +171,6 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
             try {
                 const result = await deleteMyOrders(selectedOrderIds);
                 toast({ title: 'Erfolg', description: `${result.count} Bestellung(en) gelöscht.` });
-                // Optimistic update
                 setOrders(prev => prev.filter(o => !selectedOrderIds.includes(o.id)));
             } catch (e: any) {
                 toast({ variant: 'destructive', title: 'Fehler', description: e.message });
@@ -183,8 +185,8 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
         return (
             <Card className="text-center py-16 text-muted-foreground border-dashed shadow-none bg-card/50">
                 <Package className="mx-auto h-12 w-12 text-gray-300"/>
-                <h3 className="mt-4 text-lg font-medium">Noch keine Bestellungen</h3>
-                <p className="mt-1 text-sm">Ihre Bestellungen werden hier angezeigt.</p>
+                <h3 className="mt-4 text-lg font-medium">{t.orders.noOrders}</h3>
+                <p className="mt-1 text-sm">{t.orders.noOrdersDescription}</p>
             </Card>
         );
     }
@@ -195,28 +197,28 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
                 <div className="flex justify-end gap-2 items-center">
                     {!isSelectionMode ? (
                         <Button variant="outline" onClick={() => setIsSelectionMode(true)}>
-                            <ListChecks className="mr-2 h-4 w-4" /> Verwalten
+                            <ListChecks className="mr-2 h-4 w-4" /> {t.orders.manage}
                         </Button>
                     ) : (
                         <>
                             <Button variant="ghost" onClick={() => { setIsSelectionMode(false); setSelectedOrderIds([]); }}>
-                                <X className="mr-2 h-4 w-4" /> Abbrechen
+                                <X className="mr-2 h-4 w-4" /> {t.orders.cancel}
                             </Button>
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                     <Button variant="destructive" disabled={selectedOrderIds.length === 0 || isDeleting}>
                                         {isDeleting ? <Loader2 className="animate-spin mr-2"/> : <Trash2 className="mr-2 h-4 w-4" />}
-                                        Löschen ({selectedOrderIds.length})
+                                        {t.orders.delete} ({selectedOrderIds.length})
                                     </Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
-                                        <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
-                                        <AlertDialogDescription>Möchten Sie die {selectedOrderIds.length} ausgewählten Bestellungen wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.</AlertDialogDescription>
+                                        <AlertDialogTitle>{t.orders.deleteConfirmTitle}</AlertDialogTitle>
+                                        <AlertDialogDescription>{t.orders.deleteConfirmDescription.replace('{count}', selectedOrderIds.length.toString())}</AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
-                                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                        <AlertDialogAction onClick={handleBulkDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">Ja, löschen</AlertDialogAction>
+                                        <AlertDialogCancel>{t.orders.cancel}</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleBulkDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">{t.orders.deleteButton}</AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>
@@ -234,7 +236,7 @@ export function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
                         onCheckedChange={handleSelectAll}
                     />
                     <label htmlFor="select-all" className="text-sm font-medium">
-                        Alle {deletableOrderIds.length} abgeschlossenen Bestellungen auswählen
+                        {t.orders.selectAll.replace('{count}', deletableOrderIds.length.toString())}
                     </label>
                 </div>
             )}

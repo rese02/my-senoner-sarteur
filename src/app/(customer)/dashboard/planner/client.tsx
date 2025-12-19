@@ -14,8 +14,11 @@ import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Slider } from '@/components/ui/slider';
+import { useLanguage } from '@/components/providers/LanguageProvider';
+import { getLang } from '@/lib/utils';
 
 function EventSelectionGrid({ events, onSelect, selectedEvent }: { events: PlannerEvent[], onSelect: (event: PlannerEvent) => void, selectedEvent: PlannerEvent | null }) {
+    const { lang } = useLanguage();
     if (events.length === 0) {
         return (
             <Card className="text-center py-12 text-muted-foreground border-dashed bg-card/50">
@@ -39,7 +42,7 @@ function EventSelectionGrid({ events, onSelect, selectedEvent }: { events: Plann
                     <div className="relative aspect-video w-full">
                         <Image 
                             src={event.imageUrl} 
-                            alt={event.title} 
+                            alt={getLang(event.title, lang)} 
                             fill 
                             sizes="(max-width: 768px) 100vw, 50vw"
                             className="object-cover transition-transform duration-500 ease-in-out scale-105 group-hover:scale-110"
@@ -47,8 +50,8 @@ function EventSelectionGrid({ events, onSelect, selectedEvent }: { events: Plann
                         />
                     </div>
                     <div className="absolute z-20 bottom-4 left-4 text-white">
-                        <h3 className="text-2xl font-bold leading-tight drop-shadow-md">{event.title}</h3>
-                        <p className="text-sm opacity-80 drop-shadow">{event.description}</p>
+                        <h3 className="text-2xl font-bold leading-tight drop-shadow-md">{getLang(event.title, lang)}</h3>
+                        <p className="text-sm opacity-80 drop-shadow">{getLang(event.description, lang)}</p>
                     </div>
                 </div>
             ))}
@@ -62,6 +65,7 @@ interface PlannerClientProps {
 }
 
 export function PlannerClient({ initialEvents, initialProducts }: PlannerClientProps) {
+  const { t, lang } = useLanguage();
   const [events] = useState<PlannerEvent[]>(initialEvents);
   const [products] = useState<Product[]>(initialProducts);
   const [selectedEvent, setSelectedEvent] = useState<PlannerEvent | null>(initialEvents[0] || null);
@@ -84,7 +88,7 @@ export function PlannerClient({ initialEvents, initialProducts }: PlannerClientP
 
             addToCart({ 
                 productId: `${product.id}-${people}`, // Create a unique ID for this dynamic product
-                name: `${product.name} (für ${people} Pers.)`, 
+                name: `${getLang(product.name, lang)} (für ${people} Pers.)`, 
                 quantity: 1, // We add it as a single package
                 price: price
             });
@@ -92,33 +96,33 @@ export function PlannerClient({ initialEvents, initialProducts }: PlannerClientP
     });
     
     toast({
-      title: "Hinzugefügt!",
-      description: `Zutaten für "${selectedEvent.title}" für ${people} Personen im Warenkorb.`,
+      title: t.planner.toast.addedTitle,
+      description: t.planner.toast.addedDescription.replace('{event}', getLang(selectedEvent.title, lang)).replace('{count}', people.toString()),
     });
   };
 
   return (
     <div className="w-full space-y-8">
-        <PageHeader title="Party Planer" description="Wählen Sie ein Event und wir berechnen die perfekte Menge für Ihre Gäste." />
+        <PageHeader title={t.planner.title} description={t.planner.description} />
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
             {/* Linke Spalte: Event-Auswahl */}
             <div className="space-y-4">
-                <h2 className="text-xl font-bold">1. Event auswählen</h2>
+                <h2 className="text-xl font-bold">{t.planner.selectEvent}</h2>
                 <EventSelectionGrid events={events} onSelect={setSelectedEvent} selectedEvent={selectedEvent} />
             </div>
 
             {/* Rechte Spalte: Rechner */}
             {selectedEvent && (
                 <div className="space-y-4 lg:sticky lg:top-8">
-                    <h2 className="text-xl font-bold">2. Gästeanzahl festlegen</h2>
+                    <h2 className="text-xl font-bold">{t.planner.setGuests}</h2>
                     <Card className="shadow-lg animate-in fade-in-50 overflow-hidden bg-card">
                         <CardHeader className="p-6">
-                            <CardTitle className="text-2xl">{selectedEvent.title}</CardTitle>
+                            <CardTitle className="text-2xl">{getLang(selectedEvent.title, lang)}</CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 space-y-6">
                             <div className="space-y-4">
-                                <Label className="text-base">Wie viele Gäste erwarten Sie?</Label>
+                                <Label className="text-base">{t.planner.guests}</Label>
                                 <div className="flex items-center justify-between gap-4 bg-secondary p-4 rounded-xl border">
                                     <div className="flex items-center gap-4">
                                         <Users className="w-8 h-8 text-primary" />
@@ -138,7 +142,7 @@ export function PlannerClient({ initialEvents, initialProducts }: PlannerClientP
                         
                             <div className="bg-secondary/50 p-4 rounded-xl border w-full max-w-full overflow-hidden">
                                 <h3 className="text-sm uppercase tracking-wider text-muted-foreground font-bold mb-3 flex items-center gap-2">
-                                    <Info size={14}/> Empfehlung für {people} Personen:
+                                    <Info size={14}/> {t.planner.recommendation.replace('{count}', people.toString())}
                                 </h3>
                                 <ul className="space-y-3 w-full">
                                     {selectedEvent.ingredients.map((ing, idx) => {
@@ -146,7 +150,7 @@ export function PlannerClient({ initialEvents, initialProducts }: PlannerClientP
                                     return (
                                         <li key={idx} className="block sm:flex sm:justify-between sm:items-center border-b last:border-0 pb-2 last:pb-0 w-full">
                                             <span className="text-sm font-medium text-card-foreground break-words pr-0 sm:pr-4">
-                                                {ing.productName}
+                                                {getLang(ing.productName, lang)}
                                             </span>
                                             <span className="font-bold text-primary bg-primary/10 px-2 py-1 rounded text-xs mt-1 sm:mt-0 inline-block whitespace-nowrap">
                                                 {totalAmount.toLocaleString('de-DE')} {ing.unit}
@@ -160,7 +164,7 @@ export function PlannerClient({ initialEvents, initialProducts }: PlannerClientP
                         <CardFooter className="p-6 bg-secondary/30 border-t">
                             <Button onClick={handleAddToCart} className="w-full h-12 text-base" size="lg">
                                 <ShoppingCart className="mr-2 w-5 h-5" />
-                                Gesamtpaket in den Warenkorb
+                                {t.planner.addToCart}
                             </Button>
                         </CardFooter>
                     </Card>

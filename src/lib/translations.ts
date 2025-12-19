@@ -11,7 +11,8 @@ export const translations = {
       loyalty: "Fidelity",
       sommelier: "AI Scan",
       profile: "Profil",
-      cart: "Warenkorb"
+      cart: "Warenkorb",
+      logout: "Abmelden"
     },
     dashboard: {
       storiesTitle: "Daily Stories",
@@ -154,7 +155,7 @@ export const translations = {
         maxReward: "Maximale Belohnung erreicht! An der Kasse einlösbar."
     },
     sommelier: {
-        title: "KI Sommelier",
+        title: "AI Sommelier",
         close: "Schließen",
         takePhoto: "Take Photo",
         analyzing: "Analysiere Aromen...",
@@ -190,7 +191,8 @@ export const translations = {
       loyalty: "Fidelity",
       sommelier: "AI Scan",
       profile: "Profilo",
-      cart: "Carrello"
+      cart: "Carrello",
+      logout: "Esci"
     },
     dashboard: {
       storiesTitle: "Daily Stories",
@@ -363,7 +365,8 @@ export const translations = {
       loyalty: "Fidelity",
       sommelier: "AI Scan",
       profile: "Profile",
-      cart: "Cart"
+      cart: "Cart",
+      logout: "Log out"
     },
     dashboard: {
       storiesTitle: "Daily Stories",
@@ -528,5 +531,3 @@ export const translations = {
     }
   }
 };
-
-    

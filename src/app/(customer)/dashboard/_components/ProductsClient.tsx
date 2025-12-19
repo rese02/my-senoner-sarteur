@@ -16,24 +16,27 @@ import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { STATUS_MAP } from '@/lib/types';
+import { useLanguage } from '@/components/providers/LanguageProvider';
+import { getLang } from '@/lib/utils';
 
 
 function OpenOrderStatus({ order }: { order: Order }) {
+    const { t } = useLanguage();
     const StatusIcon = STATUS_MAP[order.status]?.icon;
     return (
          <Card className="p-4 animate-in fade-in-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm bg-card">
             <div className="flex items-center gap-3">
                 {StatusIcon && <StatusIcon className="h-6 w-6 text-primary flex-shrink-0" />}
                 <div className="flex-grow">
-                    <h3 className="font-semibold text-foreground">Status Ihrer Bestellung #{order.id.slice(-6)}</h3>
+                    <h3 className="font-semibold text-foreground">{t.dashboard.active_order} #{order.id.slice(-6)}</h3>
                     <p className="text-sm text-muted-foreground">
-                        Ihre Bestellung ist <strong className="text-primary">{STATUS_MAP[order.status]?.label || 'in Bearbeitung'}</strong>.
+                        {t.dashboard.openOrderDescription} <strong className="text-primary">{STATUS_MAP[order.status]?.label || 'in Bearbeitung'}</strong>.
                     </p>
                 </div>
             </div>
             <Button variant="ghost" asChild className="p-0 h-auto self-end sm:self-center">
                 <Link href="/dashboard/orders" className="flex items-center gap-1 text-sm text-primary">
-                    Alle Bestellungen ansehen <ArrowRight className="w-4 h-4" />
+                    {t.dashboard.viewAllOrders} <ArrowRight className="w-4 h-4" />
                 </Link>
             </Button>
         </Card>
@@ -50,7 +53,7 @@ interface ProductsClientProps {
 }
 
 export function ProductsClient({ products, categories, stories, recipe, wheelData, openOrder }: ProductsClientProps) {
-    const cartItems = useCartStore(state => state.items);
+    const { lang } = useLanguage();
 
     return (
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:gap-8 items-start">
@@ -74,7 +77,7 @@ export function ProductsClient({ products, categories, stories, recipe, wheelDat
 
               return (
                 <div key={category.id}>
-                  <h2 className="text-3xl font-bold mb-4 text-foreground">{category.name}</h2>
+                  <h2 className="text-3xl font-bold mb-4 text-foreground">{getLang(category.name, lang)}</h2>
                   
                   {categoryPackages.length > 0 && (
                       <div className="grid grid-cols-1 gap-4 mb-6">

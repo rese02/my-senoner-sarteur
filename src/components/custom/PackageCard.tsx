@@ -12,9 +12,12 @@ import { useCartStore } from '@/hooks/use-cart-store';
 import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useLanguage } from '../providers/LanguageProvider';
+import { getLang } from '@/lib/utils';
 
 
 export function PackageCard({ product }: { product: Product }) {
+  const { t, lang } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const addToCart = useCartStore(state => state.addToCart);
   const { toast } = useToast();
@@ -24,13 +27,13 @@ export function PackageCard({ product }: { product: Product }) {
    const handleAddToCart = () => {
         addToCart({
             productId: product.id,
-            name: product.name,
+            name: getLang(product.name, lang),
             price: product.price,
             quantity: 1, // Packages are added one by one
         });
         toast({
-            title: "Zum Warenkorb hinzugefügt",
-            description: `1x ${product.name}`,
+            title: t.product.toast.addedTitle,
+            description: `1x ${getLang(product.name, lang)}`,
         });
     };
 
@@ -46,7 +49,7 @@ export function PackageCard({ product }: { product: Product }) {
           <div className="relative h-48 sm:h-auto sm:w-1/3 flex-shrink-0">
               <Image 
                   src={product.imageUrl || fallbackImageUrl} 
-                  alt={product.name} 
+                  alt={getLang(product.name, lang)} 
                   fill
                   sizes="(max-width: 640px) 100vw, 33vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -58,10 +61,10 @@ export function PackageCard({ product }: { product: Product }) {
           <div className="p-4 flex flex-col justify-between flex-grow gap-4">
               <div className="flex-grow">
                 <h3 className="font-bold text-lg text-foreground leading-tight line-clamp-2">
-                  {product.name}
+                  {getLang(product.name, lang)}
                 </h3>
                 <p className="text-muted-foreground text-sm mt-1 line-clamp-2">
-                  {product.description || 'Das Rundum-Sorglos-Paket für Ihren Start.'}
+                  {getLang(product.description, lang) || 'Das Rundum-Sorglos-Paket für Ihren Start.'}
                 </p>
               </div>
 
@@ -76,11 +79,11 @@ export function PackageCard({ product }: { product: Product }) {
                           className="flex-grow"
                         >
                           <ListPlus className="w-4 h-4 mr-2" />
-                          Inhalt
+                          {t.product.packageContent}
                         </Button>
                        <Button size="sm" onClick={handleAddToCart} className="flex-grow">
                           <ShoppingBag className="w-4 h-4 mr-2" />
-                          Hinzufügen
+                          {t.product.addToCart}
                         </Button>
                   </div>
               </div>
@@ -91,12 +94,12 @@ export function PackageCard({ product }: { product: Product }) {
         <DialogContent className="max-w-md p-0 overflow-hidden">
             <div className="flex flex-col">
                  <div className="relative h-48 w-full">
-                   <Image src={product.imageUrl || fallbackImageUrl} fill sizes="400px" className="object-cover" alt={product.name} data-ai-hint={product.imageHint} />
+                   <Image src={product.imageUrl || fallbackImageUrl} fill sizes="400px" className="object-cover" alt={getLang(product.name, lang)} data-ai-hint={product.imageHint} />
                 </div>
                 
                 <div className="p-6 space-y-4">
                      <div>
-                        <DialogTitle>{product.name}</DialogTitle>
+                        <DialogTitle>{getLang(product.name, lang)}</DialogTitle>
                         <DialogDescription>
                           Dieses Paket enthält die folgenden Artikel.
                         </DialogDescription>
@@ -124,7 +127,7 @@ export function PackageCard({ product }: { product: Product }) {
                     €{product.price.toFixed(2)}
                   </div>
                   <Button className="px-8" onClick={handleModalAddToCart}>
-                    In den Warenkorb
+                    {t.product.addToCart}
                   </Button>
                 </div>
             </div>

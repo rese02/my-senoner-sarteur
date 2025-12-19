@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/common/Logo';
 import { useLanguage } from '@/components/providers/LanguageProvider';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 
 export function CustomerSidebar({ showPlanner, showSommelier }: { showPlanner: boolean; showSommelier: boolean; }) {
   const pathname = usePathname();
@@ -44,7 +45,12 @@ export function CustomerSidebar({ showPlanner, showSommelier }: { showPlanner: b
         <div className="p-4 border-b border-primary-foreground/20 h-16 flex items-center justify-center">
             <Logo />
         </div>
-      <nav className="flex-1 p-4 space-y-1">
+
+        <div className="p-4">
+          <LanguageSwitcher />
+        </div>
+        
+      <nav className="flex-1 p-4 pt-0 space-y-1">
         {visibleNavItems.map((item) => {
            const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
            return (
