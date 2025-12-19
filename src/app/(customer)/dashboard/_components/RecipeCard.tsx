@@ -3,6 +3,7 @@
 
 import {
   Card,
+  CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -13,7 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 export function RecipeCard({ recipe }: { recipe: Recipe }) {
 
     return (
-        <Card className="overflow-hidden w-full">
+        <Card className="overflow-hidden w-full bg-card shadow-sm">
             <div className="grid md:grid-cols-2">
                 <div className="relative aspect-[4/3] md:aspect-auto min-h-[200px]">
                     <Image src={recipe.image} alt={recipe.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" data-ai-hint={recipe.imageHint} priority />

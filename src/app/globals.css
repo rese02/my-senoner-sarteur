@@ -4,37 +4,37 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%; /* Very light cool gray */
+    --background: 48 33% 94%; /* Light Beige (F5F5DC) */
     --foreground: 215 25% 27%; /* Dark Slate Blue */
 
-    --card: 0 0% 100%;
+    --card: 48 33% 98%; /* Slightly lighter beige for cards */
     --card-foreground: 215 25% 27%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 27%;
     
-    --primary: 210 100% 20%; /* The user's desired deep blue (#003366) */
-    --primary-foreground: 210 40% 98%;
+    --primary: 122 55% 24%; /* Deep Green (#1B5E20) */
+    --primary-foreground: 48 33% 98%;
 
-    --secondary: 210 40% 94%; /* Lighter, soft blue-gray */
-    --secondary-foreground: 210 100% 20%; /* Deep blue on light background */
+    --secondary: 48 33% 90%; /* A slightly darker beige for secondary elements */
+    --secondary-foreground: 122 55% 24%;
 
     --muted: 210 40% 94%;
     --muted-foreground: 215 15% 55%;
 
-    --accent: 200 100% 50%; /* A brighter, vibrant blue for highlights */
-    --accent-foreground: 210 40% 98%;
+    --accent: 45 100% 50%; /* Gold (#FFD700) */
+    --accent-foreground: 122 55% 15%; /* Darker green on gold for contrast */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 210 20% 88%;
-    --input: 210 30% 96%;
-    --ring: 210 100% 40%;
+    --border: 48 33% 88%;
+    --input: 48 33% 92%;
+    --ring: 122 55% 34%;
 
     --radius: 1rem;
 
-    /* Custom Status Colors harmonized with blue theme */
+    /* Custom Status Colors harmonized with new theme */
     --status-new-bg: 210 100% 92%;
     --status-new-fg: 210 100% 30%;
     --status-ready-bg: 140 80% 94%;
@@ -47,33 +47,33 @@
 
   .dark {
     /* Dark theme can be adjusted later if needed */
-    --background: 215 28% 17%;
-    --foreground: 210 20% 98%;
+    --background: 122 20% 10%;
+    --foreground: 48 33% 94%;
 
-    --card: 215 28% 19%;
-    --card-foreground: 210 20% 98%;
+    --card: 122 20% 12%;
+    --card-foreground: 48 33% 94%;
 
-    --popover: 215 28% 17%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 122 20% 10%;
+    --popover-foreground: 48 33% 94%;
 
-    --primary: 200 100% 50%;
-    --primary-foreground: 215 28% 17%;
+    --primary: 122 45% 55%;
+    --primary-foreground: 122 55% 15%;
 
-    --secondary: 215 28% 25%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 122 20% 18%;
+    --secondary-foreground: 48 33% 94%;
 
-    --muted: 215 28% 25%;
-    --muted-foreground: 215 15% 65%;
+    --muted: 122 20% 18%;
+    --muted-foreground: 48 33% 70%;
 
-    --accent: 200 100% 60%;
-    --accent-foreground: 215 28% 17%;
+    --accent: 45 100% 50%;
+    --accent-foreground: 122 55% 15%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 215 28% 25%;
-    --input: 215 28% 22%;
-    --ring: 200 100% 50%;
+    --border: 122 20% 20%;
+    --input: 122 20% 15%;
+    --ring: 122 45% 55%;
   }
 }
 

@@ -36,7 +36,7 @@ export function ProductCard({ product }: { product: Product }) {
     };
 
     return (
-        <Card className="overflow-hidden group transition-all duration-300 w-full h-full flex flex-col shadow-sm border">
+        <Card className="overflow-hidden group transition-all duration-300 w-full h-full flex flex-col shadow-sm border bg-card">
            <div className="relative aspect-[4/3] w-full bg-muted">
                 <Image 
                     src={product.imageUrl || fallbackImageUrl} 
@@ -48,9 +48,9 @@ export function ProductCard({ product }: { product: Product }) {
                 />
             </div>
             <CardContent className="p-3 flex flex-col flex-grow">
-                <h3 className="text-sm font-bold font-headline leading-tight line-clamp-2 flex-grow whitespace-normal">{product.name}</h3>
+                <h3 className="text-base font-bold font-headline leading-tight line-clamp-2 flex-grow whitespace-normal">{product.name}</h3>
                 <div className="flex items-baseline mt-1">
-                    <p className="text-base font-semibold text-primary">€{product.price.toFixed(2)}</p>
+                    <p className="text-lg font-semibold text-primary">€{product.price.toFixed(2)}</p>
                     <p className="text-xs text-muted-foreground ml-1">/ {product.unit}</p>
                 </div>
 

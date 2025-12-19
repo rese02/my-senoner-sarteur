@@ -41,45 +41,45 @@ export function PackageCard({ product }: { product: Product }) {
 
   return (
     <>
-      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 w-full">
-        <div className="grid grid-cols-[100px_1fr] items-stretch">
+      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 w-full bg-card">
+        <div className="grid grid-cols-[120px_1fr] items-stretch">
             {/* Left side: Image */}
             <div className="relative h-full w-full overflow-hidden">
                 <Image 
                     src={product.imageUrl || fallbackImageUrl} 
                     alt={product.name} 
                     fill
-                    sizes="100px"
+                    sizes="120px"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     data-ai-hint={product.imageHint}
                 />
             </div>
             
             {/* Right side: Content */}
-            <div className="p-3 pr-4 flex flex-col justify-between h-full gap-2">
+            <div className="p-4 flex flex-col justify-between h-full gap-2">
                 <div>
-                  <h3 className="font-headline text-base text-foreground font-bold leading-tight line-clamp-2">
+                  <h3 className="font-headline text-lg text-foreground font-bold leading-tight line-clamp-2">
                     {product.name}
                   </h3>
-                   <p className="text-base font-semibold text-primary mt-1">€{product.price.toFixed(2)}</p>
-                  <p className="text-muted-foreground text-xs mt-1 line-clamp-2">
+                   <p className="text-xl font-semibold text-primary mt-1">€{product.price.toFixed(2)}</p>
+                  <p className="text-muted-foreground text-sm mt-1 line-clamp-2">
                     {product.description || 'Das Rundum-Sorglos-Paket für Ihren Start.'}
                   </p>
                 </div>
 
-                <div className="mt-auto flex flex-col items-end gap-2">
+                <div className="mt-auto flex items-center justify-end gap-2">
                      <Button 
                         variant="outline" 
                         size="sm"
                         onClick={() => setIsOpen(true)}
-                        className="h-8 rounded-full"
+                        className="rounded-full"
                       >
                         <ListPlus className="w-4 h-4 mr-2" />
-                        Inhalt ansehen
+                        Inhalt
                       </Button>
-                     <Button size="sm" onClick={handleAddToCart} className="h-8 rounded-full">
+                     <Button size="sm" onClick={handleAddToCart} className="rounded-full">
                         <ShoppingBag className="w-4 h-4 mr-2" />
-                        Paket hinzufügen
+                        Hinzufügen
                       </Button>
                 </div>
             </div>
