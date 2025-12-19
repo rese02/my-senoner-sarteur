@@ -100,7 +100,6 @@ export default async function CustomerLayout({
           <MobileNav showSommelier={showSommelier} />
         </div>
       </div>
-      <Toaster />
     </FirebaseClientProvider>
   );
 }
