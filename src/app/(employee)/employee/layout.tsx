@@ -9,7 +9,8 @@ import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AppFooter } from "@/components/common/AppFooter";
-import { FirebaseClientProvider } from "@/firebase/client-provider"; // Importiert
+import { FirebaseClientProvider } from "@/firebase/client-provider"; 
+import { Toaster } from "@/components/ui/toaster";
 
 export default async function EmployeeLayout({
   children,
@@ -51,6 +52,7 @@ export default async function EmployeeLayout({
         </main>
         <AppFooter />
       </div>
+      <Toaster />
     </FirebaseClientProvider>
   );
 }

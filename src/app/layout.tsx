@@ -2,7 +2,6 @@
 import type { Metadata } from 'next';
 import { Lato, Merriweather } from 'next/font/google';
 import './globals.css';
-import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 // FirebaseClientProvider wird hier entfernt, da es nur in geschützten Layouts benötigt wird.
 
@@ -46,7 +45,6 @@ export default function RootLayout({
       >
         {/* FirebaseClientProvider wird hier entfernt. Children wird direkt gerendert. */}
         {children}
-        <Toaster />
       </body>
     </html>
   );
