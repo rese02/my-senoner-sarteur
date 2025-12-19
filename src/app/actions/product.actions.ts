@@ -49,8 +49,6 @@ export async function getDashboardData() {
       .where('isAvailable', '==', true)
       .get();
       
-    // FIX: Removed server-side ordering to prevent query from failing silently.
-    // Ordering will be done in code.
     const categoriesSnapshot = await adminDb
       .collection('categories')
       .get();
@@ -84,7 +82,11 @@ export async function getDashboardData() {
     );
 
     // Sort categories in the code instead of in the query
-    categories.sort((a, b) => a.name.de.localeCompare(b.name.de));
+    categories.sort((a, b) => {
+        const nameA = (typeof a.name === 'object' && a.name?.de) ? a.name.de : (a.name as string || '');
+        const nameB = (typeof b.name === 'object' && b.name?.de) ? b.name.de : (b.name as string || '');
+        return nameA.localeCompare(nameB);
+    });
     
     const stories = storiesSnapshot.docs.map((doc) =>
       toPlainObject({ id: doc.id, ...doc.data() } as Story)
@@ -125,8 +127,16 @@ export async function getProductsPageData() {
     );
 
      // Sort in code
-    products.sort((a, b) => a.name.de.localeCompare(b.name.de));
-    categories.sort((a, b) => a.name.de.localeCompare(b.name.de));
+    products.sort((a, b) => {
+      const nameA = (typeof a.name === 'object' && a.name?.de) ? a.name.de : (a.name as string || '');
+      const nameB = (typeof b.name === 'object' && b.name?.de) ? b.name.de : (b.name as string || '');
+      return nameA.localeCompare(nameB);
+    });
+    categories.sort((a, b) => {
+      const nameA = (typeof a.name === 'object' && a.name?.de) ? a.name.de : (a.name as string || '');
+      const nameB = (typeof b.name === 'object' && b.name?.de) ? b.name.de : (b.name as string || '');
+      return nameA.localeCompare(nameB);
+    });
 
 
     return { products, categories };

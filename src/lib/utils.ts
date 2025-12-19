@@ -67,8 +67,7 @@ export function toPlainObject<T>(data: T): T {
  * @returns The translated string/array or a fallback.
  */
 export function getLang(field: any, lang: Language): any {
-  if (!field) {
-    // Return empty string for falsy fields, or an empty array if it's an array context
+  if (field === null || field === undefined) {
     return Array.isArray(field) ? [] : "";
   }
 
@@ -88,6 +87,6 @@ export function getLang(field: any, lang: Language): any {
     return field[lang] || field['de'] || field['en'] || Object.values(field)[0] as string || "";
   }
   
-  // Default fallback
+  // Default fallback for other types
   return "";
 }
