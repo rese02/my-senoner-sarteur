@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
     
-    --primary: 221 83% 53%; /* Rich, Confident Blue */
+    --primary: 221 83% 43%; /* Slightly darker, richer blue */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 220 14% 91%; /* Light Gray for secondary elements */
@@ -23,7 +23,7 @@
     --muted: 220 9% 80%;
     --muted-foreground: 220 9% 45%;
 
-    --accent: 217 91% 65%; /* A slightly brighter blue for accents */
+    --accent: 217 91% 60%; /* A vibrant blue for accents */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -34,16 +34,6 @@
     --ring: 217 91% 65%;
 
     --radius: 1rem;
-
-    /* Custom Status Colors harmonized with new theme */
-    --status-new-bg: 210 100% 92%;
-    --status-new-fg: 210 100% 30%;
-    --status-ready-bg: 140 80% 94%;
-    --status-ready-fg: 140 70% 30%;
-    --status-collected-bg: 220 10% 95%;
-    --status-collected-fg: 220 10% 40%;
-    --status-cancelled-bg: 0 80% 95%;
-    --status-cancelled-fg: 0 70% 45%;
   }
 
   .dark {

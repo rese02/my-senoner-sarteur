@@ -67,7 +67,7 @@ export function PackageCard({ product }: { product: Product }) {
 
               <div className="mt-auto flex flex-col gap-2">
                    <p className="text-2xl font-bold text-primary">€{product.price.toFixed(2)}</p>
-                  <div className="flex items-center gap-2 w-full">
+                  <div className="flex flex-col sm:flex-row items-center gap-2 w-full">
                        <Button 
                           variant="outline" 
                           size="sm"

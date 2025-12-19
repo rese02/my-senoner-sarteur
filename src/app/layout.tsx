@@ -21,7 +21,6 @@ const ptSans = PT_Sans({
   variable: '--font-body',
 });
 
-// Using a single font for a cleaner, more modern UI
 const fontHeadline = PT_Sans({
   subsets: ['latin'],
   weight: ['700'],
