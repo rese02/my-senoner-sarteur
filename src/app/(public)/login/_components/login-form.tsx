@@ -1,9 +1,7 @@
 
-
 'use client';
 
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useAuth } from '@/firebase/provider';
 import { createSession } from '@/app/actions/auth.actions';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +14,7 @@ import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { initializeFirebase } from '@/firebase'; // Import the central initializer
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Bitte geben Sie eine gültige E-Mail ein.' }),
@@ -24,7 +23,9 @@ const formSchema = z.object({
 
 export function LoginForm() {
   const { toast } = useToast();
-  const auth = useAuth();
+  // We initialize Firebase here specifically for the login action.
+  // This avoids the need for a global provider on public pages.
+  const { auth } = initializeFirebase();
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({

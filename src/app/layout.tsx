@@ -4,7 +4,7 @@ import { Lato, Merriweather } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
-import { FirebaseClientProvider } from '@/firebase/client-provider';
+// FirebaseClientProvider wird hier entfernt, da es nur in geschützten Layouts benötigt wird.
 
 export const metadata: Metadata = {
   title: 'My Senoner Sarteur - Premium Supermarkt & Feinkost in Wolkenstein/Selva',
@@ -44,10 +44,9 @@ export default function RootLayout({
           merriweather.variable
         )}
       >
-        <FirebaseClientProvider>
-          {children}
-          <Toaster />
-        </FirebaseClientProvider>
+        {/* FirebaseClientProvider wird hier entfernt. Children wird direkt gerendert. */}
+        {children}
+        <Toaster />
       </body>
     </html>
   );
