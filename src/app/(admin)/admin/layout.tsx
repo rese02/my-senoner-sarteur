@@ -11,7 +11,6 @@ import { AppFooter } from "@/components/common/AppFooter";
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
-import { Toaster } from "@/components/ui/toaster";
 
 
 // This layout is now a Server Component, which is faster and more secure.
@@ -32,10 +31,12 @@ export default async function AdminLayout({
 
   return (
       <div className="flex h-dvh bg-secondary/50 text-foreground">
-        <AdminSidebar />
+        <div className="hidden lg:flex">
+          <AdminSidebar />
+        </div>
         <div className="flex-1 flex flex-col overflow-hidden">
           <header className="flex-none h-16 flex items-center justify-between border-b bg-card px-4 md:px-6 sticky top-0 z-20">
-              <div className="md:hidden flex items-center gap-4">
+              <div className="lg:hidden flex items-center gap-4">
                   <Sheet>
                     <SheetTrigger asChild>
                       <Button variant="ghost" size="icon">
@@ -54,16 +55,15 @@ export default async function AdminLayout({
                       Admin
                   </div>
               </div>
-              <div className="hidden md:block">
+              <div className="hidden lg:block">
                 {/* Platzhalter, damit der User-Button rechts bleibt */}
               </div>
               <UserProfileDropdown user={session as User} />
           </header>
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-24 md:pb-8 bg-background">
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-24 lg:pb-8 bg-background">
               {children}
               <AppFooter />
           </main>
-          <Toaster />
           <AdminMobileNav />
         </div>
       </div>
