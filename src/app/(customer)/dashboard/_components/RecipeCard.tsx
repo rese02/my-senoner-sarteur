@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -33,7 +34,7 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
                 
                  <Dialog>
                     <DialogTrigger asChild>
-                         <Button variant="outline" className="mt-6 w-fit">{t.dashboard.btn_view_recipe}</Button>
+                         <Button variant="default" className="mt-6 w-fit">{t.dashboard.btn_view_recipe}</Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-4xl w-[95vw] p-0 overflow-hidden rounded-2xl">
                        <DialogHeader className="sr-only">
@@ -63,9 +64,9 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
                             <div className="bg-secondary/50 p-4 rounded-xl border">
                               <h3 className="font-bold uppercase text-xs tracking-wider text-muted-foreground mb-3">{t.dashboard.recipe_ingredients}</h3>
                               <ul className="space-y-2">
-                                {safeIngredients.map((ing: string, i: number) => (
+                                {safeIngredients.map((ing: any, i: number) => (
                                   <li key={i} className="flex items-center text-card-foreground font-medium">
-                                    <span className="w-1.5 h-1.5 bg-primary rounded-full mr-3"></span> {ing}
+                                    <span className="w-1.5 h-1.5 bg-primary rounded-full mr-3"></span> {getLang(ing, lang)}
                                   </li>
                                 ))}
                               </ul>

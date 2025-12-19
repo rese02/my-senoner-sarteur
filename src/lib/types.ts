@@ -1,4 +1,5 @@
 
+
 import type { LucideIcon } from "lucide-react";
 
 export type UserRole = 'customer' | 'employee' | 'admin';
@@ -45,20 +46,20 @@ export type OrderStatus = 'new' | 'picking' | 'ready' | 'collected' | 'ready_for
 
 // Centralized Status Map
 export const STATUS_MAP: Record<OrderStatus, { label: string; className: string; icon: LucideIcon }> = {
-    new: { label: 'Neu', className: 'bg-blue-100 text-blue-800', icon: require('lucide-react').Info },
-    picking: { label: 'Wird gepackt', className: 'bg-yellow-100 text-yellow-800', icon: require('lucide-react').PackageSearch },
-    ready: { label: 'Abholbereit', className: 'bg-green-100 text-green-800', icon: require('lucide-react').CheckCircle },
-    ready_for_delivery: { label: 'Auf dem Weg', className: 'bg-cyan-100 text-cyan-800', icon: require('lucide-react').Truck },
-    delivered: { label: 'Geliefert', className: 'bg-purple-100 text-purple-800', icon: require('lucide-react').Home },
-    collected: { label: 'Abgeholt', className: 'bg-purple-100 text-purple-800', icon: require('lucide-react').CheckCircle },
-    paid: { label: 'Bezahlt', className: 'bg-emerald-100 text-emerald-800', icon: require('lucide-react').Euro },
-    cancelled: { label: 'Storniert', className: 'bg-red-100 text-red-800', icon: require('lucide-react').XCircle }
+    new: { label: 'status.new', className: 'bg-blue-100 text-blue-800', icon: require('lucide-react').Info },
+    picking: { label: 'status.picking', className: 'bg-yellow-100 text-yellow-800', icon: require('lucide-react').PackageSearch },
+    ready: { label: 'status.ready', className: 'bg-green-100 text-green-800', icon: require('lucide-react').CheckCircle },
+    ready_for_delivery: { label: 'status.ready_for_delivery', className: 'bg-cyan-100 text-cyan-800', icon: require('lucide-react').Truck },
+    delivered: { label: 'status.delivered', className: 'bg-purple-100 text-purple-800', icon: require('lucide-react').Home },
+    collected: { label: 'status.collected', className: 'bg-purple-100 text-purple-800', icon: require('lucide-react').CheckCircle },
+    paid: { label: 'status.paid', className: 'bg-emerald-100 text-emerald-800', icon: require('lucide-react').Euro },
+    cancelled: { label: 'status.cancelled', className: 'bg-red-100 text-red-800', icon: require('lucide-react').XCircle }
 };
 
 
 export interface OrderItem {
   productId: string;
-  productName: string;
+  productName: string | { [key: string]: string };
   quantity: number;
   price: number;
 }
@@ -92,15 +93,22 @@ export interface Session {
   [key: string]: any;
 }
 
+export interface MultilingualText {
+  de: string;
+  it: string;
+  en: string;
+}
+
 export interface Recipe {
-  title: string;
-  subtitle: string;
+  title: string | MultilingualText;
+  subtitle: string | MultilingualText;
   image: string;
   imageHint: string;
-  ingredients: string[];
-  instructions: string;
-  description: string;
+  ingredients: string[] | MultilingualText[];
+  instructions: string | MultilingualText;
+  description: string | MultilingualText;
 }
+
 
 export type CartItem = {
   productId: string;
@@ -113,30 +121,30 @@ export interface Story {
   id: string;
   imageUrl: string;
   imageHint: string;
-  label: string;
-  author: string;
+  label: string | MultilingualText;
+  author: string | MultilingualText;
   expiresAt: string;
 }
 
 export interface Category {
   id: string;
-  name:string;
+  name: string | MultilingualText;
 }
 
 export interface PackageItem {
-  item: string;
+  item: string | MultilingualText;
   amount: string;
 }
 
 export interface Product {
   id: string;
-  name: string;
+  name: string | MultilingualText;
   price: number;
   unit: string;
   imageUrl: string;
   imageHint: string;
   categoryId: string;
-  description?: string;
+  description?: string | MultilingualText;
   isAvailable: boolean;
   type: 'product' | 'package';
   packageContent?: PackageItem[];
@@ -146,15 +154,15 @@ export interface Product {
 
 export interface PlannerIngredientRule {
   productId: string;
-  productName: string;
+  productName: string | MultilingualText;
   baseAmount: number; 
   unit: string; 
 }
 
 export interface PlannerEvent {
   id: string;
-  title: string;
-  description: string;
+  title: string | MultilingualText;
+  description: string | MultilingualText;
   imageUrl: string;
   imageHint: string;
   ingredients: PlannerIngredientRule[];

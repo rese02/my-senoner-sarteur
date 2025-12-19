@@ -1,13 +1,12 @@
 
+
 'use client';
 
 import { deleteMyOrders, getCustomerOrders } from "@/app/actions/order.actions";
-import { PageHeader } from "@/components/common/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { Order, OrderStatus } from "@/lib/types";
 import { format, parseISO } from 'date-fns';
-import { de, it, enUS } from 'date-fns/locale';
 import { Package, FileText, Calendar, Trash2, Loader2, ListChecks, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useTransition, useMemo, useCallback } from "react";
@@ -34,7 +33,7 @@ function OrderHistoryCard({
     isSelected: boolean;
     onSelect: (orderId: string) => void;
 }) {
-    const { t, dateLocale } = useLanguage();
+    const { t, dateLocale, lang } = useLanguage();
     const isGroceryList = order.type === 'grocery_list';
     const relevantDate = order.pickupDate || order.deliveryDate || order.createdAt;
     const StatusIcon = STATUS_MAP[order.status]?.icon;
@@ -45,6 +44,9 @@ function OrderHistoryCard({
             onSelect(order.id);
         }
     };
+
+    const statusLabelKey = STATUS_MAP[order.status]?.label as keyof typeof t.status;
+    const statusLabel = t.status[statusLabelKey] || order.status;
 
     return (
         <div className="flex items-start gap-3">
@@ -71,7 +73,7 @@ function OrderHistoryCard({
                         <div>
                             <CardTitle className="text-base font-bold flex items-center gap-2">
                                 {isGroceryList ? <FileText className="w-4 h-4 text-orange-600" /> : <Package className="w-4 h-4 text-primary" />}
-                                <span className="text-card-foreground">{isGroceryList ? t.concierge.title : 'Vorbestellung'}</span>
+                                <span className="text-card-foreground">{isGroceryList ? t.concierge.title : t.orders.preorder}</span>
                             </CardTitle>
                             <CardDescription className="text-xs text-muted-foreground">
                                 #{order.id.slice(-6)} - {format(parseISO(order.createdAt), "dd.MM.yyyy, HH:mm")}
@@ -79,7 +81,7 @@ function OrderHistoryCard({
                         </div>
                         <Badge className={cn("capitalize font-semibold text-xs whitespace-nowrap", STATUS_MAP[order.status]?.className)}>
                             {StatusIcon && <StatusIcon className="w-3 h-3 mr-1.5"/>}
-                            {STATUS_MAP[order.status]?.label}
+                            {statusLabel}
                         </Badge>
                     </div>
                 </CardHeader>
@@ -97,7 +99,7 @@ function OrderHistoryCard({
                             <div className="space-y-2">
                                 {order.items.map(item => (
                                     <div key={item.productId} className="flex justify-between items-center py-1 border-b last:border-0">
-                                        <span className="text-sm font-medium">{item.quantity}x {getLang(item.productName, t.lang)}</span>
+                                        <span className="text-sm font-medium">{item.quantity}x {getLang(item.productName, lang)}</span>
                                         <span className="font-mono text-muted-foreground text-sm">€{(item.price * item.quantity).toFixed(2)}</span>
                                     </div>
                                 ))}

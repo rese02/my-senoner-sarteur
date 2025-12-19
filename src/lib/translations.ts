@@ -1,4 +1,5 @@
 
+
 export type Language = 'de' | 'it' | 'en';
 
 export const translations = {
@@ -16,11 +17,11 @@ export const translations = {
     },
     dashboard: {
       storiesTitle: "Daily Stories",
-      recipeTitle: "Rezept der Woche",
-      wheelTitle: "Ihr tägliches Glücksrad",
-      wheelDescription: "Drehen und gewinnen Sie tolle Preise – jeden Tag eine neue Chance!",
-      wheelButton: "Jetzt drehen & gewinnen!",
-      openOrderTitle: "Status Ihrer Bestellung",
+      recipe_title: "Rezept der Woche",
+      recipe_ingredients: "Zutaten",
+      recipe_prep: "Zubereitung",
+      btn_view_recipe: "Zum Rezept",
+      active_order: "Offene Bestellung",
       openOrderDescription: "Ihre Bestellung ist",
       viewAllOrders: "Alle Bestellungen ansehen"
     },
@@ -77,6 +78,7 @@ export const translations = {
     orders: {
         title: "Meine Bestellungen",
         description: "Hier sehen Sie den Status Ihrer aktuellen und vergangenen Bestellungen.",
+        preorder: "Vorbestellung",
         manage: "Verwalten",
         cancel: "Abbrechen",
         delete: "Löschen",
@@ -164,13 +166,17 @@ export const translations = {
         recommendations: "Passende Weinempfehlungen:",
         startNewScan: "Neuen Scan starten",
         alertTitle: "KI-Vorschlag",
-        alertDescription: "Dieser Vorschlag basiert auf künstlicher Intelligenz und kann Fehler enthalten. Prüfen Sie Allergene stets auf der Verpackung.",
-        toast: {
-            noRecommendation: "Keine Empfehlungen",
-            noRecommendationDesc: "Die KI konnte keine passenden Weine in unserem Katalog finden.",
-            analysisFailed: "Analyse fehlgeschlagen",
-            analysisFailedDesc: "Die KI konnte das Bild nicht analysieren. Bitte versuchen Sie es erneut."
-        }
+        alertDescription: "Dieser Vorschlag basiert auf künstlicher Intelligenz und kann Fehler enthalten. Prüfen Sie Allergene stets auf der Verpackung."
+    },
+    status: {
+      new: "Eingegangen",
+      picking: "Wird gepackt",
+      ready: "Abholbereit",
+      ready_for_delivery: "Lieferbereit",
+      delivered: "Geliefert",
+      collected: "Abgeholt",
+      paid: "Bezahlt",
+      cancelled: "Storniert"
     },
     datePicker: {
         placeholder: "Wählen Sie ein Datum"
@@ -179,7 +185,10 @@ export const translations = {
       loading: "Lade...",
       back: "Zurück",
       save: "Speichern",
-      logout: "Abmelden"
+      logout: "Abmelden",
+      total: "Gesamt",
+      impressum: "Impressum",
+      privacy: "Datenschutz"
     }
   },
   it: {
@@ -196,11 +205,11 @@ export const translations = {
     },
     dashboard: {
       storiesTitle: "Daily Stories",
-      recipeTitle: "Ricetta della settimana",
-      wheelTitle: "La tua Ruota della Fortuna",
-      wheelDescription: "Gira e vinci fantastici premi – una nuova chance ogni giorno!",
-      wheelButton: "Gira e vinci!",
-      openOrderTitle: "Stato del tuo ordine",
+      recipe_title: "Ricetta della settimana",
+      recipe_ingredients: "Ingredienti",
+      recipe_prep: "Preparazione",
+      btn_view_recipe: "Vedi ricetta",
+      active_order: "Ordine attivo",
       openOrderDescription: "Il tuo ordine è",
       viewAllOrders: "Vedi tutti gli ordini"
     },
@@ -257,6 +266,7 @@ export const translations = {
     orders: {
         title: "I miei ordini",
         description: "Qui puoi vedere lo stato dei tuoi ordini attuali e passati.",
+        preorder: "Pre-ordine",
         manage: "Gestisci",
         cancel: "Annulla",
         delete: "Elimina",
@@ -346,6 +356,16 @@ export const translations = {
         alertTitle: "Suggerimento AI",
         alertDescription: "Questo suggerimento si basa sull'intelligenza artificiale e può contenere errori. Controllare sempre gli allergeni sulla confezione."
     },
+    status: {
+      new: "Ricevuto",
+      picking: "In preparazione",
+      ready: "Pronto per il ritiro",
+      ready_for_delivery: "Pronto per la consegna",
+      delivered: "Consegnato",
+      collected: "Ritirato",
+      paid: "Pagato",
+      cancelled: "Annullato"
+    },
     datePicker: {
         placeholder: "Scegli una data"
     },
@@ -353,7 +373,10 @@ export const translations = {
       loading: "Caricamento...",
       back: "Indietro",
       save: "Salva",
-      logout: "Esci"
+      logout: "Esci",
+      total: "Totale",
+      impressum: "Note Legali",
+      privacy: "Privacy"
     }
   },
   en: {
@@ -370,11 +393,11 @@ export const translations = {
     },
     dashboard: {
       storiesTitle: "Daily Stories",
-      recipeTitle: "Recipe of the Week",
-      wheelTitle: "Your Daily Wheel of Fortune",
-      wheelDescription: "Spin and win great prizes – a new chance every day!",
-      wheelButton: "Spin & Win Now!",
-      openOrderTitle: "Your Order Status",
+      recipe_title: "Recipe of the Week",
+      recipe_ingredients: "Ingredients",
+      recipe_prep: "Preparation",
+      btn_view_recipe: "View Recipe",
+      active_order: "Active Order",
       openOrderDescription: "Your order is",
       viewAllOrders: "View all orders"
     },
@@ -431,6 +454,7 @@ export const translations = {
     orders: {
         title: "My Orders",
         description: "Here you can see the status of your current and past orders.",
+        preorder: "Pre-order",
         manage: "Manage",
         cancel: "Cancel",
         delete: "Delete",
@@ -520,6 +544,16 @@ export const translations = {
         alertTitle: "AI Suggestion",
         alertDescription: "This suggestion is based on artificial intelligence and may contain errors. Always check allergens on the packaging."
     },
+    status: {
+      new: "Received",
+      picking: "Packing",
+      ready: "Ready for Pickup",
+      ready_for_delivery: "Ready for Delivery",
+      delivered: "Delivered",
+      collected: "Collected",
+      paid: "Paid",
+      cancelled: "Cancelled"
+    },
     datePicker: {
         placeholder: "Pick a date"
     },
@@ -527,7 +561,10 @@ export const translations = {
       loading: "Loading...",
       back: "Back",
       save: "Save",
-      logout: "Log out"
+      logout: "Log out",
+      total: "Total",
+      impressum: "Impressum",
+      privacy: "Privacy"
     }
   }
 };

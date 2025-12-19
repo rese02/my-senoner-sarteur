@@ -6,22 +6,30 @@ import 'server-only';
 import { adminDb } from '@/lib/firebase-admin';
 import { getSession } from '@/lib/session';
 import { toPlainObject } from '@/lib/utils';
-import type { Product, Category, Story, Recipe, Order, User } from '@/lib/types';
+import type { Product, Category, Story, Recipe, Order, User, MultilingualText, PackageItem } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
+const MultilingualTextSchema = z.object({
+  de: z.string(),
+  it: z.string(),
+  en: z.string(),
+});
+
+const PackageItemSchema = z.object({
+    item: z.union([z.string(), MultilingualTextSchema]),
+    amount: z.string(),
+});
+
 const ProductSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters long."}),
+  name: z.union([z.string(), MultilingualTextSchema]),
   price: z.preprocess((val) => Number(val), z.number().positive({ message: "Price must be a positive number."})),
   unit: z.string().min(1, { message: "Unit is required."}),
   imageUrl: z.string().url({ message: "A valid image URL is required."}).or(z.literal('')),
   imageHint: z.string().optional(),
-  description: z.string().optional(),
+  description: z.union([z.string(), MultilingualTextSchema]).optional(),
   type: z.enum(['product', 'package']),
-  packageContent: z.array(z.object({
-    item: z.string(),
-    amount: z.string(),
-  })).optional(),
+  packageContent: z.array(PackageItemSchema).optional(),
 });
 
 
@@ -42,7 +50,7 @@ export async function getDashboardData() {
       .get();
     const categoriesSnapshot = await adminDb
       .collection('categories')
-      .orderBy('name')
+      .orderBy('name.de') // Sort by German name
       .get();
     const storiesSnapshot = await adminDb.collection('stories').limit(10).get();
     const recipeDoc = await adminDb.collection('content').doc('recipe_of_the_week').get();
@@ -100,11 +108,9 @@ export async function getProductsPageData() {
   try {
     const productsSnapshot = await adminDb
       .collection('products')
-      .orderBy('name')
       .get();
     const categoriesSnapshot = await adminDb
       .collection('categories')
-      .orderBy('name')
       .get();
 
     const products = productsSnapshot.docs.map((doc) =>
@@ -114,6 +120,12 @@ export async function getProductsPageData() {
     const categories = categoriesSnapshot.docs.map((doc) =>
       toPlainObject({ ...doc.data(), id: doc.id } as Category)
     );
+
+     // Sort in code
+    products.sort((a, b) => (typeof a.name === 'string' ? a.name : a.name.de).localeCompare(typeof b.name === 'string' ? b.name : b.name.de));
+    categories.sort((a, b) => (typeof a.name === 'string' ? a.name : a.name.de).localeCompare(typeof b.name === 'string' ? b.name : b.name.de));
+
+
     return { products, categories };
   } catch (error) {
     console.error("Failed to fetch products page data:", error);
@@ -138,9 +150,9 @@ export async function toggleProductAvailability(
 }
 
 // Create a new category
-export async function createCategory(name: string): Promise<Category> {
+export async function createCategory(name: MultilingualText): Promise<Category> {
   await requireAdmin();
-  const validatedName = z.string().trim().min(1, 'Category name cannot be empty.').parse(name);
+  const validatedName = MultilingualTextSchema.parse(name);
   
   const categoryCollection = adminDb.collection('categories');
   const docRef = await categoryCollection.add({ name: validatedName });
@@ -234,13 +246,14 @@ export async function deleteProduct(productId: string) {
 
 
 function getFallbackRecipe(): Recipe {
+    const emptyText = { de: '', it: '', en: '' };
     return {
-        title: 'Kein Rezept verfügbar',
-        subtitle: 'Bitte im Admin-Bereich ein Rezept der Woche festlegen.',
+        title: { de: 'Kein Rezept verfügbar', it: 'Nessuna ricetta disponibile', en: 'No recipe available' },
+        subtitle: { de: 'Bitte im Admin-Bereich ein Rezept der Woche festlegen.', it: 'Imposta una ricetta della settimana nell\'area admin.', en: 'Please set a recipe of the week in the admin area.' },
         image: 'https://picsum.photos/seed/recipefallback/1080/800',
         imageHint: 'empty plate',
-        description: 'Derzeit ist kein Rezept der Woche hinterlegt.',
+        description: { de: 'Derzeit ist kein Rezept der Woche hinterlegt.', it: 'Attualmente non è stata impostata nessuna ricetta della settimana.', en: 'There is currently no recipe of the week.' },
         ingredients: [],
-        instructions: ''
+        instructions: emptyText
     };
 }
