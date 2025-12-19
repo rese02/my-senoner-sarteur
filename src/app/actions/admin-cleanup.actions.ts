@@ -141,16 +141,20 @@ export async function deleteInactiveUsers() {
             firestoreBatch.delete(doc.ref);
             deletedOrdersCount++;
         });
+        
+        // 2. Alle AI-Anfragen des Benutzers löschen
+        const aiRequestsRef = adminDb.collection('users').doc(uid).collection('aiRequests').doc('sommelier');
+        firestoreBatch.delete(aiRequestsRef);
 
-        // 2. Das Benutzerdokument selbst zum Batch hinzufügen
+        // 3. Das Benutzerdokument selbst zum Batch hinzufügen
         const userRef = adminDb.collection('users').doc(uid);
         firestoreBatch.delete(userRef);
     }
     
-    // 3. Alle Firestore-Dokumente löschen
+    // 4. Alle Firestore-Dokumente löschen
     await firestoreBatch.commit();
     
-    // 4. Benutzer aus Firebase Authentication löschen (kann in Batches bis zu 1000)
+    // 5. Benutzer aus Firebase Authentication löschen (kann in Batches bis zu 1000)
     await adminAuth.deleteUsers(uidsToDelete);
 
 
