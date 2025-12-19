@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import type { Language } from "./translations"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -57,4 +58,23 @@ export function toPlainObject<T>(data: T): T {
 
   // Return primitives and other types as is
   return data;
+}
+
+/**
+ * Retrieves the correct string from a multilingual object based on the current language.
+ * @param field The object containing language keys (e.g., { de: "Apfel", it: "Mela" }) or a simple string.
+ * @param lang The current language ('de', 'it', or 'en').
+ * @returns The translated string or a fallback.
+ */
+export function getLang(field: any, lang: Language): string {
+  if (!field) {
+    return "";
+  }
+  // If the field is just a string (for legacy data), return it directly.
+  if (typeof field === 'string') {
+    return field;
+  }
+  // If it's an object, try to get the string for the current language.
+  // Fallback chain: Current Lang -> German -> English -> first available -> empty string.
+  return field[lang] || field['de'] || field['en'] || Object.values(field)[0] as string || "";
 }
