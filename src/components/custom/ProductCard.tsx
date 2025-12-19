@@ -64,8 +64,8 @@ export function ProductCard({ product }: { product: Product }) {
                             <Plus className="h-4 w-4" />
                         </Button>
                     </div>
-                     <Button size="sm" className="rounded-full" onClick={handleAddToCart}>
-                        <ShoppingCart className="mr-2 h-4 w-4" /> Hinzufügen
+                     <Button size="icon" className="rounded-full h-9 w-9 shrink-0" onClick={handleAddToCart} aria-label="In den Warenkorb">
+                        <ShoppingCart className="h-4 w-4" />
                     </Button>
                 </div>
             </CardContent>
