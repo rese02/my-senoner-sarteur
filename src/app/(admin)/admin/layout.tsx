@@ -51,7 +51,7 @@ export default async function AdminLayout({
                       <AdminSidebar />
                     </SheetContent>
                   </Sheet>
-                  <div className="font-bold font-headline text-lg text-primary">
+                  <div className="font-bold text-lg text-primary">
                       Admin
                   </div>
               </div>

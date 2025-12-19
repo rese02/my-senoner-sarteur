@@ -21,12 +21,6 @@ const ptSans = PT_Sans({
   variable: '--font-body',
 });
 
-const fontHeadline = PT_Sans({
-  subsets: ['latin'],
-  weight: ['700'],
-  variable: '--font-headline',
-});
-
 
 export default function RootLayout({
   children,
@@ -41,7 +35,7 @@ export default function RootLayout({
         className={cn(
           'font-body antialiased',
           ptSans.variable,
-          fontHeadline.variable
+          ptSans.variable, // Using same font for headline for modern look
         )}
       >
         <FirebaseClientProvider>

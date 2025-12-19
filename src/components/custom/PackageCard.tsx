@@ -57,7 +57,7 @@ export function PackageCard({ product }: { product: Product }) {
           {/* Content */}
           <div className="p-4 flex flex-col justify-between flex-grow gap-4">
               <div className="flex-grow">
-                <h3 className="font-headline text-xl text-foreground font-bold leading-tight line-clamp-2">
+                <h3 className="font-headline text-lg text-foreground font-bold leading-tight line-clamp-2">
                   {product.name}
                 </h3>
                 <p className="text-muted-foreground text-sm mt-1 line-clamp-2">

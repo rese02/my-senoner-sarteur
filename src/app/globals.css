@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
     
-    --primary: 221 83% 43%; /* Slightly darker, richer blue */
+    --primary: 221 83% 43%; /* Rich, trustworthy blue from the image */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 220 14% 91%; /* Light Gray for secondary elements */
@@ -33,7 +33,7 @@
     --input: 220 13% 91%;
     --ring: 217 91% 65%;
 
-    --radius: 1rem;
+    --radius: 0.75rem; /* Slightly softer radius */
   }
 
   .dark {
