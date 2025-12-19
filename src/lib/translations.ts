@@ -16,7 +16,6 @@ export const translations = {
     dashboard: {
       storiesTitle: "Daily Stories",
       recipeTitle: "Rezept der Woche",
-      recipeButton: "Rezept ansehen",
       wheelTitle: "Ihr tägliches Glücksrad",
       wheelDescription: "Drehen und gewinnen Sie tolle Preise – jeden Tag eine neue Chance!",
       wheelButton: "Jetzt drehen & gewinnen!",
@@ -42,7 +41,7 @@ export const translations = {
         }
     },
     product: {
-        addToCart: "Hinzugefügen",
+        addToCart: "Hinzufügen",
         packageContent: "Inhalt",
         toast: {
             addedTitle: "Zum Warenkorb hinzugefügt"
@@ -129,6 +128,7 @@ export const translations = {
         deleteAccountConfirmTitle: "Sind Sie absolut sicher?",
         deleteAccountConfirmDesc: "Diese Aktion kann nicht rückgängig gemacht werden. Ihr Konto, Ihre Bestellhistorie und Ihre Treuepunkte werden dauerhaft gelöscht.",
         deleteAccountButton: "Ja, mein Konto löschen",
+        language: "Sprache / Lingua",
         toast: {
             profileSaved: "Profil erfolgreich aktualisiert.",
             consentSaved: "Einwilligungen gespeichert.",
@@ -195,7 +195,6 @@ export const translations = {
     dashboard: {
       storiesTitle: "Daily Stories",
       recipeTitle: "Ricetta della settimana",
-      recipeButton: "Vedi ricetta",
       wheelTitle: "La tua Ruota della Fortuna",
       wheelDescription: "Gira e vinci fantastici premi – una nuova chance ogni giorno!",
       wheelButton: "Gira e vinci!",
@@ -308,6 +307,7 @@ export const translations = {
         deleteAccountConfirmTitle: "Sei assolutamente sicuro?",
         deleteAccountConfirmDesc: "Questa azione non può essere annullata. Il tuo account, la cronologia degli ordini e i punti fedeltà verranno eliminati in modo permanente.",
         deleteAccountButton: "Sì, elimina il mio account",
+        language: "Lingua / Sprache",
         toast: {
             profileSaved: "Profilo aggiornato con successo.",
             consentSaved: "Consensi salvati.",
@@ -368,7 +368,6 @@ export const translations = {
     dashboard: {
       storiesTitle: "Daily Stories",
       recipeTitle: "Recipe of the Week",
-      recipeButton: "View Recipe",
       wheelTitle: "Your Daily Wheel of Fortune",
       wheelDescription: "Spin and win great prizes – a new chance every day!",
       wheelButton: "Spin & Win Now!",
@@ -394,7 +393,7 @@ export const translations = {
         }
     },
     product: {
-        addToCart: "Add",
+        addToCart: "Add to cart",
         packageContent: "Contents",
         toast: {
             addedTitle: "Added to cart"
@@ -481,6 +480,7 @@ export const translations = {
         deleteAccountConfirmTitle: "Are you absolutely sure?",
         deleteAccountConfirmDesc: "This action cannot be undone. Your account, order history, and loyalty points will be permanently deleted.",
         deleteAccountButton: "Yes, delete my account",
+        language: "Language / Sprache",
         toast: {
             profileSaved: "Profile updated successfully.",
             consentSaved: "Consents saved.",
@@ -528,3 +528,5 @@ export const translations = {
     }
   }
 };
+
+    
