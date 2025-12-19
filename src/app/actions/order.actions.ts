@@ -52,7 +52,7 @@ export async function createPreOrder(
   }));
 
   const orderData: Omit<Order, 'id'> = {
-    userId: session.userId,
+    userId: session.id,
     customerName: session.name,
     createdAt: new Date().toISOString(),
     type: 'preorder',
@@ -88,7 +88,7 @@ export async function createConciergeOrder(
     finalDeliveryDate.setHours(11, 0, 0, 0);
 
     const orderData: Omit<Order, 'id'> = {
-        userId: session.userId,
+        userId: session.id,
         customerName: session.name,
         createdAt: new Date().toISOString(),
         type: 'grocery_list',
@@ -137,7 +137,7 @@ export async function setGroceryOrderTotal(orderId: string, total: number, check
         total: finalTotal,
         checklist: toPlainObject(validatedChecklist),
         status: 'ready_for_delivery',
-        processedBy: session.userId,
+        processedBy: session.id,
     });
     
     revalidatePath('/admin', 'layout');
@@ -169,7 +169,7 @@ export async function getCustomerOrders() {
 
     try {
         const ordersSnapshot = await adminDb.collection('orders')
-            .where('userId', '==', session.userId)
+            .where('userId', '==', session.id)
             .get();
 
         if (ordersSnapshot.empty) {
@@ -207,7 +207,7 @@ export async function deleteMyOrders(orderIds: string[]): Promise<{ success: boo
         if (doc.exists) {
             const order = doc.data() as Order;
             // SECURITY CHECKS: Must be own order and must be in a deletable state
-            if (order.userId === session.userId && deletableStatuses.includes(order.status)) {
+            if (order.userId === session.id && deletableStatuses.includes(order.status)) {
                 batch.delete(orderRef);
                 deletedCount++;
             }
