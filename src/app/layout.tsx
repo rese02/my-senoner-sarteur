@@ -5,6 +5,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Toaster } from "@/components/ui/toaster";
+import { LanguageProvider } from '@/components/providers/LanguageProvider';
 
 export const metadata: Metadata = {
   title: 'My Senoner Sarteur - Premium Supermarkt & Feinkost in Wolkenstein/Selva',
@@ -38,10 +39,12 @@ export default function RootLayout({
           ptSans.variable
         )}
       >
-        <FirebaseClientProvider>
-          {children}
-        </FirebaseClientProvider>
-        <Toaster />
+        <LanguageProvider>
+          <FirebaseClientProvider>
+            {children}
+          </FirebaseClientProvider>
+          <Toaster />
+        </LanguageProvider>
       </body>
     </html>
   );

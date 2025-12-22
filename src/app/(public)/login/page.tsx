@@ -1,17 +1,22 @@
 
+'use client';
+
 import { LoginForm } from './_components/login-form';
 import { Card, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Logo } from '@/components/common/Logo';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
-export default async function LoginPage() {
+export default function LoginPage() {
+  const { t } = useLanguage();
+
   return (
     <div className="w-full min-h-[100dvh] flex items-center justify-center bg-background p-4">
         <div className="relative z-10 w-full max-w-sm">
             <Card className="shadow-2xl border">
                 <CardContent className="flex flex-col items-center justify-center text-center p-8 md:p-10 w-full">
-                    <div className="h-12 mb-8">
+                    <div className="h-24 mb-8">
                        <Logo />
                     </div>
                     
@@ -26,9 +31,12 @@ export default async function LoginPage() {
                                 Jetzt registrieren
                             </Link>
                         </p>
+                        <div className="w-48 my-4">
+                           <LanguageSwitcher />
+                        </div>
                         <div className="flex justify-center gap-4 text-xs">
-                            <Link href="/impressum" className="hover:text-primary">Impressum</Link>
-                            <Link href="/datenschutz" className="hover:text-primary">Datenschutz</Link>
+                            <Link href="/impressum" className="hover:text-primary">{t.common.impressum}</Link>
+                            <Link href="/datenschutz" className="hover:text-primary">{t.common.privacy}</Link>
                         </div>
                     </div>
                 </CardContent>

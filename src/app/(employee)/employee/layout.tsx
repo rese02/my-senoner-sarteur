@@ -9,7 +9,7 @@ import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AppFooter } from "@/components/common/AppFooter";
-import { LanguageProvider } from "@/components/providers/LanguageProvider";
+
 
 export default async function EmployeeLayout({
   children,
@@ -31,7 +31,6 @@ export default async function EmployeeLayout({
   }
 
   return (
-      <LanguageProvider>
         <div className="flex flex-col min-h-screen bg-background">
           <header className="flex items-center justify-between p-4 border-b bg-card text-card-foreground">
             <div className="h-8">
@@ -51,6 +50,5 @@ export default async function EmployeeLayout({
           </main>
           <AppFooter />
         </div>
-      </LanguageProvider>
   );
 }
