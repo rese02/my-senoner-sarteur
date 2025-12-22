@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { OrdersByDayChart } from "./_components/OrdersByDayChart";
 import { useRouter } from "next/navigation";
 import { STATUS_MAP } from "@/lib/types";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onClose: () => void }) {
     const { toast } = useToast();
@@ -82,6 +83,7 @@ interface DashboardClientProps {
 export function DashboardClient({ initialStats, initialRecentOrders, initialChartData }: DashboardClientProps) {
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { t } = useLanguage();
     
     const handleShowDetails = (order: Order) => {
         setSelectedOrder(order);
@@ -151,17 +153,20 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {initialRecentOrders.map((order) => (
+                            {initialRecentOrders.map((order) => {
+                                const statusLabelKey = STATUS_MAP[order.status]?.label as keyof typeof t.status;
+                                const statusLabel = statusLabelKey ? t.status[statusLabelKey] : order.status;
+                                return (
                                 <TableRow key={order.id} onClick={() => handleShowDetails(order)} className="cursor-pointer">
                                     <TableCell>
                                         <div className="font-medium">{order.customerName}</div>
                                         <div className="text-xs text-muted-foreground font-mono">#{order.id.slice(-6)}</div>
                                     </TableCell>
                                     <TableCell>{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEE, dd.MM.", { locale: de })}</TableCell>
-                                    <TableCell><Badge className={cn("capitalize font-semibold", STATUS_MAP[order.status]?.className)}>{STATUS_MAP[order.status]?.label}</Badge></TableCell>
+                                    <TableCell><Badge className={cn("capitalize font-semibold", STATUS_MAP[order.status]?.className)}>{statusLabel}</Badge></TableCell>
                                     <TableCell className="text-right font-medium">€{order.total?.toFixed(2) || '-'}</TableCell>
                                 </TableRow>
-                            ))}
+                            )})}
                         </TableBody>
                     </Table>
                 )}
@@ -196,7 +201,11 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                         <p className="text-muted-foreground">{selectedOrder.type === 'grocery_list' ? 'Lieferung:' : 'Abholung:'}</p>
                         <p className="font-medium">{format(parseISO(selectedOrder.pickupDate || selectedOrder.deliveryDate || selectedOrder.createdAt), "EEEE, dd.MM.yyyy", { locale: de })}</p>
                         <p className="text-muted-foreground">Status:</p>
-                        <div><Badge className={cn("capitalize font-semibold", STATUS_MAP[selectedOrder.status]?.className)}>{STATUS_MAP[selectedOrder.status]?.label}</Badge></div>
+                        <div>
+                            <Badge className={cn("capitalize font-semibold", STATUS_MAP[selectedOrder.status]?.className)}>
+                                {(t.status as any)[STATUS_MAP[selectedOrder.status]?.label.replace('status.', '')] || selectedOrder.status}
+                            </Badge>
+                        </div>
                    </div>
                   
                   {selectedOrder.type === 'grocery_list' && selectedOrder.deliveryAddress && (

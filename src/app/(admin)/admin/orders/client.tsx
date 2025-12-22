@@ -28,6 +28,7 @@ import { updateOrderStatus } from "@/app/actions/order.actions";
 import { useRouter } from "next/navigation";
 import { Checkbox } from "@/components/ui/checkbox";
 import { STATUS_MAP } from "@/lib/types";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 
 function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onClose: () => void }) {
@@ -90,6 +91,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
+  const { t } = useLanguage();
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [customerDetails, setCustomerDetails] = useState<User | null>(null);
@@ -109,9 +111,12 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
             setOrders(prevOrders => prevOrders.map(order => 
                 order.id === orderId ? { ...order, status: newStatus } : order
             ));
+            const statusLabelKey = STATUS_MAP[newStatus]?.label as keyof typeof t.status;
+            const statusLabel = statusLabelKey ? t.status[statusLabelKey] : newStatus;
+
             toast({
                 title: "Status aktualisiert",
-                description: `Bestellung #${orderId.slice(-6)} ist jetzt "${STATUS_MAP[newStatus].label}".`
+                description: `Bestellung #${orderId.slice(-6)} ist jetzt "${statusLabel}".`
             });
         } catch (error) {
             toast({
@@ -201,9 +206,12 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">Alle Status</SelectItem>
-                        {Object.keys(STATUS_MAP).map(s => (
-                              <SelectItem key={s} value={s} className="capitalize text-xs">{STATUS_MAP[s as OrderStatus].label}</SelectItem>
-                          ))}
+                        {Object.keys(STATUS_MAP).map(s => {
+                              const statusKey = s as OrderStatus;
+                              const statusLabelKey = STATUS_MAP[statusKey]?.label as keyof typeof t.status;
+                              const statusLabel = statusLabelKey ? t.status[statusLabelKey] : statusKey;
+                              return (<SelectItem key={s} value={s} className="capitalize text-xs">{statusLabel}</SelectItem>)
+                          })}
                     </SelectContent>
                 </Select>
                  {!isSelectionMode ? (
@@ -317,9 +325,12 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.keys(STATUS_MAP).map(s => (
-                              <SelectItem key={s} value={s} className="capitalize text-xs">{STATUS_MAP[s as OrderStatus].label}</SelectItem>
-                          ))}
+                          {Object.keys(STATUS_MAP).map(s => {
+                              const statusKey = s as OrderStatus;
+                              const statusLabelKey = STATUS_MAP[statusKey]?.label as keyof typeof t.status;
+                              const statusLabel = statusLabelKey ? t.status[statusLabelKey] : statusKey;
+                              return (<SelectItem key={s} value={s} className="capitalize text-xs">{statusLabel}</SelectItem>)
+                          })}
                         </SelectContent>
                       </Select>
                     </TableCell>
@@ -386,7 +397,11 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                         <p className="text-muted-foreground">{selectedOrder.type === 'grocery_list' ? 'Lieferung:' : 'Abholung:'}</p>
                         <p className="font-medium">{format(parseISO(selectedOrder.pickupDate || selectedOrder.deliveryDate || selectedOrder.createdAt), "EEEE, dd.MM.yyyy", { locale: de })}</p>
                         <p className="text-muted-foreground">Status:</p>
-                        <div><Badge className={cn("capitalize font-semibold", STATUS_MAP[selectedOrder.status]?.className)}>{STATUS_MAP[selectedOrder.status]?.label}</Badge></div>
+                        <div>
+                            <Badge className={cn("capitalize font-semibold", STATUS_MAP[selectedOrder.status]?.className)}>
+                                {(t.status as any)[STATUS_MAP[selectedOrder.status]?.label.replace('status.', '')] || selectedOrder.status}
+                            </Badge>
+                        </div>
                    </div>
 
                   {selectedOrder.type === 'grocery_list' && selectedOrder.deliveryAddress && (
