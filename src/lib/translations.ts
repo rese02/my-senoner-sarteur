@@ -1,5 +1,12 @@
 
+
 export type Language = 'de' | 'it' | 'en';
+
+export interface MultilingualText {
+  de: string;
+  it: string;
+  en: string;
+}
 
 export const translations = {
   de: {

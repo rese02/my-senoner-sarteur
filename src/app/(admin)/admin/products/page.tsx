@@ -2,6 +2,7 @@
 import { ProductsClient } from './client';
 import { getProductsPageData } from '@/app/actions/product.actions';
 import { PageHeader } from '@/components/common/PageHeader';
+import { LanguageProvider } from '@/components/providers/LanguageProvider';
 
 // This is now a Server Component, fetching data directly.
 export default async function ProductsPage() {
@@ -9,12 +10,12 @@ export default async function ProductsPage() {
   const { products, categories } = await getProductsPageData();
 
   return (
-    <div>
+    <LanguageProvider>
         <PageHeader title="Produkte" description="Verwalten Sie Ihre Produktkategorien und Artikel." />
         <ProductsClient
           initialProducts={products}
           initialCategories={categories}
         />
-    </div>
+    </LanguageProvider>
   );
 }

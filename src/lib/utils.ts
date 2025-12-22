@@ -1,9 +1,13 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import type { Language } from "./translations"
+import type { Language, MultilingualText } from "./translations"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+export function getEmptyMultilingualText(): MultilingualText {
+    return { de: '', it: '', en: '' };
 }
 
 
@@ -84,7 +88,7 @@ export function getLang(field: any, lang: Language): any {
   // Handle multilingual objects
   if (typeof field === 'object') {
     // Fallback chain: Current Lang -> German -> English -> first available -> empty string.
-    return field[lang] || field['de'] || field['en'] || Object.values(field)[0] as string || "";
+    return field[lang] || field['de'] || field['it'] || field['en'] || Object.values(field)[0] as string || "";
   }
   
   // Default fallback for other types

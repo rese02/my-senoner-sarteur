@@ -17,7 +17,7 @@ const MultilingualTextSchema = z.object({
 });
 
 const PackageItemSchema = z.object({
-    item: z.union([z.string(), MultilingualTextSchema]),
+    item: MultilingualTextSchema,
     amount: z.string(),
 });
 

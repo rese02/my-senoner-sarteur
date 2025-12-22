@@ -1,4 +1,5 @@
 
+
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { PlusCircle, Trash2, Edit, Loader2, Plus, MoreVertical } from "lucide-re
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState, useTransition, useEffect } from "react";
-import type { Product, Category, PackageItem } from "@/lib/types";
+import type { Product, Category, PackageItem, MultilingualText } from "@/lib/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import {
   Sheet,
@@ -29,11 +30,15 @@ import { createCategory, deleteCategory, updateProduct, createProduct, deletePro
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { getLang, getEmptyMultilingualText } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
 
 export function ProductsClient({ initialProducts, initialCategories }: { initialProducts: Product[], initialCategories: Category[] }) {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
-
+  const { lang, t } = useLanguage();
   const fallbackImageUrl = PlaceHolderImages.find(p => p.id === 'placeholder-general')?.imageUrl || 'https://placehold.co/400x300';
 
 
@@ -51,13 +56,13 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
   const { toast } = useToast();
 
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryName, setNewCategoryName] = useState<MultilingualText>(getEmptyMultilingualText());
 
   const [isProductSheetOpen, setIsProductSheetOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
   const [currentCategoryId, setCurrentCategoryId] = useState<string | null>(null);
 
-  const [tempItem, setTempItem] = useState('');
+  const [tempItem, setTempItem] = useState<MultilingualText>(getEmptyMultilingualText());
   const [tempAmount, setTempAmount] = useState('');
 
   const handleAvailabilityToggle = (productId: string, currentStatus: boolean) => {
@@ -73,7 +78,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
   };
 
   const handleCreateCategory = () => {
-      if (!newCategoryName) {
+      if (!newCategoryName.de && !newCategoryName.it && !newCategoryName.en) {
         toast({ variant: 'destructive', title: 'Kategoriename ist erforderlich' });
         return;
       }
@@ -82,7 +87,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
           const newCategory = await createCategory(newCategoryName);
           setCategories(cats => [...cats, newCategory]);
           toast({ title: 'Kategorie erstellt!' });
-          setNewCategoryName('');
+          setNewCategoryName(getEmptyMultilingualText());
           setIsCategoryModalOpen(false);
         } catch (error: any) {
           toast({ variant: "destructive", title: "Fehler", description: error.message || "Kategorie konnte nicht erstellt werden."});
@@ -106,17 +111,25 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
   const handleOpenProductModal = (product: Product | null, categoryId: string) => {
       const initialProductState: Partial<Product> = product 
         ? { ...product } 
-        : { name: '', price: 0, unit: '', imageUrl: '', imageHint: '', type: 'product', packageContent: [] };
+        : { name: getEmptyMultilingualText(), price: 0, unit: '', imageUrl: '', imageHint: '', description: getEmptyMultilingualText(), type: 'product', packageContent: [] };
       setEditingProduct(initialProductState);
       setCurrentCategoryId(categoryId);
       setIsProductSheetOpen(true);
   };
 
-  const handleProductFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      if (!editingProduct) return;
-      const { name, value } = e.target;
-      setEditingProduct({ ...editingProduct, [name]: value });
+  const handleProductFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, fieldLang?: keyof MultilingualText) => {
+    if (!editingProduct) return;
+    const { name, value } = e.target;
+    
+    if (fieldLang && (name === 'name' || name === 'description')) {
+        const currentField = editingProduct[name];
+        const updatedField = typeof currentField === 'object' ? { ...currentField, [fieldLang]: value } : { de: '', it: '', en: '', [fieldLang]: value};
+        setEditingProduct({ ...editingProduct, [name]: updatedField });
+    } else {
+        setEditingProduct({ ...editingProduct, [name]: value });
+    }
   };
+
    const handleProductTypeChange = (value: 'product' | 'package') => {
       if (!editingProduct) return;
       setEditingProduct({ ...editingProduct, type: value });
@@ -130,7 +143,8 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
   const handleSaveProduct = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       
-      if (!editingProduct || !editingProduct.name || !editingProduct.price) {
+      const name = editingProduct?.name;
+      if (!editingProduct || !(typeof name === 'object' ? (name.de || name.it || name.en) : name) || !editingProduct.price) {
           toast({ variant: 'destructive', title: 'Name und Preis sind erforderlich' });
           return;
       }
@@ -173,11 +187,11 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
   };
 
     const addPackageItem = () => {
-        if (!tempItem || !tempAmount || !editingProduct) return;
+        if ((!tempItem.de && !tempItem.it && !tempItem.en) || !tempAmount || !editingProduct) return;
         const newItem: PackageItem = { item: tempItem, amount: tempAmount };
         const currentContent = editingProduct.packageContent || [];
         setEditingProduct({ ...editingProduct, packageContent: [...currentContent, newItem] });
-        setTempItem('');
+        setTempItem(getEmptyMultilingualText());
         setTempAmount('');
     };
 
@@ -200,7 +214,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
             return (
               <Card key={category.id}>
                 <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle>{category.name}</CardTitle>
+                    <CardTitle>{getLang(category.name, lang)}</CardTitle>
                     <div className="flex items-center gap-2">
                         <Button variant="outline" size="sm" className="hidden md:flex" onClick={() => handleOpenProductModal(null, category.id)}><PlusCircle className="mr-2 h-4 w-4" />Produkt</Button>
                         <AlertDialog>
@@ -211,7 +225,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                             <AlertDialogHeader>
                               <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Möchten Sie die Kategorie '{category.name}' wirklich löschen? Alle darin enthaltenen Produkte werden ebenfalls entfernt. Diese Aktion kann nicht rückgängig gemacht werden.
+                                Möchten Sie die Kategorie '{getLang(category.name, lang)}' wirklich löschen? Alle darin enthaltenen Produkte werden ebenfalls entfernt. Diese Aktion kann nicht rückgängig gemacht werden.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -227,11 +241,11 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                       {productsInCategory.map(product => (
                         <Card key={product.id} className="overflow-hidden flex flex-col group transition-all hover:shadow-lg bg-background">
                           <div className="relative aspect-[4/3] bg-muted overflow-hidden">
-                            <Image src={product.imageUrl || fallbackImageUrl} alt={product.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={product.imageHint} />
+                            <Image src={product.imageUrl || fallbackImageUrl} alt={getLang(product.name, lang)} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition-transform duration-300 group-hover:scale-105" data-ai-hint={product.imageHint} />
                               {product.type === 'package' && <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground border-none" variant="secondary">PAKET</Badge>}
                           </div>
                           <CardContent className="p-4 flex flex-col flex-grow">
-                              <h3 className="font-semibold text-base leading-tight flex-grow">{product.name}</h3>
+                              <h3 className="font-semibold text-base leading-tight flex-grow">{getLang(product.name, lang)}</h3>
                               <div className="flex items-baseline justify-between mt-1">
                                   <p className="text-lg font-bold text-primary">€{(product.price || 0).toFixed(2)}</p>
                                   <span className="text-xs text-muted-foreground">/ {product.unit}</span>
@@ -269,7 +283,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                                           <AlertDialogContent>
                                               <AlertDialogHeader>
                                                   <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
-                                                  <AlertDialogDescription>Möchten Sie '{product.name}' wirklich löschen?</AlertDialogDescription>
+                                                  <AlertDialogDescription>Möchten Sie '{getLang(product.name, lang)}' wirklich löschen?</AlertDialogDescription>
                                               </AlertDialogHeader>
                                               <AlertDialogFooter>
                                                   <AlertDialogCancel>Abbrechen</AlertDialogCancel>
@@ -310,7 +324,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                      {categories.map((cat) => (
                          <DropdownMenuItem key={cat.id} onSelect={() => handleOpenProductModal(null, cat.id)}>
                             <Plus className="mr-2 h-4 w-4" />
-                            <span>Produkt zu '{cat.name}'</span>
+                            <span>Produkt zu '{getLang(cat.name, lang)}'</span>
                         </DropdownMenuItem>
                     ))}
                 </DropdownMenuContent>
@@ -321,12 +335,20 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Neue Kategorie erstellen</DialogTitle>
-            <DialogDescription>Geben Sie einen Namen für die neue Produktkategorie ein.</DialogDescription>
+            <DialogDescription>Geben Sie einen Namen für die neue Produktkategorie in allen Sprachen ein.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="category-name" className="text-right">Name</Label>
-                  <Input id="category-name" value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} className="col-span-3" />
+              <div className="space-y-1.5">
+                  <Label htmlFor="category-name-de">Name (Deutsch)</Label>
+                  <Input id="category-name-de" value={newCategoryName.de} onChange={e => setNewCategoryName(v => ({...v, de: e.target.value}))} />
+              </div>
+              <div className="space-y-1.5">
+                  <Label htmlFor="category-name-it">Name (Italienisch)</Label>
+                  <Input id="category-name-it" value={newCategoryName.it} onChange={e => setNewCategoryName(v => ({...v, it: e.target.value}))} />
+              </div>
+              <div className="space-y-1.5">
+                  <Label htmlFor="category-name-en">Name (Englisch)</Label>
+                  <Input id="category-name-en" value={newCategoryName.en} onChange={e => setNewCategoryName(v => ({...v, en: e.target.value}))} />
               </div>
           </div>
           <DialogFooter>
@@ -340,7 +362,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
       </Dialog>
       
       <Sheet open={isProductSheetOpen} onOpenChange={setIsProductSheetOpen}>
-        <SheetContent className="sm:max-w-lg p-0">
+        <SheetContent className="sm:max-w-2xl p-0">
             <SheetHeader className="p-6 pb-0">
                 <SheetTitle>{editingProduct?.id ? 'Produkt bearbeiten' : 'Neues Produkt erstellen'}</SheetTitle>
                 <SheetDescription>
@@ -349,7 +371,45 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
             </SheetHeader>
             <form onSubmit={handleSaveProduct}>
               <ScrollArea className="h-[calc(100vh-140px)]">
-                <div className="grid gap-4 p-6">
+                <div className="space-y-6 p-6">
+                    <Tabs defaultValue="de">
+                        <TabsList className="grid w-full grid-cols-3">
+                            <TabsTrigger value="de">Deutsch</TabsTrigger>
+                            <TabsTrigger value="it">Italienisch</TabsTrigger>
+                            <TabsTrigger value="en">Englisch</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="de" className="space-y-4 pt-4">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="name-de">Name (DE)</Label>
+                                <Input id="name-de" name="name" value={getLang(editingProduct?.name, 'de')} onChange={(e) => handleProductFormChange(e, 'de')} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="description-de">Beschreibung (DE)</Label>
+                                <Textarea id="description-de" name="description" value={getLang(editingProduct?.description, 'de')} onChange={(e) => handleProductFormChange(e, 'de')} />
+                            </div>
+                        </TabsContent>
+                         <TabsContent value="it" className="space-y-4 pt-4">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="name-it">Name (IT)</Label>
+                                <Input id="name-it" name="name" value={getLang(editingProduct?.name, 'it')} onChange={(e) => handleProductFormChange(e, 'it')} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="description-it">Beschreibung (IT)</Label>
+                                <Textarea id="description-it" name="description" value={getLang(editingProduct?.description, 'it')} onChange={(e) => handleProductFormChange(e, 'it')} />
+                            </div>
+                        </TabsContent>
+                         <TabsContent value="en" className="space-y-4 pt-4">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="name-en">Name (EN)</Label>
+                                <Input id="name-en" name="name" value={getLang(editingProduct?.name, 'en')} onChange={(e) => handleProductFormChange(e, 'en')} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="description-en">Beschreibung (EN)</Label>
+                                <Textarea id="description-en" name="description" value={getLang(editingProduct?.description, 'en')} onChange={(e) => handleProductFormChange(e, 'en')} />
+                            </div>
+                        </TabsContent>
+                    </Tabs>
+
                   <div className="space-y-1.5">
                       <Label htmlFor="type">Produkttyp</Label>
                       <Select value={editingProduct?.type} onValueChange={handleProductTypeChange}>
@@ -362,11 +422,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                           </SelectContent>
                       </Select>
                   </div>
-
-                  <div className="space-y-1.5">
-                      <Label htmlFor="name">Name</Label>
-                      <Input id="name" name="name" value={editingProduct?.name || ''} onChange={handleProductFormChange} required />
-                  </div>
+                  
                   <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                           <Label htmlFor="price">Preis (€)</Label>
@@ -389,14 +445,26 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                       <Label htmlFor="imageHint">Bild-Hinweis für KI</Label>
                       <Input id="imageHint" name="imageHint" value={editingProduct?.imageHint || ''} onChange={handleProductFormChange} placeholder="z.B. sushi box" />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="description">Beschreibung</Label>
-                    <Textarea id="description" name="description" value={editingProduct?.description || ''} onChange={handleProductFormChange} placeholder="Eine kurze Beschreibung des Produkts." />
-                  </div>
                   
                   {editingProduct?.type === 'package' && (
                       <div className="space-y-4 border p-4 rounded-xl bg-secondary/50">
                         <h3 className="font-semibold text-primary text-sm">Paket-Inhalt definieren</h3>
+                         <Tabs defaultValue="de-pkg">
+                            <TabsList className="grid w-full grid-cols-3">
+                                <TabsTrigger value="de-pkg">DE</TabsTrigger>
+                                <TabsTrigger value="it-pkg">IT</TabsTrigger>
+                                <TabsTrigger value="en-pkg">EN</TabsTrigger>
+                            </TabsList>
+                             <TabsContent value="de-pkg" className="pt-2">
+                                <Input placeholder="Produktname (DE)" value={tempItem.de} onChange={e => setTempItem(v => ({...v, de: e.target.value}))} />
+                             </TabsContent>
+                             <TabsContent value="it-pkg" className="pt-2">
+                                <Input placeholder="Produktname (IT)" value={tempItem.it} onChange={e => setTempItem(v => ({...v, it: e.target.value}))} />
+                             </TabsContent>
+                              <TabsContent value="en-pkg" className="pt-2">
+                                <Input placeholder="Produktname (EN)" value={tempItem.en} onChange={e => setTempItem(v => ({...v, en: e.target.value}))} />
+                             </TabsContent>
+                        </Tabs>
                         
                         <div className="flex gap-2 items-end">
                             <div className="flex-1 space-y-1.5">
@@ -409,16 +477,6 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                                 onChange={e => setTempAmount(e.target.value)} 
                                 />
                             </div>
-                            <div className="flex-1 space-y-1.5">
-                                 <Label htmlFor="package-item">Produktname</Label>
-                                <Input 
-                                id="package-item"
-                                placeholder="Produktname" 
-                                className="bg-background" 
-                                value={tempItem}
-                                onChange={e => setTempItem(e.target.value)}
-                                />
-                            </div>
                             <Button onClick={addPackageItem} type="button" variant="secondary" size="icon" className="h-10 w-10 shrink-0"><Plus className="h-4 w-4"/></Button>
                         </div>
 
@@ -426,7 +484,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
                             {editingProduct.packageContent?.map((content, idx) => (
                             <li key={idx} className="flex justify-between items-center bg-background p-2 rounded border shadow-sm text-sm">
                                 <div>
-                                    <span className="font-semibold">{content.item}</span>
+                                    <span className="font-semibold">{getLang(content.item, lang)}</span>
                                     <span className="text-muted-foreground text-xs ml-2">({content.amount})</span>
                                 </div>
                                 <button onClick={() => removePackageItem(idx)} type="button" className="text-destructive hover:text-destructive/80 p-1">
@@ -455,5 +513,3 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
     </>
   );
 }
-
-    
