@@ -15,6 +15,7 @@ import { Mail, Lock, User as UserIcon, Phone, Home, Building, Eye, EyeOff } from
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name muss mindestens 2 Zeichen lang sein.' }),
@@ -26,7 +27,7 @@ const formSchema = z.object({
   zip: z.string().min(4, { message: 'Bitte geben Sie eine PLZ ein.' }),
   province: z.string().min(2, { message: 'Bitte geben Sie eine Provinz ein.' }),
   privacyPolicy: z.boolean().refine((val) => val === true, {
-    message: 'Sie müssen die AGB und Datenschutzerklärung akzeptieren.',
+    message: 'Die Annahme der Datenschutzerklärung ist erforderlich.',
   }),
   marketingConsent: z.boolean().optional(),
   profilingConsent: z.boolean().optional(),
@@ -230,13 +231,15 @@ export function RegisterForm() {
                   </FormControl>
                   <div className="space-y-1 leading-none text-muted-foreground">
                     <FormLabel>
-                      Ich habe die <Link href="/datenschutz" target="_blank" className="font-semibold text-primary underline hover:no-underline">Datenschutzerklärung</Link> und AGB gelesen und akzeptiere diese.
+                      Ich habe die <Link href="/datenschutz" target="_blank" className="font-semibold text-primary underline hover:no-underline">Datenschutzerklärung</Link> gelesen und akzeptiere diese. <span className="text-destructive">*</span>
                     </FormLabel>
                     <FormMessage />
                   </div>
                 </FormItem>
               )}
             />
+             <Separator className="my-4"/>
+             <p className="text-sm font-medium text-muted-foreground">Freiwillige Einwilligungen</p>
              <FormField
               control={form.control}
               name="marketingConsent"

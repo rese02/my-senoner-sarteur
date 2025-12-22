@@ -79,7 +79,7 @@ const registerFormSchema = z.object({
   zip: z.string().min(4, "Invalid ZIP code.").optional(),
   province: z.string().min(2, "Invalid province.").optional(),
   privacyPolicy: z.boolean().refine((val) => val === true, {
-    message: "Sie müssen die AGB und Datenschutzerklärung akzeptieren.",
+    message: "Die Annahme der Datenschutzerklärung ist erforderlich.",
   }),
   marketingConsent: z.boolean().optional(),
   profilingConsent: z.boolean().optional(),
@@ -88,7 +88,9 @@ const registerFormSchema = z.object({
 export async function registerUser(values: unknown) {
   const validation = registerFormSchema.safeParse(values);
   if (!validation.success) {
-    return { success: false, error: 'Invalid data provided. Please check all fields.' };
+    // Return the first error message to the user for clarity
+    const firstError = validation.error.errors[0]?.message;
+    return { success: false, error: firstError || 'Ungültige Daten. Bitte prüfen Sie alle Felder.' };
   }
 
   const { name, email, password, phone, street, city, zip, province, privacyPolicy, marketingConsent, profilingConsent } = validation.data;
