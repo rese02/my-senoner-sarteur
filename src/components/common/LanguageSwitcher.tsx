@@ -12,13 +12,13 @@ export function LanguageSwitcher() {
     return cn(
       "w-full h-9 text-xs rounded-lg",
       isActive
-        ? 'bg-primary-foreground text-primary hover:bg-primary-foreground' // Active state
-        : 'bg-transparent text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-white' // Inactive state
+        ? 'bg-secondary text-secondary-foreground shadow-sm' // Active state
+        : 'bg-transparent text-muted-foreground hover:bg-secondary/50' // Inactive state
     );
   };
 
   return (
-    <div className="flex gap-1 justify-center w-full">
+    <div className="flex gap-1 justify-center w-full p-1 bg-muted/30 rounded-lg">
       <Button 
         variant="ghost" 
         size="sm" 

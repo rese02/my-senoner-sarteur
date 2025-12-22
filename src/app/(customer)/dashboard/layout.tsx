@@ -33,7 +33,7 @@ async function checkSommelierIsActive() {
 
 function DesktopSidebar({ showPlanner, showSommelier }: { showPlanner: boolean; showSommelier: boolean; }) {
   return (
-    <aside className="hidden lg:flex flex-col w-64 bg-primary text-primary-foreground">
+    <aside className="hidden lg:flex flex-col w-64 bg-card text-card-foreground border-r">
         <CustomerSidebar showPlanner={showPlanner} showSommelier={showSommelier} />
     </aside>
   );
@@ -78,7 +78,7 @@ export default async function CustomerLayout({
                     <span className="sr-only">Menü öffnen</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="p-0 w-64 bg-primary text-primary-foreground border-r-0">
+                <SheetContent side="left" className="p-0 w-64 bg-card text-card-foreground border-r-0">
                   <SheetHeader className="sr-only">
                       <SheetTitle>Hauptmenü</SheetTitle>
                       <SheetDescription>Navigation für den Kundenbereich</SheetDescription>

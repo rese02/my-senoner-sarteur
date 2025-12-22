@@ -33,12 +33,12 @@ export default async function EmployeeLayout({
   return (
       <LanguageProvider>
         <div className="flex flex-col min-h-screen bg-background">
-          <header className="flex items-center justify-between p-4 border-b bg-primary text-primary-foreground">
+          <header className="flex items-center justify-between p-4 border-b bg-card text-card-foreground">
             <div className="h-8">
                 <Logo />
             </div>
             <form action={logout}>
-              <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:bg-secondary hover:text-foreground">
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
               </Button>
