@@ -9,8 +9,12 @@ import 'server-only';
  * - GenerateSeasonalPromotionsOutput - The return type for the generateSeasonalPromotions function.
  */
 
-import {ai} from '@/ai/genkit';
+import { genkit } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 import {z} from 'zod';
+
+// Initialize a local genkit instance for this flow
+const ai = genkit({ plugins: [googleAI()] });
 
 const GenerateSeasonalPromotionsInputSchema = z.object({
   season: z.string().describe('The current season (e.g., Spring, Summer, Autumn, Winter).'),

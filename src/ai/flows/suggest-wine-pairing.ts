@@ -1,4 +1,3 @@
-
 'use server';
 import 'server-only';
 
@@ -10,13 +9,16 @@ import 'server-only';
  * - SuggestWinePairingOutput - The output type for the suggestWinePairing function.
  */
 
-import { ai } from '@/ai/genkit';
+import { genkit } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 import { getWineCatalog } from '@/app/actions/wine-manager.actions';
 import type { Product } from '@/lib/types';
 import { getSession } from '@/lib/session';
 import { adminDb } from '@/lib/firebase-admin';
 
+// Initialize a local genkit instance for this flow
+const ai = genkit({ plugins: [googleAI()] });
 
 // Define input and output schemas with Zod
 const SuggestWinePairingInputSchema = z.object({

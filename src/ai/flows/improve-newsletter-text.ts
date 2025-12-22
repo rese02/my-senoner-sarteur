@@ -1,4 +1,3 @@
-
 'use server';
 import 'server-only';
 
@@ -10,8 +9,12 @@ import 'server-only';
  * - ImproveTextWithAIOutput - The output type for the improveTextWithAI function.
  */
 
-import {ai} from '@/ai/genkit';
+import { genkit } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 import {z} from 'zod';
+
+// Initialize a local genkit instance for this flow
+const ai = genkit({ plugins: [googleAI()] });
 
 const ImproveTextWithAIInputSchema = z.object({
   subject: z

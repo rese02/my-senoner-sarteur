@@ -8,9 +8,13 @@ import 'server-only';
  * - EnrichWineListOutput - The output type for the enrichWineList function.
  */
 
-import { ai } from '@/ai/genkit';
+import { genkit } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 import type { MultilingualText } from '@/lib/types';
+
+// Initialize a local genkit instance for this flow
+const ai = genkit({ plugins: [googleAI()] });
 
 const WineInfoSchema = z.object({
   name: z.object({
