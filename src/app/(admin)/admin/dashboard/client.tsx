@@ -265,3 +265,5 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
     </div>
   );
 }
+
+    

@@ -277,6 +277,8 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                   const isGroceryList = order.type === 'grocery_list';
                   const itemCount = isGroceryList ? order.rawList?.split('\n').length : order.items?.length;
                   const isSelected = selectedOrderIds.includes(order.id);
+                  const statusLabelKey = STATUS_MAP[order.status]?.label as keyof typeof t.status;
+                  const statusLabel = statusLabelKey ? t.status[statusLabelKey] : order.status;
 
                   return (
                   <TableRow 
@@ -321,7 +323,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                         }}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <SelectTrigger className="h-8 w-[140px] capitalize text-xs bg-background focus:ring-primary/50">
+                        <SelectTrigger className={cn("h-8 w-[140px] capitalize text-xs focus:ring-primary/50", STATUS_MAP[order.status]?.className)}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -464,3 +466,5 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
     </>
   );
 }
+
+    
