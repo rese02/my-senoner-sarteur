@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@genkit-ai/google-genai": "^1.0.0",
     "@hookform/resolvers": "latest",
     "@radix-ui/react-alert-dialog": "latest",
     "@radix-ui/react-avatar": "latest",
@@ -38,6 +39,7 @@
     "embla-carousel-react": "^8.1.7",
     "firebase": "^12.6.0",
     "firebase-admin": "^12.2.0",
+    "genkit": "^1.0.0",
     "jsqr": "^1.4.0",
     "lucide-react": "latest",
     "next": "^15.1.1",
