@@ -72,7 +72,7 @@ export function RegisterForm() {
     }
   }
 
-  const getIconColor = (hasValue: boolean) => hasValue ? 'text-primary-foreground' : 'text-primary-foreground/60';
+  const getIconColor = (hasValue: boolean) => hasValue ? 'text-primary' : 'text-primary-foreground/60';
   const inputClass = "bg-primary-foreground/10 border-primary-foreground/20 placeholder:text-primary-foreground/60 text-primary-foreground";
 
 

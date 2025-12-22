@@ -12,7 +12,6 @@ import * as z from 'zod';
 import { SubmitButton } from '@/components/custom/SubmitButton';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { initializeFirebase } from '@/firebase'; // Import the central initializer
 

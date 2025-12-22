@@ -28,8 +28,11 @@ export default function ProfilePage() {
 
     return (
         <div className="space-y-6">
+            <PageHeader title={t.profile.title} description={t.profile.description} />
+            
             <ProfileUpdateForm user={user} />
             <PrivacySettingsForm user={user} />
+            
              <Card>
                 <CardHeader>
                     <CardTitle>{t.profile.logout}</CardTitle>

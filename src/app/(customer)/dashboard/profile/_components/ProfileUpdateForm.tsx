@@ -9,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import { SubmitButton } from "@/components/custom/SubmitButton";
 import { useTransition } from "react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
-import { PageHeader } from "@/components/common/PageHeader";
 
 export function ProfileUpdateForm({ user }: { user: User }) {
     const { toast } = useToast();
@@ -29,24 +28,25 @@ export function ProfileUpdateForm({ user }: { user: User }) {
     
     return (
         <form action={handleUpdate}>
-             <PageHeader title={t.profile.title} description={t.profile.description} />
              <Card>
                 <CardHeader>
                     <CardTitle>{t.profile.personalInfo}</CardTitle>
                     <CardDescription>{t.profile.personalInfoDesc}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="space-y-1.5">
-                        <Label htmlFor="name">{t.profile.fullName}</Label>
-                        <Input id="name" name="name" defaultValue={user.name} />
+                    <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="name">{t.profile.fullName}</Label>
+                            <Input id="name" name="name" defaultValue={user.name} />
+                        </div>
+                         <div className="space-y-1.5">
+                            <Label htmlFor="phone">{t.profile.phone}</Label>
+                            <Input id="phone" name="phone" defaultValue={user.phone} />
+                        </div>
                     </div>
                     <div className="space-y-1.5">
                         <Label htmlFor="email">{t.profile.email}</Label>
                         <Input id="email" name="email" value={user.email} readOnly disabled />
-                    </div>
-                        <div className="space-y-1.5">
-                        <Label htmlFor="phone">{t.profile.phone}</Label>
-                        <Input id="phone" name="phone" defaultValue={user.phone} />
                     </div>
                     <h3 className="text-base font-semibold pt-4 border-t">{t.profile.deliveryAddress}</h3>
                     <div className="grid grid-cols-2 gap-4">
