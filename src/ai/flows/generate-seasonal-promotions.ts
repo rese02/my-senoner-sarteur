@@ -9,7 +9,7 @@ import 'server-only';
  * - GenerateSeasonalPromotionsOutput - The return type for the generateSeasonalPromotions function.
  */
 
-import { genkit } from '@/ai/genkit';
+import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import {z} from 'zod';
 

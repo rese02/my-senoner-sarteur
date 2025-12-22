@@ -9,7 +9,7 @@ import 'server-only';
  * - ImproveTextWithAIOutput - The output type for the improveTextWithAI function.
  */
 
-import { genkit } from '@/ai/genkit';
+import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import {z} from 'zod';
 

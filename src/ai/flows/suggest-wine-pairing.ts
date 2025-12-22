@@ -9,7 +9,7 @@ import 'server-only';
  * - SuggestWinePairingOutput - The output type for the suggestWinePairing function.
  */
 
-import { genkit } from '@/ai/genkit';
+import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 import { getWineCatalog } from '@/app/actions/wine-manager.actions';
@@ -91,7 +91,7 @@ const suggestWinePairingFlow = ai.defineFlow(
     // This is a simplified representation of the inventory for the prompt.
     const wineInventoryForPrompt = wineInventory.map(wine => ({
         id: wine.id, // Ensure your wine data has an ID
-        name: wine.name,
+        name: wine.name.de, // Use german name for the prompt
         // The AI can use tags to make better decisions
         tags: wine.tags.join(', ')
     }));

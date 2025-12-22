@@ -8,7 +8,7 @@ import 'server-only';
  * - EnrichWineListOutput - The output type for the enrichWineList function.
  */
 
-import { genkit } from '@/ai/genkit';
+import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 import type { MultilingualText } from '@/lib/types';
