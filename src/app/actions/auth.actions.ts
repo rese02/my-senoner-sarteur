@@ -139,6 +139,33 @@ export async function registerUser(values: unknown) {
     };
     await userRef.set(toPlainObject(newUser));
 
+    // After successful user creation in Auth and DB, create a session
+    const idToken = await adminAuth.createCustomToken(userRecord.uid);
+    // Note: We can't directly use the session creation logic that redirects here.
+    // Instead, we will rely on the client to log the user in after registration is successful.
+    
+    // For automatic login, we need to create a session immediately.
+    // Let's modify this to create a session and trigger the redirect.
+    const tempSessionIdToken = await adminAuth.createCustomToken(userRecord.uid);
+    
+    // The client will need this token to sign in. Let's reconsider the flow.
+    // The best flow is:
+    // 1. Client calls registerUser.
+    // 2. Server creates user.
+    // 3. Client, upon success, calls a login function with the user's credentials.
+    // 4. Server creates a session.
+    
+    // Let's implement the direct session creation here to simplify client logic.
+    const customToken = await adminAuth.createCustomToken(userRecord.uid);
+    
+    // This is a bit tricky, because we can't get an idToken directly on the server for a new user.
+    // The most robust way is to signal success to the client, which then logs in.
+    // However, for a seamless experience, we can try to create the session cookie.
+    // To do this, we need an idToken. We can't mint one on the server.
+    
+    // Let's adjust the client-side logic in `register-form.tsx`.
+    // This server action is now correct. It creates the user. The client will handle login.
+
     return { success: true };
 
   } catch (error: any) {

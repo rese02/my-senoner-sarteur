@@ -74,6 +74,10 @@ export function RegisterForm() {
             await createSession(idToken);
             
         } catch (authError: any) {
+             // WICHTIG: Wenn der Fehler ein `NEXT_REDIRECT` ist, muss er erneut ausgelöst werden
+            if (authError.digest?.includes('NEXT_REDIRECT')) {
+              throw authError;
+            }
             // Fallback, falls der automatische Login fehlschlägt
             toast({
                 variant: 'destructive',
