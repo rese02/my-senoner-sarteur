@@ -18,7 +18,7 @@ export function AdminSidebar() {
 
   return (
     <aside className="h-full flex flex-col w-64 bg-card text-card-foreground">
-      <div className="p-4 h-16 flex items-center justify-center border-b bg-primary border-primary-foreground/20">
+      <div className="p-4 h-16 flex items-center justify-center border-b">
         <Link href="/" className="flex items-center justify-center h-full">
           <Image src="/logo.png" alt="Senoner Sarteur Logo" width={140} height={30} className="object-contain h-full w-auto" />
         </Link>
