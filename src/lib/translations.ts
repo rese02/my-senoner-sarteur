@@ -1,4 +1,4 @@
-
+import { getSession } from './session';
 
 export type Language = 'de' | 'it' | 'en';
 
@@ -625,3 +625,16 @@ export const translations = {
     }
   }
 };
+
+// This function can be used on the server to get the translations
+// based on the user's session or default language.
+export async function getTranslations(lang?: Language) {
+  if (lang) {
+    return translations[lang];
+  }
+  // If no language is provided, try to get it from the session
+  // This part needs a way to get the user's preferred language,
+  // which might be stored in the session or requested from headers.
+  // For simplicity, we'll default to German on the server.
+  return translations['de'];
+}

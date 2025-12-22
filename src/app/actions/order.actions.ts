@@ -4,7 +4,7 @@
 import { getSession } from '@/lib/session';
 import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
-import type { CartItem, Order, User, ChecklistItem, OrderItem, OrderStatus } from '@/lib/types';
+import type { CartItem, Order, User, ChecklistItem, OrderItem, OrderStatus, MultilingualText } from '@/lib/types';
 import { toPlainObject } from '@/lib/utils';
 import { z } from 'zod';
 
@@ -43,10 +43,9 @@ export async function createPreOrder(
 
   const total = validatedItems.data.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // Map CartItem[] to OrderItem[] and ensure productName is included
-  const orderItems: OrderItem[] = validatedItems.data.map(item => ({
+  const orderItems: Omit<OrderItem, 'productName'> & { productName: string }[] = validatedItems.data.map(item => ({
     productId: item.productId,
-    productName: item.name, // Ensure the name is explicitly mapped
+    productName: item.name,
     quantity: item.quantity,
     price: item.price,
   }));
@@ -56,7 +55,7 @@ export async function createPreOrder(
     customerName: session.name,
     createdAt: new Date().toISOString(),
     type: 'preorder',
-    items: toPlainObject(orderItems), // Use the new orderItems array
+    items: toPlainObject(orderItems),
     pickupDate: validatedDate.data.toISOString(),
     total,
     status: 'new',
@@ -64,8 +63,8 @@ export async function createPreOrder(
 
   await adminDb.collection('orders').add(orderData);
 
-  revalidatePath('/admin', 'layout'); // Revalidate the whole admin layout
-  revalidatePath('/dashboard', 'layout'); // Revalidate the whole customer layout
+  revalidatePath('/admin', 'layout');
+  revalidatePath('/dashboard', 'layout');
 }
 
 
@@ -95,7 +94,7 @@ export async function createConciergeOrder(
         rawList: validatedNotes.data,
         deliveryAddress: validatedAddress.data,
         deliveryDate: finalDeliveryDate.toISOString(),
-        total: 0, // Set initial total to 0, it will be calculated later.
+        total: 0, 
         status: 'new',
     };
     
@@ -110,7 +109,6 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
 
   const validatedOrderId = z.string().min(1).parse(orderId);
   
-  // Use z.enum with all possible OrderStatus values
   const allStatuses: [OrderStatus, ...OrderStatus[]] = ['new', 'picking', 'ready', 'collected', 'ready_for_delivery', 'delivered', 'paid', 'cancelled'];
   const validatedStatus = z.enum(allStatuses).parse(status);
 
@@ -133,7 +131,6 @@ export async function setGroceryOrderTotal(orderId: string, total: number, check
     const validatedTotal = z.number().positive().parse(total);
     const validatedChecklist = z.array(ChecklistItemSchema).parse(checklist);
 
-    // Add delivery fee to final total
     const finalTotal = validatedTotal + 5;
 
     await adminDb.collection('orders').doc(validatedOrderId).update({
@@ -167,7 +164,7 @@ export async function getOrdersPageData() {
 }
 
 
-export async function getCustomerOrders() {
+export async function getCustomerOrders(): Promise<Order[]> {
     const session = await requireRole(['customer']);
 
     try {
@@ -208,7 +205,6 @@ export async function deleteMyOrders(orderIds: string[]): Promise<{ success: boo
 
         if (doc.exists) {
             const order = doc.data() as Order;
-            // SECURITY CHECKS: Must be own order and must be in a deletable state
             if (order.userId === session.id && deletableStatuses.includes(order.status)) {
                 batch.delete(orderRef);
                 deletedCount++;

@@ -1,11 +1,10 @@
-
 'use server';
 import 'server-only';
 
 import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/session';
-import type { Story, PlannerEvent, Product, Recipe, WheelOfFortuneSettings, User } from '@/lib/types';
+import type { Story, PlannerEvent, Product, Recipe, WheelOfFortuneSettings, User, MultilingualText } from '@/lib/types';
 import { toPlainObject } from '@/lib/utils';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
@@ -27,34 +26,34 @@ async function requireAdmin() {
 // Zod Schemas for validation
 const StorySchema = z.object({
     id: z.string().optional(),
-    label: z.string().min(1, "Label is required."),
-    author: z.string().min(1, "Author is required."),
+    label: z.union([z.string().min(1, "Label is required."), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
+    author: z.union([z.string().min(1, "Author is required."), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
     imageUrl: z.string().url("A valid image URL is required.").or(z.literal('')),
     imageHint: z.string().optional(),
 });
 
 const PlannerEventSchema = z.object({
     id: z.string().optional(),
-    title: z.string().min(1, "Title is required."),
-    description: z.string().optional(),
+    title: z.union([z.string().min(1, "Title is required."), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
+    description: z.union([z.string(), z.object({ de: z.string(), it: z.string(), en: z.string() })]).optional(),
     imageUrl: z.string().url("A valid image URL is required.").or(z.literal('')),
     imageHint: z.string().optional(),
     ingredients: z.array(z.object({
         productId: z.string(),
-        productName: z.string(),
+        productName: z.union([z.string(), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
         baseAmount: z.number(),
         unit: z.string(),
     })).min(1, "At least one ingredient rule is required."),
 });
 
 const RecipeSchema = z.object({
-    title: z.string().min(1),
-    subtitle: z.string(),
+    title: z.union([z.string().min(1), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
+    subtitle: z.union([z.string(), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
     image: z.string().url().or(z.literal('')),
     imageHint: z.string().optional(),
-    ingredients: z.array(z.string()),
-    instructions: z.string(),
-    description: z.string(),
+    ingredients: z.array(z.union([z.string(), z.object({ de: z.string(), it: z.string(), en: z.string() })])),
+    instructions: z.union([z.string(), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
+    description: z.union([z.string(), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
 });
 
 const WheelOfFortuneSettingsSchema = z.object({
@@ -152,25 +151,40 @@ export async function spinWheel(): Promise<{ winningSegment: number; prize: stri
     const session = await requireRole(['customer']);
     const userRef = adminDb.collection('users').doc(session.id);
     
+    // --- SECURITY & PERFORMANCE PRE-CHECK ---
+    // Fetch user and settings first, BEFORE starting a transaction.
+    const userSnap = await userRef.get();
+    if (!userSnap.exists) {
+        throw new Error("User not found.");
+    }
+    const user = userSnap.data() as User;
+
+    if (user.activePrize) {
+        throw new Error("Sie haben bereits einen aktiven Gewinn. Lösen Sie ihn zuerst ein!");
+    }
+
+    const wheelSettings = await getWheelSettings();
+    if (!wheelSettings.isActive) {
+        throw new Error("Das Glücksrad ist derzeit nicht aktiv.");
+    }
+
+    const canPlay = await canUserPlay(user, wheelSettings);
+    if (!canPlay) {
+        throw new Error("Sie sind heute nicht spielberechtigt. Versuchen Sie es später erneut.");
+    }
+    
     let prize = 'Niete';
     let winningSegmentIndex = -1;
 
+    // --- ATOMIC TRANSACTION ---
+    // Now perform the atomic update.
     await adminDb.runTransaction(async (transaction) => {
-        const userSnap = await transaction.get(userRef);
-        if (!userSnap.exists) {
-            throw new Error("User not found.");
-        }
-        const user = userSnap.data() as User;
-
-        if (user.activePrize) {
-            throw new Error("Sie haben bereits einen aktiven Gewinn. Lösen Sie ihn zuerst ein!");
-        }
-
-        const wheelSettings = await getWheelSettings();
-        const canPlay = await canUserPlay(user, wheelSettings);
-
-        if (!wheelSettings.isActive || !canPlay) {
-            throw new Error("Not eligible to play right now.");
+        // Re-fetch user inside transaction to prevent race conditions, although pre-check makes it safer.
+        const userDocInTransaction = await transaction.get(userRef);
+        const userData = userDocInTransaction.data();
+        if (!userData || userData.activePrize) {
+            // If another spin happened in the meantime, abort.
+            throw new Error("Ein anderer Dreh wurde bereits registriert.");
         }
 
         winningSegmentIndex = Math.floor(Math.random() * wheelSettings.segments.length);
@@ -305,14 +319,15 @@ function revalidatePaths() {
 
 
 function getFallbackRecipe(): Recipe {
+    const emptyText: MultilingualText = { de: '', it: '', en: '' };
     return {
-        title: 'Kein Rezept verfügbar',
-        subtitle: 'Bitte im Admin-Bereich ein Rezept der Woche festlegen.',
+        title: { de: 'Kein Rezept verfügbar', it: 'Nessuna ricetta disponibile', en: 'No recipe available' },
+        subtitle: { de: 'Bitte im Admin-Bereich ein Rezept der Woche festlegen.', it: 'Imposta una ricetta della settimana nell\'area admin.', en: 'Please set a recipe of the week in the admin area.' },
         image: 'https://picsum.photos/seed/recipefallback/1080/800',
         imageHint: 'empty plate',
-        description: 'Derzeit ist kein Rezept der Woche hinterlegt.',
+        description: { de: 'Derzeit ist kein Rezept der Woche hinterlegt.', it: 'Attualmente non è stata impostata nessuna ricetta della settimana.', en: 'There is currently no recipe of the week.' },
         ingredients: [],
-        instructions: ''
+        instructions: emptyText
     };
 }
 

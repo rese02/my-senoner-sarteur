@@ -1,35 +1,26 @@
 
 
-'use client'; // This must be a client component to use the hook
+'use server';
 
 import { getCustomerOrders } from "@/app/actions/order.actions";
 import { PageHeader } from "@/components/common/PageHeader";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense } from "react";
 import Loading from './loading';
 import { OrdersClient } from "./client";
-import { useLanguage } from "@/components/providers/LanguageProvider";
-import type { Order } from "@/lib/types";
+import { getTranslations } from "@/lib/translations";
 
-export default function OrdersPage() {
-    const { t } = useLanguage();
-    const [orders, setOrders] = useState<Order[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        setIsLoading(true);
-        getCustomerOrders()
-            .then(setOrders)
-            .finally(() => setIsLoading(false));
-    }, []);
+export default async function OrdersPage() {
+    const t = await getTranslations();
+    
+    // Data is now fetched on the server
+    const orders = await getCustomerOrders();
 
     return (
         <div className="space-y-6">
             <PageHeader title={t.orders.title} description={t.orders.description}/>
-            {isLoading ? (
-                <Loading />
-            ) : (
+            <Suspense fallback={<Loading />}>
                 <OrdersClient initialOrders={orders} />
-            )}
+            </Suspense>
         </div>
     );
 }
