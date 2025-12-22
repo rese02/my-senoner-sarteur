@@ -1,7 +1,9 @@
 
 import { getSession } from './session';
+import type { Language as LangType } from './types';
+import { de, it, enUS } from 'date-fns/locale';
 
-export type Language = 'de' | 'it' | 'en';
+export type Language = LangType;
 
 export interface MultilingualText {
   de: string;
@@ -11,6 +13,16 @@ export interface MultilingualText {
 
 export const translations = {
   de: {
+    login: {
+      noAccount: "Noch kein Konto?",
+      registerNow: "Jetzt registrieren",
+    },
+    register: {
+        title: "Konto erstellen",
+        description: "Werden Sie Teil unserer Community.",
+        hasAccount: "Haben Sie bereits ein Konto?",
+        loginHere: "Hier anmelden",
+    },
     nav: {
       dashboard: "Entdecken",
       orders: "Bestellungen",
@@ -216,6 +228,16 @@ export const translations = {
     }
   },
   it: {
+    login: {
+      noAccount: "Non hai un account?",
+      registerNow: "Registrati ora",
+    },
+    register: {
+        title: "Crea un account",
+        description: "Entra a far parte della nostra community.",
+        hasAccount: "Hai già un account?",
+        loginHere: "Accedi qui",
+    },
     nav: {
       dashboard: "Scopri",
       orders: "Ordini",
@@ -421,6 +443,16 @@ export const translations = {
     }
   },
   en: {
+    login: {
+      noAccount: "Don't have an account?",
+      registerNow: "Register now",
+    },
+    register: {
+        title: "Create an Account",
+        description: "Become a part of our community.",
+        hasAccount: "Already have an account?",
+        loginHere: "Login here",
+    },
     nav: {
       dashboard: "Discover",
       orders: "Orders",
@@ -630,7 +662,7 @@ export const translations = {
 // This function can be used on the server to get the translations
 // based on the user's session or default language.
 export async function getTranslations(lang?: Language) {
-  if (lang) {
+  if (lang && ['de', 'it', 'en'].includes(lang)) {
     return translations[lang];
   }
   // If no language is provided, try to get it from the session

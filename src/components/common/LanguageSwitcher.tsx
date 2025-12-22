@@ -18,7 +18,7 @@ export function LanguageSwitcher() {
   };
 
   return (
-    <div className="flex gap-1 justify-center w-full p-1 bg-muted/30 rounded-lg">
+    <div className="flex gap-1 justify-center w-full p-1 rounded-lg">
       <Button 
         variant="ghost" 
         size="sm" 

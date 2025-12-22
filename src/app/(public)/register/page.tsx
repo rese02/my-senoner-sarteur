@@ -1,4 +1,3 @@
-
 'use client';
 
 import { RegisterForm } from './_components/register-form';
@@ -13,24 +12,24 @@ export default function RegisterPage() {
 
   return (
     <div className="w-full min-h-[100dvh] flex items-center justify-center bg-background p-4">
-        <div className="relative z-10 max-w-md w-full my-8">
-             <Card className="shadow-2xl border">
+        <div className="w-full max-w-md my-8">
+             <Card className="shadow-2xl border-none sm:border">
                 <CardContent className="p-8 md:p-10 space-y-6">
                     <div className="text-center items-center">
-                        <div className="h-24 mb-4 inline-block">
+                        <div className="h-20 mb-4 inline-block">
                            <Logo />
                         </div>
-                        <CardTitle className="text-3xl font-bold text-primary">Konto erstellen</CardTitle>
-                        <CardDescription className="text-muted-foreground pt-1">Werden Sie Teil unserer Community.</CardDescription>
+                        <CardTitle className="text-3xl font-bold text-primary">{t.register.title}</CardTitle>
+                        <CardDescription className="text-muted-foreground pt-1">{t.register.description}</CardDescription>
                     </div>
 
                     <RegisterForm />
                     
                     <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground pt-6 border-t">
                         <p>
-                            Haben Sie bereits ein Konto?{' '}
+                            {t.register.hasAccount}{' '}
                             <Link href="/login" className="font-semibold text-primary hover:underline">
-                                Hier anmelden
+                                {t.register.loginHere}
                             </Link>
                         </p>
                          <div className="w-48 my-4">
