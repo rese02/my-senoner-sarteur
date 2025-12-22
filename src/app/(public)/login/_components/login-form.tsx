@@ -66,7 +66,7 @@ export function LoginForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="email"
@@ -76,7 +76,7 @@ export function LoginForm() {
               <FormControl>
                 <div className="relative">
                    <Mail className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5", field.value ? 'text-primary' : 'text-muted-foreground')} />
-                   <Input placeholder="Email" {...field} className="pl-10 text-card-foreground" />
+                   <Input placeholder="Email" {...field} className="pl-10" />
                 </div>
               </FormControl>
               <FormMessage />
@@ -96,7 +96,7 @@ export function LoginForm() {
                       type={showPassword ? 'text' : 'password'} 
                       placeholder="Passwort" 
                       {...field} 
-                      className="pl-10 pr-10 text-card-foreground"
+                      className="pl-10 pr-10"
                     />
                     <button
                       type="button"
@@ -112,8 +112,8 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <SubmitButton variant="secondary" className="w-full" isSubmitting={isSubmitting}>
-          {isSubmitting ? 'Anmelden...' : 'Anmelden'}
+        <SubmitButton variant="default" className="w-full" isSubmitting={isSubmitting}>
+          {isSubmitting ? 'Anmelden...' : 'Sicher Anmelden'}
         </SubmitButton>
       </form>
     </Form>

@@ -155,7 +155,8 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                         <TableBody>
                             {initialRecentOrders.map((order) => {
                                 const statusInfo = STATUS_MAP[order.status];
-                                const statusLabel = statusInfo ? t.status[statusInfo.labelKey] : order.status;
+                                const statusLabelKey = statusInfo.labelKey;
+                                const statusLabel = t.status[statusLabelKey] ?? order.status;
                                 return (
                                 <TableRow key={order.id} onClick={() => handleShowDetails(order)} className="cursor-pointer">
                                     <TableCell>
