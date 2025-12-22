@@ -21,7 +21,7 @@ export default async function RegisterPage() {
                                 <Image src="/logo.png" alt="Senoner Sarteur Logo" width={160} height={40} className="h-full w-auto object-contain" />
                             </Link>
                         </div>
-                        <CardTitle className="text-3xl font-headline text-primary-foreground">Konto erstellen</CardTitle>
+                        <CardTitle className="text-3xl font-bold text-primary-foreground">Konto erstellen</CardTitle>
                         <CardDescription className="text-primary-foreground/80 pt-1">Werden Sie Teil unserer Community.</CardDescription>
                     </div>
 

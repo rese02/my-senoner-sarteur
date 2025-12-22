@@ -4,6 +4,7 @@ import { PT_Sans } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: 'My Senoner Sarteur - Premium Supermarkt & Feinkost in Wolkenstein/Selva',
@@ -40,6 +41,7 @@ export default function RootLayout({
         <FirebaseClientProvider>
           {children}
         </FirebaseClientProvider>
+        <Toaster />
       </body>
     </html>
   );
