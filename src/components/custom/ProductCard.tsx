@@ -23,7 +23,7 @@ export function ProductCard({ product }: { product: Product }) {
     const handleAddToCart = () => {
         addToCart({
             productId: product.id,
-            name: getLang(product.name, lang),
+            name: product.name, // Pass the full MultilingualText object
             price: product.price,
             quantity: quantity,
         });

@@ -93,6 +93,8 @@ export interface Session {
   [key: string]: any;
 }
 
+export type Language = 'de' | 'it' | 'en';
+
 export interface MultilingualText {
   de: string;
   it: string;
@@ -112,7 +114,7 @@ export interface Recipe {
 
 export type CartItem = {
   productId: string;
-  name: string; // Keep as simple string for cart display
+  name: MultilingualText; // Changed to MultilingualText
   price: number;
   quantity: number;
 };

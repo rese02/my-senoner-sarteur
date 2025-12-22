@@ -17,9 +17,15 @@ async function requireRole(roles: Array<'customer' | 'employee' | 'admin'>) {
     return session;
 }
 
+const MultilingualTextSchema = z.object({
+  de: z.string(),
+  it: z.string(),
+  en: z.string(),
+});
+
 const CartItemSchema = z.object({
     productId: z.string(),
-    name: z.string(),
+    name: MultilingualTextSchema,
     price: z.number(),
     quantity: z.number().positive(),
 });
@@ -43,7 +49,7 @@ export async function createPreOrder(
 
   const total = validatedItems.data.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const orderItems: Omit<OrderItem, 'productName'> & { productName: string }[] = validatedItems.data.map(item => ({
+  const orderItems: OrderItem[] = validatedItems.data.map(item => ({
     productId: item.productId,
     productName: item.name,
     quantity: item.quantity,

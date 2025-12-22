@@ -14,10 +14,11 @@ import { add, isBefore } from 'date-fns';
 import { BUSINESS_HOURS } from '@/lib/constants';
 import { createPreOrder } from '@/app/actions/order.actions';
 import { useLanguage } from '@/components/providers/LanguageProvider';
+import { getLang } from '@/lib/utils';
 
 export function Cart() {
     const { items, removeFromCart, clearCart } = useCartStore();
-    const { t } = useLanguage();
+    const { t, lang } = useLanguage();
     const [pickupDate, setPickupDate] = useState<Date | undefined>(() => {
         return add(new Date(), { days: 1 });
     });
@@ -83,7 +84,7 @@ export function Cart() {
                             {items.map(item => (
                                 <div key={item.productId} className="flex justify-between items-center gap-2 py-2 rounded-md">
                                     <div>
-                                        <p className="font-semibold text-sm leading-tight">{item.name}</p>
+                                        <p className="font-semibold text-sm leading-tight">{getLang(item.name, lang)}</p>
                                         <p className="text-sm text-muted-foreground">
                                             {item.quantity} x €{item.price.toFixed(2)}
                                         </p>
