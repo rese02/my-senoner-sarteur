@@ -1,3 +1,4 @@
+
 'use server';
 import 'server-only';
 
@@ -151,8 +152,6 @@ export async function spinWheel(): Promise<{ winningSegment: number; prize: stri
     const session = await requireRole(['customer']);
     const userRef = adminDb.collection('users').doc(session.id);
     
-    // --- SECURITY & PERFORMANCE PRE-CHECK ---
-    // Fetch user and settings first, BEFORE starting a transaction.
     const userSnap = await userRef.get();
     if (!userSnap.exists) {
         throw new Error("User not found.");
@@ -176,14 +175,10 @@ export async function spinWheel(): Promise<{ winningSegment: number; prize: stri
     let prize = 'Niete';
     let winningSegmentIndex = -1;
 
-    // --- ATOMIC TRANSACTION ---
-    // Now perform the atomic update.
     await adminDb.runTransaction(async (transaction) => {
-        // Re-fetch user inside transaction to prevent race conditions, although pre-check makes it safer.
         const userDocInTransaction = await transaction.get(userRef);
         const userData = userDocInTransaction.data();
         if (!userData || userData.activePrize) {
-            // If another spin happened in the meantime, abort.
             throw new Error("Ein anderer Dreh wurde bereits registriert.");
         }
 
@@ -268,7 +263,6 @@ export async function getWheelOfFortuneDataForCustomer() {
 }
 
 async function canUserPlay(user: User, settings: WheelOfFortuneSettings): Promise<boolean> {
-    // If developer mode is on, user can always play.
     if (settings.developerMode) {
         return true;
     }

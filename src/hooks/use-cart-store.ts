@@ -39,34 +39,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'senoner-sarteur-cart', // Unique and descriptive name
-      storage: createJSONStorage(() => ({
-        getItem: (name) => {
-          try {
-            const str = localStorage.getItem(name);
-            // If the stored value is null or an empty string, it's not valid JSON.
-            // Return a valid initial state to prevent a parsing error.
-            if (!str) {
-              return JSON.stringify({ state: { items: [] }, version: 0 });
-            }
-            // If there's content, proceed to parse it. 
-            // The library will handle parsing internally.
-            return str;
-          } catch (e) {
-            // If any other error occurs during reading (e.g., security restrictions),
-            // fall back to a safe initial state.
-             console.error("Failed to read from localStorage for cart:", e);
-             return JSON.stringify({ state: { items: [] }, version: 0 });
-          }
-        },
-        setItem: (name, value) => {
-          try {
-            localStorage.setItem(name, value);
-          } catch (e) {
-            console.error("Failed to write to localStorage for cart:", e);
-          }
-        },
-        removeItem: (name) => localStorage.removeItem(name),
-      })),
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );
