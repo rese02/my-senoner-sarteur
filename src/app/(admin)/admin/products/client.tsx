@@ -31,7 +31,7 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/components/providers/LanguageProvider";
-import { getLang, getEmptyMultilingualText } from "@/lib/utils";
+import { getLang, getEmptyMultilingualText, sanitizeMultilingualText } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 
@@ -110,7 +110,7 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
 
   const handleOpenProductModal = (product: Product | null, categoryId: string) => {
       const initialProductState: Partial<Product> = product 
-        ? { ...product } 
+        ? { ...product, name: sanitizeMultilingualText(product.name), description: sanitizeMultilingualText(product.description) } 
         : { name: getEmptyMultilingualText(), price: 0, unit: '', imageUrl: '', imageHint: '', description: getEmptyMultilingualText(), type: 'product', packageContent: [] };
       setEditingProduct(initialProductState);
       setCurrentCategoryId(categoryId);
@@ -119,12 +119,16 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
 
   const handleProductFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, fieldLang?: keyof MultilingualText) => {
     if (!editingProduct) return;
+
     const { name, value } = e.target;
     
     if (fieldLang && (name === 'name' || name === 'description')) {
-        const currentField = editingProduct[name];
-        const updatedField = typeof currentField === 'object' ? { ...currentField, [fieldLang]: value } : { de: '', it: '', en: '', [fieldLang]: value};
-        setEditingProduct({ ...editingProduct, [name]: updatedField });
+        setEditingProduct(prev => {
+            if (!prev) return null;
+            const currentField = prev[name] ? sanitizeMultilingualText(prev[name]) : getEmptyMultilingualText();
+            const updatedField = { ...currentField, [fieldLang]: value };
+            return { ...prev, [name]: updatedField };
+        });
     } else {
         setEditingProduct({ ...editingProduct, [name]: value });
     }
@@ -143,31 +147,36 @@ export function ProductsClient({ initialProducts, initialCategories }: { initial
   const handleSaveProduct = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       
-      const name = editingProduct?.name;
-      if (!editingProduct || !(typeof name === 'object' ? (name.de || name.it || name.en) : name) || !editingProduct.price) {
-          toast({ variant: 'destructive', title: 'Name und Preis sind erforderlich' });
+      if (!editingProduct || !getLang(editingProduct.name, 'de') || !editingProduct.price) {
+          toast({ variant: 'destructive', title: 'Name (DE) und Preis sind erforderlich' });
           return;
       }
 
       startTransition(async () => {
           try {
-            if (editingProduct.id) {
-                const updatedProduct = await updateProduct(editingProduct as Product);
+            const productToSave: Partial<Product> = {
+                ...editingProduct,
+                name: sanitizeMultilingualText(editingProduct.name),
+                description: sanitizeMultilingualText(editingProduct.description),
+            };
+
+            if (productToSave.id) {
+                const updatedProduct = await updateProduct(productToSave as Product);
                 setProducts(prods => prods.map(p => p.id === updatedProduct.id ? updatedProduct : p));
             } else {
                 const newProductData = {
-                  ...editingProduct,
+                  ...productToSave,
                   categoryId: currentCategoryId!,
                   isAvailable: true,
-                  price: Number(editingProduct.price),
-                  type: editingProduct.type || 'product'
+                  price: Number(productToSave.price),
+                  type: productToSave.type || 'product'
                 } as Omit<Product, 'id'>;
                 const created = await createProduct(newProductData);
                 setProducts(prods => [...prods, created]);
             }
             setIsProductSheetOpen(false);
             setEditingProduct(null);
-            toast({ title: editingProduct.id ? 'Produkt aktualisiert!' : 'Produkt erstellt!' });
+            toast({ title: productToSave.id ? 'Produkt aktualisiert!' : 'Produkt erstellt!' });
           } catch(error: any) {
             toast({ variant: "destructive", title: "Fehler beim Speichern", description: error.message || "Produkt konnte nicht gespeichert werden." });
           }

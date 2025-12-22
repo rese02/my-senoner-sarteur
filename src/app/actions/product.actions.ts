@@ -5,7 +5,7 @@
 import 'server-only';
 import { adminDb } from '@/lib/firebase-admin';
 import { getSession } from '@/lib/session';
-import { toPlainObject } from '@/lib/utils';
+import { toPlainObject, getEmptyMultilingualText } from '@/lib/utils';
 import type { Product, Category, Story, Recipe, Order, User, MultilingualText, PackageItem } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -27,7 +27,7 @@ const ProductSchema = z.object({
   unit: z.string().min(1, { message: "Unit is required."}),
   imageUrl: z.string().url({ message: "A valid image URL is required."}).or(z.literal('')),
   imageHint: z.string().optional(),
-  description: MultilingualTextSchema.optional(),
+  description: MultilingualTextSchema,
   type: z.enum(['product', 'package']),
   packageContent: z.array(PackageItemSchema).optional(),
 });
@@ -259,14 +259,13 @@ export async function deleteProduct(productId: string) {
 
 
 function getFallbackRecipe(): Recipe {
-    const emptyText = { de: '', it: '', en: '' };
     return {
-        title: { de: 'Kein Rezept verfügbar', it: 'Nessuna ricetta disponibile', en: 'No recipe available' },
-        subtitle: { de: 'Bitte im Admin-Bereich ein Rezept der Woche festlegen.', it: 'Imposta una ricetta della settimana nell\'area admin.', en: 'Please set a recipe of the week in the admin area.' },
+        title: getEmptyMultilingualText(),
+        subtitle: getEmptyMultilingualText(),
         image: 'https://picsum.photos/seed/recipefallback/1080/800',
         imageHint: 'empty plate',
-        description: { de: 'Derzeit ist kein Rezept der Woche hinterlegt.', it: 'Attualmente non è stata impostata nessuna ricetta della settimana.', en: 'There is currently no recipe of the week.' },
+        description: getEmptyMultilingualText(),
         ingredients: [],
-        instructions: emptyText
+        instructions: getEmptyMultilingualText()
     };
 }

@@ -59,7 +59,7 @@ export const STATUS_MAP: Record<OrderStatus, { labelKey: keyof typeof import('./
 
 export interface OrderItem {
   productId: string;
-  productName: string | { [key: string]: string };
+  productName: MultilingualText;
   quantity: number;
   price: number;
 }
@@ -100,19 +100,19 @@ export interface MultilingualText {
 }
 
 export interface Recipe {
-  title: string | MultilingualText;
-  subtitle: string | MultilingualText;
+  title: MultilingualText;
+  subtitle: MultilingualText;
   image: string;
   imageHint: string;
-  ingredients: string[] | MultilingualText[];
-  instructions: string | MultilingualText;
-  description: string | MultilingualText;
+  ingredients: MultilingualText[];
+  instructions: MultilingualText;
+  description: MultilingualText;
 }
 
 
 export type CartItem = {
   productId: string;
-  name: string;
+  name: string; // Keep as simple string for cart display
   price: number;
   quantity: number;
 };
@@ -121,30 +121,30 @@ export interface Story {
   id: string;
   imageUrl: string;
   imageHint: string;
-  label: string | MultilingualText;
-  author: string | MultilingualText;
+  label: MultilingualText;
+  author: MultilingualText;
   expiresAt: string;
 }
 
 export interface Category {
   id: string;
-  name: string | MultilingualText;
+  name: MultilingualText;
 }
 
 export interface PackageItem {
-  item: string | MultilingualText;
+  item: MultilingualText;
   amount: string;
 }
 
 export interface Product {
   id: string;
-  name: string | MultilingualText;
+  name: MultilingualText;
   price: number;
   unit: string;
   imageUrl: string;
   imageHint: string;
   categoryId: string;
-  description?: string | MultilingualText;
+  description: MultilingualText;
   isAvailable: boolean;
   type: 'product' | 'package';
   packageContent?: PackageItem[];
@@ -154,15 +154,15 @@ export interface Product {
 
 export interface PlannerIngredientRule {
   productId: string;
-  productName: string | MultilingualText;
+  productName: MultilingualText;
   baseAmount: number; 
   unit: string; 
 }
 
 export interface PlannerEvent {
   id: string;
-  title: string | MultilingualText;
-  description: string | MultilingualText;
+  title: MultilingualText;
+  description: MultilingualText;
   imageUrl: string;
   imageHint: string;
   ingredients: PlannerIngredientRule[];
