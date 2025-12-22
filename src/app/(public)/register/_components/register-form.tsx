@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -27,8 +28,8 @@ export function RegisterForm() {
 
   // Zod schema is now defined inside the component to access translations
   const formSchema = z.object({
-      name: z.string().min(2, { message: t.profile.toast.error }), // Using a generic error for now
-      email: z.string().email({ message: t.concierge.toast.addressIncomplete }),
+      name: z.string().min(2, { message: "Bitte geben Sie einen gültigen Namen ein." }), 
+      email: z.string().email({ message: "Bitte geben Sie eine gültige E-Mail ein." }),
       password: z.string().min(8, { message: "Das Passwort muss mindestens 8 Zeichen lang sein." }),
       phone: z.string().min(5, { message: "Bitte geben Sie eine gültige Telefonnummer ein." }),
       street: z.string().min(3, { message: "Bitte geben Sie eine Straße ein." }),
@@ -254,7 +255,11 @@ export function RegisterForm() {
                   </FormControl>
                   <div className="space-y-1 leading-none text-muted-foreground">
                     <FormLabel>
-                      Ich habe die <Link href="/datenschutz" target="_blank" className="font-semibold text-primary underline hover:no-underline">Datenschutzerklärung</Link> gelesen und akzeptiere diese. <span className="text-destructive">*</span>
+                      {t.register.privacyLabel}{' '}
+                      <Link href="/datenschutz" target="_blank" className="font-semibold text-primary underline hover:no-underline">
+                        {t.register.privacyLink}
+                      </Link>
+                      {' '}{t.register.privacySuffix} <span className="text-destructive">*</span>
                     </FormLabel>
                     <FormMessage />
                   </div>
@@ -262,7 +267,7 @@ export function RegisterForm() {
               )}
             />
              <div className="my-4 border-t"></div>
-             <p className="text-sm font-medium text-muted-foreground">Freiwillige Einwilligungen</p>
+             <p className="text-sm font-medium text-muted-foreground">{t.register.consentTitle}</p>
              <FormField
               control={form.control}
               name="marketingConsent"
@@ -276,9 +281,9 @@ export function RegisterForm() {
                   </FormControl>
                   <div className="space-y-1 leading-none text-muted-foreground">
                     <FormLabel>
-                     Ich möchte den Newsletter und Angebote per E-Mail erhalten.
+                     {t.register.consentMarketing}
                     </FormLabel>
-                     <p className="text-xs text-muted-foreground/80">Diese Einwilligung kann jederzeit im Profil widerrufen werden.</p>
+                     <p className="text-xs text-muted-foreground/80">{t.register.consentMarketingDesc}</p>
                     <FormMessage />
                   </div>
                 </FormItem>
@@ -297,7 +302,7 @@ export function RegisterForm() {
                   </FormControl>
                   <div className="space-y-1 leading-none text-muted-foreground">
                     <FormLabel>
-                     Ich stimme zu, dass meine Einkäufe analysiert werden, um mir persönliche Angebote und Weinempfehlungen anzuzeigen.
+                     {t.register.consentProfiling}
                     </FormLabel>
                     <FormMessage />
                   </div>
@@ -308,11 +313,9 @@ export function RegisterForm() {
 
 
         <SubmitButton className="w-full" variant="default" isSubmitting={isPending}>
-            {t.register.title}
+            {t.register.submitButton}
         </SubmitButton>
       </form>
     </Form>
   );
 }
-
-    

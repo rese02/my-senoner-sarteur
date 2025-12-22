@@ -1,4 +1,6 @@
 
+'use client';
+
 import { getSession } from './session';
 import type { Language as LangType } from './types';
 import { de, it, enUS } from 'date-fns/locale';
@@ -22,6 +24,14 @@ export const translations = {
         description: "Werden Sie Teil unserer Community.",
         hasAccount: "Haben Sie bereits ein Konto?",
         loginHere: "Hier anmelden",
+        privacyLabel: "Ich habe die",
+        privacyLink: "Datenschutzerklärung",
+        privacySuffix: "gelesen und akzeptiere diese.",
+        consentTitle: "Freiwillige Einwilligungen",
+        consentMarketing: "Ich möchte den Newsletter und Angebote per E-Mail erhalten.",
+        consentMarketingDesc: "Diese Einwilligung kann jederzeit im Profil widerrufen werden.",
+        consentProfiling: "Ich stimme zu, dass meine Einkäufe analysiert werden, um mir persönliche Angebote und Weinempfehlungen anzuzeigen.",
+        submitButton: "Konto erstellen",
     },
     nav: {
       dashboard: "Entdecken",
@@ -237,6 +247,14 @@ export const translations = {
         description: "Entra a far parte della nostra community.",
         hasAccount: "Hai già un account?",
         loginHere: "Accedi qui",
+        privacyLabel: "Ho letto e accetto la",
+        privacyLink: "Politica sulla privacy",
+        privacySuffix: ".",
+        consentTitle: "Consensi facoltativi",
+        consentMarketing: "Desidero ricevere newsletter e offerte via e-mail.",
+        consentMarketingDesc: "Questo consenso può essere revocato in qualsiasi momento nel profilo.",
+        consentProfiling: "Acconsento all'analisi dei miei acquisti per ricevere offerte personali e consigli sul vino.",
+        submitButton: "Crea account",
     },
     nav: {
       dashboard: "Scopri",
@@ -452,6 +470,14 @@ export const translations = {
         description: "Become a part of our community.",
         hasAccount: "Already have an account?",
         loginHere: "Login here",
+        privacyLabel: "I have read and accept the",
+        privacyLink: "Privacy Policy",
+        privacySuffix: ".",
+        consentTitle: "Optional Consents",
+        consentMarketing: "I want to receive newsletters and offers via email.",
+        consentMarketingDesc: "This consent can be revoked at any time in the profile.",
+        consentProfiling: "I agree that my purchases may be analyzed to show me personal offers and wine recommendations.",
+        submitButton: "Create Account",
     },
     nav: {
       dashboard: "Discover",
