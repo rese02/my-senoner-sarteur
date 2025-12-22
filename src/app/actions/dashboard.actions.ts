@@ -22,10 +22,7 @@ export async function getDashboardStats() {
         const ordersCol = adminDb.collection('orders');
         const usersCol = adminDb.collection('users');
 
-        // Fetch completed orders to calculate revenue manually
-        const revenueQuery = ordersCol.where('status', 'in', ['collected', 'delivered', 'paid']);
-        const revenueSnap = await revenueQuery.get();
-        const totalRevenue = revenueSnap.docs.reduce((sum, doc) => sum + (doc.data().total || 0), 0);
+        // Total revenue calculation is REMOVED.
         
         const [totalOrdersSnap, totalCustomersSnap, openOrdersSnap] = await Promise.all([
             ordersCol.count().get(),
@@ -34,14 +31,14 @@ export async function getDashboardStats() {
         ]);
         
         return toPlainObject({
-            totalRevenue: totalRevenue,
+            // totalRevenue is no longer part of the returned object
             totalOrders: totalOrdersSnap.data().count,
             totalCustomers: totalCustomersSnap.data().count,
             openOrders: openOrdersSnap.data().count
         });
     } catch (error) {
         console.error("Error fetching dashboard stats:", error);
-        return { totalRevenue: 0, totalOrders: 0, totalCustomers: 0, openOrders: 0 };
+        return { totalOrders: 0, totalCustomers: 0, openOrders: 0 };
     }
 }
 

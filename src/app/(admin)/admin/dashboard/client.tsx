@@ -70,7 +70,6 @@ function OrderDetailsDeleteSection({ orderId, onClose }: { orderId: string, onCl
 
 interface DashboardClientProps {
     initialStats: {
-        totalRevenue: number;
         totalOrders: number;
         totalCustomers: number;
         openOrders: number;
@@ -92,12 +91,6 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
 
     const statItems = [
         {
-            title: "Gesamtumsatz",
-            value: `€${initialStats.totalRevenue.toFixed(2)}`,
-            description: `aus ${initialStats.totalOrders} Bestellungen`,
-            icon: Euro,
-        },
-        {
             title: "Kunden",
             value: initialStats.totalCustomers,
             description: "Aktive Konten",
@@ -115,7 +108,7 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Willkommen zurück! Hier ist Ihre aktuelle Übersicht." />
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {statItems.map((item) => (
             <Card key={item.title}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -155,7 +148,7 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                         <TableBody>
                             {initialRecentOrders.map((order) => {
                                 const statusInfo = STATUS_MAP[order.status];
-                                const statusLabelKey = statusInfo.labelKey;
+                                const statusLabelKey = statusInfo.labelKey as keyof typeof t.status;
                                 const statusLabel = t.status[statusLabelKey] ?? order.status;
                                 return (
                                 <TableRow key={order.id} onClick={() => handleShowDetails(order)} className="cursor-pointer">
@@ -204,7 +197,7 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                         <p className="text-muted-foreground">Status:</p>
                         <div>
                             <Badge className={cn("capitalize font-semibold", STATUS_MAP[selectedOrder.status]?.className)}>
-                                {t.status[STATUS_MAP[selectedOrder.status]?.labelKey] || selectedOrder.status}
+                                {t.status[STATUS_MAP[selectedOrder.status]?.labelKey as keyof typeof t.status] || selectedOrder.status}
                             </Badge>
                         </div>
                    </div>
