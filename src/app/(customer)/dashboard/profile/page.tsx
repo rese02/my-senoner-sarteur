@@ -3,14 +3,14 @@
 
 import { PageHeader } from "@/components/common/PageHeader";
 import { getSession } from "@/lib/session";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { logout, deleteUserAccount } from "@/app/actions/auth.actions";
 import { ProfileUpdateForm } from "./_components/ProfileUpdateForm";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import type { User } from "@/lib/types";
-import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
 import { PrivacySettingsForm } from "./_components/PrivacySettingsForm";
+import { LanguageProvider } from "@/components/providers/LanguageProvider";
 
 
 export default async function ProfilePage() {
@@ -23,66 +23,51 @@ export default async function ProfilePage() {
     }
 
     return (
-        <div className="space-y-6">
-            <PageHeader title={"Mein Profil"} description={"Verwalten Sie hier Ihre Kontodetails und Datenschutzeinstellungen."} />
+        <LanguageProvider>
+            <div className="space-y-6">
+                <ProfileUpdateForm user={user} />
+                <PrivacySettingsForm user={user} />
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Abmelden</CardTitle>
+                        <CardDescription>Beenden Sie Ihre aktuelle Sitzung.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form action={logout} className="w-full">
+                            <Button type="submit" variant="outline" className="w-full">Abmelden</Button>
+                        </form>
+                    </CardContent>
+                </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                <div className="lg:col-span-2 space-y-6">
-                    <ProfileUpdateForm user={user} />
-                    <PrivacySettingsForm user={user} />
-                </div>
-
-                <div className="space-y-6 lg:col-span-1">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Sprache / Lingua</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <LanguageSwitcher />
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Abmelden</CardTitle>
-                            <CardDescription>Beenden Sie Ihre aktuelle Sitzung.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <form action={logout} className="w-full">
-                                <Button type="submit" variant="outline" className="w-full">Abmelden</Button>
-                            </form>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="border-destructive/50 bg-destructive/5">
-                        <CardHeader>
-                            <CardTitle className="text-destructive">Gefahrenzone</CardTitle>
-                            <CardDescription className="text-destructive/80">Diese Aktionen können nicht rückgängig gemacht werden.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <form action={deleteUserAccount}>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="outline" className="w-full text-destructive border-destructive/50 hover:bg-destructive/10 hover:text-destructive">Konto endgültig löschen</Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Sind Sie absolut sicher?</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                Diese Aktion kann nicht rückgängig gemacht werden. Ihr Konto, Ihre Bestellhistorie und Ihre Treuepunkte werden dauerhaft gelöscht.
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                            {/* The form submission is handled by the parent form element */}
-                                            <AlertDialogAction type="submit" className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Ja, mein Konto löschen</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </form>
-                        </CardContent>
-                    </Card>
-                </div>
+                <Card className="border-destructive/50 bg-destructive/5">
+                    <CardHeader>
+                        <CardTitle className="text-destructive">Gefahrenzone</CardTitle>
+                        <CardDescription className="text-destructive/80">Diese Aktionen können nicht rückgängig gemacht werden.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form action={deleteUserAccount}>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="outline" className="w-full text-destructive border-destructive/50 hover:bg-destructive/10 hover:text-destructive">Konto endgültig löschen</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Sind Sie absolut sicher?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Diese Aktion kann nicht rückgängig gemacht werden. Ihr Konto, Ihre Bestellhistorie und Ihre Treuepunkte werden dauerhaft gelöscht.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                        {/* The form submission is handled by the parent form element */}
+                                        <AlertDialogAction type="submit" className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Ja, mein Konto löschen</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
-        </div>
+        </LanguageProvider>
     );
 }

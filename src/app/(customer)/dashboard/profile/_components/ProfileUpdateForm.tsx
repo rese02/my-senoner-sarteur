@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SubmitButton } from "@/components/custom/SubmitButton";
 import { useTransition } from "react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
+import { PageHeader } from "@/components/common/PageHeader";
 
 export function ProfileUpdateForm({ user }: { user: User }) {
     const { toast } = useToast();
@@ -28,6 +29,7 @@ export function ProfileUpdateForm({ user }: { user: User }) {
     
     return (
         <form action={handleUpdate}>
+             <PageHeader title={t.profile.title} description={t.profile.description} />
              <Card>
                 <CardHeader>
                     <CardTitle>{t.profile.personalInfo}</CardTitle>

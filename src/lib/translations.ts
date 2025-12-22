@@ -418,7 +418,7 @@ export const translations = {
       orders: "Orders",
       concierge: "Shopping List",
       planner: "Party Planner",
-      loyalty: "Loyalty",
+      loyalty: "Fidelity",
       sommelier: "AI Scan",
       profile: "Profile",
       cart: "Cart",
@@ -534,7 +534,7 @@ export const translations = {
         personalInfo: "Personal Information",
         personalInfoDesc: "The email address cannot be changed.",
         fullName: "Full Name",
-        email: "E-Mail",
+        email: "E-mail",
         phone: "Phone Number",
         deliveryAddress: "Delivery Address",
         street: "Street & No.",
@@ -618,5 +618,3 @@ export const translations = {
     }
   }
 };
-
-    
