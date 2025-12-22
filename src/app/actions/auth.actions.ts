@@ -1,3 +1,4 @@
+
 'use server';
 
 import { cookies } from 'next/headers';
@@ -250,18 +251,18 @@ export async function deleteUserAccount() {
       batch.delete(doc.ref);
     });
 
-    // NEU: Alle AI-Anfragen des Nutzers zum Löschen finden und zum Batch hinzufügen
+    // 2. Alle AI-Anfragen des Nutzers zum Löschen finden und zum Batch hinzufügen
     const aiRequestsRef = adminDb.collection('users').doc(userId).collection('aiRequests').doc('sommelier');
     batch.delete(aiRequestsRef);
 
-    // 2. Das Benutzerdokument zum Löschen zum Batch hinzufügen
+    // 3. Das Benutzerdokument zum Löschen zum Batch hinzufügen
     const userRef = adminDb.collection('users').doc(userId);
     batch.delete(userRef);
     
-    // 3. Den Batch ausführen, um alle DB-Einträge zu löschen
+    // 4. Den Batch ausführen, um alle DB-Einträge zu löschen
     await batch.commit();
 
-    // 4. Den Auth-User löschen, nachdem die DB-Einträge entfernt wurden
+    // 5. Den Auth-User löschen, nachdem die DB-Einträge entfernt wurden
     await adminAuth.deleteUser(userId);
     
   } catch (error) {

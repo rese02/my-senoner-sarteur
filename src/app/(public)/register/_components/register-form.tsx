@@ -10,12 +10,13 @@ import { SubmitButton } from '@/components/custom/SubmitButton';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
-import { registerUser } from '@/app/actions/auth.actions';
+import { registerUser, createSession } from '@/app/actions/auth.actions';
 import { Mail, Lock, User as UserIcon, Phone, Home, Building, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { initializeFirebase } from '@/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name muss mindestens 2 Zeichen lang sein.' }),
@@ -35,8 +36,8 @@ const formSchema = z.object({
 
 export function RegisterForm() {
   const { toast } = useToast();
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const { auth } = initializeFirebase();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,18 +59,36 @@ export function RegisterForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const result = await registerUser(values);
 
-    if (result?.error) {
-      toast({
+    if (result.success) {
+        toast({
+            title: 'Registrierung erfolgreich!',
+            description: 'Sie werden nun automatisch angemeldet...',
+        });
+        
+        try {
+            // Nach erfolgreicher Registrierung den Benutzer automatisch anmelden
+            const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+            const idToken = await userCredential.user.getIdToken();
+            
+            // Session auf dem Server erstellen, was den Redirect auslöst
+            await createSession(idToken);
+            
+        } catch (authError: any) {
+            // Fallback, falls der automatische Login fehlschlägt
+            toast({
+                variant: 'destructive',
+                title: 'Automatischer Login fehlgeschlagen',
+                description: 'Bitte loggen Sie sich manuell ein.',
+            });
+            // Leite zum Login weiter, wo sich der User manuell anmelden kann
+            window.location.href = '/login';
+        }
+    } else {
+       toast({
         variant: 'destructive',
         title: 'Registrierung fehlgeschlagen',
         description: result.error,
       });
-    } else if (result?.success) {
-        toast({
-            title: 'Registrierung erfolgreich!',
-            description: 'Ihr Konto wurde erstellt. Sie werden zum Login weitergeleitet.',
-        });
-        router.push('/login');
     }
   }
 
