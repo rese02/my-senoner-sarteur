@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import type { User } from "@/lib/types";
 import { PrivacySettingsForm } from "./_components/PrivacySettingsForm";
 import { useLanguage } from "@/components/providers/LanguageProvider";
-import Loading from "../../loading";
+import Loading from "../loading";
 
 
 export default function ProfilePage() {
