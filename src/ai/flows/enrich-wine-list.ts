@@ -10,9 +10,14 @@ import 'server-only';
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import type { MultilingualText } from '@/lib/types';
 
 const WineInfoSchema = z.object({
-  name: z.string().describe('The original name of the wine.'),
+  name: z.object({
+    de: z.string(),
+    it: z.string(),
+    en: z.string(),
+  }).describe('The original name of the wine.'),
   tags: z.array(z.string()).describe('An array of relevant tags like "rotwein", "weisswein", "kräftig", "leicht", "trocken", "fruchtig", as well as food pairings like "fleisch", "fisch", "käse", "pasta".'),
 });
 
@@ -48,7 +53,7 @@ Wine Names:
 - {{{this}}}
 {{/each}}
 
-Please provide the output as a JSON object containing a single key "enrichedWines".
+Please provide the output as a JSON object containing a single key "enrichedWines". Each wine object in the array should have a "name" object with "de", "it", and "en" fields, which should all be the same as the original wine name.
 `,
 });
 
