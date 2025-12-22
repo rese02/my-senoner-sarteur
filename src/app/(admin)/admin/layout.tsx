@@ -11,6 +11,7 @@ import { AppFooter } from "@/components/common/AppFooter";
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
+import { LanguageProvider } from "@/components/providers/LanguageProvider";
 
 
 // This layout is now a Server Component, which is faster and more secure.
@@ -30,6 +31,7 @@ export default async function AdminLayout({
   }
 
   return (
+    <LanguageProvider>
       <div className="flex h-dvh bg-secondary/50 text-foreground">
         <div className="hidden lg:flex">
           <AdminSidebar />
@@ -67,5 +69,6 @@ export default async function AdminLayout({
           <AdminMobileNav />
         </div>
       </div>
+    </LanguageProvider>
   );
 }
