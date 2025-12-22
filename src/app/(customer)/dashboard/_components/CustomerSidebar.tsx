@@ -66,12 +66,8 @@ export function CustomerSidebar({ showPlanner, showSommelier }: { showPlanner: b
           )
         })}
       </nav>
-      <div className="mt-auto p-4">
-        <Separator className="my-2 bg-primary-foreground/20" />
-        
-        <div className="p-2">
-            <LanguageSwitcher />
-        </div>
+      <div className="mt-auto p-4 space-y-2">
+        <LanguageSwitcher />
 
         <Separator className="my-2 bg-primary-foreground/20" />
         

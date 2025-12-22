@@ -1,4 +1,3 @@
-
 'use client';
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Button } from "@/components/ui/button";
@@ -10,17 +9,17 @@ export function LanguageSwitcher() {
   const buttonStyle = (language: 'de' | 'it' | 'en') => {
     const isActive = lang === language;
     return cn(
-        "w-full h-9 text-xs",
-        isActive
-            ? 'bg-primary-foreground text-primary'
-            : 'bg-transparent border border-primary-foreground/50 text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-white'
+      "w-full h-9 text-xs rounded-lg",
+      isActive
+        ? 'bg-primary-foreground text-primary hover:bg-primary-foreground' // Active state
+        : 'bg-transparent text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-white' // Inactive state
     );
   };
 
   return (
-    <div className="flex gap-2 justify-center w-full">
+    <div className="flex gap-1 justify-center w-full bg-primary-foreground/10 p-1 rounded-xl">
       <Button 
-        variant={lang === 'de' ? 'default' : 'outline'} 
+        variant="ghost" 
         size="sm" 
         onClick={() => setLang('de')}
         className={buttonStyle('de')}
@@ -28,7 +27,7 @@ export function LanguageSwitcher() {
         DE
       </Button>
       <Button 
-        variant={lang === 'it' ? 'default' : 'outline'} 
+        variant="ghost" 
         size="sm" 
         onClick={() => setLang('it')}
         className={buttonStyle('it')}
@@ -36,7 +35,7 @@ export function LanguageSwitcher() {
         IT
       </Button>
       <Button 
-        variant={lang === 'en' ? 'default' : 'outline'} 
+        variant="ghost" 
         size="sm" 
         onClick={() => setLang('en')}
         className={buttonStyle('en')}
