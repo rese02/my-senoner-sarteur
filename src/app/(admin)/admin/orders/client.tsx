@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Search, FileText, ShoppingCart, Trash2, Loader2, ListChecks, X, Home } from "lucide-react";
+import { Search, FileText, ShoppingCart, Trash2, Loader2, ListChecks, X, Home, MoreVertical } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo, useTransition } from "react";
 import type { Order, OrderStatus, User } from "@/lib/types";
@@ -260,10 +260,8 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                            />
                       </TableHead>
                   )}
-                  <TableHead>Bestell-ID</TableHead>
+                  <TableHead className="w-[40%]">Kunde</TableHead>
                   <TableHead>Typ</TableHead>
-                  <TableHead>Kunde</TableHead>
-                  <TableHead>Details</TableHead>
                   <TableHead>Fälligkeit</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Aktion</TableHead>
@@ -277,7 +275,6 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                 )}
                 {filteredOrders.map((order) => {
                   const isGroceryList = order.type === 'grocery_list';
-                  const itemCount = isGroceryList ? order.rawList?.split('\n').length : order.items?.length;
                   const isSelected = selectedOrderIds.includes(order.id);
                   const statusInfo = STATUS_MAP[order.status];
                   const statusLabelKey = statusInfo.labelKey as keyof typeof t.status;
@@ -288,15 +285,22 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                   <TableRow 
                     key={order.id} 
                     data-state={isSelected ? "selected" : ""}
-                    onClick={() => handleShowDetails(order)} 
-                    className={cn("transition-colors", isSelectionMode ? "cursor-pointer" : "hover:bg-secondary/50")}
+                    className={cn("transition-colors", isSelectionMode ? "cursor-pointer" : "")}
                   >
                      {isSelectionMode && (
-                        <TableCell onClick={(e) => e.stopPropagation()}>
+                        <TableCell onClick={(e) => { e.stopPropagation(); handleSelectOrder(order.id); }}>
                            <Checkbox checked={isSelected} onCheckedChange={() => handleSelectOrder(order.id)} />
                         </TableCell>
                      )}
-                    <TableCell className="font-mono text-xs">#{order.id.slice(-6)}</TableCell>
+                    <TableCell onClick={() => handleShowDetails(order)} className="cursor-pointer">
+                        <div className="font-bold text-base">{order.customerName}</div>
+                        <div className="text-xs text-muted-foreground">
+                             <span>#{order.id.slice(-6)}</span>
+                            <span className="mx-1.5">•</span>
+                            <span>{order.items?.length || order.rawList?.split('\n').length} Artikel</span>
+                            {order.total && order.total > 0 && <span className="font-normal"><span className="mx-1.5">•</span>€{order.total?.toFixed(2)}</span>}
+                        </div>
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                          {isGroceryList
@@ -305,11 +309,6 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                          }
                          <span className="text-xs">{isGroceryList ? 'Liste' : 'Vorb.'}</span>
                       </div>
-                    </TableCell>
-                    <TableCell className="font-medium">{order.customerName}</TableCell>
-                    <TableCell className="text-muted-foreground text-xs">
-                        {itemCount} Artikel
-                        {order.total && order.total > 0 ? <span className="font-semibold text-foreground"> • €{order.total.toFixed(2)}</span> : ''}
                     </TableCell>
                     <TableCell>{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEE, dd.MM.", { locale: de })}</TableCell>
                     <TableCell>
@@ -327,11 +326,11 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                         }}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <SelectTrigger className={cn("h-8 w-[140px] capitalize text-xs focus:ring-primary/50", statusInfo?.className)}>
+                        <SelectTrigger className={cn("h-8 w-[140px] capitalize text-xs focus:ring-primary/50 border-0", statusInfo?.className)}>
                           <SelectValue>
-                              <div className="flex items-center">
-                                {StatusIcon && <StatusIcon className="w-3 h-3 mr-1.5" />}
-                                <span>{statusLabel}</span>
+                              <div className="flex items-center gap-1.5">
+                                {StatusIcon && <StatusIcon className="w-3 h-3" />}
+                                <span className="font-semibold">{statusLabel}</span>
                               </div>
                           </SelectValue>
                         </SelectTrigger>
@@ -347,7 +346,9 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                       </Select>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleShowDetails(order); }}>Details</Button>
+                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleShowDetails(order); }}>
+                        <MoreVertical className="w-4 h-4"/> Details
+                      </Button>
                     </TableCell>
                   </TableRow>
                 )})}

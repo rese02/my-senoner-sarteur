@@ -2,7 +2,7 @@
 'use client';
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Users, ShoppingCart, Trash2, Loader2, CheckCircle, Euro, Home } from "lucide-react";
+import { Users, ShoppingCart, Trash2, Loader2, CheckCircle, Euro, Home, MoreVertical } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -139,10 +139,10 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Kunde</TableHead>
+                                <TableHead className="w-[40%]">Kunde</TableHead>
                                 <TableHead>Fälligkeit</TableHead>
                                 <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Gesamt</TableHead>
+                                <TableHead className="text-right">Aktion</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -152,19 +152,26 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                                 const statusLabel = statusLabelKey ? t.status[statusLabelKey] : order.status;
                                 const StatusIcon = statusInfo?.icon;
                                 return (
-                                <TableRow key={order.id} onClick={() => handleShowDetails(order)} className="cursor-pointer">
+                                <TableRow key={order.id}>
                                     <TableCell>
-                                        <div className="font-medium">{order.customerName}</div>
-                                        <div className="text-xs text-muted-foreground font-mono">#{order.id.slice(-6)}</div>
+                                        <div className="font-bold">{order.customerName}</div>
+                                        <div className="text-xs text-muted-foreground">
+                                            <span>#{order.id.slice(-6)}</span>
+                                            <span className="mx-1.5">•</span>
+                                            <span>{order.items?.length || order.rawList?.split('\n').length} Artikel</span>
+                                            {order.total && order.total > 0 && <span className="font-normal"><span className="mx-1.5">•</span>€{order.total?.toFixed(2)}</span>}
+                                        </div>
                                     </TableCell>
                                     <TableCell>{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEE, dd.MM.", { locale: de })}</TableCell>
                                     <TableCell>
-                                        <Badge className={cn("capitalize font-semibold text-xs", statusInfo?.className)}>
+                                        <Badge variant="outline" className={cn("capitalize font-semibold text-xs border-0", statusInfo?.className)}>
                                             {StatusIcon && <StatusIcon className="w-3 h-3 mr-1.5"/>}
                                             {statusLabel}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="text-right font-medium">€{order.total?.toFixed(2) || '-'}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="sm" onClick={() => handleShowDetails(order)}>Details</Button>
+                                    </TableCell>
                                 </TableRow>
                             )})}
                         </TableBody>

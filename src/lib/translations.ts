@@ -1,3 +1,4 @@
+
 import { getSession } from './session';
 
 export type Language = 'de' | 'it' | 'en';
@@ -194,7 +195,7 @@ export const translations = {
     status: {
       new: "Eingegangen",
       picking: "Wird gepackt",
-      ready: "Abholbereit",
+      ready: "Bereit",
       ready_for_delivery: "Lieferbereit",
       delivered: "Geliefert",
       collected: "Abgeholt",
@@ -399,8 +400,8 @@ export const translations = {
     status: {
       new: "Ricevuto",
       picking: "In preparazione",
-      ready: "Pronto per il ritiro",
-      ready_for_delivery: "Pronto per la consegna",
+      ready: "Pronto",
+      ready_for_delivery: "Pronto per consegna",
       delivered: "Consegnato",
       collected: "Ritirato",
       paid: "Pagato",
@@ -604,8 +605,8 @@ export const translations = {
     status: {
       new: "Received",
       picking: "Packing",
-      ready: "Ready for Pickup",
-      ready_for_delivery: "Ready for Delivery",
+      ready: "Ready",
+      ready_for_delivery: "Delivery Ready",
       delivered: "Delivered",
       collected: "Collected",
       paid: "Paid",
