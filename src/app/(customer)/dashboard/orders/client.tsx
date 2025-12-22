@@ -36,7 +36,8 @@ function OrderHistoryCard({
     const { t, dateLocale, lang } = useLanguage();
     const isGroceryList = order.type === 'grocery_list';
     const relevantDate = order.pickupDate || order.deliveryDate || order.createdAt;
-    const StatusIcon = STATUS_MAP[order.status]?.icon;
+    const statusInfo = STATUS_MAP[order.status];
+    const StatusIcon = statusInfo?.icon;
     const isDeletable = deletableStatuses.includes(order.status);
     
     const handleCardClick = () => {
@@ -45,8 +46,7 @@ function OrderHistoryCard({
         }
     };
 
-    const statusLabelKey = STATUS_MAP[order.status]?.label.replace('status.', '') as keyof typeof t.status;
-    const statusLabel = (t.status as any)[statusLabelKey] || order.status;
+    const statusLabel = statusInfo ? t.status[statusInfo.labelKey] : order.status;
     const preorderLabel = t.orders.preorder;
 
     return (
@@ -64,7 +64,7 @@ function OrderHistoryCard({
                 onClick={handleCardClick} 
                 className={cn(
                     "overflow-hidden shadow-sm bg-card flex-1 transition-all border-l-4",
-                    STATUS_MAP[order.status]?.className.replace('bg-', 'border-').replace('-100', '-300').replace('-800', '-500'),
+                    statusInfo?.className.replace('bg-', 'border-').replace('-100', '-300').replace('-800', '-500'),
                     isSelectionMode && isDeletable && "cursor-pointer hover:bg-secondary",
                     isSelected && "ring-2 ring-primary border-primary"
                 )}
@@ -80,7 +80,7 @@ function OrderHistoryCard({
                                 #{order.id.slice(-6)} - {format(parseISO(order.createdAt), "dd.MM.yyyy, HH:mm")}
                             </CardDescription>
                         </div>
-                        <Badge className={cn("capitalize font-semibold text-xs whitespace-nowrap", STATUS_MAP[order.status]?.className)}>
+                        <Badge className={cn("capitalize font-semibold text-xs whitespace-nowrap", statusInfo?.className)}>
                             {StatusIcon && <StatusIcon className="w-3 h-3 mr-1.5"/>}
                             {statusLabel}
                         </Badge>

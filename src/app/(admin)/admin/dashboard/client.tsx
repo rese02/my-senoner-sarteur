@@ -154,8 +154,8 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                         </TableHeader>
                         <TableBody>
                             {initialRecentOrders.map((order) => {
-                                const statusLabelKey = STATUS_MAP[order.status]?.label.replace('status.', '') as keyof typeof t.status;
-                                const statusLabel = (t.status as any)[statusLabelKey] || order.status;
+                                const statusInfo = STATUS_MAP[order.status];
+                                const statusLabel = statusInfo ? t.status[statusInfo.labelKey] : order.status;
                                 return (
                                 <TableRow key={order.id} onClick={() => handleShowDetails(order)} className="cursor-pointer">
                                     <TableCell>
@@ -163,7 +163,7 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                                         <div className="text-xs text-muted-foreground font-mono">#{order.id.slice(-6)}</div>
                                     </TableCell>
                                     <TableCell>{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEE, dd.MM.", { locale: de })}</TableCell>
-                                    <TableCell><Badge className={cn("capitalize font-semibold", STATUS_MAP[order.status]?.className)}>{statusLabel}</Badge></TableCell>
+                                    <TableCell><Badge className={cn("capitalize font-semibold", statusInfo?.className)}>{statusLabel}</Badge></TableCell>
                                     <TableCell className="text-right font-medium">€{order.total?.toFixed(2) || '-'}</TableCell>
                                 </TableRow>
                             )})}
@@ -203,7 +203,7 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                         <p className="text-muted-foreground">Status:</p>
                         <div>
                             <Badge className={cn("capitalize font-semibold", STATUS_MAP[selectedOrder.status]?.className)}>
-                                {(t.status as any)[STATUS_MAP[selectedOrder.status]?.label.replace('status.', '')] || selectedOrder.status}
+                                {t.status[STATUS_MAP[selectedOrder.status]?.labelKey] || selectedOrder.status}
                             </Badge>
                         </div>
                    </div>

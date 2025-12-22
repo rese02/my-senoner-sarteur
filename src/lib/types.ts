@@ -44,16 +44,16 @@ export type OrderType = 'preorder' | 'grocery_list';
 
 export type OrderStatus = 'new' | 'picking' | 'ready' | 'collected' | 'ready_for_delivery' | 'delivered' | 'paid' | 'cancelled';
 
-// Centralized Status Map
-export const STATUS_MAP: Record<OrderStatus, { label: string; className: string; icon: LucideIcon }> = {
-    new: { label: 'status.new', className: 'bg-blue-100 text-blue-800', icon: require('lucide-react').Info },
-    picking: { label: 'status.picking', className: 'bg-yellow-100 text-yellow-800', icon: require('lucide-react').PackageSearch },
-    ready: { label: 'status.ready', className: 'bg-green-100 text-green-800', icon: require('lucide-react').CheckCircle },
-    ready_for_delivery: { label: 'status.ready_for_delivery', className: 'bg-cyan-100 text-cyan-800', icon: require('lucide-react').Truck },
-    delivered: { label: 'status.delivered', className: 'bg-purple-100 text-purple-800', icon: require('lucide-react').Home },
-    collected: { label: 'status.collected', className: 'bg-purple-100 text-purple-800', icon: require('lucide-react').CheckCircle },
-    paid: { label: 'status.paid', className: 'bg-emerald-100 text-emerald-800', icon: require('lucide-react').Euro },
-    cancelled: { label: 'status.cancelled', className: 'bg-red-100 text-red-800', icon: require('lucide-react').XCircle }
+// Centralized Status Map with keys for translation
+export const STATUS_MAP: Record<OrderStatus, { labelKey: keyof typeof import('./translations')['translations']['de']['status']; className: string; icon: LucideIcon }> = {
+    new: { labelKey: 'new', className: 'bg-blue-100 text-blue-800', icon: require('lucide-react').Info },
+    picking: { labelKey: 'picking', className: 'bg-yellow-100 text-yellow-800', icon: require('lucide-react').PackageSearch },
+    ready: { labelKey: 'ready', className: 'bg-green-100 text-green-800', icon: require('lucide-react').CheckCircle },
+    ready_for_delivery: { labelKey: 'ready_for_delivery', className: 'bg-cyan-100 text-cyan-800', icon: require('lucide-react').Truck },
+    delivered: { labelKey: 'delivered', className: 'bg-purple-100 text-purple-800', icon: require('lucide-react').Home },
+    collected: { labelKey: 'collected', className: 'bg-purple-100 text-purple-800', icon: require('lucide-react').CheckCircle },
+    paid: { labelKey: 'paid', className: 'bg-emerald-100 text-emerald-800', icon: require('lucide-react').Euro },
+    cancelled: { labelKey: 'cancelled', className: 'bg-red-100 text-red-800', icon: require('lucide-react').XCircle }
 };
 
 
