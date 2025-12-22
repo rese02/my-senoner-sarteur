@@ -112,7 +112,8 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                 order.id === orderId ? { ...order, status: newStatus } : order
             ));
             const statusInfo = STATUS_MAP[newStatus];
-            const statusLabel = statusInfo ? t.status[statusInfo.labelKey] : newStatus;
+            const statusLabelKey = statusInfo.labelKey as keyof typeof t.status;
+            const statusLabel = statusLabelKey ? t.status[statusLabelKey] : newStatus;
 
             toast({
                 title: "Status aktualisiert",
@@ -209,7 +210,8 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                         {Object.keys(STATUS_MAP).map(s => {
                               const statusKey = s as OrderStatus;
                               const statusInfo = STATUS_MAP[statusKey];
-                              const statusLabel = statusInfo ? t.status[statusInfo.labelKey] : statusKey;
+                              const statusLabelKey = statusInfo.labelKey as keyof typeof t.status;
+                              const statusLabel = statusLabelKey ? t.status[statusLabelKey] : statusKey;
                               return (<SelectItem key={s} value={s} className="capitalize text-xs">{statusLabel}</SelectItem>)
                           })}
                     </SelectContent>
@@ -278,14 +280,16 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                   const itemCount = isGroceryList ? order.rawList?.split('\n').length : order.items?.length;
                   const isSelected = selectedOrderIds.includes(order.id);
                   const statusInfo = STATUS_MAP[order.status];
-                  const statusLabel = statusInfo ? t.status[statusInfo.labelKey] : order.status;
+                  const statusLabelKey = statusInfo.labelKey as keyof typeof t.status;
+                  const statusLabel = statusLabelKey ? t.status[statusLabelKey] : order.status;
+                  const StatusIcon = statusInfo.icon;
 
                   return (
                   <TableRow 
                     key={order.id} 
                     data-state={isSelected ? "selected" : ""}
                     onClick={() => handleShowDetails(order)} 
-                    className={cn("transition-colors", isSelectionMode ? "cursor-pointer" : "hover:bg-secondary")}
+                    className={cn("transition-colors", isSelectionMode ? "cursor-pointer" : "hover:bg-secondary/50")}
                   >
                      {isSelectionMode && (
                         <TableCell onClick={(e) => e.stopPropagation()}>
@@ -323,14 +327,20 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                         }}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <SelectTrigger className={cn("h-8 w-[140px] capitalize text-xs focus:ring-primary/50", statusInfo?.className, isSelectionMode ? "" : "group-hover:bg-card")}>
-                          <SelectValue />
+                        <SelectTrigger className={cn("h-8 w-[140px] capitalize text-xs focus:ring-primary/50", statusInfo?.className)}>
+                          <SelectValue>
+                              <div className="flex items-center">
+                                {StatusIcon && <StatusIcon className="w-3 h-3 mr-1.5" />}
+                                <span>{statusLabel}</span>
+                              </div>
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {Object.keys(STATUS_MAP).map(s => {
                               const statusKey = s as OrderStatus;
                               const statusInfo = STATUS_MAP[statusKey];
-                              const statusLabel = statusInfo ? t.status[statusInfo.labelKey] : statusKey;
+                              const statusLabelKey = statusInfo.labelKey as keyof typeof t.status;
+                              const statusLabel = statusLabelKey ? t.status[statusLabelKey] : statusKey;
                               return (<SelectItem key={s} value={s} className="capitalize text-xs">{statusLabel}</SelectItem>)
                           })}
                         </SelectContent>
@@ -401,7 +411,7 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                         <p className="text-muted-foreground">Status:</p>
                         <div>
                             <Badge className={cn("capitalize font-semibold", STATUS_MAP[selectedOrder.status]?.className)}>
-                                {t.status[STATUS_MAP[selectedOrder.status]?.labelKey] || selectedOrder.status}
+                                {t.status[STATUS_MAP[selectedOrder.status]?.labelKey as keyof typeof t.status] || selectedOrder.status}
                             </Badge>
                         </div>
                    </div>
@@ -466,5 +476,3 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
     </>
   );
 }
-
-    

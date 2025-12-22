@@ -153,7 +153,7 @@ export async function getOrdersPageData() {
     await requireRole(['admin']);
 
     try {
-        const ordersSnapshot = await adminDb.collection('orders').get();
+        const ordersSnapshot = await adminDb.collection('orders').orderBy('createdAt', 'desc').get();
         const usersSnapshot = await adminDb.collection('users').get();
         
         const orders = ordersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
@@ -173,6 +173,7 @@ export async function getCustomerOrders() {
     try {
         const ordersSnapshot = await adminDb.collection('orders')
             .where('userId', '==', session.id)
+            .orderBy('createdAt', 'desc')
             .get();
 
         if (ordersSnapshot.empty) {
@@ -180,8 +181,6 @@ export async function getCustomerOrders() {
         }
 
         const orders = ordersSnapshot.docs.map(doc => toPlainObject({ id: doc.id, ...doc.data() } as Order));
-
-        orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         
         return orders;
     } catch (error) {

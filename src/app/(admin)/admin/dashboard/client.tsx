@@ -149,7 +149,8 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                             {initialRecentOrders.map((order) => {
                                 const statusInfo = STATUS_MAP[order.status];
                                 const statusLabelKey = statusInfo.labelKey as keyof typeof t.status;
-                                const statusLabel = t.status[statusLabelKey] ?? order.status;
+                                const statusLabel = statusLabelKey ? t.status[statusLabelKey] : order.status;
+                                const StatusIcon = statusInfo?.icon;
                                 return (
                                 <TableRow key={order.id} onClick={() => handleShowDetails(order)} className="cursor-pointer">
                                     <TableCell>
@@ -157,7 +158,12 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
                                         <div className="text-xs text-muted-foreground font-mono">#{order.id.slice(-6)}</div>
                                     </TableCell>
                                     <TableCell>{format(parseISO(order.pickupDate || order.deliveryDate || order.createdAt), "EEE, dd.MM.", { locale: de })}</TableCell>
-                                    <TableCell><Badge className={cn("capitalize font-semibold", statusInfo?.className)}>{statusLabel}</Badge></TableCell>
+                                    <TableCell>
+                                        <Badge className={cn("capitalize font-semibold text-xs", statusInfo?.className)}>
+                                            {StatusIcon && <StatusIcon className="w-3 h-3 mr-1.5"/>}
+                                            {statusLabel}
+                                        </Badge>
+                                    </TableCell>
                                     <TableCell className="text-right font-medium">€{order.total?.toFixed(2) || '-'}</TableCell>
                                 </TableRow>
                             )})}
@@ -259,5 +265,3 @@ export function DashboardClient({ initialStats, initialRecentOrders, initialChar
     </div>
   );
 }
-
-    
