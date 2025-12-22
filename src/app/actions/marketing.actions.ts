@@ -1,4 +1,3 @@
-
 'use server';
 import 'server-only';
 
@@ -6,7 +5,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/session';
 import type { Story, PlannerEvent, Product, Recipe, WheelOfFortuneSettings, User, MultilingualText } from '@/lib/types';
-import { toPlainObject } from '@/lib/utils';
+import { toPlainObject, sanitizeMultilingualText, getEmptyMultilingualText } from '@/lib/utils';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -24,37 +23,43 @@ async function requireAdmin() {
     return requireRole(['admin']);
 }
 
+const MultilingualTextSchema = z.object({
+  de: z.string(),
+  it: z.string(),
+  en: z.string(),
+});
+
 // Zod Schemas for validation
 const StorySchema = z.object({
     id: z.string().optional(),
-    label: z.union([z.string().min(1, "Label is required."), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
-    author: z.union([z.string().min(1, "Author is required."), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
+    label: MultilingualTextSchema,
+    author: MultilingualTextSchema,
     imageUrl: z.string().url("A valid image URL is required.").or(z.literal('')),
     imageHint: z.string().optional(),
 });
 
 const PlannerEventSchema = z.object({
     id: z.string().optional(),
-    title: z.union([z.string().min(1, "Title is required."), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
-    description: z.union([z.string(), z.object({ de: z.string(), it: z.string(), en: z.string() })]).optional(),
+    title: MultilingualTextSchema,
+    description: MultilingualTextSchema,
     imageUrl: z.string().url("A valid image URL is required.").or(z.literal('')),
     imageHint: z.string().optional(),
     ingredients: z.array(z.object({
         productId: z.string(),
-        productName: z.union([z.string(), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
+        productName: MultilingualTextSchema,
         baseAmount: z.number(),
         unit: z.string(),
     })).min(1, "At least one ingredient rule is required."),
 });
 
 const RecipeSchema = z.object({
-    title: z.union([z.string().min(1), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
-    subtitle: z.union([z.string(), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
+    title: MultilingualTextSchema,
+    subtitle: MultilingualTextSchema,
     image: z.string().url().or(z.literal('')),
     imageHint: z.string().optional(),
-    ingredients: z.array(z.union([z.string(), z.object({ de: z.string(), it: z.string(), en: z.string() })])),
-    instructions: z.union([z.string(), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
-    description: z.union([z.string(), z.object({ de: z.string(), it: z.string(), en: z.string() })]),
+    ingredients: z.array(MultilingualTextSchema),
+    instructions: MultilingualTextSchema,
+    description: MultilingualTextSchema,
 });
 
 const WheelOfFortuneSettingsSchema = z.object({
@@ -72,7 +77,11 @@ const WheelOfFortuneSettingsSchema = z.object({
 export async function saveStory(storyData: Partial<Story>): Promise<Story> {
     await requireAdmin();
     
-    const validation = StorySchema.safeParse(storyData);
+    const validation = StorySchema.safeParse({
+        ...storyData,
+        label: sanitizeMultilingualText(storyData.label),
+        author: sanitizeMultilingualText(storyData.author)
+    });
     if (!validation.success) {
         throw new Error("Invalid story data: " + JSON.stringify(validation.error.flatten().fieldErrors));
     }
@@ -102,7 +111,18 @@ export async function deleteStory(storyId: string) {
 // --- Planner Event Actions ---
 export async function savePlannerEvent(eventData: Partial<PlannerEvent>): Promise<PlannerEvent> {
     await requireAdmin();
-    const validation = PlannerEventSchema.safeParse(eventData);
+    
+    const sanitizedData = {
+        ...eventData,
+        title: sanitizeMultilingualText(eventData.title),
+        description: sanitizeMultilingualText(eventData.description),
+        ingredients: eventData.ingredients?.map(ing => ({
+            ...ing,
+            productName: sanitizeMultilingualText(ing.productName)
+        }))
+    };
+
+    const validation = PlannerEventSchema.safeParse(sanitizedData);
     if (!validation.success) {
         throw new Error("Invalid event data: " + JSON.stringify(validation.error.flatten().fieldErrors));
     }
@@ -126,7 +146,17 @@ export async function deletePlannerEvent(eventId: string) {
 // --- Recipe of the Week Action ---
 export async function saveRecipeOfTheWeek(recipeData: Recipe) {
     await requireAdmin();
-    const validation = RecipeSchema.safeParse(recipeData);
+
+    const sanitizedRecipe = {
+        ...recipeData,
+        title: sanitizeMultilingualText(recipeData.title),
+        subtitle: sanitizeMultilingualText(recipeData.subtitle),
+        description: sanitizeMultilingualText(recipeData.description),
+        instructions: sanitizeMultilingualText(recipeData.instructions),
+        ingredients: recipeData.ingredients.map(ing => sanitizeMultilingualText(ing))
+    };
+
+    const validation = RecipeSchema.safeParse(sanitizedRecipe);
      if (!validation.success) {
         throw new Error("Invalid recipe data: " + JSON.stringify(validation.error.flatten().fieldErrors));
     }
@@ -313,15 +343,14 @@ function revalidatePaths() {
 
 
 function getFallbackRecipe(): Recipe {
-    const emptyText: MultilingualText = { de: '', it: '', en: '' };
     return {
-        title: { de: 'Kein Rezept verfügbar', it: 'Nessuna ricetta disponibile', en: 'No recipe available' },
-        subtitle: { de: 'Bitte im Admin-Bereich ein Rezept der Woche festlegen.', it: 'Imposta una ricetta della settimana nell\'area admin.', en: 'Please set a recipe of the week in the admin area.' },
+        title: getEmptyMultilingualText(),
+        subtitle: getEmptyMultilingualText(),
         image: 'https://picsum.photos/seed/recipefallback/1080/800',
         imageHint: 'empty plate',
-        description: { de: 'Derzeit ist kein Rezept der Woche hinterlegt.', it: 'Attualmente non è stata impostata nessuna ricetta della settimana.', en: 'There is currently no recipe of the week.' },
+        description: getEmptyMultilingualText(),
         ingredients: [],
-        instructions: emptyText
+        instructions: getEmptyMultilingualText()
     };
 }
 

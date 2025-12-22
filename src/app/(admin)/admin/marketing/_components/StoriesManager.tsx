@@ -7,13 +7,16 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ImageUploader } from "@/components/custom/ImageUploader";
-import type { Story } from "@/lib/types";
+import type { Story, MultilingualText } from "@/lib/types";
 import { saveStory, deleteStory } from "@/app/actions/marketing.actions";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Trash2, Edit } from "lucide-react";
 import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { getLang, getEmptyMultilingualText } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
 
 function StoryForm({ story, onSave, isPending, onCancel }: { story: Partial<Story> | null, onSave: (story: Partial<Story>) => void, isPending: boolean, onCancel: () => void }) {
     const [currentStory, setCurrentStory] = useState(story);
@@ -22,10 +25,14 @@ function StoryForm({ story, onSave, isPending, onCancel }: { story: Partial<Stor
         setCurrentStory(story);
     }, [story]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (field: 'label' | 'author', lang: keyof MultilingualText, value: string) => {
         if (!currentStory) return;
-        const { name, value } = e.target;
-        setCurrentStory({ ...currentStory, [name]: value });
+        setCurrentStory(prev => {
+            if (!prev) return null;
+            const currentField = prev[field] ? { ...(prev[field] as MultilingualText) } : getEmptyMultilingualText();
+            currentField[lang] = value;
+            return { ...prev, [field]: currentField };
+        });
     };
 
     const handleImageUpload = (url: string) => {
@@ -45,7 +52,7 @@ function StoryForm({ story, onSave, isPending, onCancel }: { story: Partial<Stor
     return (
         <form onSubmit={handleFormSubmit} className="flex flex-col h-full">
             <ScrollArea className="flex-1">
-                <div className="grid gap-4 p-6">
+                <div className="grid gap-6 p-6">
                     <div className="space-y-1.5">
                         <Label>Story Bild</Label>
                         <ImageUploader 
@@ -55,17 +62,48 @@ function StoryForm({ story, onSave, isPending, onCancel }: { story: Partial<Stor
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label htmlFor="label">Titel (z.B. "Käse des Tages")</Label>
-                        <Input id="label" name="label" value={currentStory.label || ''} onChange={handleChange} required />
-                    </div>
-                    <div className="space-y-1.5">
-                        <Label htmlFor="author">Autor (z.B. "Käsetheke")</Label>
-                        <Input id="author" name="author" value={currentStory.author || ''} onChange={handleChange} required />
-                    </div>
-                    <div className="space-y-1.5">
                         <Label htmlFor="imageHint">Bild-Hinweis für KI</Label>
-                        <Input id="imageHint" name="imageHint" value={currentStory.imageHint || ''} onChange={handleChange} placeholder="z.B. cheese counter" />
+                        <Input id="imageHint" name="imageHint" value={currentStory.imageHint || ''} onChange={(e) => setCurrentStory({...currentStory, imageHint: e.target.value})} placeholder="z.B. cheese counter" />
                     </div>
+
+                     <Tabs defaultValue="de" className="pt-4 border-t">
+                        <TabsList className="grid w-full grid-cols-3">
+                            <TabsTrigger value="de">Deutsch</TabsTrigger>
+                            <TabsTrigger value="it">Italienisch</TabsTrigger>
+                            <TabsTrigger value="en">Englisch</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="de" className="space-y-4">
+                            <div className="space-y-1.5">
+                                <Label>Titel (DE)</Label>
+                                <Input value={getLang(currentStory.label, 'de')} onChange={(e) => handleInputChange('label', 'de', e.target.value)} required />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label>Autor (DE)</Label>
+                                <Input value={getLang(currentStory.author, 'de')} onChange={(e) => handleInputChange('author', 'de', e.target.value)} required />
+                            </div>
+                        </TabsContent>
+                        <TabsContent value="it" className="space-y-4">
+                           <div className="space-y-1.5">
+                                <Label>Titel (IT)</Label>
+                                <Input value={getLang(currentStory.label, 'it')} onChange={(e) => handleInputChange('label', 'it', e.target.value)} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label>Autor (IT)</Label>
+                                <Input value={getLang(currentStory.author, 'it')} onChange={(e) => handleInputChange('author', 'it', e.target.value)} />
+                            </div>
+                        </TabsContent>
+                         <TabsContent value="en" className="space-y-4">
+                           <div className="space-y-1.5">
+                                <Label>Titel (EN)</Label>
+                                <Input value={getLang(currentStory.label, 'en')} onChange={(e) => handleInputChange('label', 'en', e.target.value)} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label>Autor (EN)</Label>
+                                <Input value={getLang(currentStory.author, 'en')} onChange={(e) => handleInputChange('author', 'en', e.target.value)} />
+                            </div>
+                        </TabsContent>
+                    </Tabs>
+
                 </div>
             </ScrollArea>
             <SheetFooter className="p-6 pt-4 mt-auto border-t sticky bottom-0 bg-card">
@@ -97,10 +135,9 @@ export function StoriesManager({ initialStories, onUpdate }: { initialStories: S
             setEditingStory({ ...story });
         } else {
             setEditingStory({
-                // ID wird jetzt serverseitig generiert, daher hier leer lassen
                 id: undefined,
-                label: '',
-                author: '',
+                label: getEmptyMultilingualText(),
+                author: getEmptyMultilingualText(),
                 imageUrl: '',
                 imageHint: ''
             });
@@ -150,11 +187,11 @@ export function StoriesManager({ initialStories, onUpdate }: { initialStories: S
                     {stories.map(story => (
                         <div key={story.id} className="group relative">
                             <div className="relative aspect-square w-full rounded-lg overflow-hidden shadow-md">
-                                <Image src={story.imageUrl} alt={story.label} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover" data-ai-hint={story.imageHint} />
+                                <Image src={story.imageUrl} alt={getLang(story.label, 'de')} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover" data-ai-hint={story.imageHint} />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                                 <div className="absolute bottom-2 left-2 text-white">
-                                    <p className="font-bold text-sm leading-tight">{story.label}</p>
-                                    <p className="text-xs opacity-80">{story.author}</p>
+                                    <p className="font-bold text-sm leading-tight">{getLang(story.label, 'de')}</p>
+                                    <p className="text-xs opacity-80">{getLang(story.author, 'de')}</p>
                                 </div>
                             </div>
                             <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -170,7 +207,7 @@ export function StoriesManager({ initialStories, onUpdate }: { initialStories: S
                                     <AlertDialogContent>
                                         <AlertDialogHeader>
                                             <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
-                                            <AlertDialogDescription>Möchten Sie die Story '{story.label}' wirklich löschen?</AlertDialogDescription>
+                                            <AlertDialogDescription>Möchten Sie die Story '{getLang(story.label, 'de')}' wirklich löschen?</AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
                                             <AlertDialogCancel>Abbrechen</AlertDialogCancel>
@@ -191,7 +228,7 @@ export function StoriesManager({ initialStories, onUpdate }: { initialStories: S
             </div>
 
             <Sheet open={isStoryModalOpen} onOpenChange={setIsStoryModalOpen}>
-                <SheetContent className="sm:max-w-md p-0">
+                <SheetContent className="sm:max-w-lg p-0">
                     <SheetHeader className="p-6 pb-0">
                         <SheetTitle>{editingStory?.id && stories.some(s => s.id === editingStory.id) ? 'Story bearbeiten' : 'Neue Story erstellen'}</SheetTitle>
                         <SheetDescription>
