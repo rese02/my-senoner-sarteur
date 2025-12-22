@@ -18,8 +18,9 @@ import { Badge } from "@/components/ui/badge";
 import { getLoyaltyTier, loyaltyTiers } from "@/lib/loyalty";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { cn } from "@/lib/utils";
+import { cn, getLang } from "@/lib/utils";
 import Link from "next/link";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 const getCustomerPurchaseCategories = (userId: string, allOrders: Order[], allProducts: Product[]): Set<string> => {
     const categories = new Set<string>();
@@ -98,6 +99,7 @@ export function CustomersClient({ initialCustomers, initialOrders, initialProduc
     const [isImproving, setIsImproving] = useState(false);
     const [isSending, startSendingTransition] = useTransition();
     const { toast } = useToast();
+    const { lang } = useLanguage();
 
     const filteredCustomers = useMemo(() => {
         if (selectedCategories.length === 0) {
@@ -134,8 +136,9 @@ export function CustomersClient({ initialCustomers, initialOrders, initialProduc
         }
         setIsImproving(true);
         try {
-            const { improvedText } = await improveTextWithAI({ text: message });
-            setMessage(improvedText);
+            const { improvedSubject, improvedMessage } = await improveTextWithAI({ subject, message });
+            setSubject(improvedSubject);
+            setMessage(improvedMessage);
             toast({ title: 'Text mit KI verbessert!' });
         } catch (error) {
             toast({ variant: 'destructive', title: 'KI-Verbesserung fehlgeschlagen', description: 'Der Text konnte nicht verbessert werden.' });
@@ -199,7 +202,7 @@ export function CustomersClient({ initialCustomers, initialOrders, initialProduc
                                     onSelect={() => toggleCategory(category)}
                                 >
                                     <Checkbox className={cn("mr-2", selectedCategories.some(c => c.id === category.id) ? "bg-primary text-primary-foreground" : "")} checked={selectedCategories.some(c => c.id === category.id)} />
-                                    <span>{category.name}</span>
+                                    <span>{getLang(category.name, lang)}</span>
                                 </CommandItem>
                                 ))}
                             </CommandGroup>
