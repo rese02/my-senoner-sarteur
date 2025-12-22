@@ -111,8 +111,8 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
             setOrders(prevOrders => prevOrders.map(order => 
                 order.id === orderId ? { ...order, status: newStatus } : order
             ));
-            const statusLabelKey = STATUS_MAP[newStatus]?.label as keyof typeof t.status;
-            const statusLabel = statusLabelKey ? t.status[statusLabelKey] : newStatus;
+            const statusLabelKey = STATUS_MAP[newStatus]?.label.replace('status.', '') as keyof typeof t.status;
+            const statusLabel = (t.status as any)[statusLabelKey] || newStatus;
 
             toast({
                 title: "Status aktualisiert",
@@ -208,8 +208,8 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                         <SelectItem value="all">Alle Status</SelectItem>
                         {Object.keys(STATUS_MAP).map(s => {
                               const statusKey = s as OrderStatus;
-                              const statusLabelKey = STATUS_MAP[statusKey]?.label as keyof typeof t.status;
-                              const statusLabel = statusLabelKey ? t.status[statusLabelKey] : statusKey;
+                              const statusLabelKey = STATUS_MAP[statusKey]?.label.replace('status.', '') as keyof typeof t.status;
+                              const statusLabel = (t.status as any)[statusLabelKey] || statusKey;
                               return (<SelectItem key={s} value={s} className="capitalize text-xs">{statusLabel}</SelectItem>)
                           })}
                     </SelectContent>
@@ -277,8 +277,8 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                   const isGroceryList = order.type === 'grocery_list';
                   const itemCount = isGroceryList ? order.rawList?.split('\n').length : order.items?.length;
                   const isSelected = selectedOrderIds.includes(order.id);
-                  const statusLabelKey = STATUS_MAP[order.status]?.label as keyof typeof t.status;
-                  const statusLabel = statusLabelKey ? t.status[statusLabelKey] : order.status;
+                  const statusLabelKey = STATUS_MAP[order.status]?.label.replace('status.', '') as keyof typeof t.status;
+                  const statusLabel = (t.status as any)[statusLabelKey] || order.status;
 
                   return (
                   <TableRow 
@@ -323,14 +323,14 @@ export function OrdersClient({ initialOrders, initialUsers }: OrdersClientProps)
                         }}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <SelectTrigger className={cn("h-8 w-[140px] capitalize text-xs focus:ring-primary/50", STATUS_MAP[order.status]?.className)}>
+                        <SelectTrigger className={cn("h-8 w-[140px] capitalize text-xs focus:ring-primary/50 group-hover:bg-card", STATUS_MAP[order.status]?.className)}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           {Object.keys(STATUS_MAP).map(s => {
                               const statusKey = s as OrderStatus;
-                              const statusLabelKey = STATUS_MAP[statusKey]?.label as keyof typeof t.status;
-                              const statusLabel = statusLabelKey ? t.status[statusLabelKey] : statusKey;
+                              const statusLabelKey = STATUS_MAP[statusKey]?.label.replace('status.', '') as keyof typeof t.status;
+                              const statusLabel = (t.status as any)[statusLabelKey] || statusKey;
                               return (<SelectItem key={s} value={s} className="capitalize text-xs">{statusLabel}</SelectItem>)
                           })}
                         </SelectContent>
