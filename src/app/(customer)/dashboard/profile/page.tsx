@@ -1,8 +1,8 @@
 
-'use server';
+'use client'; // Muss eine Client-Komponente sein, um den Language-Hook zu verwenden
 
 import { PageHeader } from "@/components/common/PageHeader";
-import { getSession } from "@/lib/session";
+import { useSession } from "@/hooks/use-session";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { logout, deleteUserAccount } from "@/app/actions/auth.actions";
 import { ProfileUpdateForm } from "./_components/ProfileUpdateForm";
@@ -10,64 +10,65 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Button } from "@/components/ui/button";
 import type { User } from "@/lib/types";
 import { PrivacySettingsForm } from "./_components/PrivacySettingsForm";
-import { LanguageProvider } from "@/components/providers/LanguageProvider";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import Loading from "../../loading";
 
 
-export default async function ProfilePage() {
-    const user = await getSession();
+export default function ProfilePage() {
+    const { session: user, loading } = useSession();
+    const { t } = useLanguage();
+
+    if (loading) {
+        return <Loading />;
+    }
 
     if (!user) {
-        // This should theoretically not be reached due to layout protection,
-        // but it's good practice for robustness.
         return <PageHeader title="Nicht angemeldet" description="Bitte melden Sie sich an, um Ihr Profil zu sehen." />;
     }
 
     return (
-        <LanguageProvider>
-            <div className="space-y-6">
-                <ProfileUpdateForm user={user} />
-                <PrivacySettingsForm user={user} />
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Abmelden</CardTitle>
-                        <CardDescription>Beenden Sie Ihre aktuelle Sitzung.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <form action={logout} className="w-full">
-                            <Button type="submit" variant="outline" className="w-full">Abmelden</Button>
-                        </form>
-                    </CardContent>
-                </Card>
+        <div className="space-y-6">
+            <ProfileUpdateForm user={user} />
+            <PrivacySettingsForm user={user} />
+             <Card>
+                <CardHeader>
+                    <CardTitle>{t.profile.logout}</CardTitle>
+                    <CardDescription>{t.profile.logoutDesc}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form action={logout} className="w-full">
+                        <Button type="submit" variant="outline" className="w-full">{t.profile.logout}</Button>
+                    </form>
+                </CardContent>
+            </Card>
 
-                <Card className="border-destructive/50 bg-destructive/5">
-                    <CardHeader>
-                        <CardTitle className="text-destructive">Gefahrenzone</CardTitle>
-                        <CardDescription className="text-destructive/80">Diese Aktionen können nicht rückgängig gemacht werden.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <form action={deleteUserAccount}>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button variant="outline" className="w-full text-destructive border-destructive/50 hover:bg-destructive/10 hover:text-destructive">Konto endgültig löschen</Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Sind Sie absolut sicher?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            Diese Aktion kann nicht rückgängig gemacht werden. Ihr Konto, Ihre Bestellhistorie und Ihre Treuepunkte werden dauerhaft gelöscht.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                        {/* The form submission is handled by the parent form element */}
-                                        <AlertDialogAction type="submit" className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Ja, mein Konto löschen</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        </form>
-                    </CardContent>
-                </Card>
-            </div>
-        </LanguageProvider>
+            <Card className="border-destructive/50 bg-destructive/5">
+                <CardHeader>
+                    <CardTitle className="text-destructive">{t.profile.dangerZone}</CardTitle>
+                    <CardDescription className="text-destructive/80">{t.profile.dangerZoneDesc}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form action={deleteUserAccount}>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="outline" className="w-full text-destructive border-destructive/50 hover:bg-destructive/10 hover:text-destructive">{t.profile.deleteAccount}</Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>{t.profile.deleteAccountConfirmTitle}</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        {t.profile.deleteAccountConfirmDesc}
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>{t.orders.cancel}</AlertDialogCancel>
+                                    <AlertDialogAction type="submit" className="bg-destructive text-destructive-foreground hover:bg-destructive/90">{t.profile.deleteAccountButton}</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </form>
+                </CardContent>
+            </Card>
+        </div>
     );
 }
