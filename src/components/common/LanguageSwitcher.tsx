@@ -1,3 +1,4 @@
+
 'use client';
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ export function LanguageSwitcher() {
   };
 
   return (
-    <div className="flex gap-1 justify-center w-full bg-primary-foreground/10 p-1 rounded-xl">
+    <div className="flex gap-1 justify-center w-full">
       <Button 
         variant="ghost" 
         size="sm" 
